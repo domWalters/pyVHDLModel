@@ -1567,28 +1567,52 @@ class Design(ModelEntity):
 							designUnit._referencedPackages[libraryIdentifier][packageIdentifier] = package
 
 	def LinkComponents(self) -> None:
-		for package in self.IterateDesignUnits(DesignUnitKind.Package):  # type: Package
-			library = package._parent
-			for component in package._components.values():
+		"""
+		Link components to matching entities found in same VHDL library.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all design units with declared items (packages, package body, entities and architectures):
+
+		   1. Iterate all component declarations in a package:
+
+		      * Check if an entity with matching name can be found in the VHDL library the package is declared within. If
+		        found, set the component's entity reference to that entity, otherwise check if blackboxes are allowed for
+		        that component. If so, mark the component as a blackbox, otherwise, raise an exception.
+
+		   2. Iterate concurrent statements with declaration regions:
+
+		      .. todo:: not implemented
+
+		.. seealso::
+
+		   :meth:`LinkInstantiations`
+		     Link instantiations to components and entities.
+		   :meth:`AnalyzeDependencies`
+		     Analyze dependencies in a design (calls this method).
+		"""
+		for designUnit in self.IterateDesignUnits(DesignUnitKind.Package | DesignUnitKind.Architecture):  # type: Union[Package, Architecture]
+			library = designUnit._parent
+			for component in designUnit._components.values():
 				try:
 					entity = library._entities[component.NormalizedIdentifier]
 				except KeyError:
-					if not component.AllowBlackbox:
-						raise VHDLModelException(f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
-					else:
+					if component.AllowBlackbox:
 						component._isBlackBox = True
 						continue
+					else:
+						raise VHDLModelException(f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
 
 				component.Entity = entity
 
 				# QUESTION: Add link in dependency graph as dashed line from component to entity?
 				#           Currently, component has no _dependencyVertex field
 
-		# FIXME: also link components in architectures (and nested structures like generate statements and block statements
-		# for architecture in self.IterateDesignUnits(DesignUnitKind.Architecture):
-		# 	library = architecture._parent
-		# 	for component in architecture._components.values():
-		# 		pass
+			# FIXME: also link components in architectures (and nested structures like generate statements and block statements
+			if isinstance(designUnit, (Entity, Architecture)):
+				pass
+				# for statement in architecture.IterateStatements(StatementKind.Hierarchy):
+				# 	for component in statement._components.values():
 
 	def LinkInstantiations(self) -> None:
 		for architecture in self.IterateDesignUnits(DesignUnitKind.Architecture):  # type: Architecture

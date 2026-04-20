@@ -823,9 +823,11 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		self._allowBlackbox = value
 
 	@property
-	def IsBlackbox(self) -> bool:
+	def IsBlackbox(self) -> Nullable[bool]:
 		"""
 		Read-only property returning true, if this component is a blackbox (:attr:`_isBlackbox`).
+
+		If components were not linked to matching entities, this property returns None.
 
 		:returns: If this component is a blackbox.
 		"""
@@ -847,6 +849,15 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	def Entity(self, value: Entity) -> None:
 		self._entity = value
 		self._isBlackBox = False
+
+	def __str__(self) -> str:
+		return f"Component: {self._identifier}"
+
+	def __repr__(self) -> str:
+		if isinstance(self._parent, Package):
+			return f"{self._parent!r}:{self._identifier}"
+		elif isinstance(self._parent, Architecture):
+			return f"{self._parent!r}:{self._identifier}"
 
 
 @export
