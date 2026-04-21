@@ -71,8 +71,11 @@ from pyVHDLModel.Expression    import UnaryExpression, BinaryExpression, Ternary
 from pyVHDLModel.Namespace     import Namespace
 from pyVHDLModel.Object        import Obj, Signal, Constant, DeferredConstant
 from pyVHDLModel.Symbol        import PackageReferenceSymbol, AllPackageMembersReferenceSymbol, PackageMemberReferenceSymbol, SimpleObjectOrFunctionCallSymbol
+from pyVHDLModel.Regions       import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Concurrent    import EntityInstantiation, ComponentInstantiation, ConfigurationInstantiation
-from pyVHDLModel.DesignUnit    import DesignUnit, PrimaryUnit, Architecture, PackageBody, Context, Entity, Configuration, Package
+from pyVHDLModel.Concurrent    import GenerateStatement, IfGenerateStatement, ForGenerateStatement, CaseGenerateStatement
+from pyVHDLModel.Concurrent    import GenerateBranch, ConcurrentStatementsMixin, ConcurrentBlockStatement
+from pyVHDLModel.DesignUnit    import DesignUnit, PrimaryUnit, Architecture, PackageBody, Context, Entity, Configuration, Package, Component
 from pyVHDLModel.PSLModel      import VerificationUnit, VerificationProperty, VerificationMode
 from pyVHDLModel.Instantiation import PackageInstantiation
 from pyVHDLModel.Type          import IntegerType, PhysicalType, ArrayType, RecordType
@@ -1572,17 +1575,31 @@ class Design(ModelEntity):
 
 		.. rubric:: Algorithm
 
-		1. Iterate all design units with declared items (packages, package body, entities and architectures):
+		1. Iterate all design units with component declarations (packages and architectures):
 
-		   1. Iterate all component declarations in a package:
+		   1. Iterate all component declarations in a package or architecture:
 
 		      * Check if an entity with matching name can be found in the VHDL library the package is declared within. If
 		        found, set the component's entity reference to that entity, otherwise check if blackboxes are allowed for
 		        that component. If so, mark the component as a blackbox, otherwise, raise an exception.
 
-		   2. Iterate concurrent statements with declaration regions:
+		   2. Iterate concurrent statements with declaration regions (block statements, generate statements) if the design
+		      unit is an architecture:
 
-		      .. todo:: not implemented
+		      * If the statement is an :class:`IfGenerateStatement`:
+
+		        1. Iterate declared components in the :class:`IfGenerateBranch`.
+		        2. Iterate declared components in each :class:`ElIfGenerateBranch`.
+		        3. Iterate declared components in the :class:`ElseGenerateBranch` if it exists.
+
+		      * If the statement is an :class:`ForGenerateStatement`:
+
+		        1. Iterate declared components.
+
+		      * If the statement is an :class:`CaseGenerateStatement`:
+
+		        1. Iterate declared components.
+		        2. Iterate
 
 		.. seealso::
 
@@ -1591,28 +1608,55 @@ class Design(ModelEntity):
 		   :meth:`AnalyzeDependencies`
 		     Analyze dependencies in a design (calls this method).
 		"""
+		def linkStatements(library: Library, concurrent: ConcurrentStatementsMixin) -> None:
+			for statement in concurrent._statements:
+				if isinstance(statement, IfGenerateStatement):
+					linkComponents(library, statement._ifBranch)
+					linkStatements(library, statement._ifBranch)
+					for branch in statement._elsifBranches:
+						linkComponents(library, branch)
+						linkStatements(library, branch)
+					if (branch := statement._elseBranch) is not None:
+						linkComponents(library, branch)
+						linkStatements(library, branch)
+				elif isinstance(statement, ForGenerateStatement):
+					linkComponents(library, statement)
+					linkStatements(library, statement)
+				elif isinstance(statement, CaseGenerateStatement):
+					for case in statement._cases:
+						linkComponents(library, case)
+						linkStatements(library, case)
+				elif isinstance(statement, ConcurrentBlockStatement):
+					linkComponents(library, statement)
+					linkStatements(library, statement)
+
+		def searchEntityAndLinkComponent(library: Library, component: Component) -> None:
+			# QUESTION: Add link in dependency graph as dashed line from component to entity?
+			#           Currently, component has no _dependencyVertex field
+			try:
+				entity = library._entities[component.NormalizedIdentifier]
+			except KeyError:
+				if component.AllowBlackbox:
+					component._isBlackBox = True
+					return
+				else:
+					raise VHDLModelException(
+						f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
+
+			component.Entity = entity
+
+		def linkComponents(library: Library, declarationRegion: ConcurrentDeclarationRegionMixin) -> None:
+			for item in declarationRegion._declaredItems:
+				if isinstance(item, Component):
+					searchEntityAndLinkComponent(library, item)
+
 		for designUnit in self.IterateDesignUnits(DesignUnitKind.Package | DesignUnitKind.Architecture):  # type: Union[Package, Architecture]
 			library = designUnit._parent
 			for component in designUnit._components.values():
-				try:
-					entity = library._entities[component.NormalizedIdentifier]
-				except KeyError:
-					if component.AllowBlackbox:
-						component._isBlackBox = True
-						continue
-					else:
-						raise VHDLModelException(f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
+				searchEntityAndLinkComponent(library, component)
 
-				component.Entity = entity
-
-				# QUESTION: Add link in dependency graph as dashed line from component to entity?
-				#           Currently, component has no _dependencyVertex field
-
-			# FIXME: also link components in architectures (and nested structures like generate statements and block statements
-			if isinstance(designUnit, (Entity, Architecture)):
-				pass
-				# for statement in architecture.IterateStatements(StatementKind.Hierarchy):
-				# 	for component in statement._components.values():
+			if isinstance(designUnit, Architecture):
+				linkStatements(library, designUnit)
 
 	def LinkInstantiations(self) -> None:
 		for architecture in self.IterateDesignUnits(DesignUnitKind.Architecture):  # type: Architecture
