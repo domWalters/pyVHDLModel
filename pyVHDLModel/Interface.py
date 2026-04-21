@@ -222,6 +222,75 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 
 
 @export
+class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
+	_genericItems: List[GenericInterfaceItemMixin]
+
+	def __init__(
+		self,
+		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+ 	) -> None:
+		self._genericItems = []
+		if genericItems is not None:
+			for item in genericItems:
+				self._genericItems.append(item)
+				item._parent = self
+
+	@property
+	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
+		return self._genericItems
+
+	@property
+	def GenericCount(self) -> int:
+		return len(self._genericItems)
+
+
+@export
+class WithPortsMixin(metaclass=ExtendedType, mixin=True):
+	_portItems: List[PortInterfaceItemMixin]
+
+	def __init__(
+		self,
+		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
+	) -> None:
+		self._portItems = []
+		if portItems is not None:
+			for item in portItems:
+				self._portItems.append(item)
+				item._parent = self
+
+	@property
+	def PortItems(self) -> List[PortInterfaceItemMixin]:
+		return self._portItems
+
+	@property
+	def PortCount(self) -> int:
+		return len(self._portItems)
+
+
+@export
+class WithParametersMixin(metaclass=ExtendedType, mixin=True):
+	_parameterItems: List[ParameterInterfaceItemMixin]
+
+	def __init__(
+		self,
+		parameterItems: Nullable[Iterable[ParameterInterfaceItemMixin]] = None,
+	) -> None:
+		self._parameterItems = []
+		if parameterItems is not None:
+			for item in parameterItems:
+				self._parameterItems.append(item)
+				item._parent = self
+
+	@property
+	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:
+		return self._parameterItems
+
+	@property
+	def ParameterCount(self) -> int:
+		return len(self._parameterItems)
+
+
+@export
 class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin):
 	def __init__(
 		self,
