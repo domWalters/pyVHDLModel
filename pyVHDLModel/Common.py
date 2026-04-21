@@ -56,6 +56,35 @@ ExpressionUnion = Union[
 
 
 @export
+class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
+	_allowBlackbox: Nullable[bool]  #: Allow blackboxes for components in language entity.
+
+	def __init__(self, allowBlackbox: Nullable[bool] = None) -> None:
+		self._allowBlackbox = allowBlackbox
+
+	@property
+	def AllowBlackbox(self) -> bool:
+		"""
+		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
+
+		.. rubric:: Algorithm
+
+		1. If allow blackbox property is locally set, return the local value,
+		2. Otherwise, return allow blackbox value from parent object.
+
+		:returns: If blackboxes are allowed.
+		"""
+		if self._allowBlackbox is None:
+			return self._parent.AllowBlackbox
+		else:
+			return self._allowBlackbox
+
+	@AllowBlackbox.setter
+	def AllowBlackbox(self, value: Nullable[bool]) -> None:
+		self._allowBlackbox = value
+
+
+@export
 class Statement(ModelEntity, LabeledEntityMixin):
 	"""
 	A ``Statement`` is a base-class for all statements.

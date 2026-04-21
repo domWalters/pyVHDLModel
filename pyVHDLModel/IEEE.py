@@ -76,10 +76,6 @@ class Ieee(PredefinedLibrary):
 	  * :class:`~pyVHDLModel.IEEE.Float_Generic_Pkg`
 	  * :class:`~pyVHDLModel.IEEE.Float_Pkg`
 
-	* Mentor Graphics packages
-
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_arith`
-
 	* Synopsys packages
 
 	  * :class:`~pyVHDLModel.IEEE.Std_logic_arith`
@@ -87,6 +83,16 @@ class Ieee(PredefinedLibrary):
 	  * :class:`~pyVHDLModel.IEEE.Std_logic_signed`
 	  * :class:`~pyVHDLModel.IEEE.Std_logic_textio`
 	  * :class:`~pyVHDLModel.IEEE.Std_logic_unsigned`
+
+	* Mentor Graphics packages
+
+	  * :class:`~pyVHDLModel.IEEE.Std_logic_arith`
+
+	* VITAL packages
+
+	  * :class:`~pyVHDLModel.IEEE.VITAL_Timing`
+	  * :class:`~pyVHDLModel.IEEE.VITAL_Primitives`
+	  * :class:`~pyVHDLModel.IEEE.VITAL_Memory`
 
 	.. seealso::
 
@@ -100,32 +106,41 @@ class Ieee(PredefinedLibrary):
 		super().__init__(PACKAGES)
 
 		self._flavor = IEEEFlavor.IEEE
-		if flavor is None or flavor is IEEEFlavor.IEEE:
+		if flavor is None:
+			return
+		elif IEEEFlavor.IEEE in flavor:
 			pass
-		elif flavor is IEEEFlavor.MentorGraphics:
-			self.LoadMentorGraphicsPackages()
-		elif flavor is IEEEFlavor.Synopsys:
+		elif IEEEFlavor.Synopsys in flavor:
 			self.LoadSynopsysPackages()
+		elif IEEEFlavor.MentorGraphics in flavor:
+			self.LoadMentorGraphicsPackages()
 		else:
 			raise VHDLModelException(f"Unknown IEEE library flavor '{flavor}'.")
+
+		if IEEEFlavor.WithVITAL in flavor:
+			self.LoadVITALPackages()
 
 	@readonly
 	def Flavor(self) -> IEEEFlavor:
 		return self._flavor
 
+	def LoadSynopsysPackages(self) -> None:
+		if IEEEFlavor.IEEE not in self._flavor:
+			raise VHDLModelException(f"IEEE library flavor is '{self._flavor}' and can't be changed to '{IEEEFlavor.Synopsys}'.")
+
+		self._flavor = (self._flavor & ~IEEEFlavor.IEEE) | IEEEFlavor.Synopsys
+		self.AddPackages(SYNOPSYS_PACKAGES)
+
 	def LoadMentorGraphicsPackages(self) -> None:
-		if self._flavor is not IEEEFlavor.IEEE:
+		if IEEEFlavor.IEEE not in self._flavor:
 			raise VHDLModelException(f"IEEE library flavor is '{self._flavor}' and can't be changed to '{IEEEFlavor.MentorGraphics}'.")
 
-		self._flavor = IEEEFlavor.MentorGraphics
+		self._flavor = (self._flavor & ~IEEEFlavor.IEEE) | IEEEFlavor.MentorGraphics
 		self.AddPackages(MENTOR_GRAPHICS_PACKAGES)
 
-	def LoadSynopsysPackages(self) -> None:
-		if self._flavor is not IEEEFlavor.IEEE:
-			raise VHDLModelException(f"IEEE library flavor is '{self._flavor}' and can't be changed to '{IEEEFlavor.MentorGraphics}'.")
-
-		self._flavor = IEEEFlavor.Synopsys
-		self.AddPackages(SYNOPSYS_PACKAGES)
+	def LoadVITALPackages(self) -> None:
+		self._flavor |= IEEEFlavor.WithVITAL
+		self.AddPackages(VITAL_PACKAGES)
 
 
 @export
@@ -464,6 +479,102 @@ class Std_Logic_Arith_Body(PredefinedPackageBody):
 
 MENTOR_GRAPHICS_PACKAGES = (
 	(Std_Logic_Arith, Std_Logic_Arith_Body),
+)
+
+
+@export
+class VITAL_Timing(PredefinedPackage):
+	"""
+	Predefined package ``ieee.VITAL_Timing``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("IEEE", ))
+		self._AddPackageClause(("IEEE.STD_LOGIC_1164.all", ))
+
+
+@export
+class VITAL_Timing_Body(PredefinedPackageBody):
+	"""
+	Predefined package body of package ``ieee.VITAL_Timing``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("STD", ))
+		self._AddPackageClause(("STD.TEXTIO.all", ))
+
+
+@export
+class VITAL_Primitives(PredefinedPackage):
+	"""
+	Predefined package ``ieee.VITAL_Primitives``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("IEEE", ))
+		self._AddPackageClause(("IEEE.STD_LOGIC_1164.all", ))
+		self._AddPackageClause(("IEEE.VITAL_Timing.all", ))
+
+
+@export
+class VITAL_Primitives_Body(PredefinedPackageBody):
+	"""
+	Predefined package body of package ``ieee.VITAL_Primitives``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("STD", ))
+		self._AddPackageClause(("STD.TEXTIO.all", ))
+
+
+@export
+class VITAL_Memory(PredefinedPackage):
+	"""
+	Predefined package ``ieee.VITAL_Memory``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("IEEE", ))
+		self._AddPackageClause(("IEEE.STD_LOGIC_1164.all", ))
+		self._AddPackageClause(("IEEE.VITAL_Timing.all", ))
+		self._AddPackageClause(("IEEE.VITAL_Primitives.all", ))
+
+		self._AddLibraryClause(("STD", ))
+		self._AddPackageClause(("STD.TEXTIO.all", ))
+
+
+@export
+class VITAL_Memory_Body(PredefinedPackageBody):
+	"""
+	Predefined package body of package ``ieee.VITAL_Memory``.
+	"""
+
+	def __init__(self) -> None:
+		super().__init__()
+
+		self._AddLibraryClause(("IEEE", ))
+		self._AddPackageClause(("IEEE.STD_LOGIC_1164.all", ))
+		self._AddPackageClause(("IEEE.VITAL_Timing.all", ))
+		self._AddPackageClause(("IEEE.VITAL_Primitives.all", ))
+
+		self._AddLibraryClause(("STD", ))
+		self._AddPackageClause(("STD.TEXTIO.all", ))
+
+
+VITAL_PACKAGES = (
+	(VITAL_Timing,     VITAL_Timing_Body),
+	(VITAL_Primitives, VITAL_Primitives_Body),
+	(VITAL_Memory,     VITAL_Memory_Body)
 )
 
 

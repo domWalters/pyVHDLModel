@@ -2,11 +2,11 @@
   <a title="vhdl.github.io/pyVHDLModel" href="https://vhdl.github.io/pyVHDLModel"><img height="80px" src="doc/_static/logo.svg"/></a>
 </p>
 
-[![Sourcecode on GitHub](https://img.shields.io/badge/VHDL-pyVHDLModel-29b6f6.svg?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd)](https://github.com/vhdl/pyVHDLModel)
+[![Sourcecode on GitHub](https://img.shields.io/badge/VHDL-pyVHDLModel-29b6f6?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd)](https://github.com/vhdl/pyVHDLModel)
 [![Sourcecode License](https://img.shields.io/pypi/l/pyVHDLModel?longCache=true&style=flat-square&logo=Apache&label=code)](LICENSE.md)
 [![Documentation](https://img.shields.io/website?longCache=true&style=flat-square&label=vhdl.github.io%2FpyVHDLModel&logo=GitHub&logoColor=fff&up_color=blueviolet&up_message=Read%20now%20%E2%9E%9A&url=https%3A%2F%2Fvhdl.github.io%2FpyVHDLModel%2Findex.html)](https://vhdl.github.io/pyVHDLModel/)
 [![Documentation License](https://img.shields.io/badge/doc-CC--BY%204.0-green?longCache=true&style=flat-square&logo=CreativeCommons&logoColor=fff)](LICENSE.md)
-[![Gitter](https://img.shields.io/badge/chat-on%20gitter-4db797.svg?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef)](https://gitter.im/hdl/community)  
+[![Gitter](https://img.shields.io/badge/chat-on%20gitter-4db797?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef)](https://gitter.im/hdl/community)  
 [![PyPI](https://img.shields.io/pypi/v/pyVHDLModel?longCache=true&style=flat-square&logo=PyPI&logoColor=FBE072)](https://pypi.org/project/pyVHDLModel/)
 ![PyPI - Status](https://img.shields.io/pypi/status/pyVHDLModel?longCache=true&style=flat-square&logo=PyPI&logoColor=FBE072)
 ![PyPI - Python Version](https://img.shields.io/pypi/pyversions/pyVHDLModel?longCache=true&style=flat-square&logo=PyPI&logoColor=FBE072)  
@@ -40,6 +40,7 @@ on such a model, while supporting multiple frontends.
 
 * High-level API for [GHDL's](https://GitHub.com/ghdl/ghdl) `libghdl` offered via `pyghdl`.
 * Code Document-Object-Model (Code-DOM) in [pyVHDLParser](https://GitHub.com/Paebbels/pyVHDLParser).
+* [pyVHDLModelTreesitter](https://gitlab.com/dawalters/pyVHDLModelTreesitter) based on [tree-sitter-vhdl](https://github.com/jpt13653903/tree-sitter-vhdl).
 
 ## pyVHDLModel Consumers
 

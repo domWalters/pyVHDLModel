@@ -48,7 +48,7 @@ __author__ =    "Patrick Lehmann"
 __email__ =     "Paebbels@gmail.com"
 __copyright__ = "2016-2026, Patrick Lehmann"
 __license__ =   "Apache License, Version 2.0"
-__version__ =   "0.33.2"
+__version__ =   "0.34.0"
 
 
 from enum                      import unique, Enum, Flag, auto
@@ -71,8 +71,12 @@ from pyVHDLModel.Expression    import UnaryExpression, BinaryExpression, Ternary
 from pyVHDLModel.Namespace     import Namespace
 from pyVHDLModel.Object        import Obj, Signal, Constant, DeferredConstant
 from pyVHDLModel.Symbol        import PackageReferenceSymbol, AllPackageMembersReferenceSymbol, PackageMemberReferenceSymbol, SimpleObjectOrFunctionCallSymbol
+from pyVHDLModel.Common        import AllowBlackboxMixin
+from pyVHDLModel.Regions       import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Concurrent    import EntityInstantiation, ComponentInstantiation, ConfigurationInstantiation
-from pyVHDLModel.DesignUnit    import DesignUnit, PrimaryUnit, Architecture, PackageBody, Context, Entity, Configuration, Package
+from pyVHDLModel.Concurrent    import GenerateStatement, IfGenerateStatement, ForGenerateStatement, CaseGenerateStatement
+from pyVHDLModel.Concurrent    import GenerateBranch, ConcurrentStatementsMixin, ConcurrentBlockStatement
+from pyVHDLModel.DesignUnit    import DesignUnit, PrimaryUnit, Architecture, PackageBody, Context, Entity, Configuration, Package, Component
 from pyVHDLModel.PSLModel      import VerificationUnit, VerificationProperty, VerificationMode
 from pyVHDLModel.Instantiation import PackageInstantiation
 from pyVHDLModel.Type          import IntegerType, PhysicalType, ArrayType, RecordType
@@ -296,10 +300,12 @@ class VHDLVersion(Enum):
 
 
 @export
-class IEEEFlavor(Enum):
-	IEEE = 0
-	Synopsys = 1
-	MentorGraphics = 2
+class IEEEFlavor(Flag):
+	Unknown = 0
+	IEEE = 1
+	Synopsys = 2
+	MentorGraphics = 4
+	WithVITAL = 32      # VITAL = VHDL Initiative Towards ASIC Libraries
 
 
 @export
@@ -437,7 +443,7 @@ class ObjectGraphEdgeKind(Flag):
 
 
 @export
-class Design(ModelEntity):
+class Design(ModelEntity, AllowBlackboxMixin):
 	"""
 	A ``Design`` represents set of VHDL libraries as well as all loaded and analysed source files (see :class:`~pyVHDLModel.Document`).
 
@@ -464,7 +470,7 @@ class Design(ModelEntity):
 
 	def __init__(
 		self,
-		name: Nullable[str] = None,
+		name:          Nullable[str] = None,
 		allowBlackbox: bool = False
 	) -> None:
 		"""
@@ -474,9 +480,9 @@ class Design(ModelEntity):
 		:param name:          Name of the design.
 		"""
 		super().__init__()
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._name = name
-		self._allowBlackbox = allowBlackbox
 
 		self._libraries = {}
 		self._documents = []
@@ -495,22 +501,6 @@ class Design(ModelEntity):
 		:returns: The name of the design.
 		"""
 		return self._name
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		if value is None:
-			raise ValueError(f"Property 'AllowBlackbox' doesn't accept value 'None'.")
-
-		self._allowBlackbox = value
 
 	@readonly
 	def Libraries(self) -> Dict[str, 'Library']:
@@ -593,7 +583,7 @@ class Design(ModelEntity):
 
 			return toplevel.Value
 		else:
-			raise VHDLModelException(f"Found more than one toplevel: {', '.join(roots)}")
+			raise VHDLModelException(f"Found more than one toplevel: {', '.join(str(r) for r in roots)}")
 
 	def LoadStdLibrary(self) -> 'Library':
 		"""
@@ -1567,28 +1557,93 @@ class Design(ModelEntity):
 							designUnit._referencedPackages[libraryIdentifier][packageIdentifier] = package
 
 	def LinkComponents(self) -> None:
-		for package in self.IterateDesignUnits(DesignUnitKind.Package):  # type: Package
-			library = package._parent
-			for component in package._components.values():
-				try:
-					entity = library._entities[component.NormalizedIdentifier]
-				except KeyError:
-					if not component.AllowBlackbox:
-						raise VHDLModelException(f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
-					else:
-						component._isBlackBox = True
-						continue
+		"""
+		Link components to matching entities found in same VHDL library.
 
-				component.Entity = entity
+		.. rubric:: Algorithm
 
-				# QUESTION: Add link in dependency graph as dashed line from component to entity?
-				#           Currently, component has no _dependencyVertex field
+		1. Iterate all design units with component declarations (packages and architectures):
 
-		# FIXME: also link components in architectures (and nested structures like generate statements and block statements
-		# for architecture in self.IterateDesignUnits(DesignUnitKind.Architecture):
-		# 	library = architecture._parent
-		# 	for component in architecture._components.values():
-		# 		pass
+		   1. Iterate all component declarations in a package or architecture:
+
+		      * Check if an entity with matching name can be found in the VHDL library the package is declared within. If
+		        found, set the component's entity reference to that entity, otherwise check if blackboxes are allowed for
+		        that component. If so, mark the component as a blackbox, otherwise, raise an exception.
+
+		   2. Iterate concurrent statements with declaration regions (block statements, generate statements) if the design
+		      unit is an architecture:
+
+		      * If the statement is an :class:`IfGenerateStatement`:
+
+		        1. Iterate declared components in the :class:`IfGenerateBranch`.
+		        2. Iterate declared components in each :class:`ElIfGenerateBranch`.
+		        3. Iterate declared components in the :class:`ElseGenerateBranch` if it exists.
+
+		      * If the statement is an :class:`ForGenerateStatement`:
+
+		        1. Iterate declared components.
+
+		      * If the statement is an :class:`CaseGenerateStatement`:
+
+		        1. Iterate declared components.
+		        2. Iterate
+
+		.. seealso::
+
+		   :meth:`LinkInstantiations`
+		     Link instantiations to components and entities.
+		   :meth:`AnalyzeDependencies`
+		     Analyze dependencies in a design (calls this method).
+		"""
+		def linkStatements(library: Library, concurrent: ConcurrentStatementsMixin) -> None:
+			for statement in concurrent._statements:
+				if isinstance(statement, IfGenerateStatement):
+					linkComponents(library, statement._ifBranch)
+					linkStatements(library, statement._ifBranch)
+					for branch in statement._elsifBranches:
+						linkComponents(library, branch)
+						linkStatements(library, branch)
+					if (branch := statement._elseBranch) is not None:
+						linkComponents(library, branch)
+						linkStatements(library, branch)
+				elif isinstance(statement, ForGenerateStatement):
+					linkComponents(library, statement)
+					linkStatements(library, statement)
+				elif isinstance(statement, CaseGenerateStatement):
+					for case in statement._cases:
+						linkComponents(library, case)
+						linkStatements(library, case)
+				elif isinstance(statement, ConcurrentBlockStatement):
+					linkComponents(library, statement)
+					linkStatements(library, statement)
+
+		def searchEntityAndLinkComponent(library: Library, component: Component) -> None:
+			# QUESTION: Add link in dependency graph as dashed line from component to entity?
+			#           Currently, component has no _dependencyVertex field
+			try:
+				entity = library._entities[component.NormalizedIdentifier]
+			except KeyError:
+				if component.AllowBlackbox:
+					component._isBlackBox = True
+					return
+				else:
+					raise VHDLModelException(
+						f"Entity '{component.Identifier}' not found for component '{component.Identifier}' in library '{library.Identifier}'.")
+
+			component.Entity = entity
+
+		def linkComponents(library: Library, declarationRegion: ConcurrentDeclarationRegionMixin) -> None:
+			for item in declarationRegion._declaredItems:
+				if isinstance(item, Component):
+					searchEntityAndLinkComponent(library, item)
+
+		for designUnit in self.IterateDesignUnits(DesignUnitKind.Package | DesignUnitKind.Architecture):  # type: Union[Package, Architecture]
+			library = designUnit._parent
+			for component in designUnit._components.values():
+				searchEntityAndLinkComponent(library, component)
+
+			if isinstance(designUnit, Architecture):
+				linkStatements(library, designUnit)
 
 	def LinkInstantiations(self) -> None:
 		for architecture in self.IterateDesignUnits(DesignUnitKind.Architecture):  # type: Architecture
@@ -1867,7 +1922,7 @@ class Design(ModelEntity):
 
 
 @export
-class Library(ModelEntity, NamedEntityMixin):
+class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 	"""A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units."""
 
 	_allowBlackbox:  Nullable[bool]                      #: Allow blackboxes for components in this library.
@@ -1882,9 +1937,9 @@ class Library(ModelEntity, NamedEntityMixin):
 
 	def __init__(
 		self,
-		identifier: str,
+		identifier:    str,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		"""
 		Initialize a VHDL library.
@@ -1895,8 +1950,7 @@ class Library(ModelEntity, NamedEntityMixin):
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
-
-		self._allowBlackbox = allowBlackbox
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._contexts =        {}
 		self._configurations =  {}
@@ -1906,22 +1960,6 @@ class Library(ModelEntity, NamedEntityMixin):
 		self._packageBodies =   {}
 
 		self._dependencyVertex = None
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
 
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:

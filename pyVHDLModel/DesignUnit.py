@@ -40,6 +40,7 @@ from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
 from pyTooling.Graph        import Vertex
 
+from pyVHDLModel.Common     import AllowBlackboxMixin
 from pyVHDLModel.Exception  import VHDLModelException
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.Namespace  import Namespace
@@ -413,7 +414,7 @@ class Context(PrimaryUnit):
 
 
 @export
-class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin):
+class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, AllowBlackboxMixin):
 	"""
 	Represents a package declaration.
 
@@ -426,7 +427,6 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 	      end package;
 	"""
 
-	_allowBlackbox:     Nullable[bool]                    #: Allow blackboxes for components in this package.
 	_packageBody:       Nullable["PackageBody"]
 
 	_genericItems:      List[GenericInterfaceItemMixin]
@@ -436,13 +436,13 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 
 	def __init__(
 		self,
-		identifier: str,
-		contextItems: Nullable[Iterable[ContextUnion]] = None,
-		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+		identifier:    str,
+		contextItems:  Nullable[Iterable[ContextUnion]] = None,
+		genericItems:  Nullable[Iterable[GenericInterfaceItemMixin]] = None,
 		declaredItems: Nullable[Iterable] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		"""
 		Initialize a package.
@@ -458,8 +458,8 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-		self._allowBlackbox = allowBlackbox
 		self._packageBody = None
 
 		# TODO: extract to mixin
@@ -471,22 +471,6 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 
 		self._deferredConstants = {}
 		self._components = {}
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
 
 	@property
 	def PackageBody(self) -> Nullable["PackageBody"]:
@@ -582,7 +566,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 
 
 @export
-class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
+class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	"""
 	Represents an entity declaration.
 
@@ -595,8 +579,6 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 	      end entity;
 	"""
 
-	_allowBlackbox: Nullable[bool]                    #: Allow blackboxes for components in this package.
-
 	_genericItems:  List[GenericInterfaceItemMixin]
 	_portItems:     List[PortInterfaceItemMixin]
 
@@ -604,22 +586,21 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 
 	def __init__(
 		self,
-		identifier: str,
-		contextItems: Nullable[Iterable[ContextUnion]] = None,
-		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
-		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
+		identifier:    str,
+		contextItems:  Nullable[Iterable[ContextUnion]] = None,
+		genericItems:  Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
 		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		statements:    Nullable[Iterable[ConcurrentStatement]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
-
-		self._allowBlackbox = allowBlackbox
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		# TODO: extract to mixin
 		self._genericItems = []
@@ -636,22 +617,6 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 				item._parent = self
 
 		self._architectures = {}
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
 
 	# TODO: extract to mixin for generics
 	@property
@@ -681,7 +646,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 
 
 @export
-class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
+class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	"""
 	Represents an architecture declaration.
 
@@ -696,26 +661,24 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	      end architecture;
 	"""
 
-	_allowBlackbox: Nullable[bool]     #: Allow blackboxes for components in this package.
 	_entity:        EntitySymbol
 
 	def __init__(
 		self,
-		identifier: str,
-		entity: EntitySymbol,
-		contextItems: Nullable[Iterable[Context]] = None,
+		identifier:    str,
+		entity:        EntitySymbol,
+		contextItems:  Nullable[Iterable[Context]] = None,
 		declaredItems: Nullable[Iterable] = None,
-		statements: Iterable['ConcurrentStatement'] = None,
+		statements:    Iterable['ConcurrentStatement'] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
-
-		self._allowBlackbox = allowBlackbox
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._entity = entity
 		entity._parent = self
@@ -723,22 +686,6 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	@property
 	def Entity(self) -> EntitySymbol:
 		return self._entity
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
 
 	def __str__(self) -> str:
 		lib = self._parent._identifier if self._parent is not None else "%"
@@ -754,7 +701,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 
 
 @export
-class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
+class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	"""
 	Represents a configuration declaration.
 
@@ -767,7 +714,6 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	      end component;
 	"""
 
-	_allowBlackbox:     Nullable[bool]                    #: Allow component to be a blackbox.
 	_isBlackBox:        Nullable[bool]                    #: Component is a blackbox.
 
 	_genericItems:      List[GenericInterfaceItemMixin]
@@ -777,18 +723,18 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __init__(
 		self,
-		identifier: str,
-		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
-		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
+		identifier:    str,
+		genericItems:  Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-		self._allowBlackbox = allowBlackbox
 		self._isBlackBox = None
 		self._entity = None
 
@@ -807,25 +753,11 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 				item._parent = self
 
 	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
-
-	@property
-	def IsBlackbox(self) -> bool:
+	def IsBlackbox(self) -> Nullable[bool]:
 		"""
 		Read-only property returning true, if this component is a blackbox (:attr:`_isBlackbox`).
+
+		If components were not linked to matching entities, this property returns None.
 
 		:returns: If this component is a blackbox.
 		"""
@@ -847,6 +779,15 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	def Entity(self, value: Entity) -> None:
 		self._entity = value
 		self._isBlackBox = False
+
+	def __str__(self) -> str:
+		return f"Component: {self._identifier}"
+
+	def __repr__(self) -> str:
+		if isinstance(self._parent, Package):
+			return f"{self._parent!r}:{self._identifier}"
+		elif isinstance(self._parent, Architecture):
+			return f"{self._parent!r}:{self._identifier}"
 
 
 @export

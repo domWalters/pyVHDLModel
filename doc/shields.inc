@@ -4,11 +4,11 @@
    # percent encoding so that the URL is properly parsed.
 
 .. # Sourcecode link to GitHub
-.. |SHIELD:svg:pyVHDLModel-github| image:: https://img.shields.io/badge/VHDL-pyVHDLModel-29b6f6.svg?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd
+.. |SHIELD:svg:pyVHDLModel-github| image:: https://img.shields.io/badge/VHDL-pyVHDLModel-29b6f6?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd
    :alt: Sourcecode on GitHub
    :height: 22
    :target: https://GitHub.com/VHDL/pyVHDLModel
-.. |SHIELD:png:pyVHDLModel-github| image:: https://raster.shields.io/badge/VHDL-pyVHDLModel-29b6f6.svg?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd
+.. |SHIELD:png:pyVHDLModel-github| image:: https://raster.shields.io/badge/VHDL-pyVHDLModel-29b6f6?longCache=true&style=flat-square&logo=GitHub&labelColor=0277bd
    :alt: Sourcecode on GitHub
    :height: 22
    :target: https://GitHub.com/VHDL/pyVHDLModel
@@ -18,7 +18,7 @@
    :alt: Code license
    :height: 22
    :target: License.html
-.. |SHIELD:png:pyVHDLModel-src-license| image:: https://img.shields.io/pypi/l/pyVHDLModel?longCache=true&style=flat-square&logo=Apache&label=code
+.. |SHIELD:png:pyVHDLModel-src-license| image:: https://raster.shields.io/pypi/l/pyVHDLModel?longCache=true&style=flat-square&logo=Apache&label=code
    :alt: Code license
    :height: 22
    :target: https://GitHub.com/VHDL/pyVHDLModel/blob/main/LICENSE.md
@@ -160,11 +160,11 @@
    :target: https://VHDL.github.io/pyVHDLModel/
 
 .. # Gitter
-.. |SHIELD:svg:pyVHDLModel-gitter| image:: https://img.shields.io/badge/chat-on%20gitter-4db797.svg?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef
+.. |SHIELD:svg:pyVHDLModel-gitter| image:: https://img.shields.io/badge/chat-on%20gitter-4db797?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef
    :alt: Documentation License
    :height: 22
    :target: https://gitter.im/hdl/community
-.. |SHIELD:png:pyVHDLModel-gitter| image:: https://raster.shields.io/badge/chat-on%20gitter-4db797.svg?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef
+.. |SHIELD:png:pyVHDLModel-gitter| image:: https://raster.shields.io/badge/chat-on%20gitter-4db797?longCache=true&style=flat-square&logo=gitter&logoColor=e8ecef
    :alt: Documentation License
    :height: 22
    :target: https://gitter.im/hdl/community
