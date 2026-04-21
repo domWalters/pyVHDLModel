@@ -1939,7 +1939,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		self,
 		identifier:    str,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
 		Initialize a VHDL library.
@@ -2266,7 +2266,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	_dependencyVertex:       Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the dependency graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 	_compileOrderVertex:     Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the compile-order graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 
-	def __init__(self, path: Path, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, path: Path, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 

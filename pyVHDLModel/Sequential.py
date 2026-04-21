@@ -81,7 +81,7 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 		procedureName: Symbol,
 		parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		ProcedureCallMixin.__init__(self, procedureName, parameterMappings)
@@ -89,7 +89,7 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 @export
 class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
-	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -98,7 +98,7 @@ class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
 class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
 	_waveform: List[WaveformElement]
 
-	def __init__(self, target: Symbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, target: Symbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(target, label, parent)
 
 		# TODO: extract to mixin
@@ -120,14 +120,14 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
 
 @export
 class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin):
-	def __init__(self, target: Symbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, target: Symbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
 
 
 @export
 class SequentialReportStatement(SequentialStatement, ReportStatementMixin):
-	def __init__(self, message: ExpressionUnion, severity: Nullable[ExpressionUnion] = None, label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, message: ExpressionUnion, severity: Nullable[ExpressionUnion] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		ReportStatementMixin.__init__(self, message, severity)
 
@@ -140,7 +140,7 @@ class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
 		message: Nullable[ExpressionUnion] = None,
 		severity: Nullable[ExpressionUnion] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		AssertStatementMixin.__init__(self, condition, message, severity)
@@ -155,28 +155,28 @@ class CompoundStatement(SequentialStatement):
 class Branch(ModelEntity, SequentialStatementsMixin):
 	"""A ``Branch`` is a base-class for all branches in a if statement."""
 
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
 
 
 @export
 class IfBranch(Branch, IfBranchMixin):
-	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		IfBranchMixin.__init__(self, condition)
 
 
 @export
 class ElsifBranch(Branch, ElsifBranchMixin):
-	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		ElsifBranchMixin.__init__(self, condition)
 
 
 @export
 class ElseBranch(Branch, ElseBranchMixin):
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		ElseBranchMixin.__init__(self)
 
@@ -193,7 +193,7 @@ class IfStatement(CompoundStatement):
 		elsifBranches: Nullable[Iterable[ElsifBranch]] = None,
 		elseBranch: Nullable[ElseBranch] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 
@@ -249,7 +249,7 @@ class SequentialChoice(BaseChoice):
 class IndexedChoice(SequentialChoice):
 	_expression: ExpressionUnion
 
-	def __init__(self, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._expression = expression
@@ -267,7 +267,7 @@ class IndexedChoice(SequentialChoice):
 class RangedChoice(SequentialChoice):
 	_range: 'Range'
 
-	def __init__(self, rng: 'Range', parent: ModelEntity = None) -> None:
+	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._range = rng
@@ -285,7 +285,7 @@ class RangedChoice(SequentialChoice):
 class SequentialCase(BaseCase, SequentialStatementsMixin):
 	_choices: List
 
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
 
@@ -298,7 +298,7 @@ class SequentialCase(BaseCase, SequentialStatementsMixin):
 
 @export
 class Case(SequentialCase):
-	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 
 		self._choices = []
@@ -326,7 +326,7 @@ class CaseStatement(CompoundStatement):
 	_expression: ExpressionUnion
 	_cases:      List[SequentialCase]
 
-	def __init__(self, expression: ExpressionUnion, cases: Iterable[SequentialCase], label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, cases: Iterable[SequentialCase], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 
 		self._expression = expression
@@ -351,7 +351,7 @@ class CaseStatement(CompoundStatement):
 class LoopStatement(CompoundStatement, SequentialStatementsMixin):
 	"""A ``LoopStatement`` is a base-class for all loop statements."""
 
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SequentialStatementsMixin.__init__(self, statements)
 
@@ -366,7 +366,7 @@ class ForLoopStatement(LoopStatement):
 	_loopIndex: str
 	_range:     Range
 
-	def __init__(self, loopIndex: str, rng: Range, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, loopIndex: str, rng: Range, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, label, parent)
 
 		self._loopIndex = loopIndex
@@ -390,7 +390,7 @@ class WhileLoopStatement(LoopStatement, ConditionalMixin):
 		condition: ExpressionUnion,
 		statements: Nullable[Iterable[SequentialStatement]] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(statements, label, parent)
 		ConditionalMixin.__init__(self, condition)
@@ -402,7 +402,7 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 
 	_loopReference: LoopStatement
 
-	def __init__(self, condition: Nullable[ExpressionUnion] = None, loopLabel: Nullable[str] = None, parent: ModelEntity = None) -> None:  # TODO: is this label (currently str) a Name or a Label class?
+	def __init__(self, condition: Nullable[ExpressionUnion] = None, loopLabel: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:  # TODO: is this label (currently str) a Name or a Label class?
 		super().__init__(parent)
 		ConditionalMixin.__init__(self, condition)
 
@@ -433,7 +433,7 @@ class NullStatement(SequentialStatement):
 class ReturnStatement(SequentialStatement, ConditionalMixin):
 	_returnValue: ExpressionUnion
 
-	def __init__(self, returnValue: Nullable[ExpressionUnion] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, returnValue: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		ConditionalMixin.__init__(self, returnValue)
 
@@ -455,7 +455,7 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 		condition: Nullable[ExpressionUnion] = None,
 		timeout: Nullable[ExpressionUnion] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		ConditionalMixin.__init__(self, condition)

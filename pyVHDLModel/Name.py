@@ -52,7 +52,7 @@ class Name(ModelEntity):
 	_root: Nullable['Name']     # TODO: seams to be unused. There is no reverse linking, or?
 	_prefix: Nullable['Name']
 
-	def __init__(self, identifier: str, prefix: Nullable["Name"] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, prefix: Nullable["Name"] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._identifier = identifier
@@ -136,7 +136,7 @@ class SimpleName(Name):
 class ParenthesisName(Name):
 	_associations: List
 
-	def __init__(self, prefix: Name, associations: Iterable, parent: ModelEntity = None) -> None:
+	def __init__(self, prefix: Name, associations: Iterable, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("", prefix, parent)
 
 		self._associations = []
@@ -156,7 +156,7 @@ class ParenthesisName(Name):
 class IndexedName(Name):
 	_indices: List[ExpressionUnion]
 
-	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: ModelEntity = None) -> None:
+	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("", prefix, parent)
 
 		self._indices = []
@@ -187,7 +187,7 @@ class SelectedName(Name):
 	referenced by the selected name via the :attr:`~pyVHDLModel.Name.Prefix` property.
 	"""
 
-	def __init__(self, identifier: str, prefix: Name, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
@@ -196,7 +196,7 @@ class SelectedName(Name):
 
 @export
 class AttributeName(Name):
-	def __init__(self, identifier: str, prefix: Name, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
@@ -210,7 +210,7 @@ class AllName(SelectedName):
 
 	Most likely this name is used in use-statements.
 	"""
-	def __init__(self, prefix: Name, parent: ModelEntity = None) -> None:
+	def __init__(self, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("all", prefix, parent)  # TODO: the case of 'ALL' is not preserved
 
 
@@ -221,7 +221,7 @@ class OpenName(Name):
 
 	Most likely this name is used in port associations.
 	"""
-	def __init__(self, parent: ModelEntity = None) -> None:
+	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("open", parent)  # TODO: the case of 'OPEN' is not preserved
 
 	def __str__(self) -> str:

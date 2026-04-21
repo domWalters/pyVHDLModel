@@ -96,7 +96,7 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
@@ -105,7 +105,7 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 
 @export
 class GenericTypeInterfaceItem(Type, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -117,21 +117,21 @@ class GenericSubprogramInterfaceItem(GenericInterfaceItemMixin):
 
 @export
 class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
 @export
 class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
 @export
 class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -139,7 +139,7 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -153,7 +153,7 @@ class PortSignalInterfaceItem(Signal, PortInterfaceItemMixin):
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		PortInterfaceItemMixin.__init__(self, mode)
@@ -168,7 +168,7 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -184,7 +184,7 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -200,7 +200,7 @@ class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin, Interfac
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -214,7 +214,7 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 		identifiers: Iterable[str],
 		subtype: Symbol,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)

@@ -52,7 +52,7 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	_statements:     List['SequentialStatement']
 	_isPure:         bool
 
-	def __init__(self, identifier: str, isPure: bool, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, isPure: bool, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -86,7 +86,7 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class Procedure(Subprogram):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, False, documentation, parent)
 
 
@@ -94,7 +94,7 @@ class Procedure(Subprogram):
 class Function(Subprogram):
 	_returnType: Subtype
 
-	def __init__(self, identifier: str, isPure: bool = True, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, isPure: bool = True, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, isPure, documentation, parent)
 
 		# FIXME: return type is missing
@@ -121,13 +121,13 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class ProcedureMethod(Procedure, MethodMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, protectedType: Nullable[ProtectedType] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, protectedType: Nullable[ProtectedType] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		MethodMixin.__init__(self, protectedType)
 
 
 @export
 class FunctionMethod(Function, MethodMixin):
-	def __init__(self, identifier: str, isPure: bool = True, documentation: Nullable[str] = None, protectedType: Nullable[ProtectedType] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, isPure: bool = True, documentation: Nullable[str] = None, protectedType: Nullable[ProtectedType] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, isPure, documentation, parent)
 		MethodMixin.__init__(self, protectedType)

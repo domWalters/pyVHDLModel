@@ -65,7 +65,7 @@ class Reference(ModelEntity):
 
 	_symbols:       List[Symbol]
 
-	def __init__(self, symbols: Iterable[Symbol], parent: ModelEntity = None) -> None:
+	def __init__(self, symbols: Iterable[Symbol], parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a reference by taking a list of symbols and a parent reference.
 
@@ -187,7 +187,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	_namespace:           'Namespace'
 
-	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a design unit.
 
@@ -373,7 +373,7 @@ class Context(PrimaryUnit):
 
 	_references:        List[ContextUnion]
 
-	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, None, documentation, parent)
 
 		self._references = []
@@ -442,7 +442,7 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 		declaredItems: Nullable[Iterable] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
 		Initialize a package.
@@ -534,7 +534,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		contextItems: Nullable[Iterable[ContextUnion]] = None,
 		declaredItems: Nullable[Iterable] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(packageSymbol.Name.Identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
@@ -594,7 +594,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 		statements:    Nullable[Iterable[ConcurrentStatement]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
@@ -672,7 +672,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		statements:    Iterable['ConcurrentStatement'] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
@@ -728,7 +728,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -811,7 +811,7 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 		identifier: str,
 		contextItems: Nullable[Iterable[Context]] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)

@@ -137,13 +137,13 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 @export
 class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	"""
-	A ``NamedEntityMixin`` is a mixin class for all VHDL entities that have identifiers.
+	A ``NamedEntityMixin`` is a mixin class for all VHDL entities that have an identifier.
 
 	Protected variables :attr:`_identifier` and :attr:`_normalizedIdentifier` are available to derived classes as well as
 	two readonly properties :attr:`Identifier` and :attr:`NormalizedIdentifier` for public access.
 	"""
 
-	_identifier: str            #: The identifier of a model entity.
+	_identifier:           str  #: The identifier of a model entity.
 	_normalizedIdentifier: str  #: The normalized (lower case) identifier of a model entity.
 
 	def __init__(self, identifier: str) -> None:
@@ -401,7 +401,7 @@ class Range(ModelEntity):
 	_rightBound: ExpressionUnion
 	_direction:  Direction
 
-	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: ModelEntity = None) -> None:
+	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._leftBound = leftBound
@@ -433,7 +433,7 @@ class WaveformElement(ModelEntity):
 	_expression: ExpressionUnion
 	_after: ExpressionUnion
 
-	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._expression = expression

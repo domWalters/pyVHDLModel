@@ -73,7 +73,7 @@ class NullLiteral(Literal):
 class EnumerationLiteral(Literal):
 	_value: str
 
-	def __init__(self, value: str, parent: ModelEntity = None) -> None:
+	def __init__(self, value: str, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._value = value
@@ -298,7 +298,7 @@ class UnaryExpression(BaseExpression):
 	_FORMAT:  Tuple[str, str]
 	_operand: ExpressionUnion
 
-	def __init__(self, operand: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._operand = operand
@@ -380,7 +380,7 @@ class BinaryExpression(BaseExpression):
 	_leftOperand:  ExpressionUnion
 	_rightOperand: ExpressionUnion
 
-	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._leftOperand = leftOperand
@@ -638,7 +638,7 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 	_operand:  ExpressionUnion
 	_subtype:  Symbol
 
-	def __init__(self, subtype: Symbol, operand: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, subtype: Symbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._operand = operand
@@ -668,7 +668,7 @@ class TernaryExpression(BaseExpression):
 	_secondOperand: ExpressionUnion
 	_thirdOperand:  ExpressionUnion
 
-	def __init__(self, parent: ModelEntity = None) -> None:
+	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		# FIXME: parameters and initializers are missing !!
@@ -716,7 +716,7 @@ class Allocation(BaseExpression):
 class SubtypeAllocation(Allocation):
 	_subtype: Symbol
 
-	def __init__(self, subtype: Symbol, parent: ModelEntity = None) -> None:
+	def __init__(self, subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._subtype = subtype
@@ -734,7 +734,7 @@ class SubtypeAllocation(Allocation):
 class QualifiedExpressionAllocation(Allocation):
 	_qualifiedExpression: QualifiedExpression
 
-	def __init__(self, qualifiedExpression: QualifiedExpression, parent: ModelEntity = None) -> None:
+	def __init__(self, qualifiedExpression: QualifiedExpression, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._qualifiedExpression = qualifiedExpression
@@ -754,7 +754,7 @@ class AggregateElement(ModelEntity):
 
 	_expression: ExpressionUnion
 
-	def __init__(self, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._expression = expression
@@ -775,7 +775,7 @@ class SimpleAggregateElement(AggregateElement):
 class IndexedAggregateElement(AggregateElement):
 	_index: int
 
-	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
 
 		self._index = index
@@ -792,7 +792,7 @@ class IndexedAggregateElement(AggregateElement):
 class RangedAggregateElement(AggregateElement):
 	_range: Range
 
-	def __init__(self, rng: Range, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, rng: Range, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
 
 		self._range = rng
@@ -810,7 +810,7 @@ class RangedAggregateElement(AggregateElement):
 class NamedAggregateElement(AggregateElement):
 	_name: Symbol
 
-	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
 
 		self._name = name
@@ -839,7 +839,7 @@ class OthersAggregateElement(AggregateElement):
 class Aggregate(BaseExpression):
 	_elements: List[AggregateElement]
 
-	def __init__(self, elements: Iterable[AggregateElement], parent: ModelEntity = None) -> None:
+	def __init__(self, elements: Iterable[AggregateElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._elements = []
