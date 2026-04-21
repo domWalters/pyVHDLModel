@@ -71,6 +71,7 @@ from pyVHDLModel.Expression    import UnaryExpression, BinaryExpression, Ternary
 from pyVHDLModel.Namespace     import Namespace
 from pyVHDLModel.Object        import Obj, Signal, Constant, DeferredConstant
 from pyVHDLModel.Symbol        import PackageReferenceSymbol, AllPackageMembersReferenceSymbol, PackageMemberReferenceSymbol, SimpleObjectOrFunctionCallSymbol
+from pyVHDLModel.Common        import AllowBlackboxMixin
 from pyVHDLModel.Regions       import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Concurrent    import EntityInstantiation, ComponentInstantiation, ConfigurationInstantiation
 from pyVHDLModel.Concurrent    import GenerateStatement, IfGenerateStatement, ForGenerateStatement, CaseGenerateStatement
@@ -442,7 +443,7 @@ class ObjectGraphEdgeKind(Flag):
 
 
 @export
-class Design(ModelEntity):
+class Design(ModelEntity, AllowBlackboxMixin):
 	"""
 	A ``Design`` represents set of VHDL libraries as well as all loaded and analysed source files (see :class:`~pyVHDLModel.Document`).
 
@@ -469,7 +470,7 @@ class Design(ModelEntity):
 
 	def __init__(
 		self,
-		name: Nullable[str] = None,
+		name:          Nullable[str] = None,
 		allowBlackbox: bool = False
 	) -> None:
 		"""
@@ -479,9 +480,9 @@ class Design(ModelEntity):
 		:param name:          Name of the design.
 		"""
 		super().__init__()
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._name = name
-		self._allowBlackbox = allowBlackbox
 
 		self._libraries = {}
 		self._documents = []
@@ -500,22 +501,6 @@ class Design(ModelEntity):
 		:returns: The name of the design.
 		"""
 		return self._name
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		if value is None:
-			raise ValueError(f"Property 'AllowBlackbox' doesn't accept value 'None'.")
-
-		self._allowBlackbox = value
 
 	@readonly
 	def Libraries(self) -> Dict[str, 'Library']:
@@ -1937,7 +1922,7 @@ class Design(ModelEntity):
 
 
 @export
-class Library(ModelEntity, NamedEntityMixin):
+class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 	"""A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units."""
 
 	_allowBlackbox:  Nullable[bool]                      #: Allow blackboxes for components in this library.
@@ -1952,9 +1937,9 @@ class Library(ModelEntity, NamedEntityMixin):
 
 	def __init__(
 		self,
-		identifier: str,
+		identifier:    str,
 		allowBlackbox: Nullable[bool] = None,
-		parent: ModelEntity = None
+		parent:        ModelEntity = None
 	) -> None:
 		"""
 		Initialize a VHDL library.
@@ -1965,8 +1950,7 @@ class Library(ModelEntity, NamedEntityMixin):
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
-
-		self._allowBlackbox = allowBlackbox
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._contexts =        {}
 		self._configurations =  {}
@@ -1976,22 +1960,6 @@ class Library(ModelEntity, NamedEntityMixin):
 		self._packageBodies =   {}
 
 		self._dependencyVertex = None
-
-	@property
-	def AllowBlackbox(self) -> bool:
-		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
-
-		:returns: If blackboxes are allowed.
-		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
-			return self._allowBlackbox
-
-	@AllowBlackbox.setter
-	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		self._allowBlackbox = value
 
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:

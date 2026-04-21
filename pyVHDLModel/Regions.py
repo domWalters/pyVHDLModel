@@ -202,4 +202,5 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 				self._IndexOtherDeclaredItem(item)
 
 	def _IndexOtherDeclaredItem(self, item) -> None:
-		print(f"_IndexOtherDeclaredItem - {item}\n  ({' -> '.join(t.__name__ for t in type(item).mro())})")
+		pass
+		# print(f"_IndexOtherDeclaredItem - {item}\n  ({' -> '.join(t.__name__ for t in type(item).mro())})")
