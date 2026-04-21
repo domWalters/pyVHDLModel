@@ -299,10 +299,12 @@ class VHDLVersion(Enum):
 
 
 @export
-class IEEEFlavor(Enum):
-	IEEE = 0
-	Synopsys = 1
-	MentorGraphics = 2
+class IEEEFlavor(Flag):
+	Unknown = 0
+	IEEE = 1
+	Synopsys = 2
+	MentorGraphics = 4
+	WithVITAL = 32      # VITAL = VHDL Initiative Towards ASIC Libraries
 
 
 @export
