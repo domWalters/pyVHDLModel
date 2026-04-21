@@ -48,7 +48,7 @@ from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstanti
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
 from pyVHDLModel.Interface   import PortInterfaceItemMixin
-from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin
+from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -330,17 +330,18 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 
 @export
-class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin):
+class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	_portItems:     List[PortInterfaceItemMixin]
 
 	def __init__(
 		self,
-		label: str,
-		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
+		label:         str,
+		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
 		declaredItems: Nullable[Iterable] = None,
-		statements: Iterable['ConcurrentStatement'] = None,
+		statements:    Iterable['ConcurrentStatement'] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox: Nullable[bool] = None,
+		parent:        ModelEntity = None
 	) -> None:
 		super().__init__(label, parent)
 		BlockStatementMixin.__init__(self)
@@ -348,6 +349,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		# TODO: extract to mixin
 		self._portItems = []
@@ -362,7 +364,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 
 @export
-class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
+class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	"""
 	A base-class for all branches in a generate statements.
 
@@ -380,14 +382,16 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 
 	def __init__(
 		self,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
 		super().__init__(parent)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._alternativeLabel = alternativeLabel
 		self._normalizedAlternativeLabel = alternativeLabel.lower() if alternativeLabel is not None else None
@@ -425,13 +429,14 @@ class IfGenerateBranch(GenerateBranch, IfBranchMixin):
 
 	def __init__(
 		self,
-		condition: ExpressionUnion,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		condition:        ExpressionUnion,
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
-		super().__init__(declaredItems, statements, alternativeLabel, parent)
+		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		IfBranchMixin.__init__(self, condition)
 
 
@@ -457,13 +462,14 @@ class ElsifGenerateBranch(GenerateBranch, ElsifBranchMixin):
 
 	def __init__(
 		self,
-		condition: ExpressionUnion,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		condition:        ExpressionUnion,
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
-		super().__init__(declaredItems, statements, alternativeLabel, parent)
+		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElsifBranchMixin.__init__(self, condition)
 
 
@@ -489,17 +495,18 @@ class ElseGenerateBranch(GenerateBranch, ElseBranchMixin):
 
 	def __init__(
 		self,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
-		super().__init__(declaredItems, statements, alternativeLabel, parent)
+		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElseBranchMixin.__init__(self)
 
 
 @export
-class GenerateStatement(ConcurrentStatement):
+class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	"""
 	A base-class for all generate statements.
 
@@ -514,10 +521,12 @@ class GenerateStatement(ConcurrentStatement):
 
 	def __init__(
 		self,
-		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		label:         Nullable[str] = None,
+		allowBlackbox: Nullable[bool] = None,
+		parent:        ModelEntity = None
 	) -> None:
 		super().__init__(label, parent)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._namespace = Namespace(self._normalizedLabel)
 
@@ -561,13 +570,14 @@ class IfGenerateStatement(GenerateStatement):
 
 	def __init__(
 		self,
-		label: str,
-		ifBranch: IfGenerateBranch,
+		label:         str,
+		ifBranch:      IfGenerateBranch,
 		elsifBranches: Nullable[Iterable[ElsifGenerateBranch]] = None,
-		elseBranch: Nullable[ElseGenerateBranch] = None,
-		parent: ModelEntity = None
+		elseBranch:    Nullable[ElseGenerateBranch] = None,
+		allowBlackbox: Nullable[bool] = None,
+		parent:        ModelEntity = None
 	) -> None:
-		super().__init__(label, parent)
+		super().__init__(label, allowBlackbox, parent)
 
 		self._ifBranch = ifBranch
 		ifBranch._parent = self
@@ -653,18 +663,20 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 
 @export
-class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
+class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	def __init__(
 		self,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, alternativeLabel)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 
 @export
@@ -673,13 +685,14 @@ class GenerateCase(ConcurrentCase):
 
 	def __init__(
 		self,
-		choices: Iterable[ConcurrentChoice],
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
+		choices:          Iterable[ConcurrentChoice],
+		declaredItems:    Nullable[Iterable] = None,
+		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
-		parent: ModelEntity = None
+		allowBlackbox:    Nullable[bool] = None,
+		parent:           ModelEntity = None
 	) -> None:
-		super().__init__(declaredItems, statements, alternativeLabel, parent)
+		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 
 		# TODO: move to parent or grandparent
 		self._choices = []
@@ -727,12 +740,13 @@ class CaseGenerateStatement(GenerateStatement):
 
 	def __init__(
 		self,
-		label: str,
-		expression: ExpressionUnion,
-		cases: Iterable[ConcurrentCase],
-		parent: ModelEntity = None
+		label:         str,
+		expression:    ExpressionUnion,
+		cases:         Iterable[ConcurrentCase],
+		allowBlackbox: Nullable[bool] = None,
+		parent:        ModelEntity = None
 	) -> None:
-		super().__init__(label, parent)
+		super().__init__(label, allowBlackbox, parent)
 
 		self._expression = expression
 		expression._parent = self
@@ -780,14 +794,15 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 	def __init__(
 		self,
-		label: str,
-		loopIndex: str,
-		rng: Range,
+		label:         str,
+		loopIndex:     str,
+		rng:           Range,
 		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[ConcurrentStatement]] = None,
-		parent: ModelEntity = None
+		statements:    Nullable[Iterable[ConcurrentStatement]] = None,
+		allowBlackbox: Nullable[bool] = None,
+		parent:        ModelEntity = None
 	) -> None:
-		super().__init__(label, parent)
+		super().__init__(label, allowBlackbox, parent)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 
