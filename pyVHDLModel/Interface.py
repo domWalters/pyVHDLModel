@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 Interface items are used in generic, port and parameter declarations.
 """
-from typing                 import Iterable, Optional as Nullable, List
+from typing                 import Iterable, Optional as Nullable, List, Iterator
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
@@ -304,60 +304,62 @@ class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin):
 
 @export
 class GenericGroup(InterfaceGroup):
-	pass
+	def __init__(
+		self,
+		genericItems: Iterable[GenericInterfaceItemMixin],
+		name:         Nullable[str] = None,
+		parent:       Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(name, parent)
+		WithGenericsMixin.__init__(self, genericItems)
+
+	def __len__(self) -> int:
+		return len(self._genericItems)
+
+	def __iter__(self) -> Iterator[GenericInterfaceItemMixin]:
+		return iter(self._genericItems)
+
+	def __str__(self) -> str:
+		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {', '.join(p._identifier for p in self._genericItems)})"
 
 
 @export
-class PortGroup(InterfaceGroup):
-	"""A ``PortGroup`` is a group of ports."""
-
-	_portItems: List[PortInterfaceItemMixin]
-
+class PortGroup(InterfaceGroup, WithPortsMixin):
 	def __init__(
 		self,
 		portItems: Iterable[PortInterfaceItemMixin],
 		name:      Nullable[str] = None,
 		parent:    Nullable[ModelEntity] = None
 	) -> None:
-		"""Initialize a PortGroup with a list of ports and optional name."""
 		super().__init__(name, parent)
-
-		self._portItems = list(portItems)
-
-		if not self._portItems:
-			raise ValueError("PortGroup cannot be empty")
-		for port in self._portItems:
-			if not isinstance(port, PortInterfaceItemMixin):
-				raise TypeError(f"All ports must be PortInterfaceItemMixin instances, got {type(port)}")
-			port._group = self
-
-	@property
-	def PortItems(self) -> List[PortInterfaceItemMixin]:
-		"""Get the list of port items in this group."""
-		return self._portItems
-
-	@property
-	def Count(self) -> int:
-		"""Get the number of ports in this group."""
-		return len(self._portItems)
+		WithPortsMixin.__init__(self, portItems)
 
 	def __len__(self) -> int:
-		"""Return the number of ports in this group."""
 		return len(self._portItems)
 
-	def __iter__(self):
-		"""Iterate over ports in this group."""
+	def __iter__(self) -> Iterator[PortInterfaceItemMixin]:
 		return iter(self._portItems)
 
 	def __str__(self) -> str:
-		"""String representation of the port group."""
-		port_names = [str(port) for port in self._portItems]
-		name_part = f"'{self._name}' " if self._name is not None else ""
-		return f"PortGroup({name_part}{len(self._portItems)} ports: {', '.join(port_names)})"
-
-	__repr__ = __str__
+		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {', '.join(p._identifier for p in self._portItems)})"
 
 
 @export
 class ParameterGroup(InterfaceGroup):
-	pass
+	def __init__(
+		self,
+		parameterItems: Iterable[ParameterInterfaceItemMixin],
+		name:           Nullable[str] = None,
+		parent:         Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(name, parent)
+		WithParametersMixin.__init__(self, parameterItems)
+
+	def __len__(self) -> int:
+		return len(self._parameterItems)
+
+	def __iter__(self) -> Iterator[ParameterInterfaceItemMixin]:
+		return iter(self._parameterItems)
+
+	def __str__(self) -> str:
+		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {', '.join(p._identifier for p in self._parameterItems)})"
