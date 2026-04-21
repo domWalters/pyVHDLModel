@@ -175,6 +175,46 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 
 
 @export
+class OptionallyNamedEntityMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A ``OptionallyNamedEntityMixin`` is a mixin class for all VHDL entities that have an optional identifier.
+
+	Protected variables :attr:`_identifier` and :attr:`_normalizedIdentifier` are available to derived classes as well as
+	two readonly properties :attr:`Identifier` and :attr:`NormalizedIdentifier` for public access.
+	"""
+
+	_identifier:           Nullable[str]  #: The identifier of a model entity.
+	_normalizedIdentifier: Nullable[str]  #: The normalized (lower case) identifier of a model entity.
+
+	def __init__(self, identifier: Nullable[str]) -> None:
+		"""
+		Initializes a named entity.
+
+		:param identifier: Identifier (name) of the model entity.
+		"""
+		self._identifier = identifier
+		self._normalizedIdentifier = identifier.lower() if identifier is not None else None
+
+	@readonly
+	def Identifier(self) -> Nullable[str]:
+		"""
+		Returns a model entity's identifier (name).
+
+		:returns: Name of a model entity.
+		"""
+		return self._identifier
+
+	@readonly
+	def NormalizedIdentifier(self) -> Nullable[str]:
+		"""
+		Returns a model entity's normalized identifier (lower case name).
+
+		:returns: Normalized name of a model entity.
+		"""
+		return self._normalizedIdentifier
+
+
+@export
 class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A ``MultipleNamedEntityMixin`` is a mixin class for all VHDL entities that declare multiple instances at once by
