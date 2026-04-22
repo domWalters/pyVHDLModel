@@ -301,11 +301,26 @@ class VHDLVersion(Enum):
 
 @export
 class IEEEFlavor(Flag):
-	Unknown = 0
-	IEEE = 1
-	Synopsys = 2
-	MentorGraphics = 4
-	WithVITAL = 32      # VITAL = VHDL Initiative Towards ASIC Libraries
+	"""
+	The ``IEEE`` VHDL library as a fixed set of predefined VHDL packages according to IEEE Std. 1076.
+
+	Nonetheless, some vendors decided to sneak in additional packages into the ``IEEE`` namespace. |br|
+	Supported flavors are:
+
+	* ``Synopsys``
+	* ``MentorGraphics``
+
+	In addition, IEEE Std. 1076.X extensions can be loaded. |br|
+	Supported extensions are:
+
+	* ``WithVITAL`` - IEEE Std. 1076.4
+
+	"""
+	Unknown = 0         #: Unknown IEEE flavor
+	IEEE = 1            #: IEEE Std. 1076 compliant list of IEEE packages.
+	Synopsys = 2        #: Additional packages created by Synopsys are visible within the IEEE library.
+	MentorGraphics = 4  #: Additional packages created by Mentor Graphics are visible within the IEEE library.
+	WithVITAL = 32      #: Additionally load IEEE Std 1076.4 VITAL packages. (VITAL = VHDL Initiative Towards ASIC Libraries)
 
 
 @export
