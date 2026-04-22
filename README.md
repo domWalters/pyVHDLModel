@@ -40,6 +40,7 @@ on such a model, while supporting multiple frontends.
 
 * High-level API for [GHDL's](https://GitHub.com/ghdl/ghdl) `libghdl` offered via `pyghdl`.
 * Code Document-Object-Model (Code-DOM) in [pyVHDLParser](https://GitHub.com/Paebbels/pyVHDLParser).
+* [PyHDLio](https://github.com/amb5l/PyHDLio) based on an ANTLR4 grammar.
 * [pyVHDLModelTreesitter](https://gitlab.com/dawalters/pyVHDLModelTreesitter) based on [tree-sitter-vhdl](https://github.com/jpt13653903/tree-sitter-vhdl).
 
 ## pyVHDLModel Consumers

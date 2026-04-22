@@ -15,7 +15,7 @@
 
 .. only:: html
 
-   |  |SHIELD:svg:pyVHDLModel-github| |SHIELD:svg:pyVHDLModel-src-license| |SHIELD:svg:pyVHDLModel-ghp-doc| |SHIELD:svg:pyVHDLModel-doc-license| |SHIELD:svg:pyVHDLModel-gitter|
+   |  |SHIELD:svg:pyVHDLModel-github| |SHIELD:svg:pyVHDLModel-src-license| |SHIELD:svg:pyVHDLModel-ghp-doc| |SHIELD:svg:pyVHDLModel-doc-license|
    |  |SHIELD:svg:pyVHDLModel-pypi-tag| |SHIELD:svg:pyVHDLModel-pypi-status| |SHIELD:svg:pyVHDLModel-pypi-python|
    |  |SHIELD:svg:pyVHDLModel-gha-test| |SHIELD:svg:pyVHDLModel-lib-status| |SHIELD:svg:pyVHDLModel-codacy-quality| |SHIELD:svg:pyVHDLModel-codacy-coverage| |SHIELD:svg:pyVHDLModel-codecov-coverage|
 
@@ -23,7 +23,7 @@
 
 .. only:: latex
 
-   |SHIELD:png:pyVHDLModel-github| |SHIELD:png:pyVHDLModel-src-license| |SHIELD:png:pyVHDLModel-ghp-doc| |SHIELD:png:pyVHDLModel-doc-license| |SHIELD:svg:pyVHDLModel-gitter|
+   |SHIELD:png:pyVHDLModel-github| |SHIELD:png:pyVHDLModel-src-license| |SHIELD:png:pyVHDLModel-ghp-doc| |SHIELD:png:pyVHDLModel-doc-license|
    |SHIELD:png:pyVHDLModel-pypi-tag| |SHIELD:png:pyVHDLModel-pypi-status| |SHIELD:png:pyVHDLModel-pypi-python|
    |SHIELD:png:pyVHDLModel-gha-test| |SHIELD:png:pyVHDLModel-lib-status| |SHIELD:png:pyVHDLModel-codacy-quality| |SHIELD:png:pyVHDLModel-codacy-coverage| |SHIELD:png:pyVHDLModel-codecov-coverage|
 
@@ -56,6 +56,8 @@ Use Cases
 
 * High-level API for `GHDL's <https://GitHub.com/ghdl/ghdl>`__ `libghdl` offered via `pyGHDL <https://ghdl.github.io/ghdl/pyGHDL/pyGHDL.html>`__.
 * Code Document-Object-Model (Code-DOM) in `pyVHDLParser <https://paebbels.github.io/pyVHDLParser/>`__.
+* `PyHDLio <https://github.com/amb5l/PyHDLio>`__ based on an ANTLR4 grammar.
+* `pyVHDLModelTreesitter <https://gitlab.com/dawalters/pyVHDLModelTreesitter>`__ based on `tree-sitter-vhdl <https://github.com/jpt13653903/tree-sitter-vhdl>`__.
 
 
 .. _NEWS:
