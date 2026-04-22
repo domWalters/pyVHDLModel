@@ -291,26 +291,29 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 
 
 @export
-class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin):
+class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMixin):
 	def __init__(
 		self,
 		name:   Nullable[str] = None,
+		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""Initialize a PortGroup with a list of ports and optional name."""
 		super().__init__(parent)
 		OptionallyNamedEntityMixin.__init__(self, name)
+		DocumentedEntityMixin.__init__(self, documentation)
 
 
 @export
 class GenericGroup(InterfaceGroup):
 	def __init__(
 		self,
-		genericItems: Iterable[GenericInterfaceItemMixin],
-		name:         Nullable[str] = None,
-		parent:       Nullable[ModelEntity] = None
+		genericItems:  Iterable[GenericInterfaceItemMixin],
+		name:          Nullable[str] = None,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(name, parent)
+		super().__init__(name, documentation, parent)
 		WithGenericsMixin.__init__(self, genericItems)
 
 	def __len__(self) -> int:
@@ -327,11 +330,12 @@ class GenericGroup(InterfaceGroup):
 class PortGroup(InterfaceGroup, WithPortsMixin):
 	def __init__(
 		self,
-		portItems: Iterable[PortInterfaceItemMixin],
-		name:      Nullable[str] = None,
-		parent:    Nullable[ModelEntity] = None
+		portItems:     Iterable[PortInterfaceItemMixin],
+		name:          Nullable[str] = None,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(name, parent)
+		super().__init__(name, documentation, parent)
 		WithPortsMixin.__init__(self, portItems)
 
 	def __len__(self) -> int:
@@ -350,9 +354,10 @@ class ParameterGroup(InterfaceGroup):
 		self,
 		parameterItems: Iterable[ParameterInterfaceItemMixin],
 		name:           Nullable[str] = None,
+		documentation:  Nullable[str] = None,
 		parent:         Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(name, parent)
+		super().__init__(name, documentation, parent)
 		WithParametersMixin.__init__(self, parameterItems)
 
 	def __len__(self) -> int:
