@@ -65,6 +65,58 @@ News
 
 .. only:: html
 
+   April 2026 - Generic, Port, and Parameter Groups
+   ================================================
+
+.. only:: latex
+
+   .. rubric:: Generic, Port, and Parameter Groups
+
+* Link components in architectures and components nested in concurrent statements.
+* Added grouping of generics, ports and parameters.
+
+
+.. only:: html
+
+   Nov. 2025 - Raise Warnings
+   ==========================
+
+.. only:: latex
+
+   .. rubric:: Raise Warnings
+
+* Handle bit-string literals
+* Raise Warnings instead of Exceptions.
+
+
+.. only:: html
+
+   Feb. 2025 - Blackboxes
+   ======================
+
+.. only:: latex
+
+   .. rubric:: Blackboxes
+
+* Support handling of blackboxes for component instantiations.
+* Added dummy packages for Synopsys and Mentor Graphics "IEEE" packages.
+
+
+.. only:: html
+
+   Sept. 2024 - Unary Operators
+   ============================
+
+.. only:: latex
+
+   .. rubric:: Unary Operators
+
+* Added more unary operators.
+* Added more doc-strings
+
+
+.. only:: html
+
    Jan. 2023 - Dependency, Hierarchy, Compile Order Analysis
    =========================================================
 
@@ -80,6 +132,7 @@ News
 
 * Transformation from single module to >15 modules.
 * Improved code coverage and test cases.
+
 
 .. only:: html
 
