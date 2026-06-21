@@ -433,16 +433,16 @@ class ObjectGraphVertexKind(Flag):
 	"""
 	A ``ObjectGraphVertexKind`` is an enumeration and represents the kind of vertex in the object graph.
 	"""
-	Type = auto()
-	Subtype = auto()
+	Type =             auto()
+	Subtype =          auto()
 
-	Constant = auto()
+	Constant =         auto()
 	DeferredConstant = auto()
-	Variable = auto()
-	Signal = auto()
-	File = auto()
+	Variable =         auto()
+	Signal =           auto()
+	File =             auto()
 
-	Alias = auto()
+	Alias =            auto()
 
 
 @export
@@ -452,7 +452,7 @@ class ObjectGraphEdgeKind(Flag):
 	A ``ObjectGraphEdgeKind`` is an enumeration and represents the kind of edge in the object graph.
 	"""
 	BaseType = auto()
-	Subtype = auto()
+	Subtype =  auto()
 
 	ReferenceInExpression = auto()
 
@@ -1601,7 +1601,11 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			for packageReference in designUnit.PackageReferences:
 				# A use clause can have multiple comma-separated references
 				for packageMemberSymbol in packageReference.Symbols:
-					packageName = packageMemberSymbol.Name.Prefix
+					if isinstance(packageMemberSymbol, PackageReferenceSymbol):
+						packageName = packageMemberSymbol.Name
+					elif isinstance(packageMemberSymbol, (AllPackageMembersReferenceSymbol, PackageMemberReferenceSymbol)):
+						packageName = packageMemberSymbol.Name.Prefix
+
 					libraryName = packageName.Prefix
 
 					libraryIdentifier = libraryName.NormalizedIdentifier
@@ -1633,7 +1637,10 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency["kind"] = DependencyGraphEdgeKind.UseClause
 
 					# TODO: update the namespace with visible members
-					if isinstance(packageMemberSymbol, AllPackageMembersReferenceSymbol):
+					if isinstance(packageMemberSymbol, PackageReferenceSymbol):
+						designUnit._namespace._elements[packageIdentifier] = package
+
+					elif isinstance(packageMemberSymbol, AllPackageMembersReferenceSymbol):
 						WarningCollector.Raise(NotImplementedWarning(f"Handling of 'myLib.myPackage.all'. Exception: components are handled."))
 
 						for componentIdentifier, component in package._components.items():
@@ -1643,7 +1650,9 @@ class Design(ModelEntity, AllowBlackboxMixin):
 						WarningCollector.Raise(NotImplementedWarning(f"Handling of 'myLib.myPackage.mySymbol'."))
 
 					else:
-						raise VHDLModelException()  # TODO: missing exception message
+						ex = VHDLModelException(f"Unknown package reference symbol type.")
+						ex.add_note(f"Got type '{getFullyQualifiedName(packageMemberSymbol)}'.")
+						raise ex
 
 	def LinkContextReferences(self) -> None:
 		"""
@@ -2356,6 +2365,8 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		for package in self._packages.values():
 			if isinstance(package, Package):
 				package.IndexDeclaredItems()
+			elif isinstance(package, PackageInstantiation):
+				pass
 
 	def IndexPackageBodies(self) -> None:
 		"""
