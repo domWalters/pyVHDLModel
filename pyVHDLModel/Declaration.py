@@ -103,7 +103,7 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		identifier: str,
 		subtype: Symbol,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -141,7 +141,7 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 		entityClass: EntityClass,
 		expression: ExpressionUnion,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -179,7 +179,7 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 # TODO: move somewhere else
 @export
 class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes underlying ``BaseType``.
 

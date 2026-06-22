@@ -137,13 +137,13 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 @export
 class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	"""
-	A ``NamedEntityMixin`` is a mixin class for all VHDL entities that have identifiers.
+	A ``NamedEntityMixin`` is a mixin class for all VHDL entities that have an identifier.
 
 	Protected variables :attr:`_identifier` and :attr:`_normalizedIdentifier` are available to derived classes as well as
 	two readonly properties :attr:`Identifier` and :attr:`NormalizedIdentifier` for public access.
 	"""
 
-	_identifier: str            #: The identifier of a model entity.
+	_identifier:           str  #: The identifier of a model entity.
 	_normalizedIdentifier: str  #: The normalized (lower case) identifier of a model entity.
 
 	def __init__(self, identifier: str) -> None:
@@ -166,6 +166,46 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def NormalizedIdentifier(self) -> str:
+		"""
+		Returns a model entity's normalized identifier (lower case name).
+
+		:returns: Normalized name of a model entity.
+		"""
+		return self._normalizedIdentifier
+
+
+@export
+class OptionallyNamedEntityMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A ``OptionallyNamedEntityMixin`` is a mixin class for all VHDL entities that have an optional identifier.
+
+	Protected variables :attr:`_identifier` and :attr:`_normalizedIdentifier` are available to derived classes as well as
+	two readonly properties :attr:`Identifier` and :attr:`NormalizedIdentifier` for public access.
+	"""
+
+	_identifier:           Nullable[str]  #: The identifier of a model entity.
+	_normalizedIdentifier: Nullable[str]  #: The normalized (lower case) identifier of a model entity.
+
+	def __init__(self, identifier: Nullable[str]) -> None:
+		"""
+		Initializes a named entity.
+
+		:param identifier: Identifier (name) of the model entity.
+		"""
+		self._identifier = identifier
+		self._normalizedIdentifier = identifier.lower() if identifier is not None else None
+
+	@readonly
+	def Identifier(self) -> Nullable[str]:
+		"""
+		Returns a model entity's identifier (name).
+
+		:returns: Name of a model entity.
+		"""
+		return self._identifier
+
+	@readonly
+	def NormalizedIdentifier(self) -> Nullable[str]:
 		"""
 		Returns a model entity's normalized identifier (lower case name).
 
@@ -401,7 +441,7 @@ class Range(ModelEntity):
 	_rightBound: ExpressionUnion
 	_direction:  Direction
 
-	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: ModelEntity = None) -> None:
+	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._leftBound = leftBound
@@ -433,7 +473,7 @@ class WaveformElement(ModelEntity):
 	_expression: ExpressionUnion
 	_after: ExpressionUnion
 
-	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._expression = expression

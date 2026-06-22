@@ -62,7 +62,7 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	_subtype:      Symbol
 	_objectVertex: Nullable[Vertex]
 
-	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -136,7 +136,7 @@ class Constant(BaseConstant, WithDefaultExpressionMixin):
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
@@ -163,7 +163,7 @@ class DeferredConstant(BaseConstant):
 		identifiers: Iterable[str],
 		subtype: Symbol,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 
@@ -195,7 +195,7 @@ class Variable(Obj, WithDefaultExpressionMixin):
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
@@ -231,7 +231,7 @@ class Signal(Obj, WithDefaultExpressionMixin):
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)

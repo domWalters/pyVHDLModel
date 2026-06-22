@@ -138,7 +138,7 @@ class Instantiation(ConcurrentStatement):
 		label: str,
 		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
 		portAssociations: Nullable[Iterable[AssociationItem]] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 
@@ -185,7 +185,7 @@ class ComponentInstantiation(Instantiation):
 		componentSymbol: ComponentInstantiationSymbol,
 		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
 		portAssociations: Nullable[Iterable[AssociationItem]] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
@@ -219,7 +219,7 @@ class EntityInstantiation(Instantiation):
 		architectureSymbol: Nullable[ArchitectureSymbol] = None,
 		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
 		portAssociations: Nullable[Iterable[AssociationItem]] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
@@ -259,7 +259,7 @@ class ConfigurationInstantiation(Instantiation):
 		configurationSymbol: ConfigurationInstantiationSymbol,
 		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
 		portAssociations: Nullable[Iterable[AssociationItem]] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
@@ -296,7 +296,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, Sequent
 		statements: Nullable[Iterable[SequentialStatement]] = None,
 		sensitivityList: Nullable[Iterable[Name]] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		SequentialDeclarationsMixin.__init__(self, declaredItems)
@@ -323,7 +323,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 		label: str,
 		procedureName: Name,
 		parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		ProcedureCallMixin.__init__(self, procedureName, parameterMappings)
@@ -341,7 +341,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		statements:    Iterable['ConcurrentStatement'] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		BlockStatementMixin.__init__(self)
@@ -386,7 +386,7 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -434,7 +434,7 @@ class IfGenerateBranch(GenerateBranch, IfBranchMixin):
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		IfBranchMixin.__init__(self, condition)
@@ -467,7 +467,7 @@ class ElsifGenerateBranch(GenerateBranch, ElsifBranchMixin):
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElsifBranchMixin.__init__(self, condition)
@@ -499,7 +499,7 @@ class ElseGenerateBranch(GenerateBranch, ElseBranchMixin):
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElseBranchMixin.__init__(self)
@@ -523,7 +523,7 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 		self,
 		label:         Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
@@ -575,7 +575,7 @@ class IfGenerateStatement(GenerateStatement):
 		elsifBranches: Nullable[Iterable[ElsifGenerateBranch]] = None,
 		elseBranch:    Nullable[ElseGenerateBranch] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, allowBlackbox, parent)
 
@@ -630,7 +630,7 @@ class ConcurrentChoice(BaseChoice):
 class IndexedGenerateChoice(ConcurrentChoice):
 	_expression: ExpressionUnion
 
-	def __init__(self, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._expression = expression
@@ -648,7 +648,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 class RangedGenerateChoice(ConcurrentChoice):
 	_range: 'Range'
 
-	def __init__(self, rng: 'Range', parent: ModelEntity = None) -> None:
+	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 
 		self._range = rng
@@ -670,7 +670,7 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, alternativeLabel)
@@ -690,7 +690,7 @@ class GenerateCase(ConcurrentCase):
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
 		allowBlackbox:    Nullable[bool] = None,
-		parent:           ModelEntity = None
+		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 
@@ -744,7 +744,7 @@ class CaseGenerateStatement(GenerateStatement):
 		expression:    ExpressionUnion,
 		cases:         Iterable[ConcurrentCase],
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, allowBlackbox, parent)
 
@@ -800,7 +800,7 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		declaredItems: Nullable[Iterable] = None,
 		statements:    Nullable[Iterable[ConcurrentStatement]] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, allowBlackbox, parent)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -842,7 +842,7 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment`
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment`
 	"""
-	def __init__(self, label: str, target: Name, parent: ModelEntity = None) -> None:
+	def __init__(self, label: str, target: Name, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -851,7 +851,7 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 	_waveform: List[WaveformElement]
 
-	def __init__(self, label: str, target: Name, waveform: Iterable[WaveformElement], parent: ModelEntity = None) -> None:
+	def __init__(self, label: str, target: Name, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 
 		# TODO: extract to mixin
@@ -868,13 +868,13 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 
 @export
 class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 
 
 @export
 class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: ModelEntity = None) -> None:
+	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 
 
@@ -886,7 +886,7 @@ class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
 		message: ExpressionUnion,
 		severity: Nullable[ExpressionUnion] = None,
 		label: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		AssertStatementMixin.__init__(self, condition, message, severity)

@@ -46,7 +46,7 @@ from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEnti
 from pyVHDLModel.Namespace  import Namespace
 from pyVHDLModel.Regions    import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Symbol     import Symbol, PackageSymbol, EntitySymbol, LibraryReferenceSymbol
-from pyVHDLModel.Interface  import GenericInterfaceItemMixin, PortInterfaceItemMixin
+from pyVHDLModel.Interface  import GenericInterfaceItemMixin, PortInterfaceItemMixin, WithGenericsMixin, WithPortsMixin
 from pyVHDLModel.Object     import DeferredConstant
 from pyVHDLModel.Concurrent import ConcurrentStatement, ConcurrentStatementsMixin
 
@@ -65,7 +65,7 @@ class Reference(ModelEntity):
 
 	_symbols:       List[Symbol]
 
-	def __init__(self, symbols: Iterable[Symbol], parent: ModelEntity = None) -> None:
+	def __init__(self, symbols: Iterable[Symbol], parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a reference by taking a list of symbols and a parent reference.
 
@@ -187,7 +187,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	_namespace:           'Namespace'
 
-	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a design unit.
 
@@ -373,7 +373,7 @@ class Context(PrimaryUnit):
 
 	_references:        List[ContextUnion]
 
-	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, None, documentation, parent)
 
 		self._references = []
@@ -414,7 +414,7 @@ class Context(PrimaryUnit):
 
 
 @export
-class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, AllowBlackboxMixin):
+class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, ConcurrentDeclarationRegionMixin, AllowBlackboxMixin):
 	"""
 	Represents a package declaration.
 
@@ -429,8 +429,6 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 
 	_packageBody:       Nullable["PackageBody"]
 
-	_genericItems:      List[GenericInterfaceItemMixin]
-
 	_deferredConstants: Dict[str, DeferredConstant]
 	_components:        Dict[str, 'Component']
 
@@ -442,7 +440,7 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 		declaredItems: Nullable[Iterable] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
 		Initialize a package.
@@ -457,17 +455,11 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
+		WithGenericsMixin.__init__(self, genericItems)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._packageBody = None
-
-		# TODO: extract to mixin
-		self._genericItems = []  # TODO: convert to dict
-		if genericItems is not None:
-			for generic in genericItems:
-				self._genericItems.append(generic)
-				generic._parent = self
 
 		self._deferredConstants = {}
 		self._components = {}
@@ -475,10 +467,6 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegi
 	@property
 	def PackageBody(self) -> Nullable["PackageBody"]:
 		return self._packageBody
-
-	@property
-	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
-		return self._genericItems
 
 	@property
 	def DeclaredItems(self) -> List:
@@ -534,7 +522,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		contextItems: Nullable[Iterable[ContextUnion]] = None,
 		declaredItems: Nullable[Iterable] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(packageSymbol.Name.Identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
@@ -566,7 +554,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 
 
 @export
-class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
+class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	"""
 	Represents an entity declaration.
 
@@ -578,9 +566,6 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 	        -- ...
 	      end entity;
 	"""
-
-	_genericItems:  List[GenericInterfaceItemMixin]
-	_portItems:     List[PortInterfaceItemMixin]
 
 	_architectures: Dict[str, 'Architecture']
 
@@ -594,39 +579,17 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegio
 		statements:    Nullable[Iterable[ConcurrentStatement]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
+		WithGenericsMixin.__init__(self, genericItems)
+		WithPortsMixin.__init__(self, portItems)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-		# TODO: extract to mixin
-		self._genericItems = []
-		if genericItems is not None:
-			for item in genericItems:
-				self._genericItems.append(item)
-				item._parent = self
-
-		# TODO: extract to mixin
-		self._portItems = []
-		if portItems is not None:
-			for item in portItems:
-				self._portItems.append(item)
-				item._parent = self
-
 		self._architectures = {}
-
-	# TODO: extract to mixin for generics
-	@property
-	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
-		return self._genericItems
-
-	# TODO: extract to mixin for ports
-	@property
-	def PortItems(self) -> List[PortInterfaceItemMixin]:
-		return self._portItems
 
 	@property
 	def Architectures(self) -> Dict[str, 'Architecture']:
@@ -672,7 +635,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		statements:    Iterable['ConcurrentStatement'] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
@@ -728,7 +691,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
 		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -811,7 +774,7 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 		identifier: str,
 		contextItems: Nullable[Iterable[Context]] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)

@@ -15,7 +15,7 @@
 
 .. only:: html
 
-   |  |SHIELD:svg:pyVHDLModel-github| |SHIELD:svg:pyVHDLModel-src-license| |SHIELD:svg:pyVHDLModel-ghp-doc| |SHIELD:svg:pyVHDLModel-doc-license| |SHIELD:svg:pyVHDLModel-gitter|
+   |  |SHIELD:svg:pyVHDLModel-github| |SHIELD:svg:pyVHDLModel-src-license| |SHIELD:svg:pyVHDLModel-ghp-doc| |SHIELD:svg:pyVHDLModel-doc-license|
    |  |SHIELD:svg:pyVHDLModel-pypi-tag| |SHIELD:svg:pyVHDLModel-pypi-status| |SHIELD:svg:pyVHDLModel-pypi-python|
    |  |SHIELD:svg:pyVHDLModel-gha-test| |SHIELD:svg:pyVHDLModel-lib-status| |SHIELD:svg:pyVHDLModel-codacy-quality| |SHIELD:svg:pyVHDLModel-codacy-coverage| |SHIELD:svg:pyVHDLModel-codecov-coverage|
 
@@ -23,7 +23,7 @@
 
 .. only:: latex
 
-   |SHIELD:png:pyVHDLModel-github| |SHIELD:png:pyVHDLModel-src-license| |SHIELD:png:pyVHDLModel-ghp-doc| |SHIELD:png:pyVHDLModel-doc-license| |SHIELD:svg:pyVHDLModel-gitter|
+   |SHIELD:png:pyVHDLModel-github| |SHIELD:png:pyVHDLModel-src-license| |SHIELD:png:pyVHDLModel-ghp-doc| |SHIELD:png:pyVHDLModel-doc-license|
    |SHIELD:png:pyVHDLModel-pypi-tag| |SHIELD:png:pyVHDLModel-pypi-status| |SHIELD:png:pyVHDLModel-pypi-python|
    |SHIELD:png:pyVHDLModel-gha-test| |SHIELD:png:pyVHDLModel-lib-status| |SHIELD:png:pyVHDLModel-codacy-quality| |SHIELD:png:pyVHDLModel-codacy-coverage| |SHIELD:png:pyVHDLModel-codecov-coverage|
 
@@ -56,12 +56,66 @@ Use Cases
 
 * High-level API for `GHDL's <https://GitHub.com/ghdl/ghdl>`__ `libghdl` offered via `pyGHDL <https://ghdl.github.io/ghdl/pyGHDL/pyGHDL.html>`__.
 * Code Document-Object-Model (Code-DOM) in `pyVHDLParser <https://paebbels.github.io/pyVHDLParser/>`__.
+* `PyHDLio <https://github.com/amb5l/PyHDLio>`__ based on an ANTLR4 grammar.
+* `pyVHDLModelTreesitter <https://gitlab.com/dawalters/pyVHDLModelTreesitter>`__ based on `tree-sitter-vhdl <https://github.com/jpt13653903/tree-sitter-vhdl>`__.
 
 
 .. _NEWS:
 
 News
 ****
+
+.. only:: html
+
+   April 2026 - Generic, Port, and Parameter Groups
+   ================================================
+
+.. only:: latex
+
+   .. rubric:: Generic, Port, and Parameter Groups
+
+* Link components in architectures and components nested in concurrent statements.
+* Added grouping of generics, ports and parameters.
+
+
+.. only:: html
+
+   Nov. 2025 - Raise Warnings
+   ==========================
+
+.. only:: latex
+
+   .. rubric:: Raise Warnings
+
+* Handle bit-string literals
+* Raise Warnings instead of Exceptions.
+
+
+.. only:: html
+
+   Feb. 2025 - Blackboxes
+   ======================
+
+.. only:: latex
+
+   .. rubric:: Blackboxes
+
+* Support handling of blackboxes for component instantiations.
+* Added dummy packages for Synopsys and Mentor Graphics "IEEE" packages.
+
+
+.. only:: html
+
+   Sept. 2024 - Unary Operators
+   ============================
+
+.. only:: latex
+
+   .. rubric:: Unary Operators
+
+* Added more unary operators.
+* Added more doc-strings
+
 
 .. only:: html
 
@@ -80,6 +134,7 @@ News
 
 * Transformation from single module to >15 modules.
 * Improved code coverage and test cases.
+
 
 .. only:: html
 
@@ -184,15 +239,8 @@ Contributors
 License
 *******
 
-.. only:: html
-
-   This Python package (source code) is licensed under `Apache License 2.0 <Code-License.html>`__. |br|
-   The accompanying documentation is licensed under `Creative Commons - Attribution 4.0 (CC-BY 4.0) <Doc-License.html>`__.
-
-.. only:: latex
-
-   This Python package (source code) is licensed under **Apache License 2.0**. |br|
-   The accompanying documentation is licensed under **Creative Commons - Attribution 4.0 (CC-BY 4.0)**.
+This Python package (source code) is licensed under :ref:`Apache License 2.0 <CODELICENSE>`. |br|
+The accompanying documentation is licensed under :ref:`Creative Commons - Attribution 4.0 (CC-BY 4.0) <DOCLICENSE>`.
 
 
 

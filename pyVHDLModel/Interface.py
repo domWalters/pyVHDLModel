@@ -34,13 +34,14 @@ This module contains parts of an abstract document language model for VHDL.
 
 Interface items are used in generic, port and parameter declarations.
 """
-from typing                 import Iterable, Optional as Nullable
+from typing                 import Iterable, Optional as Nullable, List, Iterator
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
 
 from pyVHDLModel.Symbol     import Symbol
-from pyVHDLModel.Base       import ModelEntity, DocumentedEntityMixin, ExpressionUnion, Mode, NamedEntityMixin
+from pyVHDLModel.Base       import ModelEntity, DocumentedEntityMixin, NamedEntityMixin, OptionallyNamedEntityMixin
+from pyVHDLModel.Base       import ExpressionUnion, Mode
 from pyVHDLModel.Object     import Constant, Signal, Variable, File
 from pyVHDLModel.Subprogram import Procedure, Function
 from pyVHDLModel.Type       import Type
@@ -96,7 +97,7 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
@@ -105,7 +106,7 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 
 @export
 class GenericTypeInterfaceItem(Type, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -117,21 +118,21 @@ class GenericSubprogramInterfaceItem(GenericInterfaceItemMixin):
 
 @export
 class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
 @export
 class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
 @export
 class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -139,7 +140,7 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -153,7 +154,7 @@ class PortSignalInterfaceItem(Signal, PortInterfaceItemMixin):
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		PortInterfaceItemMixin.__init__(self, mode)
@@ -168,7 +169,7 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -184,7 +185,7 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -200,7 +201,7 @@ class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin, Interfac
 		subtype: Symbol,
 		defaultExpression: Nullable[ExpressionUnion] = None,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
@@ -214,7 +215,156 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 		identifiers: Iterable[str],
 		subtype: Symbol,
 		documentation: Nullable[str] = None,
-		parent: ModelEntity = None
+		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
+
+
+@export
+class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
+	_genericItems: List[GenericInterfaceItemMixin]
+
+	def __init__(
+		self,
+		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+ 	) -> None:
+		self._genericItems = []
+		if genericItems is not None:
+			for item in genericItems:
+				self._genericItems.append(item)
+				item._parent = self
+
+	@property
+	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
+		return self._genericItems
+
+	@property
+	def GenericCount(self) -> int:
+		return len(self._genericItems)
+
+
+@export
+class WithPortsMixin(metaclass=ExtendedType, mixin=True):
+	_portItems: List[PortInterfaceItemMixin]
+
+	def __init__(
+		self,
+		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
+	) -> None:
+		self._portItems = []
+		if portItems is not None:
+			for item in portItems:
+				self._portItems.append(item)
+				item._parent = self
+
+	@property
+	def PortItems(self) -> List[PortInterfaceItemMixin]:
+		return self._portItems
+
+	@property
+	def PortCount(self) -> int:
+		return len(self._portItems)
+
+
+@export
+class WithParametersMixin(metaclass=ExtendedType, mixin=True):
+	_parameterItems: List[ParameterInterfaceItemMixin]
+
+	def __init__(
+		self,
+		parameterItems: Nullable[Iterable[ParameterInterfaceItemMixin]] = None,
+	) -> None:
+		self._parameterItems = []
+		if parameterItems is not None:
+			for item in parameterItems:
+				self._parameterItems.append(item)
+				item._parent = self
+
+	@property
+	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:
+		return self._parameterItems
+
+	@property
+	def ParameterCount(self) -> int:
+		return len(self._parameterItems)
+
+
+@export
+class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMixin):
+	def __init__(
+		self,
+		name:   Nullable[str] = None,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		"""Initialize a PortGroup with a list of ports and optional name."""
+		super().__init__(parent)
+		OptionallyNamedEntityMixin.__init__(self, name)
+		DocumentedEntityMixin.__init__(self, documentation)
+
+
+@export
+class GenericGroup(InterfaceGroup):
+	def __init__(
+		self,
+		genericItems:  Iterable[GenericInterfaceItemMixin],
+		name:          Nullable[str] = None,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(name, documentation, parent)
+		WithGenericsMixin.__init__(self, genericItems)
+
+	def __len__(self) -> int:
+		return len(self._genericItems)
+
+	def __iter__(self) -> Iterator[GenericInterfaceItemMixin]:
+		return iter(self._genericItems)
+
+	def __str__(self) -> str:
+		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {', '.join(p._identifier for p in self._genericItems)})"
+
+
+@export
+class PortGroup(InterfaceGroup, WithPortsMixin):
+	def __init__(
+		self,
+		portItems:     Iterable[PortInterfaceItemMixin],
+		name:          Nullable[str] = None,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(name, documentation, parent)
+		WithPortsMixin.__init__(self, portItems)
+
+	def __len__(self) -> int:
+		return len(self._portItems)
+
+	def __iter__(self) -> Iterator[PortInterfaceItemMixin]:
+		return iter(self._portItems)
+
+	def __str__(self) -> str:
+		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {', '.join(p._identifier for p in self._portItems)})"
+
+
+@export
+class ParameterGroup(InterfaceGroup):
+	def __init__(
+		self,
+		parameterItems: Iterable[ParameterInterfaceItemMixin],
+		name:           Nullable[str] = None,
+		documentation:  Nullable[str] = None,
+		parent:         Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(name, documentation, parent)
+		WithParametersMixin.__init__(self, parameterItems)
+
+	def __len__(self) -> int:
+		return len(self._parameterItems)
+
+	def __iter__(self) -> Iterator[ParameterInterfaceItemMixin]:
+		return iter(self._parameterItems)
+
+	def __str__(self) -> str:
+		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {', '.join(p._identifier for p in self._parameterItems)})"

@@ -82,7 +82,7 @@ class PackageInstantiation(PrimaryUnit, GenericInstantiationMixin):
 	_packageReference: PackageReferenceSymbol
 	_genericAssociations: List[GenericAssociationItem]
 
-	def __init__(self, identifier: str, uninstantiatedPackage: PackageReferenceSymbol, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, identifier: str, uninstantiatedPackage: PackageReferenceSymbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericEntityInstantiationMixin.__init__(self)
 

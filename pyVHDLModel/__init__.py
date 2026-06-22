@@ -48,7 +48,7 @@ __author__ =    "Patrick Lehmann"
 __email__ =     "Paebbels@gmail.com"
 __copyright__ = "2016-2026, Patrick Lehmann"
 __license__ =   "Apache License, Version 2.0"
-__version__ =   "0.34.0"
+__version__ =   "0.35.0"
 
 
 from enum                      import unique, Enum, Flag, auto
@@ -301,11 +301,26 @@ class VHDLVersion(Enum):
 
 @export
 class IEEEFlavor(Flag):
-	Unknown = 0
-	IEEE = 1
-	Synopsys = 2
-	MentorGraphics = 4
-	WithVITAL = 32      # VITAL = VHDL Initiative Towards ASIC Libraries
+	"""
+	The ``IEEE`` VHDL library as a fixed set of predefined VHDL packages according to IEEE Std. 1076.
+
+	Nonetheless, some vendors decided to sneak in additional packages into the ``IEEE`` namespace. |br|
+	Supported flavors are:
+
+	* ``Synopsys``
+	* ``MentorGraphics``
+
+	In addition, IEEE Std. 1076.X extensions can be loaded. |br|
+	Supported extensions are:
+
+	* ``WithVITAL`` - IEEE Std. 1076.4
+
+	"""
+	Unknown = 0         #: Unknown IEEE flavor
+	IEEE = 1            #: IEEE Std. 1076 compliant list of IEEE packages.
+	Synopsys = 2        #: Additional packages created by Synopsys are visible within the IEEE library.
+	MentorGraphics = 4  #: Additional packages created by Mentor Graphics are visible within the IEEE library.
+	WithVITAL = 32      #: Additionally load IEEE Std 1076.4 VITAL packages. (VITAL = VHDL Initiative Towards ASIC Libraries)
 
 
 @export
@@ -418,16 +433,16 @@ class ObjectGraphVertexKind(Flag):
 	"""
 	A ``ObjectGraphVertexKind`` is an enumeration and represents the kind of vertex in the object graph.
 	"""
-	Type = auto()
-	Subtype = auto()
+	Type =             auto()
+	Subtype =          auto()
 
-	Constant = auto()
+	Constant =         auto()
 	DeferredConstant = auto()
-	Variable = auto()
-	Signal = auto()
-	File = auto()
+	Variable =         auto()
+	Signal =           auto()
+	File =             auto()
 
-	Alias = auto()
+	Alias =            auto()
 
 
 @export
@@ -437,7 +452,7 @@ class ObjectGraphEdgeKind(Flag):
 	A ``ObjectGraphEdgeKind`` is an enumeration and represents the kind of edge in the object graph.
 	"""
 	BaseType = auto()
-	Subtype = auto()
+	Subtype =  auto()
 
 	ReferenceInExpression = auto()
 
@@ -1360,6 +1375,60 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			library.LinkPackageBodies()
 
 	def LinkLibraryReferences(self) -> None:
+		"""
+		Link all library references (library clause) to the matching VHDL library.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all design units with contexts:
+
+		   * If the design unit is a primary unit:
+
+		     1. Iterate all library identifiers in ``DEFAULT_LIBRARIES`` (``std``):
+
+		        * Get the referenced library by name from the design.
+		        * Add an entry in the design unit's ``_referencedLibraries`` dictionary referencing the referenced library.
+		        * Add an empty dictionary in the design unit's ``_referencedPackages`` dictionary.
+		        * Add an empty dictionary in the design unit's ``_referencedContexts`` dictionary.
+		        * Add an edge in the dependency graph from design unit to the referenced library.
+
+		     2. Get the design unit's library:
+
+		        * Add an entry in the design unit's ``_referencedLibraries`` dictionary referencing the referenced library.
+		        * Add an empty dictionary in the design unit's ``_referencedPackages`` dictionary.
+		        * Add an empty dictionary in the design unit's ``_referencedContexts`` dictionary.
+		        * Add an edge in the dependency graph from design unit to the referenced library.
+
+		   * If the design unit is a secondary unit:
+
+		     * If design unit is an architecture, get the corresponding entity's referenced libraries.
+		     * If design unit is a package body, get the corresponding package's referenced libraries.
+		     * Otherwise, raise an exception
+
+		     For every referenced library create new dictionary entries in the design unit's ``_referencedLibraries``.
+
+		2. Iterate every library reference (library clause) in the design unit:
+
+		   * Iterate every library symbol within the library reference:
+
+		     * Get the library identifier from the symbol.
+		     * Continue the inner loop, if identifier is ``work``.
+		     * Get the referenced library from the design or raise an exception.
+		     * Update the library symbol's target with the referenced library.
+		     * Add an entry in the design unit's ``_referencedLibraries`` dictionary referencing the referenced library.
+		     * Add an empty dictionary in the design unit's ``_referencedPackages`` dictionary.
+		     * Add an empty dictionary in the design unit's ``_referencedContexts`` dictionary.
+		     * Add an edge in the dependency graph from design unit to the referenced library.
+
+		.. seealso::
+
+		   :meth:`LinkPackageReferences`
+		     Link *use clause*.
+		   :meth:`LinkContextReferences`
+		     Link *context clause*.
+		   :meth:`AnalyzeDependencies`
+		     Analyze dependencies and link relations.
+		"""
 		DEFAULT_LIBRARIES = ("std",)
 
 		for designUnit in self.IterateDesignUnits(DesignUnitKind.WithContext):
@@ -1376,10 +1445,10 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency = designUnit._dependencyVertex.EdgeToVertex(referencedLibrary._dependencyVertex)
 					dependency["kind"] = DependencyGraphEdgeKind.LibraryClause
 
+				# TODO: this could create a duplicate linking, if primary unit is put into library 'std'
 				workingLibrary: Library = designUnit.Library
 				libraryIdentifier = workingLibrary.NormalizedIdentifier
-				referencedLibrary = self._libraries[libraryIdentifier]
-
+				referencedLibrary = self._libraries[libraryIdentifier]   # TODO: isn't this the same as the workingLibrary from 2 lines before?
 
 				designUnit._referencedLibraries[libraryIdentifier] = referencedLibrary
 				designUnit._referencedPackages[libraryIdentifier] = {}
@@ -1395,10 +1464,10 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				elif isinstance(designUnit, PackageBody):
 					referencedLibraries = designUnit.Package.Package._referencedLibraries
 				else:
-					raise VHDLModelException()
+					raise VHDLModelException()  # FIXME: exception message
 
 				for libraryIdentifier, library in referencedLibraries.items():
-					designUnit._referencedLibraries[libraryIdentifier] = library
+					designUnit._referencedLibraries[libraryIdentifier] = library   # TODO: Could we use the .update() method
 
 			for libraryReference in designUnit._libraryReferences:
 				# A library clause can have multiple comma-separated references
@@ -1424,6 +1493,79 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency["kind"] = DependencyGraphEdgeKind.LibraryClause
 
 	def LinkPackageReferences(self) -> None:
+		"""
+		Link all package references (use clause) to the matching packages.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all design units with contexts:
+
+		   * If the design unit is a primary unit:
+
+		     * If primary unit isn't package ``std.standard``:
+
+		       1. Iterate all library, packages tuples in ``DEFAULT_PACKAGES`` (``std``: [``standard``]):
+
+		          * Raise an exception, if library isn't listed in design unit's ``_referencedLibraries``.
+		          * For every package in packages:
+
+		            * Get the referenced package by library name and package name from the design.
+		            * Add an entry in the design unit's ``_referencedPackages`` dictionary referencing the referenced package.
+		            * Add an edge in the dependency graph from design unit to the referenced package.
+
+		   * If the design unit is a secondary unit:
+
+		     * If design unit is an architecture, get the corresponding entity's referenced packages.
+		     * If design unit is a package body, get the corresponding package's referenced packages.
+		     * Otherwise, raise an exception
+
+		     For every referenced package create new dictionary entries in the design unit's ``_referencedPackages``.
+
+		2. Iterate every package reference (use clause) in the design unit:
+
+		   * Iterate every package symbol within the package reference:
+
+		     1. Get the library identifier from the symbol.
+		     2. Get the package identifier from the symbol.
+		     3. Resolve library:
+
+		        * If library name is ``work``, get library from design unit.
+		        * If library name is not in design unit's ``_referencedLibraries``, raise an exception.
+		        * Otherwise, lookup library by name in design.
+
+		     4. Resolve package:
+
+		        * Lookup package by name in library.
+
+		     5. Update design unit:
+
+		        * Update the package symbol's target with the referenced package.
+		        * Add an entry in the design unit's ``_referencedPackages`` dictionary referencing the referenced package.
+		        * Add an edge in the dependency graph from design unit to the referenced package.
+
+		     6. Import public package members.
+
+		        * If package symbol is a ``AllPackageMembersReferenceSymbol``:
+
+		          * Iterate all components within the referenced package and add entries for each component in the design unit's ``_namespace``.
+
+		          .. todo:: Other elements are not implemented.
+
+		        * If package symbol is a ``PackageMemberReferenceSymbol``
+
+		          .. todo:: Not implemented.
+
+		        * Otherwise, raise an exception.
+
+		.. seealso::
+
+		   :meth:`LinkLibraryReferences`
+		     Link *library clause*.
+		   :meth:`LinkContextReferences`
+		     Link *context clause*.
+		   :meth:`AnalyzeDependencies`
+		     Analyze dependencies and link relations.
+		"""
 		DEFAULT_PACKAGES = (
 			("std", ("standard",)),
 		)
@@ -1431,15 +1573,14 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		for designUnit in self.IterateDesignUnits(DesignUnitKind.WithContext):
 			# All primary units supporting a context, have at least one package implicitly referenced
 			if isinstance(designUnit, PrimaryUnit):
-				if designUnit.Library.NormalizedIdentifier != "std" and \
-					designUnit.NormalizedIdentifier != "standard":
-					for lib in DEFAULT_PACKAGES:
-						if lib[0] not in designUnit._referencedLibraries:
-							raise VHDLModelException()
-						for pack in lib[1]:
-							referencedPackage = self._libraries[lib[0]]._packages[pack]
-							designUnit._referencedPackages[lib[0]][pack] = referencedPackage
-							# TODO: catch KeyError on self._libraries[lib[0]]._packages[pack]
+				if not (designUnit.Library.NormalizedIdentifier == "std" and designUnit.NormalizedIdentifier == "standard"):
+					for lib, packages in DEFAULT_PACKAGES:
+						if lib not in designUnit._referencedLibraries:
+							raise VHDLModelException()  # TODO: missing exception message
+						for package in packages:
+							referencedPackage = self._libraries[lib]._packages[package]
+							designUnit._referencedPackages[lib][package] = referencedPackage
+							# TODO: catch KeyError on self._libraries[lib[0]]._packages[package]
 							# TODO: warn duplicate package reference
 
 							dependency = designUnit._dependencyVertex.EdgeToVertex(referencedPackage._dependencyVertex)
@@ -1452,7 +1593,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				elif isinstance(designUnit, PackageBody):
 					referencedPackages = designUnit.Package.Package._referencedPackages
 				else:
-					raise VHDLModelException()
+					raise VHDLModelException()  # FIXME: exception message
 
 				for packageIdentifier, package in referencedPackages.items():
 					designUnit._referencedPackages[packageIdentifier] = package
@@ -1460,7 +1601,11 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			for packageReference in designUnit.PackageReferences:
 				# A use clause can have multiple comma-separated references
 				for packageMemberSymbol in packageReference.Symbols:
-					packageName = packageMemberSymbol.Name.Prefix
+					if isinstance(packageMemberSymbol, PackageReferenceSymbol):
+						packageName = packageMemberSymbol.Name
+					elif isinstance(packageMemberSymbol, (AllPackageMembersReferenceSymbol, PackageMemberReferenceSymbol)):
+						packageName = packageMemberSymbol.Name.Prefix
+
 					libraryName = packageName.Prefix
 
 					libraryIdentifier = libraryName.NormalizedIdentifier
@@ -1492,7 +1637,10 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency["kind"] = DependencyGraphEdgeKind.UseClause
 
 					# TODO: update the namespace with visible members
-					if isinstance(packageMemberSymbol, AllPackageMembersReferenceSymbol):
+					if isinstance(packageMemberSymbol, PackageReferenceSymbol):
+						designUnit._namespace._elements[packageIdentifier] = package
+
+					elif isinstance(packageMemberSymbol, AllPackageMembersReferenceSymbol):
 						WarningCollector.Raise(NotImplementedWarning(f"Handling of 'myLib.myPackage.all'. Exception: components are handled."))
 
 						for componentIdentifier, component in package._components.items():
@@ -1502,9 +1650,65 @@ class Design(ModelEntity, AllowBlackboxMixin):
 						WarningCollector.Raise(NotImplementedWarning(f"Handling of 'myLib.myPackage.mySymbol'."))
 
 					else:
-						raise VHDLModelException()
+						ex = VHDLModelException(f"Unknown package reference symbol type.")
+						ex.add_note(f"Got type '{getFullyQualifiedName(packageMemberSymbol)}'.")
+						raise ex
 
 	def LinkContextReferences(self) -> None:
+		"""
+		Link all context references (context clause) to the matching context.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all design units:
+
+		   * Iterate all context references in the design unit:
+
+		     * Iterate each context symbol within the context reference.
+
+		       1. Get the library identifier from the symbol.
+		       2. Get the context identifier from the symbol.
+		       3. Resolve library:
+
+		          * If library name is ``work``, get library from design unit.
+		          * If library name is not in design unit's ``_referencedLibraries``, raise an exception.
+		          * Otherwise, lookup library by name in design.
+
+		       4. Resolve context:
+
+		          * Lookup context by name in library.
+
+		       5. Update design unit:
+
+		          * Update the context symbol's target with the referenced context.
+		          * Add an entry in the design unit's ``_referencedContexts`` dictionary referencing the referenced context.
+		          * Add an edge in the dependency graph from design unit to the referenced context.
+
+		2. Iterate all context vertices in the dependency graph (``_dependencyGraph``) in topological order:
+
+		   * Get the context from the context vertex.
+		   * Iterate all predecessor vertices (design unit vertices) of the context vertex:
+
+		     1. Get the design unit from design unit vertex.
+		     2. Iterate referenced libraries of the context:
+
+		        * Add an entry in the design unit's ``_referencedLibraries`` dictionary referencing the referenced library.
+		        * Add an empty dictionary in the design unit's ``_referencedPackages`` dictionary.
+
+		     3. Iterate referenced packages of the context:
+
+		        * Raise an exception if package name is already listed in ``_referencedPackages``.
+		        * Add an entry in the design unit's ``_referencedPackages`` dictionary referencing the referenced package.
+
+		.. seealso::
+
+		   :meth:`LinkLibraryReferences`
+		     Link *library clause*.
+		   :meth:`LinkPackageReferences`
+		     Link *use clause*.
+		   :meth:`AnalyzeDependencies`
+		     Analyze dependencies and link relations.
+		"""
 		for designUnit in self.IterateDesignUnits():
 			for contextReference in designUnit._contextReferences:
 				# A context reference can have multiple comma-separated references
@@ -1537,24 +1741,23 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency = designUnit._dependencyVertex.EdgeToVertex(referencedContext._dependencyVertex, edgeValue=contextReference)
 					dependency["kind"] = DependencyGraphEdgeKind.ContextReference
 
-		for vertex in self._dependencyGraph.IterateTopologically():
-			if vertex["kind"] is DependencyGraphVertexKind.Context:
-				context: Context = vertex.Value
-				for designUnitVertex in vertex.IteratePredecessorVertices():
-					designUnit: DesignUnit = designUnitVertex.Value
-					for libraryIdentifier, library in context._referencedLibraries.items():
-						# if libraryIdentifier in designUnit._referencedLibraries:
-						# 	raise VHDLModelException(f"Referenced library '{library.Identifier}' already exists in references for design unit '{designUnit.Identifier}'.")
+		for vertex in self._dependencyGraph.IterateTopologically(predicate=lambda v: v["kind"] is DependencyGraphVertexKind.Context):
+			context: Context = vertex.Value
+			for designUnitVertex in vertex.IteratePredecessorVertices():  # TODO: should this be filtered to exclude non-contexts?
+				designUnit: DesignUnit = designUnitVertex.Value
+				for libraryIdentifier, library in context._referencedLibraries.items():
+					# if libraryIdentifier in designUnit._referencedLibraries:
+					# 	raise VHDLModelException(f"Referenced library '{library.Identifier}' already exists in references for design unit '{designUnit.Identifier}'.")
 
-						designUnit._referencedLibraries[libraryIdentifier] = library
-						designUnit._referencedPackages[libraryIdentifier] = {}
+					designUnit._referencedLibraries[libraryIdentifier] = library
+					designUnit._referencedPackages[libraryIdentifier] = {}
 
-					for libraryIdentifier, packages in context._referencedPackages.items():
-						for packageIdentifier, package in packages.items():
-							if packageIdentifier in designUnit._referencedPackages:
-								raise VHDLModelException(f"Referenced package '{package.Identifier}' already exists in references for design unit '{designUnit.Identifier}'.")
+				for libraryIdentifier, packages in context._referencedPackages.items():
+					for packageIdentifier, package in packages.items():
+						if packageIdentifier in designUnit._referencedPackages:
+							raise VHDLModelException(f"Referenced package '{package.Identifier}' already exists in references for design unit '{designUnit.Identifier}'.")
 
-							designUnit._referencedPackages[libraryIdentifier][packageIdentifier] = package
+						designUnit._referencedPackages[libraryIdentifier][packageIdentifier] = package
 
 	def LinkComponents(self) -> None:
 		"""
@@ -1939,7 +2142,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		self,
 		identifier:    str,
 		allowBlackbox: Nullable[bool] = None,
-		parent:        ModelEntity = None
+		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
 		Initialize a VHDL library.
@@ -2162,6 +2365,8 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		for package in self._packages.values():
 			if isinstance(package, Package):
 				package.IndexDeclaredItems()
+			elif isinstance(package, PackageInstantiation):
+				pass
 
 	def IndexPackageBodies(self) -> None:
 		"""
@@ -2266,7 +2471,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	_dependencyVertex:       Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the dependency graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 	_compileOrderVertex:     Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the compile-order graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 
-	def __init__(self, path: Path, documentation: Nullable[str] = None, parent: ModelEntity = None) -> None:
+	def __init__(self, path: Path, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
