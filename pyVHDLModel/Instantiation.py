@@ -39,8 +39,9 @@ from typing import List, Optional as Nullable
 from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
+from pyVHDLModel             import VHDLModelException
 from pyVHDLModel.Base        import ModelEntity
-from pyVHDLModel.DesignUnit  import PrimaryUnit
+from pyVHDLModel.DesignUnit  import Package
 from pyVHDLModel.Association import GenericAssociationItem
 from pyVHDLModel.Subprogram  import Procedure, Function, Subprogram
 from pyVHDLModel.Symbol      import PackageReferenceSymbol
@@ -78,12 +79,12 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 
 @export
-class PackageInstantiation(PrimaryUnit, GenericInstantiationMixin):
+class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
 	_packageReference: PackageReferenceSymbol
 	_genericAssociations: List[GenericAssociationItem]
 
 	def __init__(self, identifier: str, uninstantiatedPackage: PackageReferenceSymbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(identifier, documentation, parent)
+		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
 
 		self._packageReference = uninstantiatedPackage
@@ -99,3 +100,14 @@ class PackageInstantiation(PrimaryUnit, GenericInstantiationMixin):
 	@readonly
 	def GenericAssociations(self) -> List[GenericAssociationItem]:
 		return self._genericAssociations
+
+	def Instantiate(self):
+		genericPackage: Package = self._packageReference.Package
+		if genericPackage is None:
+			raise VHDLModelException(f"PackageInstantiation '{self.Identifier}' isn't linked to the generic package '{self._packageReference.Name}'.")
+
+		# TODO: components might need to be copied and derived
+		for componentName, component in genericPackage._components.items():
+			self._components[componentName] = component
+
+		# FIXME: handle other package members

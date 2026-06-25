@@ -48,7 +48,7 @@ __author__ =    "Patrick Lehmann"
 __email__ =     "Paebbels@gmail.com"
 __copyright__ = "2016-2026, Patrick Lehmann"
 __license__ =   "Apache License, Version 2.0"
-__version__ =   "0.35.0"
+__version__ =   "0.36.0"
 
 
 from enum                      import unique, Enum, Flag, auto
@@ -425,6 +425,8 @@ class DependencyGraphEdgeKind(Flag):
 	EntityInstantiation =        Entity | Instantiation
 	ComponentInstantiation =     Component | Instantiation
 	ConfigurationInstantiation = Configuration | Instantiation
+
+	PackageInstantiation =       Package | Instantiation
 
 
 @export
@@ -857,19 +859,21 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		   |rarr| :meth:`LinkArchitectures`
 		7. Link all package bodies. |br|
 		   |rarr| :meth:`LinkPackageBodies`
-		8. Link all library references. |br|
+		8. Link all package instances. |br|
+		   |rarr| :meth:`LinkPackageInstances`
+		9. Link all library references. |br|
 		   |rarr| :meth:`LinkLibraryReferences`
-		9. Link all package references. |br|
-		   |rarr| :meth:`LinkPackageReferences`
-		10. Link all context references. |br|
+		10. Link all package references. |br|
+		    |rarr| :meth:`LinkPackageReferences`
+		11. Link all context references. |br|
 		    |rarr| :meth:`LinkContextReferences`
-		11. Link all components. |br|
+		12. Link all components. |br|
 		    |rarr| :meth:`LinkComponents`
-		12. Link all instantiations. |br|
+		13. Link all instantiations. |br|
 		    |rarr| :meth:`LinkInstantiations`
-		13. Create the hierarchy graph. |br|
+		14. Create the hierarchy graph. |br|
 		    |rarr| :meth:`CreateHierarchyGraph`
-		14. Compute the compile order. |br|
+		15. Compute the compile order. |br|
 		    |rarr| :meth:`ComputeCompileOrder`
 		"""
 		self.CreateDependencyGraph()
@@ -881,6 +885,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		self.LinkContexts()
 		self.LinkArchitectures()
 		self.LinkPackageBodies()
+		self.LinkPackageInstances()
 		self.LinkLibraryReferences()
 		self.LinkPackageReferences()
 		self.LinkContextReferences()
@@ -1303,6 +1308,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					except KeyError:
 						raise VHDLModelException(f"Package '{packageName._identifier}' not found in {'working ' if libraryName._normalizedIdentifier == 'work' else ''}library '{library._identifier}'.")
 
+					# FIXME: check if package isn't a generic package
 					symbol.Package = package
 
 					# TODO: warn duplicate package reference
@@ -1345,6 +1351,8 @@ class Design(ModelEntity, AllowBlackboxMixin):
 
 		   :meth:`LinkPackageBodies`
 		     Link all package bodies to corresponding packages in all libraries.
+		   :meth:`LinkPackageInstances`
+		     Link all package instances to corresponding generic packages in all libraries.
 		"""
 		for library in self._libraries.values():
 			library.LinkArchitectures()
@@ -1370,9 +1378,40 @@ class Design(ModelEntity, AllowBlackboxMixin):
 
 		   :meth:`LinkArchitectures`
 		     Link all architectures to corresponding entities in all libraries.
+		   :meth:`LinkPackageInstances`
+		     Link all package instances to corresponding generic packages in all libraries.
 		"""
 		for library in self._libraries.values():
 			library.LinkPackageBodies()
+
+	def LinkPackageInstances(self) -> None:
+		"""
+		Link all package instances to corresponding generic packages in all libraries.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all libraries:
+
+		   1. Iterate all package instances.
+		      |rarr| :meth:`pyVHDLModel.Library.LinkPackageInstances`
+
+          .. todo::
+
+		         * Check if package instance's symbol's name exists as a generic package in this library.
+		         * Add generic package to package instance :attr:`pyVHDLModel.DesignUnit.Package._packageBody`.
+		         * Assign found package to package body's package symbol :attr:`pyVHDLModel.DesignUnit.PackageBody._package`
+		         * Set parent namespace of package body's namespace to the package's namespace.
+		         * Add an edge in the dependency graph from the package body's corresponding dependency vertex to the package's corresponding dependency vertex.
+
+		.. seealso::
+
+		   :meth:`LinkArchitectures`
+		     Link all architectures to corresponding entities in all libraries.
+		   :meth:`LinkPackageBodies`
+		     Link all package bodies to corresponding packages in all libraries.
+		"""
+		for library in self._libraries.values():
+			library.LinkPackageInstances()
 
 	def LinkLibraryReferences(self) -> None:
 		"""
@@ -1628,6 +1667,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 						ex.add_note(f"Caused in design unit '{designUnit}' in file '{designUnit.Document}'.")
 						raise ex
 
+					# FIXME: check if package isn't a generic package
 					packageMemberSymbol.Package = package
 
 					# TODO: warn duplicate package reference
@@ -2286,6 +2326,8 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 
 		   :meth:`LinkPackageBodies`
 		     Link all package bodies to corresponding packages.
+		   :meth:`LinkPackageInstances`
+		     Link all package instances to corresponding generic packages.
 		"""
 		for entityName, architecturesPerEntity in self._architectures.items():
 			if entityName not in self._entities:
@@ -2328,6 +2370,8 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 
 		   :meth:`LinkArchitectures`
 		     Link all architectures to corresponding entities.
+		   :meth:`LinkPackageInstances`
+		     Link all package instances to corresponding generic packages.
 		"""
 		for packageBodyName, packageBody in self._packageBodies.items():
 			if packageBodyName not in self._packages:
@@ -2341,6 +2385,69 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 			# add "package body -> package" relation in dependency graph
 			dependency = packageBody._dependencyVertex.EdgeToVertex(package._dependencyVertex)
 			dependency["kind"] = DependencyGraphEdgeKind.PackageImplementation
+
+	def LinkPackageInstances(self) -> None:
+		"""
+		Link all package instances to corresponding generic packages.
+
+		.. rubric:: Algorithm
+
+		1. Iterate all package instances.
+
+		   .. todo::
+
+		      * Check if package body symbol's name exists as a package in this library.
+		      * Add package body to package :attr:`pyVHDLModel.DesignUnit.Package._packageBody`.
+		      * Assign found package to package body's package symbol :attr:`pyVHDLModel.DesignUnit.PackageBody._package`
+		      * Set parent namespace of package body's namespace to the package's namespace.
+		      * Add an edge in the dependency graph from the package body's corresponding dependency vertex to the package's corresponding dependency vertex.
+
+		:raises VHDLModelException: If generic package name doesn't exist.
+
+		.. seealso::
+
+		   :meth:`LinkArchitectures`
+		     Link all architectures to corresponding entities.
+		   :meth:`LinkPackageBodies`
+		     Link all package bodies to corresponding packages.
+		"""
+		for packageInstanceName, packageInstance in self._packages.items():
+			if isinstance(packageInstance, PackageInstantiation):
+				packageSymbol = packageInstance._packageReference
+				packageName = packageSymbol.Name
+				libraryName = packageName.Prefix
+
+				libraryIdentifier = libraryName.NormalizedIdentifier
+				packageIdentifier = packageName.NormalizedIdentifier
+
+				# In case work is used, resolve to the real library name.
+				if libraryIdentifier == "work":
+					library: Library = self
+					libraryIdentifier = library.NormalizedIdentifier
+				elif libraryIdentifier not in self._parent._libraries:
+					# TODO: This check doesn't trigger if it's the working library.
+					raise VHDLModelException(f"Package instantiation of '{packageInstanceName}' references library '{libraryName.Identifier}', which cannot be found in design.")
+				else:
+					library = self._parent._libraries[libraryIdentifier]
+
+				try:
+					package = library._packages[packageIdentifier]
+				except KeyError:
+					ex = VHDLModelException(
+						f"Package '{packageName.Identifier}' not found in {'working ' if libraryName.NormalizedIdentifier == 'work' else ''}library '{library.Identifier}'.")
+					ex.add_note(f"Caused in library '{self}' in file '{packageInstance.Document}'.")
+					raise ex
+
+				# FIXME: check if package is a generic package
+				if package.GenericCount == 0:
+					raise VHDLModelException(f"Package '{libraryName.Identifier}.{packageName.Identifier}' referenced by '{self._identifier}.{packageInstanceName}' is not a generic package.")
+
+				packageSymbol.Package = package
+
+				dependency = packageInstance._dependencyVertex.EdgeToVertex(package._dependencyVertex)  # , edgeValue=packageReference)
+				dependency["kind"] = DependencyGraphEdgeKind.PackageInstantiation
+
+				packageInstance.Instantiate()
 
 	def IndexPackages(self) -> None:
 		"""
@@ -2365,8 +2472,6 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		for package in self._packages.values():
 			if isinstance(package, Package):
 				package.IndexDeclaredItems()
-			elif isinstance(package, PackageInstantiation):
-				pass
 
 	def IndexPackageBodies(self) -> None:
 		"""
