@@ -1308,6 +1308,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					except KeyError:
 						raise VHDLModelException(f"Package '{packageName._identifier}' not found in {'working ' if libraryName._normalizedIdentifier == 'work' else ''}library '{library._identifier}'.")
 
+					# FIXME: check if package isn't a generic package
 					symbol.Package = package
 
 					# TODO: warn duplicate package reference
@@ -1666,6 +1667,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 						ex.add_note(f"Caused in design unit '{designUnit}' in file '{designUnit.Document}'.")
 						raise ex
 
+					# FIXME: check if package isn't a generic package
 					packageMemberSymbol.Package = package
 
 					# TODO: warn duplicate package reference
@@ -2413,7 +2415,6 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 			if isinstance(packageInstance, PackageInstantiation):
 				packageSymbol = packageInstance._packageReference
 				packageName = packageSymbol.Name
-
 				libraryName = packageName.Prefix
 
 				libraryIdentifier = libraryName.NormalizedIdentifier
@@ -2446,8 +2447,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 				dependency = packageInstance._dependencyVertex.EdgeToVertex(package._dependencyVertex)  # , edgeValue=packageReference)
 				dependency["kind"] = DependencyGraphEdgeKind.PackageInstantiation
 
-
-
+				packageInstance.Instantiate()
 
 	def IndexPackages(self) -> None:
 		"""
