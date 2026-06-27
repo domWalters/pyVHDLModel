@@ -165,7 +165,7 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 		if literals is not None:
 			for literal in literals:
 				self._literals.append(literal)
-				literal._parent = self
+				literal.Parent = self
 
 	@readonly
 	def Literals(self) -> List[EnumerationLiteral]:
@@ -213,7 +213,7 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 		self._secondaryUnits = []  # TODO: convert to dict
 		for unit in units:
 			self._secondaryUnits.append(unit)
-			unit[1]._parent = self
+			unit[1].Parent = self
 
 	@readonly
 	def PrimaryUnit(self) -> str:
@@ -249,10 +249,10 @@ class ArrayType(CompositeType):
 		self._dimensions = []
 		for index in indices:
 			self._dimensions.append(index)
-			# index._parent = self  # FIXME: indices are provided as empty list
+			# index.Parent = self  # FIXME: indices are provided as empty list
 
 		self._elementType = elementSubtype
-		# elementSubtype._parent = self   # FIXME: subtype is provided as None
+		# elementSubtype.Parent = self   # FIXME: subtype is provided as None
 
 	@property
 	def Dimensions(self) -> List[Range]:
@@ -275,7 +275,7 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 
 		self._subtype = subtype
-		subtype._parent = self
+		subtype.Parent = self
 
 	@property
 	def Subtype(self) -> Symbol:
@@ -296,7 +296,7 @@ class RecordType(CompositeType):
 		if elements is not None:
 			for element in elements:
 				self._elements.append(element)
-				element._parent = self
+				element.Parent = self
 
 	@property
 	def Elements(self) -> List[RecordTypeElement]:
@@ -317,7 +317,7 @@ class ProtectedType(FullType):
 		if methods is not None:
 			for method in methods:
 				self._methods.append(method)
-				method._parent = self
+				method.Parent = self
 
 	@property
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
@@ -335,7 +335,7 @@ class ProtectedTypeBody(FullType):
 		if declaredItems is not None:
 			for method in declaredItems:
 				self._methods.append(method)
-				method._parent = self
+				method.Parent = self
 
 	# FIXME: needs to be declared items or so
 	@property
@@ -351,7 +351,7 @@ class AccessType(FullType):
 		super().__init__(identifier, parent)
 
 		self._designatedSubtype = designatedSubtype
-		designatedSubtype._parent = self
+		designatedSubtype.Parent = self
 
 	@property
 	def DesignatedSubtype(self):
@@ -369,7 +369,7 @@ class FileType(FullType):
 		super().__init__(identifier, parent)
 
 		self._designatedSubtype = designatedSubtype
-		designatedSubtype._parent = self
+		designatedSubtype.Parent = self
 
 	@property
 	def DesignatedSubtype(self):

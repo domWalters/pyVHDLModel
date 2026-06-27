@@ -346,7 +346,7 @@ class ConditionalMixin(metaclass=ExtendedType, mixin=True):
 		"""
 		self._condition = condition
 		if condition is not None:
-			condition._parent = self
+			condition.Parent = self
 
 	@readonly
 	def Condition(self) -> ExpressionUnion:
@@ -399,11 +399,11 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 	def __init__(self, message: Nullable[ExpressionUnion] = None, severity: Nullable[ExpressionUnion] = None) -> None:
 		self._message = message
 		if message is not None:
-			message._parent = self
+			message.Parent = self
 
 		self._severity = severity
 		if severity is not None:
-			severity._parent = self
+			severity.Parent = self
 
 	@property
 	def Message(self) -> Nullable[ExpressionUnion]:
@@ -452,10 +452,10 @@ class Range(ModelEntity):
 		super().__init__(parent)
 
 		self._leftBound = leftBound
-		leftBound._parent = self
+		leftBound.Parent = self
 
 		self._rightBound = rightBound
-		rightBound._parent = self
+		rightBound.Parent = self
 
 		self._direction = direction
 
@@ -484,11 +484,11 @@ class WaveformElement(ModelEntity):
 		super().__init__(parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 		self._after = after
 		if after is not None:
-			after._parent = self
+			after.Parent = self
 
 	@property
 	def Expression(self) -> ExpressionUnion:

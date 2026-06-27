@@ -69,7 +69,7 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		if declaredItems is not None:
 			for item in declaredItems:
 				self._declaredItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 		self._types =       {}
 		self._subtypes =    {}

@@ -68,7 +68,7 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 		DocumentedEntityMixin.__init__(self, documentation)
 
 		self._subtype = subtype
-		subtype._parent = self
+		subtype.Parent = self
 
 		self._objectVertex = None
 
@@ -102,7 +102,7 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 	def __init__(self, defaultExpression: Nullable[ExpressionUnion] = None) -> None:
 		self._defaultExpression = defaultExpression
 		if defaultExpression is not None:
-			defaultExpression._parent = self
+			defaultExpression.Parent = self
 
 	@readonly
 	def DefaultExpression(self) -> Nullable[ExpressionUnion]:

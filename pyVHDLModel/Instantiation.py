@@ -88,7 +88,7 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		GenericEntityInstantiationMixin.__init__(self)
 
 		self._packageReference = genericPackage
-		self._packageReference._parent = self
+		self._packageReference.Parent = self
 
 		# TODO: extract to mixin
 		self._genericAssociations = []

@@ -384,7 +384,7 @@ class Context(PrimaryUnit):
 		if references is not None:
 			for reference in references:
 				self._references.append(reference)
-				reference._parent = self
+				reference.Parent = self
 
 				if isinstance(reference, LibraryClause):
 					self._libraryReferences.append(reference)
@@ -529,7 +529,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 
 		self._package = packageSymbol
-		packageSymbol._parent = self
+		packageSymbol.Parent = self
 
 	@property
 	def Package(self) -> PackageSymbol:
@@ -644,7 +644,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._entity = entity
-		entity._parent = self
+		entity.Parent = self
 
 	@property
 	def Entity(self) -> EntitySymbol:  # FIXME: change to entitySymbol, offer entity directly, but raise exception if not resolved.
@@ -706,14 +706,14 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		if genericItems is not None:
 			for item in genericItems:
 				self._genericItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 		# TODO: extract to mixin
 		self._portItems = []
 		if portItems is not None:
 			for item in portItems:
 				self._portItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@property
 	def IsBlackbox(self) -> Nullable[bool]:

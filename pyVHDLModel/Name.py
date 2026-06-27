@@ -142,7 +142,7 @@ class ParenthesisName(Name):
 		self._associations = []
 		for association in associations:
 			self._associations.append(association)
-			association._parent = self
+			association.Parent = self
 
 	@readonly
 	def Associations(self) -> List:
@@ -162,7 +162,7 @@ class IndexedName(Name):
 		self._indices = []
 		for index in indices:
 			self._indices.append(index)
-			index._parent = self
+			index.Parent = self
 
 	@readonly
 	def Indices(self) -> List[ExpressionUnion]:

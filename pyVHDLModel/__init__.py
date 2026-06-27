@@ -662,7 +662,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			raise LibraryRegisteredToForeignDesignError(library)
 
 		self._libraries[libraryIdentifier] = library
-		library._parent = self
+		library.Parent = self
 
 	def GetLibrary(self, libraryName: str) -> 'Library':
 		"""
@@ -679,7 +679,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		except KeyError:
 			lib = Library(libraryName, parent=self)
 			self._libraries[libraryIdentifier] = lib
-			lib._parent = self
+			lib.Parent = self
 			return lib
 
 	# TODO: allow overloaded parameter library to be str?
@@ -735,7 +735,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			raise LibraryNotRegisteredError(library)
 
 		self._documents.append(document)
-		document._parent = self
+		document.Parent = self
 
 		for entityIdentifier, entity in document._entities.items():
 			if entityIdentifier in library._entities:

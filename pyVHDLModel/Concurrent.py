@@ -147,14 +147,14 @@ class Instantiation(ConcurrentStatement):
 		if genericAssociations is not None:
 			for association in genericAssociations:
 				self._genericAssociations.append(association)
-				association._parent = self
+				association.Parent = self
 
 		# TODO: extract to mixin
 		self._portAssociations = []
 		if portAssociations is not None:
 			for association in portAssociations:
 				self._portAssociations.append(association)
-				association._parent = self
+				association.Parent = self
 
 	@readonly
 	def GenericAssociations(self) -> List[AssociationItem]:
@@ -190,7 +190,7 @@ class ComponentInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._component = componentSymbol
-		componentSymbol._parent = self
+		componentSymbol.Parent = self
 
 	@property
 	def Component(self) -> ComponentInstantiationSymbol:
@@ -224,11 +224,11 @@ class EntityInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._entity = entitySymbol
-		entitySymbol._parent = self
+		entitySymbol.Parent = self
 
 		self._architecture = architectureSymbol
 		if architectureSymbol is not None:
-			architectureSymbol._parent = self
+			architectureSymbol.Parent = self
 
 	@property
 	def Entity(self) -> EntityInstantiationSymbol:
@@ -264,7 +264,7 @@ class ConfigurationInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._configuration = configurationSymbol
-		configurationSymbol._parent = self
+		configurationSymbol.Parent = self
 
 	@property
 	def Configuration(self) -> ConfigurationInstantiationSymbol:
@@ -588,17 +588,17 @@ class IfGenerateStatement(GenerateStatement):
 		super().__init__(label, allowBlackbox, parent)
 
 		self._ifBranch = ifBranch
-		ifBranch._parent = self
+		ifBranch.Parent = self
 
 		self._elsifBranches = []
 		if elsifBranches is not None:
 			for branch in elsifBranches:
 				self._elsifBranches.append(branch)
-				branch._parent = self
+				branch.Parent = self
 
 		if elseBranch is not None:
 			self._elseBranch = elseBranch
-			elseBranch._parent = self
+			elseBranch.Parent = self
 		else:
 			self._elseBranch = None
 
@@ -642,7 +642,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 		super().__init__(parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 	@property
 	def Expression(self) -> ExpressionUnion:
@@ -660,7 +660,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 		super().__init__(parent)
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def Range(self) -> 'Range':
@@ -707,7 +707,7 @@ class GenerateCase(ConcurrentCase):
 		if choices is not None:
 			for choice in choices:
 				self._choices.append(choice)
-				choice._parent = self
+				choice.Parent = self
 
 	# TODO: move to parent or grandparent
 	@property
@@ -757,14 +757,14 @@ class CaseGenerateStatement(GenerateStatement):
 		super().__init__(label, allowBlackbox, parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 		# TODO: create a mixin for things with cases
 		self._cases = []
 		if cases is not None:
 			for case in cases:
 				self._cases.append(case)
-				case._parent = self
+				case.Parent = self
 
 	@property
 	def SelectExpression(self) -> ExpressionUnion:
@@ -817,7 +817,7 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		self._loopIndex = loopIndex
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def LoopIndex(self) -> str:
@@ -867,7 +867,7 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 		if waveform is not None:
 			for waveformElement in waveform:
 				self._waveform.append(waveformElement)
-				waveformElement._parent = self
+				waveformElement.Parent = self
 
 	@property
 	def Waveform(self) -> List[WaveformElement]:

@@ -110,7 +110,7 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		DocumentedEntityMixin.__init__(self, documentation)
 
 		self._subtype = subtype
-		subtype._parent = self
+		subtype.Parent = self
 
 	@readonly
 	def Subtype(self) -> None:
@@ -149,15 +149,15 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 		self._identifiers = []  # TODO: convert to dict
 		for identifier in identifiers:
 			self._identifiers.append(identifier)
-			identifier._parent = self
+			identifier.Parent = self
 
 		self._attribute = attribute
-		attribute._parent = self
+		attribute.Parent = self
 
 		self._entityClass = entityClass
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 	@readonly
 	def Identifiers(self) -> List[Name]:

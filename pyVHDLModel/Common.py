@@ -101,14 +101,14 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, procedureName: Symbol, parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:
 		self._procedure = procedureName
-		procedureName._parent = self
+		procedureName.Parent = self
 
 		# TODO: extract to mixin
 		self._parameterMappings = []
 		if parameterMappings is not None:
 			for parameterMapping in parameterMappings:
 				self._parameterMappings.append(parameterMapping)
-				parameterMapping._parent = self
+				parameterMapping.Parent = self
 
 	@readonly
 	def Procedure(self) -> Symbol:
@@ -127,7 +127,7 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, target: Symbol) -> None:
 		self._target = target
-		target._parent = self
+		target.Parent = self
 
 	@property
 	def Target(self) -> Symbol:
@@ -150,7 +150,7 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 		super().__init__(target)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 	@property
 	def Expression(self) -> ExpressionUnion:
