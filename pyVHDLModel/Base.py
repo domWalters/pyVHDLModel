@@ -117,14 +117,21 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 		"""
 		self._parent = parent
 
-	@readonly
+	@property
 	def Parent(self) -> 'ModelEntity':
 		"""
-		Read-only property to access the model entity's parent element reference in a logical hierarchy (:attr:`_parent`).
+		Property to access the model entity's parent element reference in a logical hierarchy (:attr:`_parent`).
 
 		:returns: Reference to the parent entity.
 		"""
 		return self._parent
+
+	@Parent.setter
+	def Parent(self, parent: 'ModelEntity') -> None:
+		if parent is None:
+			raise ValueError("Parameter 'parent' is None.")
+
+		self._parent = parent
 
 	def GetAncestor(self, type: Type) -> 'ModelEntity':
 		parent = self._parent

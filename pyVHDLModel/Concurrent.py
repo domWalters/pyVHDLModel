@@ -95,7 +95,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 		if statements is not None:
 			for statement in statements:
 				self._statements.append(statement)
-				statement._parent = self
+				statement.Parent = self
 
 	@readonly
 	def Statements(self) -> List[ConcurrentStatement]:
@@ -529,6 +529,14 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
+	@ConcurrentStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ConcurrentStatement.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	# @mustoverride
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:

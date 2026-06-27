@@ -1925,7 +1925,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 					dependency["kind"] = DependencyGraphEdgeKind.EntityInstantiation
 
 				elif isinstance(instance, ComponentInstantiation):
-					component = architecture._namespace.FindComponent(instance.Component)
+					component = instance._parent._namespace.FindComponent(instance.Component)
 
 					instance.Component.Component = component
 
