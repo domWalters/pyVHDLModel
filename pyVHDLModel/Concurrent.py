@@ -608,10 +608,15 @@ class IfGenerateStatement(GenerateStatement):
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		from pyVHDLModel.DesignUnit import Architecture
+
 		GenerateStatement.Parent.fset(self, parent)
 
 		# Connect namespaces
-		self._ifBranch._namespace.ParentNamespace = parent._namespace
+		namespace = self._ifBranch._namespace
+		namespace.ParentNamespace = parent._namespace
+		if namespace._name == "":
+			namespace._name = self._normalizedLabel
 
 		for elseBranch in self._elsifBranches:
 			elseBranch._namespace.ParentNamespace = parent._namespace

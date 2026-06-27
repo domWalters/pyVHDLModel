@@ -485,7 +485,7 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 			for normalizedIdentifier in item.NormalizedIdentifiers:
 				self._deferredConstants[normalizedIdentifier] = item
 		elif isinstance(item, Component):
-			self._components[item.NormalizedIdentifier] = item
+			self._components[item._normalizedIdentifier] = item
 		else:
 			super()._IndexOtherDeclaredItem(item)
 

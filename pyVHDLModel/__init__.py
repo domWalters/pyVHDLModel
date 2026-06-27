@@ -837,7 +837,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		     Analyze the dependencies of types and objects.
 		"""
 		self.AnalyzeDependencies()
-		self.AnalyzeObjects()
+		# self.AnalyzeObjects()
 
 	def AnalyzeDependencies(self) -> None:
 		"""
