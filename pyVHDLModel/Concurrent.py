@@ -402,9 +402,6 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
-		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
-		ConcurrentStatementsMixin.__init__(self, statements)
-		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._alternativeLabel = alternativeLabel
 		self._normalizedAlternativeLabel = alternativeLabel.lower() if alternativeLabel is not None else None
@@ -413,11 +410,9 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		if parent is not None:
 			self._namespace.ParentNamespace = parent._namespace
 
-	@ModelEntity.Parent.setter
-	def Parent(self, parent: ModelEntity) -> None:
-		ModelEntity.Parent.fset(self, parent)
-
-		self._namespace.ParentNamespace = parent._namespace
+		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
+		ConcurrentStatementsMixin.__init__(self, statements)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 	@property
 	def AlternativeLabel(self) -> Nullable[str]:
@@ -538,8 +533,6 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	   * :class:`For...generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
-	_namespace: Namespace
-
 	def __init__(
 		self,
 		label:         Nullable[str] = None,
@@ -548,18 +541,6 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	) -> None:
 		super().__init__(label, parent)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
-
-		# TODO: Why not handover self?
-		#       This allows access to Label and NormalizedLabel, also to create a full instance path in case a lookup goes wrong.
-		self._namespace = Namespace(self._normalizedLabel)
-		if parent is not None:
-			self._namespace.ParentNamespace = parent._namespace
-
-	@ConcurrentStatement.Parent.setter
-	def Parent(self, parent: ModelEntity) -> None:
-		ConcurrentStatement.Parent.fset(self, parent)
-
-		self._namespace.ParentNamespace = parent._namespace
 
 	# @mustoverride
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -624,6 +605,19 @@ class IfGenerateStatement(GenerateStatement):
 			elseBranch.Parent = self
 		else:
 			self._elseBranch = None
+
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		GenerateStatement.Parent.fset(self, parent)
+
+		# Connect namespaces
+		self._ifBranch._namespace.ParentNamespace = parent._namespace
+
+		for elseBranch in self._elsifBranches:
+			elseBranch._namespace.ParentNamespace = parent._namespace
+
+		if self._elseBranch is not None:
+			self._elseBranch._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def IfBranch(self) -> IfGenerateBranch:
@@ -695,6 +689,8 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 @export
 class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
+	_namespace: Namespace
+
 	def __init__(
 		self,
 		declaredItems:    Nullable[Iterable] = None,
@@ -705,6 +701,14 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 	) -> None:
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, alternativeLabel)
+
+		# TODO: Why not handover self?
+		#       This allows access to Label and NormalizedLabel, also to create a full instance path in case a lookup goes wrong.
+		# TODO: How about a WithNamespaceMixin class?
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
@@ -789,6 +793,14 @@ class CaseGenerateStatement(GenerateStatement):
 				self._cases.append(case)
 				case.Parent = self
 
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		GenerateStatement.Parent.fset(self, parent)
+
+		# Connect namespaces
+		for case in self._cases:
+			case._namespace.ParentNamespace = parent._namespace
+
 	@property
 	def SelectExpression(self) -> ExpressionUnion:
 		return self._expression
@@ -823,6 +835,8 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 	_loopIndex: str
 	_range:     Range
 
+	_namespace: Namespace
+
 	def __init__(
 		self,
 		label:         str,
@@ -834,6 +848,11 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, allowBlackbox, parent)
+
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 
@@ -841,6 +860,12 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 		self._range = rng
 		rng.Parent = self
+
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		GenerateStatement.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def LoopIndex(self) -> str:
