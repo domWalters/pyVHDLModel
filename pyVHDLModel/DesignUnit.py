@@ -647,7 +647,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		entity._parent = self
 
 	@property
-	def Entity(self) -> EntitySymbol:
+	def Entity(self) -> EntitySymbol:  # FIXME: change to entitySymbol, offer entity directly, but raise exception if not resolved.
 		return self._entity
 
 	def __str__(self) -> str:

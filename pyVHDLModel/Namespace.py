@@ -88,8 +88,7 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{componentSymbol._name._identifier}', but it is not a component.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
+			if (parentNamespace := self._parentNamespace) is None:
 				raise KeyError(f"Component '{componentSymbol._name._identifier}' not found in '{self._name}'.")
 
 			return parentNamespace.FindComponent(componentSymbol)
@@ -110,8 +109,7 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{subtypeSymbol._name._identifier}', but it is not a type or subtype.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
+			if (parentNamespace := self._parentNamespace) is None:
 				raise KeyError(f"Subtype '{subtypeSymbol._name._identifier}' not found in '{self._name}'.")
 
 			return parentNamespace.FindSubtype(subtypeSymbol)
@@ -139,8 +137,7 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not a type or subtype.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
+			if (parentNamespace := self._parentNamespace) is None:
 				raise KeyError(f"Subtype '{objectSymbol._name._identifier}' not found in '{self._name}'.")
 
 			return parentNamespace.FindObject(objectSymbol)
