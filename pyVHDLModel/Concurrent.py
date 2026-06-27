@@ -331,7 +331,9 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 @export
 class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
-	_portItems:     List[PortInterfaceItemMixin]
+	_portItems: List[PortInterfaceItemMixin]
+
+	_namespace: Namespace
 
 	def __init__(
 		self,
@@ -344,6 +346,11 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
+
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		BlockStatementMixin.__init__(self)
 		LabeledEntityMixin.__init__(self, label)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -356,7 +363,13 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		if portItems is not None:
 			for item in portItems:
 				self._portItems.append(item)
-				item._parent = self
+				item.Parent = self
+
+	@ConcurrentStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ConcurrentStatement.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
@@ -397,6 +410,14 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		self._normalizedAlternativeLabel = alternativeLabel.lower() if alternativeLabel is not None else None
 
 		self._namespace = Namespace(self._normalizedAlternativeLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
+	@ModelEntity.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ModelEntity.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def AlternativeLabel(self) -> Nullable[str]:
@@ -528,6 +549,8 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 		super().__init__(label, parent)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
+		# TODO: Why not handover self?
+		#       This allows access to Label and NormalizedLabel, also to create a full instance path in case a lookup goes wrong.
 		self._namespace = Namespace(self._normalizedLabel)
 		if parent is not None:
 			self._namespace.ParentNamespace = parent._namespace
