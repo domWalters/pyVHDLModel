@@ -735,7 +735,10 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			raise LibraryNotRegisteredError(library)
 
 		self._documents.append(document)
-		document.Parent = self
+		document.Parent =  self
+		#document.Library = library
+
+		document._library = library
 
 		for entityIdentifier, entity in document._entities.items():
 			if entityIdentifier in library._entities:
@@ -2562,6 +2565,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	"""A ``Document`` represents a sourcefile. It contains *primary* and *secondary* design units."""
 
 	_path:                   Path                                #: path to the document. ``None`` if virtual document.
+	_vhdlVersion:            VHDLVersion                         #: VHDL version used for analyzing this source file.
+	_library:                Library                             #: VHDL library used for analyzing the source file's content into.
 	_designUnits:            List[DesignUnit]                    #: List of all design units defined in a document.
 	_contexts:               Dict[str, Context]                  #: Dictionary of all contexts defined in a document.
 	_configurations:         Dict[str, Configuration]            #: Dictionary of all configurations defined in a document.
@@ -2576,11 +2581,20 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	_dependencyVertex:       Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the dependency graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 	_compileOrderVertex:     Vertex[None, None, None, 'Document', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the compile-order graph representing the document. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateCompileOrderGraph`.
 
-	def __init__(self, path: Path, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		path:          Path,
+		documentation: Nullable[str] = None,
+		vhdlVersion:   VHDLVersion = VHDLVersion.VHDL2008,
+		library:       Nullable[Library] = None,
+		parent:        Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
 		self._path =                   path
+		self._vhdlVersion =            vhdlVersion
+		self._library =                library
 		self._designUnits =            []
 		self._contexts =               {}
 		self._configurations =         {}
@@ -2618,6 +2632,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._designUnits.append(item)
 		item._document = self
 
+		# TODO: add entity to _library and vice versa
+
 	def _AddArchitecture(self, item: Architecture) -> None:
 		"""
 		Add an architecture to the document's lists of design units.
@@ -2648,6 +2664,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._designUnits.append(item)
 		item._document = self
 
+		# TODO: add architecture to _library and vice versa
+
 	def _AddPackage(self, item: Package) -> None:
 		"""
 		Add a package to the document's lists of design units.
@@ -2670,6 +2688,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._packages[identifier] = item
 		self._designUnits.append(item)
 		item._document = self
+
+		# TODO: add package to _library and vice versa
 
 	def _AddPackageBody(self, item: PackageBody) -> None:
 		"""
@@ -2694,6 +2714,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._designUnits.append(item)
 		item._document = self
 
+		# TODO: add packagebody to _library and vice versa
+
 	def _AddContext(self, item: Context) -> None:
 		"""
 		Add a context to the document's lists of design units.
@@ -2716,6 +2738,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._contexts[identifier] = item
 		self._designUnits.append(item)
 		item._document = self
+
+		# TODO: add context to _library and vice versa
 
 	def _AddConfiguration(self, item: Configuration) -> None:
 		"""
@@ -2740,6 +2764,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._designUnits.append(item)
 		item._document = self
 
+		# TODO: add configuration to _library and vice versa
+
 	def _AddVerificationUnit(self, item: VerificationUnit) -> None:
 		if not isinstance(item, VerificationUnit):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationUnit'.")
@@ -2754,6 +2780,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._verificationUnits[identifier] = item
 		self._designUnits.append(item)
 		item._document = self
+
+		# TODO: add vunit to _library and vice versa
 
 	def _AddVerificationProperty(self, item: VerificationProperty) -> None:
 		if not isinstance(item, VerificationProperty):
@@ -2770,6 +2798,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._designUnits.append(item)
 		item._document = self
 
+		# TODO: add vprop to _library and vice versa
+
 	def _AddVerificationMode(self, item: VerificationMode) -> None:
 		if not isinstance(item, VerificationMode):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationMode'.")
@@ -2784,6 +2814,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		self._verificationModes[identifier] = item
 		self._designUnits.append(item)
 		item._document = self
+
+		# TODO: add vmode to _library and vice versa
 
 	def _AddDesignUnit(self, item: DesignUnit) -> None:
 		"""
@@ -2832,6 +2864,31 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		:returns: The path of this document.
 		"""
 		return self._path
+
+	@readonly
+	def VHDLVersion(self) -> VHDLVersion:
+		"""
+		Read-only property to access the document's VHDL version (:attr:`_vhdlVersion`).
+
+		:returns: VHDL version used to analyze this VHDL file.
+		"""
+		return self._vhdlVersion
+
+	# @property
+	@readonly
+	def Library(self) -> Library:
+		"""
+		Read-only property to access the document's VHDL library (:attr:`_library`).
+
+		:returns: VHDL library used to analyze the VHDL file's design units into.
+		"""
+		return self._library
+
+	# @Library.setter
+	# def Library(self, library: Library) -> None:
+	# 	self._library = library
+	#
+	# 	# TODO: check and set library to design unit?
 
 	@readonly
 	def DesignUnits(self) -> List[DesignUnit]:
