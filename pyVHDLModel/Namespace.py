@@ -48,9 +48,9 @@ O = TypeVar("O")
 
 class ExtendedKeyError(KeyError):
 	key: str
-	searchedNamespaces: Tuple[Namespace, ...]
+	searchedNamespaces: Tuple["Namespace", ...]
 
-	def __init__(self, key: str, searchedNamespaces: Tuple[Namespace, ...], message: str) -> None:
+	def __init__(self, key: str, searchedNamespaces: Tuple["Namespace", ...], message: str) -> None:
 		super().__init__(message)
 
 		self.key = key
@@ -59,8 +59,8 @@ class ExtendedKeyError(KeyError):
 
 class Namespace(Generic[K, O]):
 	_name:            str
-	_parentNamespace: 'Namespace'
-	_subNamespaces:   Dict[str, 'Namespace']
+	_parentNamespace: "Namespace"
+	_subNamespaces:   Dict[str, "Namespace"]
 	_elements:        Dict[K, O]
 
 	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None) -> None:
@@ -108,7 +108,7 @@ class Namespace(Generic[K, O]):
 				return parentNamespace.FindComponent(componentSymbol)
 			except ExtendedKeyError as ex:
 				searchedNamespaces = (self, *ex.searchedNamespaces)
-				raise ExtendedKeyError(key, searchedNamespaces, f"Component '{key}' not found in: {", ".join(ns._name for ns in searchedNamespaces)}.") from ex
+				raise ExtendedKeyError(key, searchedNamespaces, f"Component '{key}' not found in: {', '.join(ns._name for ns in searchedNamespaces)}.") from ex
 
 	def FindSubtype(self, subtypeSymbol: Symbol) -> BaseType:
 		try:
