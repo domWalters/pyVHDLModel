@@ -48,10 +48,10 @@ __author__ =            "Patrick Lehmann"
 __email__ =             "Paebbels@gmail.com"
 __copyright__ =         "2016-2026, Patrick Lehmann"
 __license__ =           "Apache License, Version 2.0"
-__version__ =           "0.36.1"
+__version__ =           "0.37.0"
 # __keywords__ =          []
-__project_url__ =       "https://github.com/edaa-org/pyVHDLModel"
-__documentation_url__ = "https://edaa-org.github.io/pyVHDLModel"
+__project_url__ =       "https://github.com/VHDL/pyVHDLModel"
+__documentation_url__ = "https://vhdl.github.io/pyVHDLModel"
 __issue_tracker_url__ = "https://GitHub.com/VHDL/pyVHDLModel/issues"
 
 
