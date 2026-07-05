@@ -302,7 +302,7 @@ class UnaryExpression(BaseExpression):
 		super().__init__(parent)
 
 		self._operand = operand
-		# operand._parent = self  # FIXME: operand is provided as None
+		# operand.Parent = self  # FIXME: operand is provided as None
 
 	@readonly
 	def Operand(self):
@@ -384,10 +384,10 @@ class BinaryExpression(BaseExpression):
 		super().__init__(parent)
 
 		self._leftOperand = leftOperand
-		leftOperand._parent = self
+		leftOperand.Parent = self
 
 		self._rightOperand = rightOperand
-		rightOperand._parent = self
+		rightOperand.Parent = self
 
 	@property
 	def LeftOperand(self):
@@ -642,10 +642,10 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		super().__init__(parent)
 
 		self._operand = operand
-		operand._parent = self
+		operand.Parent = self
 
 		self._subtype = subtype
-		subtype._parent = self
+		subtype.Parent = self
 
 	@property
 	def Operand(self):
@@ -720,7 +720,7 @@ class SubtypeAllocation(Allocation):
 		super().__init__(parent)
 
 		self._subtype = subtype
-		subtype._parent = self
+		subtype.Parent = self
 
 	@property
 	def Subtype(self) -> Symbol:
@@ -738,7 +738,7 @@ class QualifiedExpressionAllocation(Allocation):
 		super().__init__(parent)
 
 		self._qualifiedExpression = qualifiedExpression
-		qualifiedExpression._parent = self
+		qualifiedExpression.Parent = self
 
 	@property
 	def QualifiedExpression(self) -> QualifiedExpression:
@@ -758,7 +758,7 @@ class AggregateElement(ModelEntity):
 		super().__init__(parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 	@property
 	def Expression(self):
@@ -796,7 +796,7 @@ class RangedAggregateElement(AggregateElement):
 		super().__init__(expression, parent)
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def Range(self) -> Range:
@@ -814,7 +814,7 @@ class NamedAggregateElement(AggregateElement):
 		super().__init__(expression, parent)
 
 		self._name = name
-		name._parent = self
+		name.Parent = self
 
 	@property
 	def Name(self) -> Symbol:
@@ -845,7 +845,7 @@ class Aggregate(BaseExpression):
 		self._elements = []
 		for element in elements:
 			self._elements.append(element)
-			element._parent = self
+			element.Parent = self
 
 	@property
 	def Elements(self) -> List[AggregateElement]:

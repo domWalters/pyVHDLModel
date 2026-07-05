@@ -92,6 +92,7 @@ class PossibleReference(Flag):
 	SimpleNameInExpression = Constant | Variable | Signal | ScalarType | EnumLiteral | Function      #: Any possible item in an expression.
 
 
+# QUESTION: Why is it not a ModelEntity?
 @export
 class Symbol(metaclass=ExtendedType):
 	"""

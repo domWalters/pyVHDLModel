@@ -69,7 +69,7 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		if declaredItems is not None:
 			for item in declaredItems:
 				self._declaredItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 		self._types =       {}
 		self._subtypes =    {}
@@ -186,6 +186,7 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 					self._signals[normalizedIdentifier] = item
 					self._namespace._elements[normalizedIdentifier] = item
 			elif isinstance(item, Variable):
+				# FIXME: raise a warning
 				print(f"IndexDeclaredItems - {item._identifiers}")
 			elif isinstance(item, SharedVariable):
 				for normalizedIdentifier in item._normalizedIdentifiers:

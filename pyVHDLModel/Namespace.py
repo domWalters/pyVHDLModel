@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 A helper class to implement namespaces and scopes.
 """
-from typing               import TypeVar, Generic, Dict, Optional as Nullable
+from typing import TypeVar, Generic, Dict, Optional as Nullable, Any, Tuple
 
 from pyTooling.Decorators import readonly
 
@@ -46,10 +46,21 @@ K = TypeVar("K")
 O = TypeVar("O")
 
 
+class ExtendedKeyError(KeyError):
+	key: str
+	searchedNamespaces: Tuple["Namespace", ...]
+
+	def __init__(self, key: str, searchedNamespaces: Tuple["Namespace", ...], message: str) -> None:
+		super().__init__(message)
+
+		self.key = key
+		self.searchedNamespaces = searchedNamespaces
+
+
 class Namespace(Generic[K, O]):
 	_name:            str
-	_parentNamespace: 'Namespace'
-	_subNamespaces:   Dict[str, 'Namespace']
+	_parentNamespace: "Namespace"
+	_subNamespaces:   Dict[str, "Namespace"]
 	_elements:        Dict[K, O]
 
 	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None) -> None:
@@ -88,11 +99,16 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{componentSymbol._name._identifier}', but it is not a component.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
-				raise KeyError(f"Component '{componentSymbol._name._identifier}' not found in '{self._name}'.")
+			key = componentSymbol._name._identifier
 
-			return parentNamespace.FindComponent(componentSymbol)
+			if (parentNamespace := self._parentNamespace) is None:
+				raise ExtendedKeyError(key, (self, ), f"Component '{key}' not found in '{self._name}'.")
+
+			try:
+				return parentNamespace.FindComponent(componentSymbol)
+			except ExtendedKeyError as ex:
+				searchedNamespaces = (self, *ex.searchedNamespaces)
+				raise ExtendedKeyError(key, searchedNamespaces, f"Component '{key}' not found in: {', '.join(ns._name for ns in searchedNamespaces)}.") from ex
 
 	def FindSubtype(self, subtypeSymbol: Symbol) -> BaseType:
 		try:
@@ -110,8 +126,7 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{subtypeSymbol._name._identifier}', but it is not a type or subtype.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
+			if (parentNamespace := self._parentNamespace) is None:
 				raise KeyError(f"Subtype '{subtypeSymbol._name._identifier}' not found in '{self._name}'.")
 
 			return parentNamespace.FindSubtype(subtypeSymbol)
@@ -139,8 +154,7 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not a type or subtype.")
 		except KeyError:
-			parentNamespace = self._parentNamespace
-			if parentNamespace is None:
+			if (parentNamespace := self._parentNamespace) is None:
 				raise KeyError(f"Subtype '{objectSymbol._name._identifier}' not found in '{self._name}'.")
 
 			return parentNamespace.FindObject(objectSymbol)

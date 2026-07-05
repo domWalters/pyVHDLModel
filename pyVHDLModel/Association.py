@@ -67,7 +67,7 @@ class AssociationItem(ModelEntity):
 
 		self._formal = formal
 		if formal is not None:
-			formal._parent = self
+			formal.Parent = self
 
 		self._actual = actual
 		# actual._parent = self  # FIXME: actual is provided as None

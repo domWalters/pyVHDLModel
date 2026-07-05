@@ -62,7 +62,7 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 		if statements is not None:
 			for item in statements:
 				self._statements.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@readonly
 	def Statements(self) -> List[SequentialStatement]:
@@ -106,7 +106,7 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
 		if waveform is not None:
 			for waveformElement in waveform:
 				self._waveform.append(waveformElement)
-				waveformElement._parent = self
+				waveformElement.Parent = self
 
 	@readonly
 	def Waveform(self) -> List[WaveformElement]:
@@ -198,17 +198,17 @@ class IfStatement(CompoundStatement):
 		super().__init__(label, parent)
 
 		self._ifBranch = ifBranch
-		ifBranch._parent = self
+		ifBranch.Parent = self
 
 		self._elsifBranches = []
 		if elsifBranches is not None:
 			for branch in elsifBranches:
 				self._elsifBranches.append(branch)
-				branch._parent = self
+				branch.Parent = self
 
 		if elseBranch is not None:
 			self._elseBranch = elseBranch
-			elseBranch._parent = self
+			elseBranch.Parent = self
 		else:
 			self._elseBranch = None
 
@@ -253,7 +253,7 @@ class IndexedChoice(SequentialChoice):
 		super().__init__(parent)
 
 		self._expression = expression
-		# expression._parent = self    # FIXME: received None
+		# expression.Parent = self    # FIXME: received None
 
 	@property
 	def Expression(self) -> ExpressionUnion:
@@ -271,7 +271,7 @@ class RangedChoice(SequentialChoice):
 		super().__init__(parent)
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def Range(self) -> 'Range':
@@ -305,7 +305,7 @@ class Case(SequentialCase):
 		if choices is not None:
 			for choice in choices:
 				self._choices.append(choice)
-				choice._parent = self
+				choice.Parent = self
 
 	@property
 	def Choices(self) -> List[SequentialChoice]:
@@ -330,13 +330,13 @@ class CaseStatement(CompoundStatement):
 		super().__init__(label, parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 		self._cases = []
 		if cases is not None:
 			for case in cases:
 				self._cases.append(case)
-				case._parent = self
+				case.Parent = self
 
 	@property
 	def SelectExpression(self) -> ExpressionUnion:
@@ -372,7 +372,7 @@ class ForLoopStatement(LoopStatement):
 		self._loopIndex = loopIndex
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def LoopIndex(self) -> str:
@@ -466,11 +466,11 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 			self._sensitivityList = []  # TODO: convert to dict
 			for signalSymbol in sensitivityList:
 				self._sensitivityList.append(signalSymbol)
-				signalSymbol._parent = self
+				signalSymbol.Parent = self
 
 		self._timeout = timeout
 		if timeout is not None:
-			timeout._parent = self
+			timeout.Parent = self
 
 	@property
 	def SensitivityList(self) -> List[Symbol]:
@@ -491,7 +491,7 @@ class SequentialDeclarationsMixin(metaclass=ExtendedType, mixin=True):
 		if declaredItems is not None:
 			for item in declaredItems:
 				self._declaredItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@property
 	def DeclaredItems(self) -> List:

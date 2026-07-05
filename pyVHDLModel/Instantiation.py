@@ -83,12 +83,12 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 	_packageReference: PackageReferenceSymbol
 	_genericAssociations: List[GenericAssociationItem]
 
-	def __init__(self, identifier: str, uninstantiatedPackage: PackageReferenceSymbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifier: str, genericPackage: PackageReferenceSymbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
 
-		self._packageReference = uninstantiatedPackage
-		# uninstantiatedPackage._parent = self    # FIXME: uninstantiatedPackage is provided as int
+		self._packageReference = genericPackage
+		self._packageReference.Parent = self
 
 		# TODO: extract to mixin
 		self._genericAssociations = []

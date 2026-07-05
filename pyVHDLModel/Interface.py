@@ -233,7 +233,7 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 		if genericItems is not None:
 			for item in genericItems:
 				self._genericItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@property
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
@@ -256,7 +256,7 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 		if portItems is not None:
 			for item in portItems:
 				self._portItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@property
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
@@ -279,7 +279,7 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 		if parameterItems is not None:
 			for item in parameterItems:
 				self._parameterItems.append(item)
-				item._parent = self
+				item.Parent = self
 
 	@property
 	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:

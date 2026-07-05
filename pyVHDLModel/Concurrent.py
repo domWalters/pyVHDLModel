@@ -95,7 +95,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 		if statements is not None:
 			for statement in statements:
 				self._statements.append(statement)
-				statement._parent = self
+				statement.Parent = self
 
 	@readonly
 	def Statements(self) -> List[ConcurrentStatement]:
@@ -147,14 +147,14 @@ class Instantiation(ConcurrentStatement):
 		if genericAssociations is not None:
 			for association in genericAssociations:
 				self._genericAssociations.append(association)
-				association._parent = self
+				association.Parent = self
 
 		# TODO: extract to mixin
 		self._portAssociations = []
 		if portAssociations is not None:
 			for association in portAssociations:
 				self._portAssociations.append(association)
-				association._parent = self
+				association.Parent = self
 
 	@readonly
 	def GenericAssociations(self) -> List[AssociationItem]:
@@ -190,7 +190,7 @@ class ComponentInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._component = componentSymbol
-		componentSymbol._parent = self
+		componentSymbol.Parent = self
 
 	@property
 	def Component(self) -> ComponentInstantiationSymbol:
@@ -224,11 +224,11 @@ class EntityInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._entity = entitySymbol
-		entitySymbol._parent = self
+		entitySymbol.Parent = self
 
 		self._architecture = architectureSymbol
 		if architectureSymbol is not None:
-			architectureSymbol._parent = self
+			architectureSymbol.Parent = self
 
 	@property
 	def Entity(self) -> EntityInstantiationSymbol:
@@ -264,7 +264,7 @@ class ConfigurationInstantiation(Instantiation):
 		super().__init__(label, genericAssociations, portAssociations, parent)
 
 		self._configuration = configurationSymbol
-		configurationSymbol._parent = self
+		configurationSymbol.Parent = self
 
 	@property
 	def Configuration(self) -> ConfigurationInstantiationSymbol:
@@ -331,7 +331,9 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 @export
 class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
-	_portItems:     List[PortInterfaceItemMixin]
+	_portItems: List[PortInterfaceItemMixin]
+
+	_namespace: Namespace
 
 	def __init__(
 		self,
@@ -344,6 +346,11 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
+
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		BlockStatementMixin.__init__(self)
 		LabeledEntityMixin.__init__(self, label)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -356,7 +363,13 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		if portItems is not None:
 			for item in portItems:
 				self._portItems.append(item)
-				item._parent = self
+				item.Parent = self
+
+	@ConcurrentStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ConcurrentStatement.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
@@ -389,14 +402,17 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(parent)
-		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
-		ConcurrentStatementsMixin.__init__(self, statements)
-		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._alternativeLabel = alternativeLabel
 		self._normalizedAlternativeLabel = alternativeLabel.lower() if alternativeLabel is not None else None
 
 		self._namespace = Namespace(self._normalizedAlternativeLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
+		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
+		ConcurrentStatementsMixin.__init__(self, statements)
+		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 	@property
 	def AlternativeLabel(self) -> Nullable[str]:
@@ -517,8 +533,6 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	   * :class:`For...generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
-	_namespace: Namespace
-
 	def __init__(
 		self,
 		label:         Nullable[str] = None,
@@ -527,8 +541,6 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	) -> None:
 		super().__init__(label, parent)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
-
-		self._namespace = Namespace(self._normalizedLabel)
 
 	# @mustoverride
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -580,19 +592,37 @@ class IfGenerateStatement(GenerateStatement):
 		super().__init__(label, allowBlackbox, parent)
 
 		self._ifBranch = ifBranch
-		ifBranch._parent = self
+		ifBranch.Parent = self
 
 		self._elsifBranches = []
 		if elsifBranches is not None:
 			for branch in elsifBranches:
 				self._elsifBranches.append(branch)
-				branch._parent = self
+				branch.Parent = self
 
 		if elseBranch is not None:
 			self._elseBranch = elseBranch
-			elseBranch._parent = self
+			elseBranch.Parent = self
 		else:
 			self._elseBranch = None
+
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		from pyVHDLModel.DesignUnit import Architecture
+
+		GenerateStatement.Parent.fset(self, parent)
+
+		# Connect namespaces
+		namespace = self._ifBranch._namespace
+		namespace.ParentNamespace = parent._namespace
+		if namespace._name == "":
+			namespace._name = self._normalizedLabel
+
+		for elseBranch in self._elsifBranches:
+			elseBranch._namespace.ParentNamespace = parent._namespace
+
+		if self._elseBranch is not None:
+			self._elseBranch._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def IfBranch(self) -> IfGenerateBranch:
@@ -634,7 +664,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 		super().__init__(parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 	@property
 	def Expression(self) -> ExpressionUnion:
@@ -652,7 +682,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 		super().__init__(parent)
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
 
 	@property
 	def Range(self) -> 'Range':
@@ -664,6 +694,8 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 @export
 class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
+	_namespace: Namespace
+
 	def __init__(
 		self,
 		declaredItems:    Nullable[Iterable] = None,
@@ -674,6 +706,14 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 	) -> None:
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, alternativeLabel)
+
+		# TODO: Why not handover self?
+		#       This allows access to Label and NormalizedLabel, also to create a full instance path in case a lookup goes wrong.
+		# TODO: How about a WithNamespaceMixin class?
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
@@ -699,7 +739,7 @@ class GenerateCase(ConcurrentCase):
 		if choices is not None:
 			for choice in choices:
 				self._choices.append(choice)
-				choice._parent = self
+				choice.Parent = self
 
 	# TODO: move to parent or grandparent
 	@property
@@ -749,14 +789,22 @@ class CaseGenerateStatement(GenerateStatement):
 		super().__init__(label, allowBlackbox, parent)
 
 		self._expression = expression
-		expression._parent = self
+		expression.Parent = self
 
 		# TODO: create a mixin for things with cases
 		self._cases = []
 		if cases is not None:
 			for case in cases:
 				self._cases.append(case)
-				case._parent = self
+				case.Parent = self
+
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		GenerateStatement.Parent.fset(self, parent)
+
+		# Connect namespaces
+		for case in self._cases:
+			case._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def SelectExpression(self) -> ExpressionUnion:
@@ -792,6 +840,8 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 	_loopIndex: str
 	_range:     Range
 
+	_namespace: Namespace
+
 	def __init__(
 		self,
 		label:         str,
@@ -803,13 +853,24 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, allowBlackbox, parent)
+
+		self._namespace = Namespace(self._normalizedLabel)
+		if parent is not None:
+			self._namespace.ParentNamespace = parent._namespace
+
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 
 		self._loopIndex = loopIndex
 
 		self._range = rng
-		rng._parent = self
+		rng.Parent = self
+
+	@GenerateStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		GenerateStatement.Parent.fset(self, parent)
+
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def LoopIndex(self) -> str:
@@ -859,7 +920,7 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 		if waveform is not None:
 			for waveformElement in waveform:
 				self._waveform.append(waveformElement)
-				waveformElement._parent = self
+				waveformElement.Parent = self
 
 	@property
 	def Waveform(self) -> List[WaveformElement]:
