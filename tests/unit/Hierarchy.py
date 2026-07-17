@@ -11,8 +11,7 @@
 #                                                                                                                      #
 # License:                                                                                                             #
 # ==================================================================================================================== #
-# Copyright 2017-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
-# Copyright 2016-2017 Patrick Lehmann - Dresden, Germany                                                               #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
 #                                                                                                                      #
 # Licensed under the Apache License, Version 2.0 (the "License");                                                      #
 # you may not use this file except in compliance with the License.                                                     #
@@ -33,9 +32,9 @@
 from unittest import TestCase
 
 from pyVHDLModel             import Design, Library, VHDLModelException
-from pyVHDLModel.DesignUnit   import Entity, Architecture, Package
-from pyVHDLModel.Symbol       import EntitySymbol
-from pyVHDLModel.Name         import SimpleName
+from pyVHDLModel.DesignUnit  import Entity, Architecture, Package
+from pyVHDLModel.Symbol      import EntitySymbol
+from pyVHDLModel.Name        import SimpleName
 
 
 if __name__ == "__main__":  # pragma: no cover

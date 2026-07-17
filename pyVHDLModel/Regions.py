@@ -190,7 +190,7 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 			elif isinstance(item, Variable):
 				# TODO: variables declared in a concurrent declaration region (e.g. shared variables outside a
 				#       protected type) are not yet indexed into a dedicated namespace/lookup table.
-				identifiers = ", ".join(f"'{i}'" for i in item.Identifiers)
+				identifiers = ", ".join(f"'{i}'" for i in item._identifiers)
 				WarningCollector.Raise(NotImplementedWarning(f"IndexDeclaredItems: variable(s) {identifiers} are not yet indexed."))
 			elif isinstance(item, SharedVariable):
 				for normalizedIdentifier in item._normalizedIdentifiers:
