@@ -38,7 +38,9 @@ from typing                 import List, Dict, Iterable, Optional as Nullable, A
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
+from pyTooling.Warning      import WarningCollector
 
+from pyVHDLModel.Exception  import NotImplementedWarning
 from pyVHDLModel.Object     import Constant, SharedVariable, File, Variable, Signal
 from pyVHDLModel.Subprogram import Subprogram, Function, Procedure
 from pyVHDLModel.Type       import Subtype, FullType
@@ -186,8 +188,10 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 					self._signals[normalizedIdentifier] = item
 					self._namespace._elements[normalizedIdentifier] = item
 			elif isinstance(item, Variable):
-				# FIXME: raise a warning
-				print(f"IndexDeclaredItems - {item._identifiers}")
+				# TODO: variables declared in a concurrent declaration region (e.g. shared variables outside a
+				#       protected type) are not yet indexed into a dedicated namespace/lookup table.
+				identifiers = ", ".join(f"'{i}'" for i in item._identifiers)
+				WarningCollector.Raise(NotImplementedWarning(f"IndexDeclaredItems: variable(s) {identifiers} are not yet indexed."))
 			elif isinstance(item, SharedVariable):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._sharedVariables[normalizedIdentifier] = item

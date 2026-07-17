@@ -11,8 +11,7 @@
 #                                                                                                                      #
 # License:                                                                                                             #
 # ==================================================================================================================== #
-# Copyright 2017-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
-# Copyright 2016-2017 Patrick Lehmann - Dresden, Germany                                                               #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
 #                                                                                                                      #
 # Licensed under the Apache License, Version 2.0 (the "License");                                                      #
 # you may not use this file except in compliance with the License.                                                     #
@@ -29,92 +28,67 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
-"""
-This module contains parts of an abstract document language model for VHDL.
+"""Tests for traversing the model's parent-chain hierarchy, spanning multiple classes/levels of the model."""
+from unittest import TestCase
 
-Instantiations of packages, procedures, functions and protected types.
-"""
-from typing import List, Iterable, Optional as Nullable
-
-from pyTooling.Decorators    import export, readonly
-from pyTooling.MetaClasses   import ExtendedType
-
-from pyVHDLModel             import VHDLModelException
-from pyVHDLModel.Base        import ModelEntity
-from pyVHDLModel.DesignUnit  import Package, ContextUnion
-from pyVHDLModel.Association import GenericAssociationItem
-from pyVHDLModel.Subprogram  import Procedure, Function, Subprogram
-from pyVHDLModel.Symbol      import PackageReferenceSymbol
+from pyVHDLModel             import Design, Library, VHDLModelException
+from pyVHDLModel.DesignUnit  import Entity, Architecture, Package
+from pyVHDLModel.Symbol      import EntitySymbol
+from pyVHDLModel.Name        import SimpleName
 
 
-@export
-class GenericInstantiationMixin(metaclass=ExtendedType, mixin=True):
-	def __init__(self) -> None:
-		pass
+if __name__ == "__main__":  # pragma: no cover
+	print("ERROR: you called a testcase declaration file as an executable module.")
+	print("Use: 'python -m unitest <testcase module>'")
+	exit(1)
 
 
-@export
-class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
-	def __init__(self) -> None:
-		pass
+class GetAncestor(TestCase):
+	def test_AncestorExists(self) -> None:
+		entity = Entity("entity_1")
+		architecture = Architecture("arch_1", EntitySymbol(SimpleName("entity_1")), parent=entity)
+
+		self.assertIs(entity, architecture.GetAncestor(Entity))
+
+	def test_AncestorIsSelfsType(self) -> None:
+		design = Design()
+		library = Library("lib_1")
+		design.AddLibrary(library)
+		entity = Entity("entity_1", parent=library)
+
+		self.assertIs(library, entity.GetAncestor(Library))
+		self.assertIs(design, entity.GetAncestor(Design))
+
+	def test_AncestorDoesNotExist_RaisesVHDLModelException(self) -> None:
+		"""Previously raised an unguarded ``AttributeError`` once the root of the model was reached without a match."""
+		entity = Entity("entity_1")
+
+		with self.assertRaises(VHDLModelException):
+			entity.GetAncestor(Package)
 
 
-@export
-class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
-	_subprogramReference: Subprogram  # FIXME: is this a subprogram symbol?
+class AllowBlackBox(TestCase):
+	def test_LocalValueIsUsed(self) -> None:
+		entity = Entity("entity_1", allowBlackbox=True)
 
-	def __init__(self) -> None:
-		super().__init__()
-		self._subprogramReference = None
+		self.assertTrue(entity.AllowBlackbox)
 
+	def test_InheritsFromParent(self) -> None:
+		library = Library("lib_1", allowBlackbox=False)
+		entity = Entity("entity_1", parent=library)
 
-@export
-class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
-	pass
+		self.assertFalse(entity.AllowBlackbox)
 
+	def test_LocalValueOverridesParent(self) -> None:
+		library = Library("lib_1", allowBlackbox=False)
+		entity = Entity("entity_1", allowBlackbox=True, parent=library)
 
-@export
-class FunctionInstantiation(Function, SubprogramInstantiationMixin):
-	pass
+		self.assertTrue(entity.AllowBlackbox)
+		self.assertFalse(library.AllowBlackbox)
 
+	def test_NoLocalValueAndNoParent_RaisesVHDLModelException(self) -> None:
+		"""Previously raised an unguarded ``AttributeError`` when no parent was available to inherit from."""
+		entity = Entity("entity_1")
 
-@export
-class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
-	_packageReference: PackageReferenceSymbol
-	_genericAssociations: List[GenericAssociationItem]
-
-	def __init__(
-		self,
-		identifier:     str,
-		genericPackage: PackageReferenceSymbol,
-		contextItems:   Nullable[Iterable[ContextUnion]] = None,
-		documentation:  Nullable[str] =                    None,
-		parent:         Nullable[ModelEntity] =            None
-	) -> None:
-		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
-		GenericEntityInstantiationMixin.__init__(self)
-
-		self._packageReference = genericPackage
-		self._packageReference.Parent = self
-
-		# TODO: extract to mixin
-		self._genericAssociations = []
-
-	@readonly
-	def PackageReference(self) -> PackageReferenceSymbol:
-		return self._packageReference
-
-	@readonly
-	def GenericAssociations(self) -> List[GenericAssociationItem]:
-		return self._genericAssociations
-
-	def Instantiate(self):
-		genericPackage: Package = self._packageReference.Package
-		if genericPackage is None:
-			raise VHDLModelException(f"PackageInstantiation '{self.Identifier}' isn't linked to the generic package '{self._packageReference.Name}'.")
-
-		# TODO: components might need to be copied and derived
-		for componentName, component in genericPackage._components.items():
-			self._components[componentName] = component
-
-		# FIXME: handle other package members
+		with self.assertRaises(VHDLModelException):
+			entity.AllowBlackbox

@@ -134,9 +134,28 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 		self._parent = parent
 
 	def GetAncestor(self, type: Type) -> 'ModelEntity':
+		"""
+		Return the closest ancestor of the given ``type`` found by walking the parent chain upwards.
+
+		Iterates the parent chain - starting at this model entity - upwards (toward the root of the model) until an
+		ancestor of the requested type is found.
+
+		:param type:                Class (type) of the ancestor to find.
+		:returns:                   The closest ancestor of the requested type.
+		:raises VHDLModelException: If the root of the model is reached without finding an ancestor of the requested
+		                            type.
+		"""
+		# Deferred import to avoid a circular import: Base -> Exception -> Symbol -> Base.
+		from pyVHDLModel.Exception import VHDLModelException
+
 		parent = self._parent
-		while not isinstance(parent, type):
+		while parent is not None:
+			if isinstance(parent, type):
+				break
+
 			parent = parent._parent
+		else:
+			raise VHDLModelException(f"No ancestor of type '{type.__name__}' found for {self!r}.")
 
 		return parent
 

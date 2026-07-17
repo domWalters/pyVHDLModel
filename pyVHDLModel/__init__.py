@@ -593,7 +593,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		if self._toplevel is not None:
 			return self._toplevel
 
-		if self._hierarchyGraph.EdgeCount == 0:
+		if self._hierarchyGraph.VertexCount == 0:
 			raise VHDLModelException(f"Hierarchy is not yet computed from dependency graph.")
 
 		roots = tuple(self._hierarchyGraph.IterateRoots())

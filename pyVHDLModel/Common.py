@@ -72,12 +72,18 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 		1. If allow blackbox property is locally set, return the local value,
 		2. Otherwise, return allow blackbox value from parent object.
 
-		:returns: If blackboxes are allowed.
+		:returns:                   If blackboxes are allowed.
+		:raises VHDLModelException: If neither a local value is set nor a parent object is available to inherit the
+		                            value from.
 		"""
-		if self._allowBlackbox is None:
-			return self._parent.AllowBlackbox
-		else:
+		if self._allowBlackbox is not None:
 			return self._allowBlackbox
+		elif self._parent is None:
+			from pyVHDLModel.Exception import VHDLModelException
+
+			raise VHDLModelException(f"AllowBlackbox is not set on {self!r} and no parent is available to inherit it from.")
+		else:
+			return self._parent.AllowBlackbox
 
 	@AllowBlackbox.setter
 	def AllowBlackbox(self, value: Nullable[bool]) -> None:
