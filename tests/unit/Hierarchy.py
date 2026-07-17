@@ -29,19 +29,13 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
-"""Regression tests for previously crashing / incorrect behaviour."""
-from pathlib import Path
+"""Tests for traversing the model's parent-chain hierarchy, spanning multiple classes/levels of the model."""
 from unittest import TestCase
 
-from pyTooling.Warning         import WarningCollector
-
-from pyVHDLModel                import Design, Library, Document, VHDLModelException
-from pyVHDLModel.DesignUnit     import Entity, Architecture, Package
-from pyVHDLModel.Exception      import NotImplementedWarning
-from pyVHDLModel.Object         import Variable
-from pyVHDLModel.Symbol         import EntitySymbol, PackageReferenceSymbol, SimpleSubtypeSymbol
-from pyVHDLModel.Name           import SimpleName
-from pyVHDLModel.Instantiation  import PackageInstantiation
+from pyVHDLModel             import Design, Library, VHDLModelException
+from pyVHDLModel.DesignUnit   import Entity, Architecture, Package
+from pyVHDLModel.Symbol       import EntitySymbol
+from pyVHDLModel.Name         import SimpleName
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -52,113 +46,50 @@ if __name__ == "__main__":  # pragma: no cover
 
 class GetAncestor(TestCase):
 	def test_AncestorExists(self) -> None:
-		entity = Entity("e")
-		architecture = Architecture("rtl", EntitySymbol(SimpleName("e")), parent=entity)
+		entity = Entity("entity_1")
+		architecture = Architecture("arch_1", EntitySymbol(SimpleName("entity_1")), parent=entity)
 
 		self.assertIs(entity, architecture.GetAncestor(Entity))
 
+	def test_AncestorIsSelfsType(self) -> None:
+		design = Design()
+		library = Library("lib_1")
+		design.AddLibrary(library)
+		entity = Entity("entity_1", parent=library)
+
+		self.assertIs(library, entity.GetAncestor(Library))
+		self.assertIs(design, entity.GetAncestor(Design))
+
 	def test_AncestorDoesNotExist_RaisesVHDLModelException(self) -> None:
-		"""Previously raised an unguarded ``AttributeError`` when the root of the model was reached."""
-		entity = Entity("e")
+		"""Previously raised an unguarded ``AttributeError`` once the root of the model was reached without a match."""
+		entity = Entity("entity_1")
 
 		with self.assertRaises(VHDLModelException):
 			entity.GetAncestor(Package)
 
 
-class AllowBlackbox(TestCase):
+class AllowBlackBox(TestCase):
 	def test_LocalValueIsUsed(self) -> None:
-		entity = Entity("e", allowBlackbox=True)
+		entity = Entity("entity_1", allowBlackbox=True)
 
 		self.assertTrue(entity.AllowBlackbox)
 
 	def test_InheritsFromParent(self) -> None:
-		library = Library("lib", allowBlackbox=False)
-		entity = Entity("e", parent=library)
+		library = Library("lib_1", allowBlackbox=False)
+		entity = Entity("entity_1", parent=library)
 
 		self.assertFalse(entity.AllowBlackbox)
 
+	def test_LocalValueOverridesParent(self) -> None:
+		library = Library("lib_1", allowBlackbox=False)
+		entity = Entity("entity_1", allowBlackbox=True, parent=library)
+
+		self.assertTrue(entity.AllowBlackbox)
+		self.assertFalse(library.AllowBlackbox)
+
 	def test_NoLocalValueAndNoParent_RaisesVHDLModelException(self) -> None:
 		"""Previously raised an unguarded ``AttributeError`` when no parent was available to inherit from."""
-		entity = Entity("e")
+		entity = Entity("entity_1")
 
 		with self.assertRaises(VHDLModelException):
 			entity.AllowBlackbox
-
-
-class TopLevel(TestCase):
-	def test_SingleEntityWithoutArchitecture_IsNotMistakenForUncomputedHierarchy(self) -> None:
-		"""
-		A design consisting of a single entity without any (yet analyzed) architecture produces a hierarchy graph with
-		exactly one vertex and zero edges. This must not be mistaken for "hierarchy not yet computed".
-		"""
-		design = Design()
-		library = Library("lib")
-		design.AddLibrary(library)
-
-		document = Document(Path("top.vhdl"), parent=None)
-		document._AddEntity(Entity("top"))
-		design.AddDocument(document, library)
-
-		design.CreateDependencyGraph()
-		design.CreateHierarchyGraph()
-
-		self.assertEqual(0, design.HierarchyGraph.EdgeCount)
-		self.assertEqual(1, design.HierarchyGraph.VertexCount)
-		self.assertIs(design.GetLibrary("lib")._entities["top"], design.TopLevel)
-
-	def test_HierarchyNotYetComputed_RaisesVHDLModelException(self) -> None:
-		design = Design()
-
-		with self.assertRaises(VHDLModelException):
-			design.TopLevel
-
-
-class PackageInstantiationContextItems(TestCase):
-	def test_ContextItemsAreForwarded(self) -> None:
-		packageReference = PackageReferenceSymbol(SimpleName("GenericPackage"))
-		instantiation = PackageInstantiation("Inst", packageReference, contextItems=[])
-
-		self.assertEqual([], instantiation.ContextItems)
-
-
-class IndexDeclaredItemsVariableWarning(TestCase):
-	"""
-	Regression tests for replacing a stray ``print()`` with ``WarningCollector.Raise(NotImplementedWarning(...))`` in
-	``IndexDeclaredItems``, consistent with every other "not yet implemented" warning in this codebase (see
-	``pyVHDLModel/__init__.py``) and with pyGHDL.dom's ``WarningCollector``-based idiom (both build on
-	``pyTooling.Warning``).
-	"""
-
-	@staticmethod
-	def _designWithVariableInArchitecture() -> Library:
-		design = Design()
-		library = Library("lib")
-		design.AddLibrary(library)
-
-		document = Document(Path("regression.vhdl"), parent=None)
-		entitySymbol = EntitySymbol(SimpleName("e"))
-		subtype = SimpleSubtypeSymbol(SimpleName("natural"))
-		variable = Variable(["v"], subtype)
-		architecture = Architecture("rtl", entitySymbol, declaredItems=[variable], parent=None)
-		document._AddArchitecture(architecture)
-		design.AddDocument(document, library)
-
-		return library
-
-	def test_WarningIsCollected_WhenCollectorIsInScope(self) -> None:
-		library = self._designWithVariableInArchitecture()
-
-		with WarningCollector() as collector:
-			library.IndexArchitectures()
-
-		self.assertEqual(1, len(collector))
-		self.assertIsInstance(collector[0], NotImplementedWarning)
-
-	def test_DoesNotCrash_WhenNoCollectorIsInScope(self) -> None:
-		"""Previously raised ``TypeError: category must be a Warning subclass, not 'type'`` due to a broken
-		``warnings.warn(...)`` call; must not raise at all here, since ``NotImplementedWarning`` is a *non-critical*
-		``pyTooling.Warning.Warning`` and is silently dropped when unhandled - exactly like every other
-		``NotImplementedWarning`` call site in this codebase."""
-		library = self._designWithVariableInArchitecture()
-
-		library.IndexArchitectures()

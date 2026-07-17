@@ -74,18 +74,15 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 
 		:returns:                   If blackboxes are allowed.
 		:raises VHDLModelException: If neither a local value is set nor a parent object is available to inherit the
-		                            value from (e.g. this object hasn't been added to a design hierarchy yet).
+		                            value from.
 		"""
 		if self._allowBlackbox is None:
-			parent = getattr(self, "_parent", None)
-			if parent is None:
+			if self._parent is None:
 				from pyVHDLModel.Exception import VHDLModelException
 
-				raise VHDLModelException(
-					f"AllowBlackbox is not set on {self!r} and no parent is available to inherit it from."
-				)
+				raise VHDLModelException(f"AllowBlackbox is not set on {self!r} and no parent is available to inherit it from.")
 
-			return parent.AllowBlackbox
+			return self._parent.AllowBlackbox
 		else:
 			return self._allowBlackbox
 

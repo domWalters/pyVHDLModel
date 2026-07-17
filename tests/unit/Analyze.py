@@ -33,13 +33,18 @@
 from pathlib  import Path
 from unittest import TestCase
 
-from pyVHDLModel import Design, Document
+from pyVHDLModel import Design, Document, VHDLModelException
 from pyVHDLModel.Name import SimpleName, SelectedName, AllName
 from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, AllPackageMembersReferenceSymbol
 from pyVHDLModel.Symbol import ContextReferenceSymbol, EntitySymbol, PackageSymbol, EntityInstantiationSymbol
+from pyVHDLModel.Symbol import SimpleSubtypeSymbol
 from pyVHDLModel.DesignUnit import Package, PackageBody, Context, Entity, Architecture, Configuration
 from pyVHDLModel.DesignUnit import LibraryClause, UseClause, ContextReference
 from pyVHDLModel.Concurrent import EntityInstantiation
+from pyVHDLModel.Object import Variable
+from pyVHDLModel.Exception import NotImplementedWarning
+
+from pyTooling.Warning import WarningCollector
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -206,3 +211,74 @@ class VHDLLibrary(TestCase):
 		design = self.CreateDesign()
 
 		design.Analyze()
+
+
+class TopLevel(TestCase):
+	def test_SingleEntityWithoutArchitecture_IsNotMistakenForUncomputedHierarchy(self) -> None:
+		"""
+		A design consisting of a single entity without any (yet analyzed) architecture produces a hierarchy graph with
+		exactly one vertex and zero edges. This must not be mistaken for "hierarchy not yet computed".
+		"""
+		design = Design("example")
+		library = design.GetLibrary("lib_1")
+
+		document = Document(Path("tests.vhdl"), parent=None)
+		document._AddDesignUnit(Entity("entity_1", parent=None))
+		design.AddDocument(document, library)
+
+		design.CreateDependencyGraph()
+		design.CreateHierarchyGraph()
+
+		self.assertEqual(0, design.HierarchyGraph.EdgeCount)
+		self.assertEqual(1, design.HierarchyGraph.VertexCount)
+		self.assertIs(library.Entities["entity_1"], design.TopLevel)
+
+	def test_HierarchyNotYetComputed_RaisesVHDLModelException(self) -> None:
+		design = Design("example")
+
+		with self.assertRaises(VHDLModelException):
+			design.TopLevel
+
+
+class IndexDeclaredItems(TestCase):
+	"""
+	Regression tests for replacing a stray ``print()`` with ``WarningCollector.Raise(NotImplementedWarning(...))`` in
+	``IndexDeclaredItems``, consistent with the same warning idiom used elsewhere in this codebase and mirrored by
+	pyGHDL.dom's own ``WarningCollector`` usage (both build on ``pyTooling.Warning``).
+	"""
+
+	@staticmethod
+	def _designWithVariableInArchitecture() -> Design:
+		design = Design("example")
+		library = design.GetLibrary("lib_1")
+
+		document = Document(Path("tests.vhdl"), parent=None)
+		document._AddDesignUnit(Entity("entity_1", parent=None))
+
+		variable = Variable(["v"], SimpleSubtypeSymbol(SimpleName("natural")))
+		architecture = Architecture("arch_1", EntitySymbol(SimpleName("entity_1")), declaredItems=[variable], parent=None)
+		document._AddDesignUnit(architecture)
+
+		design.AddDocument(document, library)
+
+		return design
+
+	def test_WarningIsCollected_WhenCollectorIsInScope(self) -> None:
+		design = self._designWithVariableInArchitecture()
+
+		with WarningCollector() as collector:
+			design.IndexArchitectures()
+
+		self.assertEqual(1, len(collector))
+		self.assertIsInstance(collector[0], NotImplementedWarning)
+
+	def test_DoesNotCrash_WhenNoCollectorIsInScope(self) -> None:
+		"""
+		Previously raised ``TypeError: category must be a Warning subclass, not 'type'`` due to a broken
+		``warnings.warn(...)`` call. Must not raise here at all, since ``NotImplementedWarning`` is a *non-critical*
+		``pyTooling.Warning.Warning`` and is silently dropped when unhandled - exactly like every other
+		``NotImplementedWarning`` call site in this codebase.
+		"""
+		design = self._designWithVariableInArchitecture()
+
+		design.IndexArchitectures()

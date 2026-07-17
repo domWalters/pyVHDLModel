@@ -46,6 +46,8 @@ from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstan
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
 from pyVHDLModel.Type import Subtype, IntegerType, RealType, ArrayType, RecordType
 from pyVHDLModel.DesignUnit import Package, PackageBody, Context, Entity, Architecture, Configuration
+from pyVHDLModel.DesignUnit import LibraryClause
+from pyVHDLModel.Instantiation import PackageInstantiation
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -420,6 +422,27 @@ class SimpleInstance(TestCase):
 		self.assertIsNotNone(packageBody)
 		self.assertEqual("pack_1", packageBody.Identifier)
 		self.assertEqual(0, len(packageBody.DeclaredItems))
+
+	def test_PackageInstantiation(self) -> None:
+		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
+		contextItems = [
+			LibraryClause([
+				LibraryReferenceSymbol(SimpleName("ieee")),
+			]),
+		]
+		packageInstantiation = PackageInstantiation("pack_inst_1", packageReference, contextItems, parent=None)
+
+		self.assertIsNotNone(packageInstantiation)
+		self.assertEqual("pack_inst_1", packageInstantiation.Identifier)
+		self.assertIs(packageReference, packageInstantiation.PackageReference)
+		self.assertEqual(1, len(packageInstantiation.ContextItems))
+
+	def test_PackageInstantiation_withoutContextItems(self) -> None:
+		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
+		packageInstantiation = PackageInstantiation("pack_inst_1", packageReference, parent=None)
+
+		self.assertIsNotNone(packageInstantiation)
+		self.assertEqual(0, len(packageInstantiation.ContextItems))
 
 	def test_Context(self) -> None:
 		context = Context("ctx_1", parent=None)

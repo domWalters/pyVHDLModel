@@ -85,13 +85,13 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 
 	def __init__(
 		self,
-		identifier: str,
+		identifier:     str,
 		genericPackage: PackageReferenceSymbol,
-		contextItems: Nullable[Iterable[ContextUnion]] = None,
-		documentation: Nullable[str] = None,
-		parent: Nullable[ModelEntity] = None
+		contextItems:   Nullable[Iterable[ContextUnion]] = None,
+		documentation:  Nullable[str] =                    None,
+		parent:         Nullable[ModelEntity] =            None
 	) -> None:
-		super().__init__(identifier, contextItems=contextItems, documentation=documentation, parent=parent)
+		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
 
 		self._packageReference = genericPackage
