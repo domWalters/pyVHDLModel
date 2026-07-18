@@ -62,7 +62,7 @@ class AssociationItem(ModelEntity):
 	_formal: Nullable[Symbol]
 	_actual: ExpressionUnion
 
-	def __init__(self, actual: ExpressionUnion, formal: Nullable[Symbol] = None) -> None:
+	def __init__(self, formal: Nullable[Symbol], actual: ExpressionUnion) -> None:
 		super().__init__()
 
 		self._formal = formal

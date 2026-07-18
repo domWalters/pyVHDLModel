@@ -431,15 +431,8 @@ class SimpleInstance(TestCase):
 				LibraryReferenceSymbol(SimpleName("ieee")),
 			]),
 		]
-		# NOTE: keyword arguments used deliberately here, since AssociationItem.__init__(actual, formal=None) takes
-		# 'actual' first - matching that order at the call site with plain positional arguments reads misleadingly
-		# for 'WIDTH => 16' (formal => actual). This is the same order already used at every production call site of
-		# GenericAssociationItem/PortAssociationItem/ParameterAssociationItem in pyGHDL.dom's GetMapAspect() (used for
-		# every entity/component instantiation's generic and port maps), so changing AssociationItem's parameter
-		# order itself would ripple through all of those - keyword arguments resolve the readability concern here
-		# without touching that shared, already-exercised API.
 		genericAssociations = [
-			GenericAssociationItem(actual=IntegerLiteral(16), formal=SimpleName("WIDTH")),
+			GenericAssociationItem(SimpleName("WIDTH"), IntegerLiteral(16)),
 		]
 		packageInstantiation = PackageInstantiation(
 			"pack_inst_1", packageReference, contextItems, genericAssociations, parent=None
