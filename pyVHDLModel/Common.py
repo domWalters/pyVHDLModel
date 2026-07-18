@@ -103,17 +103,17 @@ class Statement(ModelEntity, LabeledEntityMixin):
 @export
 class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 	_procedure:         Symbol  # TODO: implement a ProcedureSymbol
-	_parameterMappings: List[ParameterAssociationItem]
+	_parameterAssociationItems: List[ParameterAssociationItem]
 
-	def __init__(self, procedureName: Symbol, parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:
+	def __init__(self, procedureName: Symbol, parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:
 		self._procedure = procedureName
 		procedureName.Parent = self
 
 		# TODO: extract to mixin
-		self._parameterMappings = []
-		if parameterMappings is not None:
-			for parameterMapping in parameterMappings:
-				self._parameterMappings.append(parameterMapping)
+		self._parameterAssociationItems = []
+		if parameterAssociationItems is not None:
+			for parameterMapping in parameterAssociationItems:
+				self._parameterAssociationItems.append(parameterMapping)
 				parameterMapping.Parent = self
 
 	@readonly
@@ -121,8 +121,8 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 		return self._procedure
 
 	@property
-	def ParameterMappings(self) -> List[ParameterAssociationItem]:
-		return self._parameterMappings
+	def ParameterAssociationItems(self) -> List[ParameterAssociationItem]:
+		return self._parameterAssociationItems
 
 
 @export

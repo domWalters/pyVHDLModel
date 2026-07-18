@@ -79,12 +79,12 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 	def __init__(
 		self,
 		procedureName: Symbol,
-		parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None,
+		parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None,
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
-		ProcedureCallMixin.__init__(self, procedureName, parameterMappings)
+		ProcedureCallMixin.__init__(self, procedureName, parameterAssociationItems)
 
 
 @export

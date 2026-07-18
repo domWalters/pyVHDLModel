@@ -431,20 +431,20 @@ class SimpleInstance(TestCase):
 				LibraryReferenceSymbol(SimpleName("ieee")),
 			]),
 		]
-		genericAssociations = [
+		genericAssociationItems = [
 			GenericAssociationItem(SimpleName("WIDTH"), IntegerLiteral(16)),
 		]
 		packageInstantiation = PackageInstantiation(
-			"pack_inst_1", packageReference, contextItems, genericAssociations, parent=None
+			"pack_inst_1", packageReference, contextItems, genericAssociationItems, parent=None
 		)
 
 		self.assertIsNotNone(packageInstantiation)
 		self.assertEqual("pack_inst_1", packageInstantiation.Identifier)
 		self.assertIs(packageReference, packageInstantiation.PackageReference)
 		self.assertEqual(1, len(packageInstantiation.ContextItems))
-		self.assertEqual(1, len(packageInstantiation.GenericAssociations))
-		self.assertEqual("WIDTH", packageInstantiation.GenericAssociations[0].Formal.Identifier)
-		self.assertEqual(16, packageInstantiation.GenericAssociations[0].Actual.Value)
+		self.assertEqual(1, len(packageInstantiation.GenericAssociationItems))
+		self.assertEqual("WIDTH", packageInstantiation.GenericAssociationItems[0].Formal.Identifier)
+		self.assertEqual(16, packageInstantiation.GenericAssociationItems[0].Actual.Value)
 
 	def test_PackageInstantiation_withoutContextItemsOrGenerics(self) -> None:
 		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
@@ -452,7 +452,7 @@ class SimpleInstance(TestCase):
 
 		self.assertIsNotNone(packageInstantiation)
 		self.assertEqual(0, len(packageInstantiation.ContextItems))
-		self.assertEqual(0, len(packageInstantiation.GenericAssociations))
+		self.assertEqual(0, len(packageInstantiation.GenericAssociationItems))
 
 	def test_Context(self) -> None:
 		context = Context("ctx_1", parent=None)
