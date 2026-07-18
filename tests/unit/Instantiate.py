@@ -44,11 +44,10 @@ from pyVHDLModel.Symbol import AllPackageMembersReferenceSymbol, ContextReferenc
 from pyVHDLModel.Symbol import ArchitectureSymbol, PackageSymbol, EntityInstantiationSymbol
 from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstantiationSymbol
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
-from pyVHDLModel.Type import Subtype, IntegerType, RealType, ArrayType, RecordType
-from pyVHDLModel.DesignUnit import Package, PackageBody, Context, Entity, Architecture, Configuration
-from pyVHDLModel.DesignUnit import LibraryClause
-from pyVHDLModel.Association import GenericAssociationItem
-from pyVHDLModel.Expression import IntegerLiteral
+from pyVHDLModel.Type          import Subtype, IntegerType, RealType, ArrayType, RecordType
+from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Architecture, Configuration
+from pyVHDLModel.DesignUnit    import LibraryClause
+from pyVHDLModel.Association   import GenericAssociationItem
 from pyVHDLModel.Instantiation import PackageInstantiation
 
 
@@ -432,8 +431,15 @@ class SimpleInstance(TestCase):
 				LibraryReferenceSymbol(SimpleName("ieee")),
 			]),
 		]
+		# NOTE: keyword arguments used deliberately here, since AssociationItem.__init__(actual, formal=None) takes
+		# 'actual' first - matching that order at the call site with plain positional arguments reads misleadingly
+		# for 'WIDTH => 16' (formal => actual). This is the same order already used at every production call site of
+		# GenericAssociationItem/PortAssociationItem/ParameterAssociationItem in pyGHDL.dom's GetMapAspect() (used for
+		# every entity/component instantiation's generic and port maps), so changing AssociationItem's parameter
+		# order itself would ripple through all of those - keyword arguments resolve the readability concern here
+		# without touching that shared, already-exercised API.
 		genericAssociations = [
-			GenericAssociationItem(IntegerLiteral(16), SimpleName("WIDTH")),
+			GenericAssociationItem(actual=IntegerLiteral(16), formal=SimpleName("WIDTH")),
 		]
 		packageInstantiation = PackageInstantiation(
 			"pack_inst_1", packageReference, contextItems, genericAssociations, parent=None
@@ -444,8 +450,8 @@ class SimpleInstance(TestCase):
 		self.assertIs(packageReference, packageInstantiation.PackageReference)
 		self.assertEqual(1, len(packageInstantiation.ContextItems))
 		self.assertEqual(1, len(packageInstantiation.GenericAssociations))
-		self.assertEqual(16, packageInstantiation.GenericAssociations[0].Actual.Value)
 		self.assertEqual("WIDTH", packageInstantiation.GenericAssociations[0].Formal.Identifier)
+		self.assertEqual(16, packageInstantiation.GenericAssociations[0].Actual.Value)
 
 	def test_PackageInstantiation_withoutContextItemsOrGenerics(self) -> None:
 		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
