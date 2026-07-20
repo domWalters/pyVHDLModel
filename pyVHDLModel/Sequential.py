@@ -430,17 +430,23 @@ class NullStatement(SequentialStatement):
 
 
 @export
-class ReturnStatement(SequentialStatement, ConditionalMixin):
-	_returnValue: ExpressionUnion
+class ReturnStatement(SequentialStatement):
+	_returnValue: Nullable[ExpressionUnion]
 
-	def __init__(self, returnValue: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(parent)
-		ConditionalMixin.__init__(self, returnValue)
+	def __init__(
+		self,
+		returnValue: Nullable[ExpressionUnion] = None,
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
 
-		# TODO: return value?
+		self._returnValue = returnValue
+		if returnValue is not None:
+			returnValue.Parent = self
 
-	@property
-	def ReturnValue(self) -> ExpressionUnion:
+	@readonly
+	def ReturnValue(self) -> Nullable[ExpressionUnion]:
 		return self._returnValue
 
 
