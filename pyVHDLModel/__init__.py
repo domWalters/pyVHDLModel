@@ -256,9 +256,8 @@ class VHDLVersion(Enum):
 
 	def __hash__(self) -> int:
 		"""
-		Compute a hash value from the underlying version number, so ``VHDLVersion`` members can be used as
-		dict keys / set members again (overriding ``__eq__`` implicitly disables the default ``__hash__``).
-
+		Return the hash of the VHDL version using the underlying version number.
+		
 		.. note::
 
 		   ``Any`` compares equal to every other member (see :meth:`__eq__`), which no hash value can satisfy
@@ -266,7 +265,7 @@ class VHDLVersion(Enum):
 		   hashes by ``self.value``, which is internally consistent for all comparisons *except* those
 		   involving ``Any`` - avoid using ``Any`` as a dict key or set member.
 
-		:returns: Hash value of the underlying version number.
+		:returns: Hash value of the underlying VHDL version number.
 		"""
 		return hash(self.value)
 
