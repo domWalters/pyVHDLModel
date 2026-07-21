@@ -254,6 +254,22 @@ class VHDLVersion(Enum):
 		else:
 			raise TypeError("Second operand is not of type 'VHDLVersion'.")
 
+	def __hash__(self) -> int:
+		"""
+		Compute a hash value from the underlying version number, so ``VHDLVersion`` members can be used as
+		dict keys / set members again (overriding ``__eq__`` implicitly disables the default ``__hash__``).
+
+		.. note::
+
+		   ``Any`` compares equal to every other member (see :meth:`__eq__`), which no hash value can satisfy
+		   simultaneously for all members without collapsing every member to the same hash. This implementation
+		   hashes by ``self.value``, which is internally consistent for all comparisons *except* those
+		   involving ``Any`` - avoid using ``Any`` as a dict key or set member.
+
+		:returns: Hash value of the underlying version number.
+		"""
+		return hash(self.value)
+
 	@readonly
 	def IsVHDL(self) -> bool:
 		"""
