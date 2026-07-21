@@ -48,7 +48,7 @@ __author__ =            "Patrick Lehmann"
 __email__ =             "Paebbels@gmail.com"
 __copyright__ =         "2016-2026, Patrick Lehmann"
 __license__ =           "Apache License, Version 2.0"
-__version__ =           "0.37.0"
+__version__ =           "0.38.0"
 # __keywords__ =          []
 __project_url__ =       "https://github.com/VHDL/pyVHDLModel"
 __documentation_url__ = "https://vhdl.github.io/pyVHDLModel"
@@ -257,7 +257,7 @@ class VHDLVersion(Enum):
 	def __hash__(self) -> int:
 		"""
 		Return the hash of the VHDL version using the underlying version number.
-		
+
 		.. note::
 
 		   ``Any`` compares equal to every other member (see :meth:`__eq__`), which no hash value can satisfy
