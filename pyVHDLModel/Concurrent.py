@@ -130,39 +130,39 @@ class Instantiation(ConcurrentStatement):
 	A base-class for all (component) instantiations.
 	"""
 
-	_genericAssociations: List[AssociationItem]
-	_portAssociations: List[AssociationItem]
+	_genericAssociationItems: List[AssociationItem]
+	_portAssociationItems:    List[AssociationItem]
 
 	def __init__(
 		self,
 		label: str,
-		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
-		portAssociations: Nullable[Iterable[AssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 
 		# TODO: extract to mixin
-		self._genericAssociations = []
-		if genericAssociations is not None:
-			for association in genericAssociations:
-				self._genericAssociations.append(association)
+		self._genericAssociationItems = []
+		if genericAssociationItems is not None:
+			for association in genericAssociationItems:
+				self._genericAssociationItems.append(association)
 				association.Parent = self
 
 		# TODO: extract to mixin
-		self._portAssociations = []
-		if portAssociations is not None:
-			for association in portAssociations:
-				self._portAssociations.append(association)
+		self._portAssociationItems = []
+		if portAssociationItems is not None:
+			for association in portAssociationItems:
+				self._portAssociationItems.append(association)
 				association.Parent = self
 
 	@readonly
-	def GenericAssociations(self) -> List[AssociationItem]:
-		return self._genericAssociations
+	def GenericAssociationItems(self) -> List[AssociationItem]:
+		return self._genericAssociationItems
 
 	@property
-	def PortAssociations(self) -> List[AssociationItem]:
-		return self._portAssociations
+	def PortAssociationItems(self) -> List[AssociationItem]:
+		return self._portAssociationItems
 
 
 @export
@@ -183,11 +183,11 @@ class ComponentInstantiation(Instantiation):
 		self,
 		label: str,
 		componentSymbol: ComponentInstantiationSymbol,
-		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
-		portAssociations: Nullable[Iterable[AssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(label, genericAssociations, portAssociations, parent)
+		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._component = componentSymbol
 		componentSymbol.Parent = self
@@ -217,11 +217,11 @@ class EntityInstantiation(Instantiation):
 		label: str,
 		entitySymbol: EntityInstantiationSymbol,
 		architectureSymbol: Nullable[ArchitectureSymbol] = None,
-		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
-		portAssociations: Nullable[Iterable[AssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(label, genericAssociations, portAssociations, parent)
+		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._entity = entitySymbol
 		entitySymbol.Parent = self
@@ -257,11 +257,11 @@ class ConfigurationInstantiation(Instantiation):
 		self,
 		label: str,
 		configurationSymbol: ConfigurationInstantiationSymbol,
-		genericAssociations: Nullable[Iterable[AssociationItem]] = None,
-		portAssociations: Nullable[Iterable[AssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(label, genericAssociations, portAssociations, parent)
+		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._configuration = configurationSymbol
 		configurationSymbol.Parent = self
@@ -322,11 +322,11 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 		self,
 		label: str,
 		procedureName: Name,
-		parameterMappings: Nullable[Iterable[ParameterAssociationItem]] = None,
+		parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
-		ProcedureCallMixin.__init__(self, procedureName, parameterMappings)
+		ProcedureCallMixin.__init__(self, procedureName, parameterAssociationItems)
 
 
 @export

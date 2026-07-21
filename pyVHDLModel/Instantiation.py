@@ -81,14 +81,14 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 @export
 class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
 	_packageReference: PackageReferenceSymbol
-	_genericAssociations: List[GenericAssociationItem]
+	_genericAssociationItems: List[GenericAssociationItem]
 
 	def __init__(
 		self,
 		identifier:          str,
 		genericPackage:      PackageReferenceSymbol,
 		contextItems:        Nullable[Iterable[ContextUnion]] =           None,
-		genericAssociations: Nullable[Iterable[GenericAssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
 		documentation:       Nullable[str] =                              None,
 		parent:              Nullable[ModelEntity] =                      None
 	) -> None:
@@ -99,18 +99,19 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		self._packageReference.Parent = self
 
 		# TODO: extract to mixin
-		self._genericAssociations = []
-		if genericAssociations is not None:
-			for association in genericAssociations:
-				self._genericAssociations.append(association)
+		self._genericAssociationItems = []
+		if genericAssociationItems is not None:
+			for association in genericAssociationItems:
+				self._genericAssociationItems.append(association)
+				association.Parent = self
 
 	@readonly
 	def PackageReference(self) -> PackageReferenceSymbol:
 		return self._packageReference
 
 	@readonly
-	def GenericAssociations(self) -> List[GenericAssociationItem]:
-		return self._genericAssociations
+	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		return self._genericAssociationItems
 
 	def Instantiate(self):
 		genericPackage: Package = self._packageReference.Package
