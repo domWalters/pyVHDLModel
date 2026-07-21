@@ -131,13 +131,13 @@ class Instantiation(ConcurrentStatement):
 	"""
 
 	_genericAssociationItems: List[AssociationItem]
-	_portAssociationItems: List[AssociationItem]
+	_portAssociationItems:    List[AssociationItem]
 
 	def __init__(
 		self,
 		label: str,
 		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
-		portAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
@@ -184,7 +184,7 @@ class ComponentInstantiation(Instantiation):
 		label: str,
 		componentSymbol: ComponentInstantiationSymbol,
 		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
-		portAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
@@ -218,7 +218,7 @@ class EntityInstantiation(Instantiation):
 		entitySymbol: EntityInstantiationSymbol,
 		architectureSymbol: Nullable[ArchitectureSymbol] = None,
 		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
-		portAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
@@ -258,7 +258,7 @@ class ConfigurationInstantiation(Instantiation):
 		label: str,
 		configurationSymbol: ConfigurationInstantiationSymbol,
 		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
-		portAssociationItems: Nullable[Iterable[AssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)

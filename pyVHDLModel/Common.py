@@ -102,7 +102,7 @@ class Statement(ModelEntity, LabeledEntityMixin):
 
 @export
 class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
-	_procedure:         Symbol  # TODO: implement a ProcedureSymbol
+	_procedure:                 Symbol  # TODO: implement a ProcedureSymbol
 	_parameterAssociationItems: List[ParameterAssociationItem]
 
 	def __init__(self, procedureName: Symbol, parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:

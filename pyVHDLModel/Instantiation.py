@@ -103,6 +103,7 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		if genericAssociationItems is not None:
 			for association in genericAssociationItems:
 				self._genericAssociationItems.append(association)
+				association.Parent = self
 
 	@readonly
 	def PackageReference(self) -> PackageReferenceSymbol:
