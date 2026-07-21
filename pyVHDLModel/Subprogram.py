@@ -55,14 +55,14 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __init__(
 		self,
-		identifier: str,
-		isPure: bool,
-		genericItems: Nullable[Iterable['GenericInterfaceItemMixin']] = None,
+		identifier:     str,
+		isPure:         bool,
+		genericItems:   Nullable[Iterable['GenericInterfaceItemMixin']] =   None,
 		parameterItems: Nullable[Iterable['ParameterInterfaceItemMixin']] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[SequentialStatement]] = None,
-		documentation: Nullable[str] = None,
-		parent: Nullable[ModelEntity] = None
+		declaredItems:  Nullable[Iterable] =                                None,
+		statements:     Nullable[Iterable[SequentialStatement]] =           None,
+		documentation:  Nullable[str] =                                     None,
+		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -119,13 +119,13 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 class Procedure(Subprogram):
 	def __init__(
 		self,
-		identifier: str,
-		genericItems: Nullable[Iterable['GenericInterfaceItemMixin']] = None,
+		identifier:     str,
+		genericItems:   Nullable[Iterable['GenericInterfaceItemMixin']] =   None,
 		parameterItems: Nullable[Iterable['ParameterInterfaceItemMixin']] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[SequentialStatement]] = None,
-		documentation: Nullable[str] = None,
-		parent: Nullable[ModelEntity] = None
+		declaredItems:  Nullable[Iterable] =                                None,
+		statements:     Nullable[Iterable[SequentialStatement]] =           None,
+		documentation:  Nullable[str] =                                     None,
+		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		super().__init__(identifier, False, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 
@@ -136,15 +136,15 @@ class Function(Subprogram):
 
 	def __init__(
 		self,
-		identifier: str,
-		returnType: SubtypeSymbol,
-		isPure: bool = True,
-		genericItems: Nullable[Iterable['GenericInterfaceItemMixin']] = None,
+		identifier:     str,
+		returnType:     SubtypeSymbol,
+		isPure:         bool =                                              True,
+		genericItems:   Nullable[Iterable['GenericInterfaceItemMixin']] =   None,
 		parameterItems: Nullable[Iterable['ParameterInterfaceItemMixin']] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[SequentialStatement]] = None,
-		documentation: Nullable[str] = None,
-		parent: Nullable[ModelEntity] = None
+		declaredItems:  Nullable[Iterable] =                                None,
+		statements:     Nullable[Iterable[SequentialStatement]] =           None,
+		documentation:  Nullable[str] =                                     None,
+		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		super().__init__(identifier, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 
@@ -175,14 +175,14 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 class ProcedureMethod(Procedure, MethodMixin):
 	def __init__(
 		self,
-		identifier: str,
-		genericItems: Nullable[Iterable['GenericInterfaceItemMixin']] = None,
+		identifier:     str,
+		genericItems:   Nullable[Iterable['GenericInterfaceItemMixin']] =   None,
 		parameterItems: Nullable[Iterable['ParameterInterfaceItemMixin']] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[SequentialStatement]] = None,
-		documentation: Nullable[str] = None,
-		protectedType: Nullable[ProtectedType] = None,
-		parent: Nullable[ModelEntity] = None
+		declaredItems:  Nullable[Iterable] =                                None,
+		statements:     Nullable[Iterable[SequentialStatement]] =           None,
+		documentation:  Nullable[str] =                                     None,
+		protectedType:  Nullable[ProtectedType] =                           None,
+		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		super().__init__(identifier, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		MethodMixin.__init__(self, protectedType)
@@ -192,16 +192,16 @@ class ProcedureMethod(Procedure, MethodMixin):
 class FunctionMethod(Function, MethodMixin):
 	def __init__(
 		self,
-		identifier: str,
-		returnType: SubtypeSymbol,
-		isPure: bool = True,
-		genericItems: Nullable[Iterable['GenericInterfaceItemMixin']] = None,
+		identifier:     str,
+		returnType:     SubtypeSymbol,
+		isPure:         bool =                                              True,
+		genericItems:   Nullable[Iterable['GenericInterfaceItemMixin']] =   None,
 		parameterItems: Nullable[Iterable['ParameterInterfaceItemMixin']] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements: Nullable[Iterable[SequentialStatement]] = None,
-		documentation: Nullable[str] = None,
-		protectedType: Nullable[ProtectedType] = None,
-		parent: Nullable[ModelEntity] = None
+		declaredItems:  Nullable[Iterable] =                                None,
+		statements:     Nullable[Iterable[SequentialStatement]] =           None,
+		documentation:  Nullable[str] =                                     None,
+		protectedType:  Nullable[ProtectedType] =                           None,
+		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		super().__init__(identifier, returnType, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		MethodMixin.__init__(self, protectedType)

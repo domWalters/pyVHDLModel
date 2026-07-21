@@ -436,8 +436,8 @@ class ReturnStatement(SequentialStatement):
 	def __init__(
 		self,
 		returnValue: Nullable[ExpressionUnion] = None,
-		label: Nullable[str] = None,
-		parent: Nullable[ModelEntity] = None
+		label:       Nullable[str] =             None,
+		parent:      Nullable[ModelEntity] =     None
 	) -> None:
 		super().__init__(label, parent)
 

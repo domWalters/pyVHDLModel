@@ -80,17 +80,17 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 @export
 class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
-	_packageReference: PackageReferenceSymbol
+	_packageReference:        PackageReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]
 
 	def __init__(
 		self,
-		identifier:          str,
-		genericPackage:      PackageReferenceSymbol,
-		contextItems:        Nullable[Iterable[ContextUnion]] =           None,
+		identifier:              str,
+		genericPackage:          PackageReferenceSymbol,
+		contextItems:            Nullable[Iterable[ContextUnion]] =           None,
 		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
-		documentation:       Nullable[str] =                              None,
-		parent:              Nullable[ModelEntity] =                      None
+		documentation:           Nullable[str] =                              None,
+		parent:                  Nullable[ModelEntity] =                      None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
