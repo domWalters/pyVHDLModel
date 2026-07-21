@@ -39,12 +39,133 @@ from typing                 import Iterable, Optional as Nullable, List, Iterato
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
 
-from pyVHDLModel.Symbol     import Symbol
+from pyVHDLModel.Symbol     import Symbol, SubtypeSymbol, ModeViewSymbol
 from pyVHDLModel.Base       import ModelEntity, DocumentedEntityMixin, NamedEntityMixin, OptionallyNamedEntityMixin
+from pyVHDLModel.Base       import MultipleNamedEntityMixin
 from pyVHDLModel.Base       import ExpressionUnion, Mode
 from pyVHDLModel.Object     import Constant, Signal, Variable, File
 from pyVHDLModel.Subprogram import Procedure, Function
 from pyVHDLModel.Type       import Type
+
+
+@export
+class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
+	"""
+	Base-class for one element definition inside a mode view declaration (VHDL-2019). An element may name
+	several fields sharing the same specification (e.g. ``a, b : out;``), hence
+	:class:`~pyVHDLModel.Base.MultipleNamedEntityMixin` is inherited.
+	"""
+
+	def __init__(self, identifiers: Iterable[str], parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(parent)
+		MultipleNamedEntityMixin.__init__(self, identifiers)
+
+
+@export
+class SimpleModeViewElement(ModeViewElement):
+	"""
+	A mode view element with a plain (simple) mode.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      view MyView of RecordType is
+	        a, b : out;
+	        --     ^^^
+	      end view;
+	"""
+
+	_mode: Mode
+
+	def __init__(self, identifiers: Iterable[str], mode: Mode, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(identifiers, parent)
+		self._mode = mode
+
+	@readonly
+	def Mode(self) -> Mode:
+		return self._mode
+
+
+@export
+class CompositeModeViewElement(ModeViewElement):
+	"""
+	A mode view element that refers to another (named) mode view for an array or record sub-element.
+
+	GHDL's IIR distinguishes an array- from a record-typed target element (``Array_Mode_View_Element`` /
+	``Record_Mode_View_Element``), but that distinction can only be determined once the target element's
+	type is resolved, which requires semantic analysis. Both are merged into this one class here, since they
+	are otherwise structurally identical (both just carry a reference to another mode view).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      view OuterView of OuterRecord is
+	        b : view InnerView;
+	        --       ^^^^^^^^^
+	      end view;
+	"""
+
+	_modeViewName: ModeViewSymbol
+
+	def __init__(self, identifiers: Iterable[str], modeViewName: ModeViewSymbol, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(identifiers, parent)
+
+		self._modeViewName = modeViewName
+		modeViewName.Parent = self
+
+	@readonly
+	def ModeViewName(self) -> ModeViewSymbol:
+		return self._modeViewName
+
+
+@export
+class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
+	"""
+	Represents a mode view declaration (VHDL-2019).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      view MyView of RecordType is
+	        a : out;
+	        b : in;
+	      end view;
+	"""
+
+	_subtype:  SubtypeSymbol
+	_elements: List[ModeViewElement]
+
+	def __init__(
+		self,
+		identifier:    str,
+		subtype:       SubtypeSymbol,
+		elements:      Nullable[Iterable[ModeViewElement]] = None,
+		documentation: Nullable[str] =                        None,
+		parent:        Nullable[ModelEntity] =                None
+	) -> None:
+		super().__init__(parent)
+		NamedEntityMixin.__init__(self, identifier)
+		DocumentedEntityMixin.__init__(self, documentation)
+
+		self._subtype = subtype
+		subtype.Parent = self
+
+		self._elements = []
+		if elements is not None:
+			for element in elements:
+				self._elements.append(element)
+				element.Parent = self
+
+	@readonly
+	def Subtype(self) -> SubtypeSymbol:
+		return self._subtype
+
+	@readonly
+	def Elements(self) -> List[ModeViewElement]:
+		return self._elements
 
 
 @export
@@ -146,7 +267,24 @@ class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
 
 
 @export
-class PortSignalInterfaceItem(Signal, PortInterfaceItemMixin):
+class PortSignalInterfaceItem(Signal, InterfaceItemMixin):
+	"""
+	Abstract base-class for port signal interface items - either declared with a simple mode
+	(:class:`PortSimpleSignalInterfaceItem`) or with a mode view (:class:`PortViewSignalInterfaceItem`,
+	VHDL-2019).
+	"""
+
+
+@export
+class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithModeMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      port (p : in bit);
+	"""
+
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -157,7 +295,43 @@ class PortSignalInterfaceItem(Signal, PortInterfaceItemMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
-		PortInterfaceItemMixin.__init__(self, mode)
+		InterfaceItemWithModeMixin.__init__(self, mode)
+
+
+@export
+class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      port (p : view MyView);
+
+	.. note::
+
+	   ``Subtype`` will usually be ``None`` here: at the parse-only level this project operates at, the
+	   element's type is only implied by the referenced mode view's own ``of`` type - there is no separate
+	   subtype indication to read directly off the interface declaration itself.
+	"""
+
+	_modeViewIndication: ModeViewSymbol
+
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		modeViewIndication: ModeViewSymbol,
+		subtype: Nullable[Symbol] = None,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(identifiers, subtype, None, documentation, parent)
+
+		self._modeViewIndication = modeViewIndication
+		modeViewIndication.Parent = self
+
+	@readonly
+	def ModeViewIndication(self) -> ModeViewSymbol:
+		return self._modeViewIndication
 
 
 @export
@@ -193,7 +367,24 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 
 
 @export
-class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin, InterfaceItemWithModeMixin):
+class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin):
+	"""
+	Abstract base-class for subprogram signal parameters - either declared with a simple mode
+	(:class:`ParameterSimpleSignalInterfaceItem`) or with a mode view
+	(:class:`ParameterViewSignalInterfaceItem`, VHDL-2019).
+	"""
+
+
+@export
+class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, InterfaceItemWithModeMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure proc(signal s : in bit);
+	"""
+
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -206,6 +397,41 @@ class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin, Interfac
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
+
+
+@export
+class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure proc(signal s : view MyView);
+
+	.. note::
+
+	   ``Subtype`` will usually be ``None`` here - see :class:`PortViewSignalInterfaceItem` for why.
+	"""
+
+	_modeViewIndication: ModeViewSymbol
+
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		modeViewIndication: ModeViewSymbol,
+		subtype: Nullable[Symbol] = None,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(identifiers, subtype, None, documentation, parent)
+		ParameterInterfaceItemMixin.__init__(self)
+
+		self._modeViewIndication = modeViewIndication
+		modeViewIndication.Parent = self
+
+	@readonly
+	def ModeViewIndication(self) -> ModeViewSymbol:
+		return self._modeViewIndication
 
 
 @export
