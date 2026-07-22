@@ -49,6 +49,7 @@ from pyVHDLModel.Symbol     import Symbol, PackageSymbol, EntitySymbol, LibraryR
 from pyVHDLModel.Interface  import GenericInterfaceItemMixin, PortInterfaceItemMixin, WithGenericsMixin, WithPortsMixin
 from pyVHDLModel.Object     import DeferredConstant
 from pyVHDLModel.Concurrent import ConcurrentStatement, ConcurrentStatementsMixin
+from pyVHDLModel.Configuration import BlockConfiguration
 
 
 @export
@@ -769,15 +770,34 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 	      end configuration;
 	"""
 
+	_entity:            EntitySymbol
+	_blockConfiguration: BlockConfiguration
+
 	def __init__(
 		self,
 		identifier: str,
+		entity: EntitySymbol,
+		blockConfiguration: BlockConfiguration,
 		contextItems: Nullable[Iterable[Context]] = None,
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
+
+		self._entity = entity
+		entity.Parent = self
+
+		self._blockConfiguration = blockConfiguration
+		blockConfiguration.Parent = self
+
+	@readonly
+	def Entity(self) -> EntitySymbol:
+		return self._entity
+
+	@readonly
+	def BlockConfiguration(self) -> BlockConfiguration:
+		return self._blockConfiguration
 
 	def __str__(self) -> str:
 		lib = self._parent._identifier if self._parent is not None else "%"

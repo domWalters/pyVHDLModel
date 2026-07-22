@@ -37,9 +37,10 @@ from pyVHDLModel import Design, Document, VHDLModelException
 from pyVHDLModel.Name import SimpleName, SelectedName, AllName
 from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, AllPackageMembersReferenceSymbol
 from pyVHDLModel.Symbol import ContextReferenceSymbol, EntitySymbol, PackageSymbol, EntityInstantiationSymbol
-from pyVHDLModel.Symbol import SimpleSubtypeSymbol
+from pyVHDLModel.Symbol import SimpleSubtypeSymbol, Symbol, PossibleReference
 from pyVHDLModel.DesignUnit import Package, PackageBody, Context, Entity, Architecture, Configuration
 from pyVHDLModel.DesignUnit import LibraryClause, UseClause, ContextReference
+from pyVHDLModel.Configuration import BlockConfiguration
 from pyVHDLModel.Concurrent import EntityInstantiation
 from pyVHDLModel.Object import Variable
 from pyVHDLModel.Exception import NotImplementedWarning
@@ -125,7 +126,12 @@ class VHDLLibrary(TestCase):
 		packageBody = PackageBody(PackageSymbol(SimpleName("pack_1")), parent=None)
 		document._AddDesignUnit(packageBody)
 
-		configuration = Configuration("cfg_1", parent=None)
+		configuration = Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_A")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 		document._AddDesignUnit(configuration)
 
 		design.AddDocument(document, library)
