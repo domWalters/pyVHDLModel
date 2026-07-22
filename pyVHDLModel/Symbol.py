@@ -221,6 +221,32 @@ class ModeViewSymbol(Symbol):
 
 
 @export
+class SubprogramReferenceSymbol(Symbol):
+	"""
+	Represents a reference (name) to a subprogram (procedure or function), e.g. the uninstantiated
+	subprogram named by a subprogram instantiation.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      function f is new g generic map (...);
+	      --                  ^
+	"""
+
+	def __init__(self, name: Name) -> None:
+		super().__init__(name, PossibleReference.SubProgram)
+
+	@property
+	def Subprogram(self) -> Nullable['Subprogram']:
+		return self._reference
+
+	@Subprogram.setter
+	def Subprogram(self, value: 'Subprogram') -> None:
+		self._reference = value
+
+
+@export
 class ContextReferenceSymbol(Symbol):
 	"""
 	Represents a reference (name) to a context.

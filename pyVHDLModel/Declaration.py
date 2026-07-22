@@ -42,7 +42,7 @@ from pyTooling.Decorators   import export, readonly
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.Expression import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Name       import Name
-from pyVHDLModel.Symbol     import Symbol
+from pyVHDLModel.Symbol     import Symbol, SubtypeSymbol
 
 
 
@@ -179,12 +179,58 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 # TODO: move somewhere else
 @export
 class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		"""
-		Initializes underlying ``BaseType``.
+	"""
+	Represents an alias declaration.
 
-		:param identifier: Name of the type.
-		"""
+	:attr:`Name` is a :class:`~pyVHDLModel.Symbol.Symbol` - like every other cross-reference in this
+	model - rather than a bare :class:`~pyVHDLModel.Name.Name`, so it participates in the usual
+	resolve-later mechanism (:attr:`~pyVHDLModel.Symbol.Symbol.Reference` /
+	:attr:`~pyVHDLModel.Symbol.Symbol.IsResolved`). Unlike ``PackageReferenceSymbol`` and similar,
+	there is no single fixed :class:`~pyVHDLModel.Symbol.PossibleReference` value that always fits: an
+	alias without a subtype indication can refer to almost anything nameable (an object, a type, a
+	subprogram, a literal, ...), while an alias *with* a subtype indication can - per the LRM - only
+	ever refer to an object (a constant, variable, signal, or file); the ``possibleReferences`` passed
+	to the ``Symbol`` should reflect whichever case applies.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      alias a : bit_vector(3 downto 0) is s(3 downto 0);
+	      --        ^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^
+	      --        Subtype (optional)         Name
+
+	      alias b is s;
+	      --          ^
+	      --          Name
+	"""
+
+	_name:    Symbol
+	_subtype: Nullable[SubtypeSymbol]
+
+	def __init__(
+		self,
+		identifier:    str,
+		name:          Symbol,
+		subtype:       Nullable[SubtypeSymbol] = None,
+		documentation: Nullable[str] =            None,
+		parent:        Nullable[ModelEntity] =    None
+	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+
+		self._name = name
+		name.Parent = self
+
+		self._subtype = subtype
+		if subtype is not None:
+			subtype.Parent = self
+
+	@readonly
+	def Name(self) -> Symbol:
+		return self._name
+
+	@readonly
+	def Subtype(self) -> Nullable[SubtypeSymbol]:
+		return self._subtype

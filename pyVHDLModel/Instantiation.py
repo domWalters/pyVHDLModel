@@ -44,7 +44,7 @@ from pyVHDLModel.Base        import ModelEntity
 from pyVHDLModel.DesignUnit  import Package, ContextUnion
 from pyVHDLModel.Association import GenericAssociationItem
 from pyVHDLModel.Subprogram  import Procedure, Function, Subprogram
-from pyVHDLModel.Symbol      import PackageReferenceSymbol
+from pyVHDLModel.Symbol      import PackageReferenceSymbol, SubprogramReferenceSymbol, SubtypeSymbol
 
 
 @export
@@ -61,21 +61,105 @@ class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
 
 @export
 class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
-	_subprogramReference: Subprogram  # FIXME: is this a subprogram symbol?
+	_subprogramReference:     SubprogramReferenceSymbol
+	_genericAssociationItems: List[GenericAssociationItem]
 
-	def __init__(self) -> None:
+	def __init__(
+		self,
+		subprogramReference: SubprogramReferenceSymbol,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None
+	) -> None:
 		super().__init__()
-		self._subprogramReference = None
+
+		self._subprogramReference = subprogramReference
+		subprogramReference.Parent = self
+
+		self._genericAssociationItems = []
+		if genericAssociationItems is not None:
+			for association in genericAssociationItems:
+				self._genericAssociationItems.append(association)
+				association.Parent = self
+
+	@readonly
+	def SubprogramReference(self) -> SubprogramReferenceSymbol:
+		return self._subprogramReference
+
+	@readonly
+	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		return self._genericAssociationItems
 
 
 @export
 class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
-	pass
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure p is new q generic map (...);
+	"""
+
+	def __init__(
+		self,
+		identifier: str,
+		subprogramReference: SubprogramReferenceSymbol,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
+		genericItems: Nullable[Iterable] = None,
+		parameterItems: Nullable[Iterable] = None,
+		declaredItems: Nullable[Iterable] = None,
+		statements: Nullable[Iterable] = None,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(identifier, genericItems, parameterItems, declaredItems, statements, documentation, parent)
+		SubprogramInstantiationMixin.__init__(self, subprogramReference, genericAssociationItems)
 
 
 @export
 class FunctionInstantiation(Function, SubprogramInstantiationMixin):
-	pass
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      function f is new g generic map (...);
+
+	.. note::
+
+	   Unlike an ordinary :class:`~pyVHDLModel.Subprogram.Function`, ``ReturnType`` is ``Nullable`` here:
+	   the LRM grammar never lets a subprogram instantiation write its own return type - it is always and
+	   only known by resolving the referenced uninstantiated subprogram, which requires semantic analysis
+	   this project does not perform. This is deliberately different from :class:`~pyVHDLModel.Object.Obj`
+	   (where a subtype is always present in the source, so making it ``Nullable`` would be wrong): here,
+	   a return type is *never* present in the source, so ``None`` reflects a not-yet-resolved reference,
+	   the same status as any other unresolved :attr:`~pyVHDLModel.Symbol.Symbol.Reference`, rather than a
+	   workaround.
+	"""
+
+	def __init__(
+		self,
+		identifier: str,
+		subprogramReference: SubprogramReferenceSymbol,
+		isPure: bool = True,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
+		genericItems: Nullable[Iterable] = None,
+		parameterItems: Nullable[Iterable] = None,
+		declaredItems: Nullable[Iterable] = None,
+		statements: Nullable[Iterable] = None,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		# NOTE: deliberately calls Subprogram.__init__ directly, not super().__init__() (which would
+		# resolve to Function.__init__ and require a returnType that can never be known here - see
+		# the class docstring above).
+		Subprogram.__init__(self, identifier, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
+		SubprogramInstantiationMixin.__init__(self, subprogramReference, genericAssociationItems)
+
+		self._returnType = None
+
+	@readonly
+	def ReturnType(self) -> Nullable[SubtypeSymbol]:
+		return self._returnType
 
 
 @export

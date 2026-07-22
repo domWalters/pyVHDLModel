@@ -43,12 +43,13 @@ from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, P
 from pyVHDLModel.Symbol import AllPackageMembersReferenceSymbol, ContextReferenceSymbol, EntitySymbol
 from pyVHDLModel.Symbol import ArchitectureSymbol, PackageSymbol, EntityInstantiationSymbol
 from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstantiationSymbol
+from pyVHDLModel.Symbol import SubprogramReferenceSymbol
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
 from pyVHDLModel.Type          import Subtype, IntegerType, RealType, ArrayType, RecordType
 from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Architecture, Configuration
 from pyVHDLModel.DesignUnit    import LibraryClause
 from pyVHDLModel.Association   import GenericAssociationItem
-from pyVHDLModel.Instantiation import PackageInstantiation
+from pyVHDLModel.Instantiation import PackageInstantiation, FunctionInstantiation, ProcedureInstantiation
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -453,6 +454,27 @@ class SimpleInstance(TestCase):
 		self.assertIsNotNone(packageInstantiation)
 		self.assertEqual(0, len(packageInstantiation.ContextItems))
 		self.assertEqual(0, len(packageInstantiation.GenericAssociationItems))
+
+	def test_FunctionInstantiation(self) -> None:
+		subprogramReference = SubprogramReferenceSymbol(SimpleName("generic_add"))
+		genericAssociationItems = [
+			GenericAssociationItem(SimpleName("T"), SimpleSubtypeSymbol(SimpleName("integer"))),
+		]
+		functionInstantiation = FunctionInstantiation("add_int", subprogramReference, True, genericAssociationItems)
+
+		self.assertEqual("add_int", functionInstantiation.Identifier)
+		self.assertIs(subprogramReference, functionInstantiation.SubprogramReference)
+		self.assertEqual(1, len(functionInstantiation.GenericAssociationItems))
+		self.assertTrue(functionInstantiation.IsPure)
+		self.assertIsNone(functionInstantiation.ReturnType)
+
+	def test_ProcedureInstantiation(self) -> None:
+		subprogramReference = SubprogramReferenceSymbol(SimpleName("some_proc"))
+		procedureInstantiation = ProcedureInstantiation("my_proc", subprogramReference)
+
+		self.assertEqual("my_proc", procedureInstantiation.Identifier)
+		self.assertIs(subprogramReference, procedureInstantiation.SubprogramReference)
+		self.assertEqual(0, len(procedureInstantiation.GenericAssociationItems))
 
 	def test_Context(self) -> None:
 		context = Context("ctx_1", parent=None)
