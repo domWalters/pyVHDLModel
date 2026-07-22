@@ -278,6 +278,7 @@ class PortSignalInterfaceItem(Signal, InterfaceItemMixin):
 @export
 class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithModeMixin):
 	"""
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
@@ -301,6 +302,7 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 @export
 class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 	"""
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
@@ -309,29 +311,26 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 
 	.. note::
 
-	   ``Subtype`` will usually be ``None`` here: at the parse-only level this project operates at, the
-	   element's type is only implied by the referenced mode view's own ``of`` type - there is no separate
-	   subtype indication to read directly off the interface declaration itself.
+	   VHDL's grammar treats a mode view indication as occupying the same structural position as an
+	   ordinary subtype indication (``mode_indication ::= simple_mode_indication | mode_view_indication``).
+	   Accordingly, the mode view reference *is* this object's :attr:`Subtype` (a :class:`Symbol` is a
+	   :class:`Symbol`, whether it names a subtype or a mode view) - :attr:`ModeViewIndication` is just a
+	   more specific, aliased name for the same value, not a separate field. An object's subtype can never
+	   be ``None`` - there is no VHDL syntax that omits it.
 	"""
-
-	_modeViewIndication: ModeViewSymbol
 
 	def __init__(
 		self,
 		identifiers: Iterable[str],
 		modeViewIndication: ModeViewSymbol,
-		subtype: Nullable[Symbol] = None,
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(identifiers, subtype, None, documentation, parent)
-
-		self._modeViewIndication = modeViewIndication
-		modeViewIndication.Parent = self
+		super().__init__(identifiers, modeViewIndication, None, documentation, parent)
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
-		return self._modeViewIndication
+		return self._subtype
 
 
 @export
@@ -378,6 +377,7 @@ class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin):
 @export
 class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, InterfaceItemWithModeMixin):
 	"""
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
@@ -402,6 +402,7 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 @export
 class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 	"""
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
@@ -410,28 +411,23 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 	.. note::
 
-	   ``Subtype`` will usually be ``None`` here - see :class:`PortViewSignalInterfaceItem` for why.
+	   See :class:`PortViewSignalInterfaceItem` for why the mode view reference *is* :attr:`Subtype`
+	   (aliased as :attr:`ModeViewIndication`), rather than a separate, possibly-``None`` field.
 	"""
-
-	_modeViewIndication: ModeViewSymbol
 
 	def __init__(
 		self,
 		identifiers: Iterable[str],
 		modeViewIndication: ModeViewSymbol,
-		subtype: Nullable[Symbol] = None,
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(identifiers, subtype, None, documentation, parent)
+		super().__init__(identifiers, modeViewIndication, None, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
-
-		self._modeViewIndication = modeViewIndication
-		modeViewIndication.Parent = self
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
-		return self._modeViewIndication
+		return self._subtype
 
 
 @export

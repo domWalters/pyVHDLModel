@@ -126,7 +126,7 @@ class PortSignalInterfaceItems(TestCase):
 
 		self.assertIsInstance(port, PortSignalInterfaceItem)
 		self.assertIs(modeViewIndication, port.ModeViewIndication)
-		self.assertIsNone(port.Subtype)
+		self.assertIs(modeViewIndication, port.Subtype)
 
 
 class ParameterSignalInterfaceItems(TestCase):
@@ -142,3 +142,4 @@ class ParameterSignalInterfaceItems(TestCase):
 
 		self.assertIsInstance(parameter, ParameterSignalInterfaceItem)
 		self.assertIs(modeViewIndication, parameter.ModeViewIndication)
+		self.assertIs(modeViewIndication, parameter.Subtype)

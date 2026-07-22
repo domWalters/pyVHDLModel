@@ -59,22 +59,21 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	:data:`__objectVertex`.
 	"""
 
-	_subtype:      Nullable[Symbol]
+	_subtype:      Symbol
 	_objectVertex: Nullable[Vertex]
 
-	def __init__(self, identifiers: Iterable[str], subtype: Nullable[Symbol], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 		DocumentedEntityMixin.__init__(self, documentation)
 
 		self._subtype = subtype
-		if subtype is not None:
-			subtype.Parent = self
+		subtype.Parent = self
 
 		self._objectVertex = None
 
 	@readonly
-	def Subtype(self) -> Nullable[Symbol]:
+	def Subtype(self) -> Symbol:
 		return self._subtype
 
 	@readonly
