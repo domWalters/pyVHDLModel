@@ -45,7 +45,7 @@ from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin
 from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
 from pyVHDLModel.Common      import ConditionalWaveform, ConditionalExpression
-from pyVHDLModel.Common      import ConditionalWaveformsMixin
+from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
 from pyVHDLModel.Common      import SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import SelectedExpression, OthersSelectedExpression
 from pyVHDLModel.Association import ParameterAssociationItem
@@ -99,27 +99,10 @@ class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
 
 
 @export
-class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
-	_waveform: List[WaveformElement]
-
+class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin):
 	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(target, label, parent)
-
-		# TODO: extract to mixin
-		self._waveform = []
-		if waveform is not None:
-			for waveformElement in waveform:
-				self._waveform.append(waveformElement)
-				waveformElement.Parent = self
-
-	@readonly
-	def Waveform(self) -> List[WaveformElement]:
-		"""
-		Read-only property to access the list waveform elements (:attr:`_waveform`).
-
-		:returns: A list of waveform elements.
-		"""
-		return self._waveform
+		WaveformMixin.__init__(self, waveform)
 
 
 @export

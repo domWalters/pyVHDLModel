@@ -51,7 +51,7 @@ from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
 from pyVHDLModel.Interface   import PortInterfaceItemMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
-from pyVHDLModel.Common      import ConditionalWaveformsMixin
+from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -912,22 +912,10 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 
 
 @export
-class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
-	_waveform: List[WaveformElement]
-
+class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin):
 	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
-
-		# TODO: extract to mixin
-		self._waveform = []
-		if waveform is not None:
-			for waveformElement in waveform:
-				self._waveform.append(waveformElement)
-				waveformElement.Parent = self
-
-	@property
-	def Waveform(self) -> List[WaveformElement]:
-		return self._waveform
+		WaveformMixin.__init__(self, waveform)
 
 
 @export
