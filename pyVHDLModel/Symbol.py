@@ -507,12 +507,12 @@ class SimpleSubtypeSymbol(SubtypeSymbol):
 
 
 @export
-class Constraint:
+class Constraint(metaclass=ExtendedType, mixin=True):
 	pass
 
 
 @export
-class ScalarConstraint(Constraint):
+class ScalarConstraint(Constraint, mixin=True):
 	_constraint: Nullable[Range]
 
 	def __init__(self, constraint: Nullable[Range]) -> None:
@@ -548,7 +548,7 @@ class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 
 
 @export
-class ArrayConstraint(Constraint):
+class ArrayConstraint(Constraint, mixin=True):
 	_constraints: List[Range]
 
 	def __init__(self, constraints: Iterable[Range]) -> None:
@@ -560,7 +560,7 @@ class ArrayConstraint(Constraint):
 
 
 @export
-class RecordConstraint(Constraint):
+class RecordConstraint(Constraint, mixin=True):
 	_constraints: Dict[RecordElementSymbol, Range]
 
 	def __init__(self, constraints: Mapping[RecordElementSymbol, Range]) -> None:
