@@ -191,6 +191,36 @@ class PackageReferenceSymbol(Symbol):
 
 
 @export
+class ModeViewSymbol(Symbol):
+	"""
+	Represents a reference (name) to a mode view declaration.
+
+	The internal name will be a :class:`~pyVHDLModel.Name.SimpleName` (or an
+	:class:`~pyVHDLModel.Name.AttributeName` for the ``'converse`` case).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      port (p : view MyView);
+	      --          ^^^^^^
+	      port (p : view MyView'converse);
+	      --          ^^^^^^^^^^^^^^^^^^
+	"""
+
+	def __init__(self, name: Name) -> None:
+		super().__init__(name, PossibleReference.View)
+
+	@property
+	def ModeView(self) -> Nullable['ModeViewDeclaration']:
+		return self._reference
+
+	@ModeView.setter
+	def ModeView(self, value: 'ModeViewDeclaration') -> None:
+		self._reference = value
+
+
+@export
 class ContextReferenceSymbol(Symbol):
 	"""
 	Represents a reference (name) to a context.
