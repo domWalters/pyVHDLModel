@@ -33,7 +33,7 @@
 from unittest import TestCase
 
 from pyVHDLModel.Name        import SimpleName
-from pyVHDLModel.Symbol      import ConstrainedArraySubtypeSymbol
+from pyVHDLModel.Symbol      import ConstrainedArraySubtypeSymbol, Symbol, PossibleReference
 from pyVHDLModel.Declaration import Alias
 
 
@@ -47,11 +47,14 @@ class Aliases(TestCase):
 	"""
 	Regression tests: Alias previously had no field at all for what's being aliased - only its own
 	identifier and documentation. ``alias b is s;`` lost the fact that ``b`` aliases ``s`` entirely.
+
+	Name is a Symbol (like every other cross-reference in the model), not a bare Name - see the
+	class docstring for why there is no single fixed PossibleReference value for it.
 	"""
 
 	def test_WithoutSubtype(self) -> None:
 		"""``alias b is s;``"""
-		name = SimpleName("s")
+		name = Symbol(SimpleName("s"), PossibleReference.PackageMember | PossibleReference.EnumLiteral)
 		alias = Alias("b", name)
 
 		self.assertEqual("b", alias.Identifier)
@@ -59,8 +62,9 @@ class Aliases(TestCase):
 		self.assertIsNone(alias.Subtype)
 
 	def test_WithSubtype(self) -> None:
-		"""``alias a : bit_vector(3 downto 0) is s(3 downto 0);``"""
-		name = SimpleName("s")
+		"""``alias a : bit_vector(3 downto 0) is s(3 downto 0);`` - with an explicit subtype, the LRM
+		restricts this to referencing an object."""
+		name = Symbol(SimpleName("s"), PossibleReference.Object)
 		subtype = ConstrainedArraySubtypeSymbol(SimpleName("bit_vector"), [])
 		alias = Alias("a", name, subtype)
 

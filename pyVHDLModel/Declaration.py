@@ -182,10 +182,15 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	"""
 	Represents an alias declaration.
 
-	An alias can refer to almost anything nameable (an object, a type, a subprogram, a literal, ...), so
-	:attr:`Name` is a plain :class:`~pyVHDLModel.Name.Name` rather than one of the narrower
-	``*ReferenceSymbol`` classes (those are for cases where the kind of thing being referenced is known
-	up front, e.g. a package or a mode view).
+	:attr:`Name` is a :class:`~pyVHDLModel.Symbol.Symbol` - like every other cross-reference in this
+	model - rather than a bare :class:`~pyVHDLModel.Name.Name`, so it participates in the usual
+	resolve-later mechanism (:attr:`~pyVHDLModel.Symbol.Symbol.Reference` /
+	:attr:`~pyVHDLModel.Symbol.Symbol.IsResolved`). Unlike ``PackageReferenceSymbol`` and similar,
+	there is no single fixed :class:`~pyVHDLModel.Symbol.PossibleReference` value that always fits: an
+	alias without a subtype indication can refer to almost anything nameable (an object, a type, a
+	subprogram, a literal, ...), while an alias *with* a subtype indication can - per the LRM - only
+	ever refer to an object (a constant, variable, signal, or file); the ``possibleReferences`` passed
+	to the ``Symbol`` should reflect whichever case applies.
 
 	.. admonition:: Example
 
@@ -200,13 +205,13 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	      --          Name
 	"""
 
-	_name:    Name
+	_name:    Symbol
 	_subtype: Nullable[SubtypeSymbol]
 
 	def __init__(
 		self,
 		identifier:    str,
-		name:          Name,
+		name:          Symbol,
 		subtype:       Nullable[SubtypeSymbol] = None,
 		documentation: Nullable[str] =            None,
 		parent:        Nullable[ModelEntity] =    None
@@ -223,7 +228,7 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 			subtype.Parent = self
 
 	@readonly
-	def Name(self) -> Name:
+	def Name(self) -> Symbol:
 		return self._name
 
 	@readonly
