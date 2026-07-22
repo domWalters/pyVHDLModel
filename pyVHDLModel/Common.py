@@ -39,7 +39,7 @@ from typing                  import List, Iterable, Union, Optional as Nullable
 from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
-from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin
+from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, BaseCase, BaseChoice, WaveformElement
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Symbol      import Symbol
 from pyVHDLModel.Association import ParameterAssociationItem
@@ -159,5 +159,209 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 		expression.Parent = self
 
 	@property
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+
+@export
+class ConditionalWaveform(ModelEntity):
+	"""
+	One branch of a conditional (waveform) signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond else '0';
+	      --   ^^^^^^^^^^^^         <- this branch: Waveform=['1'], Condition=cond
+	      --                ^^^     <- final branch (no ``when``): Waveform=['0'], Condition=None
+	"""
+
+	_waveform:  List[WaveformElement]
+	_condition: Nullable[ExpressionUnion]
+
+	def __init__(
+		self,
+		waveform: Iterable[WaveformElement],
+		condition: Nullable[ExpressionUnion] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+
+		self._waveform = []
+		for waveformElement in waveform:
+			self._waveform.append(waveformElement)
+			waveformElement.Parent = self
+
+		self._condition = condition
+		if condition is not None:
+			condition.Parent = self
+
+	@readonly
+	def Waveform(self) -> List[WaveformElement]:
+		return self._waveform
+
+	@readonly
+	def Condition(self) -> Nullable[ExpressionUnion]:
+		return self._condition
+
+
+@export
+class ConditionalExpression(ModelEntity):
+	"""
+	One branch of a conditional (variable) assignment (VHDL-2008).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      v := '1' when cond else '0';
+	      --   ^^^^^^^^^^^^         <- this branch: Expression='1', Condition=cond
+	      --                ^^^     <- final branch (no ``when``): Expression='0', Condition=None
+	"""
+
+	_expression: ExpressionUnion
+	_condition:  Nullable[ExpressionUnion]
+
+	def __init__(
+		self,
+		expression: ExpressionUnion,
+		condition: Nullable[ExpressionUnion] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+
+		self._expression = expression
+		expression.Parent = self
+
+		self._condition = condition
+		if condition is not None:
+			condition.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+	@readonly
+	def Condition(self) -> Nullable[ExpressionUnion]:
+		return self._condition
+
+
+@export
+class SelectedWaveform(BaseCase):
+	"""
+	One alternative of a selected (waveform) signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	      --                    ^^^^^^^^      <- this alternative: Choices=[0], Waveform=['1']
+	"""
+
+	_choices:  List[BaseChoice]
+	_waveform: List[WaveformElement]
+
+	def __init__(
+		self,
+		choices: Iterable[BaseChoice],
+		waveform: Iterable[WaveformElement],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+
+		self._choices = []
+		for choice in choices:
+			self._choices.append(choice)
+			choice.Parent = self
+
+		self._waveform = []
+		for waveformElement in waveform:
+			self._waveform.append(waveformElement)
+			waveformElement.Parent = self
+
+	@readonly
+	def Choices(self) -> List[BaseChoice]:
+		return self._choices
+
+	@readonly
+	def Waveform(self) -> List[WaveformElement]:
+		return self._waveform
+
+
+@export
+class OthersSelectedWaveform(BaseCase):
+	"""``with sel select s <= '1' when 0, '0' when others;`` - the ``others`` alternative."""
+
+	_waveform: List[WaveformElement]
+
+	def __init__(self, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(parent)
+
+		self._waveform = []
+		for waveformElement in waveform:
+			self._waveform.append(waveformElement)
+			waveformElement.Parent = self
+
+	@readonly
+	def Waveform(self) -> List[WaveformElement]:
+		return self._waveform
+
+
+@export
+class SelectedExpression(BaseCase):
+	"""
+	One alternative of a selected (variable) assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select v := '1' when 0, '0' when others;
+	      --                   ^^^^^^^^      <- this alternative: Choices=[0], Expression='1'
+	"""
+
+	_choices:    List[BaseChoice]
+	_expression: ExpressionUnion
+
+	def __init__(
+		self,
+		choices: Iterable[BaseChoice],
+		expression: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+
+		self._choices = []
+		for choice in choices:
+			self._choices.append(choice)
+			choice.Parent = self
+
+		self._expression = expression
+		expression.Parent = self
+
+	@readonly
+	def Choices(self) -> List[BaseChoice]:
+		return self._choices
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+
+@export
+class OthersSelectedExpression(BaseCase):
+	"""``with sel select v := '1' when 0, '0' when others;`` - the ``others`` alternative."""
+
+	_expression: ExpressionUnion
+
+	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(parent)
+
+		self._expression = expression
+		expression.Parent = self
+
+	@readonly
 	def Expression(self) -> ExpressionUnion:
 		return self._expression

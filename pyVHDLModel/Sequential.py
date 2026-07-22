@@ -43,7 +43,10 @@ from pyVHDLModel.Base        import ModelEntity, ExpressionUnion, Range, BaseCho
 from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement
 from pyVHDLModel.Symbol      import Symbol
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin
-from pyVHDLModel.Common      import SignalAssignmentMixin, VariableAssignmentMixin
+from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
+from pyVHDLModel.Common      import ConditionalWaveform, ConditionalExpression
+from pyVHDLModel.Common      import SelectedWaveform, OthersSelectedWaveform
+from pyVHDLModel.Common      import SelectedExpression, OthersSelectedExpression
 from pyVHDLModel.Association import ParameterAssociationItem
 
 
@@ -123,6 +126,197 @@ class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin)
 	def __init__(self, target: Symbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
+
+
+@export
+class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      v := '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	_conditionalExpressions: List[ConditionalExpression]
+
+	def __init__(
+		self,
+		target: Symbol,
+		conditionalExpressions: Iterable[ConditionalExpression],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		AssignmentMixin.__init__(self, target)
+
+		self._conditionalExpressions = []
+		for conditionalExpression in conditionalExpressions:
+			self._conditionalExpressions.append(conditionalExpression)
+			conditionalExpression.Parent = self
+
+	@readonly
+	def ConditionalExpressions(self) -> List[ConditionalExpression]:
+		return self._conditionalExpressions
+
+
+@export
+class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	_conditionalWaveforms: List[ConditionalWaveform]
+
+	def __init__(
+		self,
+		target: Symbol,
+		conditionalWaveforms: Iterable[ConditionalWaveform],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+
+		self._conditionalWaveforms = []
+		for conditionalWaveform in conditionalWaveforms:
+			self._conditionalWaveforms.append(conditionalWaveform)
+			conditionalWaveform.Parent = self
+
+	@readonly
+	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
+		return self._conditionalWaveforms
+
+
+@export
+class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select v := '1' when 0, '0' when others;
+	"""
+
+	_expression:         ExpressionUnion
+	_selectedExpressions: List[SelectedExpression]
+
+	def __init__(
+		self,
+		target: Symbol,
+		expression: ExpressionUnion,
+		selectedExpressions: Iterable[SelectedExpression],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		AssignmentMixin.__init__(self, target)
+
+		self._expression = expression
+		expression.Parent = self
+
+		self._selectedExpressions = []
+		for selectedExpression in selectedExpressions:
+			self._selectedExpressions.append(selectedExpression)
+			selectedExpression.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+	@readonly
+	def SelectedExpressions(self) -> List[SelectedExpression]:
+		return self._selectedExpressions
+
+
+@export
+class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	"""
+
+	_expression:        ExpressionUnion
+	_selectedWaveforms: List[SelectedWaveform]
+
+	def __init__(
+		self,
+		target: Symbol,
+		expression: ExpressionUnion,
+		selectedWaveforms: Iterable[SelectedWaveform],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+
+		self._expression = expression
+		expression.Parent = self
+
+		self._selectedWaveforms = []
+		for selectedWaveform in selectedWaveforms:
+			self._selectedWaveforms.append(selectedWaveform)
+			selectedWaveform.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+	@readonly
+	def SelectedWaveforms(self) -> List[SelectedWaveform]:
+		return self._selectedWaveforms
+
+
+@export
+class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= force '1';
+	"""
+
+	_expression: ExpressionUnion
+
+	def __init__(
+		self,
+		target: Symbol,
+		expression: ExpressionUnion,
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+
+		self._expression = expression
+		expression.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+
+@export
+class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= release;
+	"""
+
+	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
 
 
 @export

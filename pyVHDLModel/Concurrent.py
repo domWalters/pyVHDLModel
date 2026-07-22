@@ -49,6 +49,7 @@ from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, Functio
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
 from pyVHDLModel.Interface   import PortInterfaceItemMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
+from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -929,14 +930,73 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 
 @export
 class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	"""
+
+	_expression:        ExpressionUnion
+	_selectedWaveforms: List[SelectedWaveform]
+
+	def __init__(
+		self,
+		label: str,
+		target: Name,
+		expression: ExpressionUnion,
+		selectedWaveforms: Iterable[SelectedWaveform],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(label, target, parent)
+
+		self._expression = expression
+		expression.Parent = self
+
+		self._selectedWaveforms = []
+		for selectedWaveform in selectedWaveforms:
+			self._selectedWaveforms.append(selectedWaveform)
+			selectedWaveform.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+	@readonly
+	def SelectedWaveforms(self) -> List[SelectedWaveform]:
+		return self._selectedWaveforms
 
 
 @export
 class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	_conditionalWaveforms: List[ConditionalWaveform]
+
+	def __init__(
+		self,
+		label: str,
+		target: Name,
+		conditionalWaveforms: Iterable[ConditionalWaveform],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(label, target, parent)
+
+		self._conditionalWaveforms = []
+		for conditionalWaveform in conditionalWaveforms:
+			self._conditionalWaveforms.append(conditionalWaveform)
+			conditionalWaveform.Parent = self
+
+	@readonly
+	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
+		return self._conditionalWaveforms
 
 
 @export
