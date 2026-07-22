@@ -43,7 +43,7 @@ from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, P
 from pyVHDLModel.Symbol import AllPackageMembersReferenceSymbol, ContextReferenceSymbol, EntitySymbol
 from pyVHDLModel.Symbol import ArchitectureSymbol, PackageSymbol, EntityInstantiationSymbol
 from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstantiationSymbol
-from pyVHDLModel.Symbol import SubprogramReferenceSymbol
+from pyVHDLModel.Symbol import SubprogramReferenceSymbol, ConstrainedScalarSubtypeSymbol
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
 from pyVHDLModel.Type          import Subtype, IntegerType, RealType, ArrayType, RecordType
 from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Architecture, Configuration
@@ -351,6 +351,19 @@ class Symbols(TestCase):
 		symbol = ConfigurationInstantiationSymbol(SimpleName("cfg"))
 
 		self.assertEqual("cfg", symbol.Name.NormalizedIdentifier)
+
+	def test_ConstrainedScalarSubtypeSymbol(self) -> None:
+		"""``signal s : integer range 0 to 15;`` - previously the range constraint was read by
+		pyGHDL.dom but had nowhere to go, since this class was a bare stub."""
+		rng = Range(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"), rng)
+
+		self.assertIs(rng, symbol.Constraint)
+
+	def test_ConstrainedScalarSubtypeSymbol_withoutConstraint(self) -> None:
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
+
+		self.assertIsNone(symbol.Constraint)
 
 
 class SimpleInstance(TestCase):

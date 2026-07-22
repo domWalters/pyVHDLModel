@@ -507,17 +507,48 @@ class SimpleSubtypeSymbol(SubtypeSymbol):
 
 
 @export
-class ConstrainedScalarSubtypeSymbol(SubtypeSymbol):
+class Constraint(metaclass=ExtendedType, mixin=True):
 	pass
 
 
 @export
-class Constraint:
-	pass
+class ScalarConstraint(Constraint, mixin=True):
+	_constraint: Nullable[Range]
+
+	def __init__(self, constraint: Nullable[Range]) -> None:
+		self._constraint = constraint
+
+	@readonly
+	def Constraint(self) -> Nullable[Range]:
+		"""
+		The scalar type's range constraint.
+
+		``None`` only when the range constraint is written as an attribute name (e.g.
+		``subtype s is t'range;``) rather than a literal range - reading a range out of an attribute
+		name is not yet implemented, not because the source omits a constraint (it never does for a
+		constrained scalar subtype).
+		"""
+		return self._constraint
 
 
 @export
-class ArrayConstraint(Constraint):
+class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      signal s : integer range 0 to 15;
+	      --         ^^^^^^^^^^^^^^^^^^^^^^
+	"""
+
+	def __init__(self, name: Name, constraint: Nullable[Range] = None) -> None:
+		super().__init__(name)
+		ScalarConstraint.__init__(self, constraint)
+
+
+@export
+class ArrayConstraint(Constraint, mixin=True):
 	_constraints: List[Range]
 
 	def __init__(self, constraints: Iterable[Range]) -> None:
@@ -529,7 +560,7 @@ class ArrayConstraint(Constraint):
 
 
 @export
-class RecordConstraint(Constraint):
+class RecordConstraint(Constraint, mixin=True):
 	_constraints: Dict[RecordElementSymbol, Range]
 
 	def __init__(self, constraints: Mapping[RecordElementSymbol, Range]) -> None:
