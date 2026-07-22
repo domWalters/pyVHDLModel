@@ -42,7 +42,7 @@ from pyTooling.Decorators   import export, readonly
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.Expression import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Name       import Name
-from pyVHDLModel.Symbol     import Symbol
+from pyVHDLModel.Symbol     import Symbol, SubtypeSymbol
 
 
 
@@ -179,12 +179,53 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 # TODO: move somewhere else
 @export
 class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		"""
-		Initializes underlying ``BaseType``.
+	"""
+	Represents an alias declaration.
 
-		:param identifier: Name of the type.
-		"""
+	An alias can refer to almost anything nameable (an object, a type, a subprogram, a literal, ...), so
+	:attr:`Name` is a plain :class:`~pyVHDLModel.Name.Name` rather than one of the narrower
+	``*ReferenceSymbol`` classes (those are for cases where the kind of thing being referenced is known
+	up front, e.g. a package or a mode view).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      alias a : bit_vector(3 downto 0) is s(3 downto 0);
+	      --        ^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^
+	      --        Subtype (optional)         Name
+
+	      alias b is s;
+	      --          ^
+	      --          Name
+	"""
+
+	_name:    Name
+	_subtype: Nullable[SubtypeSymbol]
+
+	def __init__(
+		self,
+		identifier:    str,
+		name:          Name,
+		subtype:       Nullable[SubtypeSymbol] = None,
+		documentation: Nullable[str] =            None,
+		parent:        Nullable[ModelEntity] =    None
+	) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+
+		self._name = name
+		name.Parent = self
+
+		self._subtype = subtype
+		if subtype is not None:
+			subtype.Parent = self
+
+	@readonly
+	def Name(self) -> Name:
+		return self._name
+
+	@readonly
+	def Subtype(self) -> Nullable[SubtypeSymbol]:
+		return self._subtype
