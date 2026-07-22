@@ -247,6 +247,32 @@ class SubprogramReferenceSymbol(Symbol):
 
 
 @export
+class ConfigurationSymbol(Symbol):
+	"""
+	Represents a reference (name) to a configuration declaration, e.g. in an entity aspect of a
+	binding indication.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      for U1 : comp use configuration work.cfg;
+	      --                              ^^^^^^^
+	"""
+
+	def __init__(self, name: Name) -> None:
+		super().__init__(name, PossibleReference.Configuration)
+
+	@property
+	def Configuration(self) -> Nullable['Configuration']:
+		return self._reference
+
+	@Configuration.setter
+	def Configuration(self, value: 'Configuration') -> None:
+		self._reference = value
+
+
+@export
 class ContextReferenceSymbol(Symbol):
 	"""
 	Represents a reference (name) to a context.

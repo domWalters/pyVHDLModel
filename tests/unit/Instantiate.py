@@ -44,6 +44,8 @@ from pyVHDLModel.Symbol import AllPackageMembersReferenceSymbol, ContextReferenc
 from pyVHDLModel.Symbol import ArchitectureSymbol, PackageSymbol, EntityInstantiationSymbol
 from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstantiationSymbol
 from pyVHDLModel.Symbol import SubprogramReferenceSymbol, ConstrainedScalarSubtypeSymbol
+from pyVHDLModel.Symbol import Symbol, PossibleReference
+from pyVHDLModel.Configuration import BlockConfiguration
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
 from pyVHDLModel.Type          import Subtype, IntegerType, RealType, ArrayType, RecordType
 from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Architecture, Configuration
@@ -496,7 +498,12 @@ class SimpleInstance(TestCase):
 		self.assertEqual("ctx_1", context.Identifier)
 
 	def test_Configuration(self) -> None:
-		configuration = Configuration("conf_1", parent=None)
+		configuration = Configuration(
+			"conf_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 
 		self.assertIsNotNone(configuration)
 		self.assertEqual("conf_1", configuration.Identifier)
@@ -595,7 +602,12 @@ class VHDLDocument(TestCase):
 		path = Path("tests.vhdl")
 		document = Document(path, parent=None)
 
-		configuration = Configuration("cfg_1", parent=None)
+		configuration = Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 		document._AddConfiguration(configuration)
 
 		self.assertEqual(1, len(document.Configurations))
@@ -622,7 +634,12 @@ class VHDLDocument(TestCase):
 		context = Context("ctx_1", parent=None)
 		document._AddDesignUnit(context)
 
-		configuration = Configuration("cfg_1", parent=None)
+		configuration = Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 		document._AddDesignUnit(configuration)
 
 		self.assertEqual(1, len(document.Entities))
@@ -671,7 +688,12 @@ class VHDLLibrary(TestCase):
 		document._AddDesignUnit(Package("pack_1", parent=None))
 		document._AddDesignUnit(PackageBody(PackageSymbol(SimpleName("pack_1")), parent=None))
 		document._AddDesignUnit(Context("ctx_1", parent=None))
-		document._AddDesignUnit(Configuration("cfg_1", parent=None))
+		document._AddDesignUnit(Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		))
 
 		design.AddDocument(document, library)
 
