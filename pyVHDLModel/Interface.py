@@ -91,12 +91,6 @@ class SimpleModeViewElement(ModeViewElement):
 class CompositeModeViewElement(ModeViewElement):
 	"""
 	A mode view element that refers to another (named) mode view for an array or record sub-element.
-
-	GHDL's IIR distinguishes an array- from a record-typed target element (``Array_Mode_View_Element`` /
-	``Record_Mode_View_Element``), but that distinction can only be determined once the target element's
-	type is resolved, which requires semantic analysis. Both are merged into this one class here, since they
-	are otherwise structurally identical (both just carry a reference to another mode view).
-
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
