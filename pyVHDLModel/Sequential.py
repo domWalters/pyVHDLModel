@@ -41,10 +41,11 @@ from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, ExpressionUnion, Range, BaseChoice, BaseCase, ConditionalMixin, IfBranchMixin, ElsifBranchMixin
 from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement
-from pyVHDLModel.Symbol      import Symbol
+from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin
 from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
 from pyVHDLModel.Common      import ConditionalWaveform, ConditionalExpression
+from pyVHDLModel.Common      import ConditionalWaveformsMixin
 from pyVHDLModel.Common      import SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import SelectedExpression, OthersSelectedExpression
 from pyVHDLModel.Association import ParameterAssociationItem
@@ -92,7 +93,7 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 @export
 class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
-	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -101,7 +102,7 @@ class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
 class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
 	_waveform: List[WaveformElement]
 
-	def __init__(self, target: Symbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(target, label, parent)
 
 		# TODO: extract to mixin
@@ -123,7 +124,7 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
 
 @export
 class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin):
-	def __init__(self, target: Symbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
 
@@ -142,7 +143,7 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 
 	def __init__(
 		self,
-		target: Symbol,
+		target: VariableSymbol,
 		conditionalExpressions: Iterable[ConditionalExpression],
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
@@ -161,7 +162,7 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 
 
 @export
-class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmentMixin):
+class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmentMixin, ConditionalWaveformsMixin):
 	"""
 	.. admonition:: Example
 
@@ -170,26 +171,16 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 	      s <= '1' when cond1 else '0' when cond2 else 'Z';
 	"""
 
-	_conditionalWaveforms: List[ConditionalWaveform]
-
 	def __init__(
 		self,
-		target: Symbol,
+		target: SignalSymbol,
 		conditionalWaveforms: Iterable[ConditionalWaveform],
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
-
-		self._conditionalWaveforms = []
-		for conditionalWaveform in conditionalWaveforms:
-			self._conditionalWaveforms.append(conditionalWaveform)
-			conditionalWaveform.Parent = self
-
-	@readonly
-	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
-		return self._conditionalWaveforms
+		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
 
 
 @export
@@ -207,7 +198,7 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin)
 
 	def __init__(
 		self,
-		target: Symbol,
+		target: VariableSymbol,
 		expression: ExpressionUnion,
 		selectedExpressions: Iterable[SelectedExpression],
 		label: Nullable[str] = None,
@@ -248,7 +239,7 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 
 	def __init__(
 		self,
-		target: Symbol,
+		target: SignalSymbol,
 		expression: ExpressionUnion,
 		selectedWaveforms: Iterable[SelectedWaveform],
 		label: Nullable[str] = None,
@@ -288,7 +279,7 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin):
 
 	def __init__(
 		self,
-		target: Symbol,
+		target: SignalSymbol,
 		expression: ExpressionUnion,
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
@@ -314,7 +305,7 @@ class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
 	      s <= release;
 	"""
 
-	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 

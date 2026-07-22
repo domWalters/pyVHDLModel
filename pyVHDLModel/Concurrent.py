@@ -45,11 +45,13 @@ from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Namespace   import Namespace
 from pyVHDLModel.Name        import Name
 from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol, ConfigurationInstantiationSymbol
+from pyVHDLModel.Symbol      import SignalSymbol
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
 from pyVHDLModel.Interface   import PortInterfaceItemMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
+from pyVHDLModel.Common      import ConditionalWaveformsMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -904,7 +906,7 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment`
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment`
 	"""
-	def __init__(self, label: str, target: Name, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -913,7 +915,7 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
 	_waveform: List[WaveformElement]
 
-	def __init__(self, label: str, target: Name, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 
 		# TODO: extract to mixin
@@ -944,7 +946,7 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
 	def __init__(
 		self,
 		label: str,
-		target: Name,
+		target: SignalSymbol,
 		expression: ExpressionUnion,
 		selectedWaveforms: Iterable[SelectedWaveform],
 		parent: Nullable[ModelEntity] = None
@@ -969,7 +971,7 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
 
 
 @export
-class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment):
+class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, ConditionalWaveformsMixin):
 	"""
 	.. admonition:: Example
 
@@ -978,25 +980,15 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment):
 	      s <= '1' when cond1 else '0' when cond2 else 'Z';
 	"""
 
-	_conditionalWaveforms: List[ConditionalWaveform]
-
 	def __init__(
 		self,
 		label: str,
-		target: Name,
+		target: SignalSymbol,
 		conditionalWaveforms: Iterable[ConditionalWaveform],
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, target, parent)
-
-		self._conditionalWaveforms = []
-		for conditionalWaveform in conditionalWaveforms:
-			self._conditionalWaveforms.append(conditionalWaveform)
-			conditionalWaveform.Parent = self
-
-	@readonly
-	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
-		return self._conditionalWaveforms
+		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
 
 
 @export

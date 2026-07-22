@@ -41,7 +41,7 @@ from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, BaseCase, BaseChoice, WaveformElement
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
-from pyVHDLModel.Symbol      import Symbol
+from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Association import ParameterAssociationItem
 
 
@@ -144,6 +144,10 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 class SignalAssignmentMixin(AssignmentMixin, mixin=True):
 	"""A mixin-class for all signal assignment statements."""
 
+	@property
+	def Target(self) -> SignalSymbol:
+		return self._target
+
 
 @export
 class VariableAssignmentMixin(AssignmentMixin, mixin=True):
@@ -152,11 +156,15 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 	# FIXME: move to sequential?
 	_expression: ExpressionUnion
 
-	def __init__(self, target: Symbol, expression: ExpressionUnion) -> None:
+	def __init__(self, target: VariableSymbol, expression: ExpressionUnion) -> None:
 		super().__init__(target)
 
 		self._expression = expression
 		expression.Parent = self
+
+	@property
+	def Target(self) -> VariableSymbol:
+		return self._target
 
 	@property
 	def Expression(self) -> ExpressionUnion:
@@ -245,6 +253,26 @@ class ConditionalExpression(ModelEntity):
 	@readonly
 	def Condition(self) -> Nullable[ExpressionUnion]:
 		return self._condition
+
+
+@export
+class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`ConditionalWaveform` (both the
+	concurrent and sequential forms of a conditional signal assignment).
+	"""
+
+	_conditionalWaveforms: List[ConditionalWaveform]
+
+	def __init__(self, conditionalWaveforms: Iterable[ConditionalWaveform]) -> None:
+		self._conditionalWaveforms = []
+		for conditionalWaveform in conditionalWaveforms:
+			self._conditionalWaveforms.append(conditionalWaveform)
+			conditionalWaveform.Parent = self
+
+	@readonly
+	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
+		return self._conditionalWaveforms
 
 
 @export

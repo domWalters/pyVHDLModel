@@ -11,8 +11,7 @@
 #                                                                                                                      #
 # License:                                                                                                             #
 # ==================================================================================================================== #
-# Copyright 2017-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
-# Copyright 2016-2017 Patrick Lehmann - Dresden, Germany                                                               #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
 #                                                                                                                      #
 # Licensed under the Apache License, Version 2.0 (the "License");                                                      #
 # you may not use this file except in compliance with the License.                                                     #
@@ -33,7 +32,7 @@
 from unittest import TestCase
 
 from pyVHDLModel.Name        import SimpleName
-from pyVHDLModel.Symbol      import Symbol, PossibleReference
+from pyVHDLModel.Symbol      import SignalSymbol, VariableSymbol
 from pyVHDLModel.Base        import WaveformElement
 from pyVHDLModel.Expression  import IntegerLiteral, CharacterLiteral
 from pyVHDLModel.Sequential  import IndexedChoice
@@ -57,8 +56,12 @@ if __name__ == "__main__":  # pragma: no cover
 	exit(1)
 
 
-def _target() -> Symbol:
-	return Symbol(SimpleName("s"), PossibleReference.Signal)
+def _signalTarget() -> SignalSymbol:
+	return SignalSymbol(SimpleName("s"))
+
+
+def _variableTarget() -> VariableSymbol:
+	return VariableSymbol(SimpleName("v"))
 
 
 class ConditionalAndSelectedBuildingBlocks(TestCase):
@@ -121,7 +124,7 @@ class ConcurrentAssignments(TestCase):
 		cw1 = ConditionalWaveform([WaveformElement(CharacterLiteral("'1'"))], IntegerLiteral(1))
 		cw2 = ConditionalWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = ConcurrentConditionalSignalAssignment("lbl", _target(), [cw1, cw2])
+		assignment = ConcurrentConditionalSignalAssignment("lbl", _signalTarget(), [cw1, cw2])
 
 		self.assertEqual(2, len(assignment.ConditionalWaveforms))
 		self.assertIsNone(assignment.ConditionalWaveforms[-1].Condition)
@@ -131,7 +134,7 @@ class ConcurrentAssignments(TestCase):
 		sw = SelectedWaveform([IndexedChoice(IntegerLiteral(0))], [WaveformElement(CharacterLiteral("'1'"))])
 		osw = OthersSelectedWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = ConcurrentSelectedSignalAssignment("lbl", _target(), IntegerLiteral(0), [sw, osw])
+		assignment = ConcurrentSelectedSignalAssignment("lbl", _signalTarget(), IntegerLiteral(0), [sw, osw])
 
 		self.assertEqual(2, len(assignment.SelectedWaveforms))
 
@@ -139,7 +142,7 @@ class ConcurrentAssignments(TestCase):
 class SequentialAssignments(TestCase):
 	def test_SimpleVariableAssignment(self) -> None:
 		"""``v := '1';``"""
-		assignment = SequentialVariableAssignment(_target(), CharacterLiteral("'1'"))
+		assignment = SequentialVariableAssignment(_variableTarget(), CharacterLiteral("'1'"))
 
 		self.assertEqual("'1'", str(assignment.Expression))
 
@@ -148,7 +151,7 @@ class SequentialAssignments(TestCase):
 		ce1 = ConditionalExpression(CharacterLiteral("'1'"), IntegerLiteral(1))
 		ce2 = ConditionalExpression(CharacterLiteral("'0'"))
 
-		assignment = SequentialConditionalVariableAssignment(_target(), [ce1, ce2])
+		assignment = SequentialConditionalVariableAssignment(_variableTarget(), [ce1, ce2])
 
 		self.assertEqual(2, len(assignment.ConditionalExpressions))
 		self.assertIsNotNone(assignment.Target)
@@ -158,7 +161,7 @@ class SequentialAssignments(TestCase):
 		cw1 = ConditionalWaveform([WaveformElement(CharacterLiteral("'1'"))], IntegerLiteral(1))
 		cw2 = ConditionalWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = SequentialConditionalSignalAssignment(_target(), [cw1, cw2])
+		assignment = SequentialConditionalSignalAssignment(_signalTarget(), [cw1, cw2])
 
 		self.assertEqual(2, len(assignment.ConditionalWaveforms))
 
@@ -167,7 +170,7 @@ class SequentialAssignments(TestCase):
 		se = SelectedExpression([IndexedChoice(IntegerLiteral(0))], CharacterLiteral("'1'"))
 		ose = OthersSelectedExpression(CharacterLiteral("'0'"))
 
-		assignment = SequentialSelectedVariableAssignment(_target(), IntegerLiteral(0), [se, ose])
+		assignment = SequentialSelectedVariableAssignment(_variableTarget(), IntegerLiteral(0), [se, ose])
 
 		self.assertEqual(2, len(assignment.SelectedExpressions))
 
@@ -176,18 +179,18 @@ class SequentialAssignments(TestCase):
 		sw = SelectedWaveform([IndexedChoice(IntegerLiteral(0))], [WaveformElement(CharacterLiteral("'1'"))])
 		osw = OthersSelectedWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = SequentialSelectedSignalAssignment(_target(), IntegerLiteral(0), [sw, osw])
+		assignment = SequentialSelectedSignalAssignment(_signalTarget(), IntegerLiteral(0), [sw, osw])
 
 		self.assertEqual(2, len(assignment.SelectedWaveforms))
 
 	def test_SignalForceAssignment(self) -> None:
 		"""``s <= force '1';`` (VHDL-2008)"""
-		assignment = SignalForceAssignment(_target(), CharacterLiteral("'1'"))
+		assignment = SignalForceAssignment(_signalTarget(), CharacterLiteral("'1'"))
 
 		self.assertEqual("'1'", str(assignment.Expression))
 
 	def test_SignalReleaseAssignment(self) -> None:
 		"""``s <= release;`` (VHDL-2008) - no expression at all."""
-		assignment = SignalReleaseAssignment(_target())
+		assignment = SignalReleaseAssignment(_signalTarget())
 
 		self.assertIsNotNone(assignment.Target)
