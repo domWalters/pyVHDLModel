@@ -40,7 +40,7 @@ from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, ExpressionUnion, Range, BaseChoice, BaseCase, ConditionalMixin, IfBranchMixin, ElsifBranchMixin
-from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement
+from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement, ChoicesMixin
 from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin
 from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
@@ -409,34 +409,22 @@ class RangedChoice(SequentialChoice):
 
 
 @export
-class SequentialCase(BaseCase, SequentialStatementsMixin):
-	_choices: List
-
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+class SequentialCase(BaseCase, SequentialStatementsMixin, ChoicesMixin):
+	def __init__(
+		self,
+		statements: Nullable[Iterable[SequentialStatement]] = None,
+		choices: Nullable[Iterable[BaseChoice]] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
-
-		# TODO: what about choices?
-
-	@property
-	def Choices(self) -> List[BaseChoice]:
-		return self._choices
+		ChoicesMixin.__init__(self, choices)
 
 
 @export
 class Case(SequentialCase):
 	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(statements, parent)
-
-		self._choices = []
-		if choices is not None:
-			for choice in choices:
-				self._choices.append(choice)
-				choice.Parent = self
-
-	@property
-	def Choices(self) -> List[SequentialChoice]:
-		return self._choices
+		super().__init__(statements, choices, parent)
 
 	def __str__(self) -> str:
 		return "when {choices} =>".format(choices=" | ".join(str(c) for c in self._choices))

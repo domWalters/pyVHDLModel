@@ -39,7 +39,7 @@ from typing                  import List, Iterable, Union, Optional as Nullable
 from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
-from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, BaseCase, BaseChoice, WaveformElement, ConditionalMixin
+from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, BaseCase, BaseChoice, WaveformElement, ConditionalMixin, ChoicesMixin
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Association import ParameterAssociationItem
@@ -274,7 +274,7 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 
 @export
-class SelectedWaveform(BaseCase, WaveformMixin):
+class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
 	"""
 	One alternative of a selected (waveform) signal assignment.
 
@@ -286,8 +286,6 @@ class SelectedWaveform(BaseCase, WaveformMixin):
 	      --                    ^^^^^^^^      <- this alternative: Choices=[0], Waveform=['1']
 	"""
 
-	_choices: List[BaseChoice]
-
 	def __init__(
 		self,
 		choices: Iterable[BaseChoice],
@@ -296,15 +294,7 @@ class SelectedWaveform(BaseCase, WaveformMixin):
 	) -> None:
 		super().__init__(parent)
 		WaveformMixin.__init__(self, waveform)
-
-		self._choices = []
-		for choice in choices:
-			self._choices.append(choice)
-			choice.Parent = self
-
-	@readonly
-	def Choices(self) -> List[BaseChoice]:
-		return self._choices
+		ChoicesMixin.__init__(self, choices)
 
 
 @export
@@ -317,7 +307,7 @@ class OthersSelectedWaveform(BaseCase, WaveformMixin):
 
 
 @export
-class SelectedExpression(BaseCase, ExpressionMixin):
+class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
 	"""
 	One alternative of a selected (variable) assignment.
 
@@ -329,8 +319,6 @@ class SelectedExpression(BaseCase, ExpressionMixin):
 	      --                   ^^^^^^^^      <- this alternative: Choices=[0], Expression='1'
 	"""
 
-	_choices: List[BaseChoice]
-
 	def __init__(
 		self,
 		choices: Iterable[BaseChoice],
@@ -339,15 +327,7 @@ class SelectedExpression(BaseCase, ExpressionMixin):
 	) -> None:
 		super().__init__(parent)
 		ExpressionMixin.__init__(self, expression)
-
-		self._choices = []
-		for choice in choices:
-			self._choices.append(choice)
-			choice.Parent = self
-
-	@readonly
-	def Choices(self) -> List[BaseChoice]:
-		return self._choices
+		ChoicesMixin.__init__(self, choices)
 
 
 @export
