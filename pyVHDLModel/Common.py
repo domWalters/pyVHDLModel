@@ -39,9 +39,9 @@ from typing                  import List, Iterable, Union, Optional as Nullable
 from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
-from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin
+from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, BaseCase, BaseChoice, WaveformElement, ConditionalMixin, ChoicesMixin
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
-from pyVHDLModel.Symbol      import Symbol
+from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Association import ParameterAssociationItem
 
 
@@ -135,7 +135,7 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 		self._target = target
 		target.Parent = self
 
-	@property
+	@readonly
 	def Target(self) -> Symbol:
 		return self._target
 
@@ -143,6 +143,10 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 @export
 class SignalAssignmentMixin(AssignmentMixin, mixin=True):
 	"""A mixin-class for all signal assignment statements."""
+
+	@readonly
+	def Target(self) -> SignalSymbol:
+		return self._target
 
 
 @export
@@ -152,12 +156,225 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 	# FIXME: move to sequential?
 	_expression: ExpressionUnion
 
-	def __init__(self, target: Symbol, expression: ExpressionUnion) -> None:
+	def __init__(self, target: VariableSymbol, expression: ExpressionUnion) -> None:
 		super().__init__(target)
 
 		self._expression = expression
 		expression.Parent = self
 
-	@property
+	@readonly
+	def Target(self) -> VariableSymbol:
+		return self._target
+
+	@readonly
 	def Expression(self) -> ExpressionUnion:
 		return self._expression
+
+
+@export
+class WaveformMixin(metaclass=ExtendedType, mixin=True):
+	"""A mixin-class for all statements/entities holding a waveform (a list of :class:`WaveformElement`)."""
+
+	_waveform: List[WaveformElement]
+
+	def __init__(self, waveform: Iterable[WaveformElement]) -> None:
+		self._waveform = []
+		for waveformElement in waveform:
+			self._waveform.append(waveformElement)
+			waveformElement.Parent = self
+
+	@readonly
+	def Waveform(self) -> List[WaveformElement]:
+		return self._waveform
+
+
+@export
+class ExpressionMixin(metaclass=ExtendedType, mixin=True):
+	"""A mixin-class for all statements/entities holding a single expression."""
+
+	_expression: ExpressionUnion
+
+	def __init__(self, expression: ExpressionUnion) -> None:
+		self._expression = expression
+		expression.Parent = self
+
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		return self._expression
+
+
+@export
+class ConditionalWaveform(ModelEntity, WaveformMixin, ConditionalMixin):
+	"""
+	One branch of a conditional (waveform) signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond else '0';
+	      --   ^^^^^^^^^^^^         <- this branch: Waveform=['1'], Condition=cond
+	      --                ^^^     <- final branch (no ``when``): Waveform=['0'], Condition=None
+	"""
+
+	def __init__(
+		self,
+		waveform: Iterable[WaveformElement],
+		condition: Nullable[ExpressionUnion] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+		WaveformMixin.__init__(self, waveform)
+		ConditionalMixin.__init__(self, condition)
+
+
+@export
+class ConditionalExpression(ModelEntity, ExpressionMixin, ConditionalMixin):
+	"""
+	One branch of a conditional (variable) assignment (VHDL-2008).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      v := '1' when cond else '0';
+	      --   ^^^^^^^^^^^^         <- this branch: Expression='1', Condition=cond
+	      --                ^^^     <- final branch (no ``when``): Expression='0', Condition=None
+	"""
+
+	def __init__(
+		self,
+		expression: ExpressionUnion,
+		condition: Nullable[ExpressionUnion] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+		ExpressionMixin.__init__(self, expression)
+		ConditionalMixin.__init__(self, condition)
+
+
+@export
+class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`ConditionalWaveform` (both the
+	concurrent and sequential forms of a conditional signal assignment).
+	"""
+
+	_conditionalWaveforms: List[ConditionalWaveform]
+
+	def __init__(self, conditionalWaveforms: Iterable[ConditionalWaveform]) -> None:
+		self._conditionalWaveforms = []
+		for conditionalWaveform in conditionalWaveforms:
+			self._conditionalWaveforms.append(conditionalWaveform)
+			conditionalWaveform.Parent = self
+
+	@readonly
+	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
+		return self._conditionalWaveforms
+
+
+@export
+class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
+	"""
+	One alternative of a selected (waveform) signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	      --                    ^^^^^^^^      <- this alternative: Choices=[0], Waveform=['1']
+	"""
+
+	def __init__(
+		self,
+		choices: Iterable[BaseChoice],
+		waveform: Iterable[WaveformElement],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+		WaveformMixin.__init__(self, waveform)
+		ChoicesMixin.__init__(self, choices)
+
+
+@export
+class OthersSelectedWaveform(BaseCase, WaveformMixin):
+	"""``with sel select s <= '1' when 0, '0' when others;`` - the ``others`` alternative."""
+
+	def __init__(self, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(parent)
+		WaveformMixin.__init__(self, waveform)
+
+
+@export
+class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
+	"""
+	One alternative of a selected (variable) assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select v := '1' when 0, '0' when others;
+	      --                   ^^^^^^^^      <- this alternative: Choices=[0], Expression='1'
+	"""
+
+	def __init__(
+		self,
+		choices: Iterable[BaseChoice],
+		expression: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(parent)
+		ExpressionMixin.__init__(self, expression)
+		ChoicesMixin.__init__(self, choices)
+
+
+@export
+class OthersSelectedExpression(BaseCase, ExpressionMixin):
+	"""``with sel select v := '1' when 0, '0' when others;`` - the ``others`` alternative."""
+
+	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(parent)
+		ExpressionMixin.__init__(self, expression)
+
+
+@export
+class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`SelectedWaveform`/
+	:class:`OthersSelectedWaveform` (both the concurrent and sequential forms of a selected signal
+	assignment).
+	"""
+
+	_selectedWaveforms: List[Union[SelectedWaveform, OthersSelectedWaveform]]
+
+	def __init__(self, selectedWaveforms: Iterable[Union[SelectedWaveform, OthersSelectedWaveform]]) -> None:
+		self._selectedWaveforms = []
+		for selectedWaveform in selectedWaveforms:
+			self._selectedWaveforms.append(selectedWaveform)
+			selectedWaveform.Parent = self
+
+	@readonly
+	def SelectedWaveforms(self) -> List[Union[SelectedWaveform, OthersSelectedWaveform]]:
+		return self._selectedWaveforms
+
+
+@export
+class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`SelectedExpression`/
+	:class:`OthersSelectedExpression`.
+	"""
+
+	_selectedExpressions: List[Union[SelectedExpression, OthersSelectedExpression]]
+
+	def __init__(self, selectedExpressions: Iterable[Union[SelectedExpression, OthersSelectedExpression]]) -> None:
+		self._selectedExpressions = []
+		for selectedExpression in selectedExpressions:
+			self._selectedExpressions.append(selectedExpression)
+			selectedExpression.Parent = self
+
+	@readonly
+	def SelectedExpressions(self) -> List[Union[SelectedExpression, OthersSelectedExpression]]:
+		return self._selectedExpressions

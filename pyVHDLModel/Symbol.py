@@ -273,6 +273,56 @@ class ConfigurationSymbol(Symbol):
 
 
 @export
+class VariableSymbol(Symbol):
+	"""
+	Represents a reference (name) to a variable, e.g. the target of a variable assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      v := '1';
+	      --^
+	"""
+
+	def __init__(self, name: Name) -> None:
+		super().__init__(name, PossibleReference.Variable)
+
+	@property
+	def Variable(self) -> Nullable['Variable']:
+		return self._reference
+
+	@Variable.setter
+	def Variable(self, value: 'Variable') -> None:
+		self._reference = value
+
+
+@export
+class SignalSymbol(Symbol):
+	"""
+	Represents a reference (name) to a signal, e.g. the target of a signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1';
+	      --^
+	"""
+
+	def __init__(self, name: Name) -> None:
+		super().__init__(name, PossibleReference.Signal)
+
+	@property
+	def Signal(self) -> Nullable['Signal']:
+		return self._reference
+
+	@Signal.setter
+	def Signal(self, value: 'Signal') -> None:
+		self._reference = value
+
+
+@export
 class ContextReferenceSymbol(Symbol):
 	"""
 	Represents a reference (name) to a context.

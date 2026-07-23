@@ -40,10 +40,15 @@ from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, ExpressionUnion, Range, BaseChoice, BaseCase, ConditionalMixin, IfBranchMixin, ElsifBranchMixin
-from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement
-from pyVHDLModel.Symbol      import Symbol
+from pyVHDLModel.Base        import ElseBranchMixin, ReportStatementMixin, AssertStatementMixin, WaveformElement, ChoicesMixin
+from pyVHDLModel.Symbol      import Symbol, SignalSymbol, VariableSymbol
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin
-from pyVHDLModel.Common      import SignalAssignmentMixin, VariableAssignmentMixin
+from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
+from pyVHDLModel.Common      import ConditionalWaveform, ConditionalExpression
+from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
+from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin, SelectedExpressionsMixin
+from pyVHDLModel.Common      import SelectedWaveform, OthersSelectedWaveform
+from pyVHDLModel.Common      import SelectedExpression, OthersSelectedExpression
 from pyVHDLModel.Association import ParameterAssociationItem
 
 
@@ -89,40 +94,162 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 @export
 class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
-	def __init__(self, target: Symbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
 
 @export
-class SequentialSimpleSignalAssignment(SequentialSignalAssignment):
-	_waveform: List[WaveformElement]
-
-	def __init__(self, target: Symbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin):
+	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(target, label, parent)
-
-		# TODO: extract to mixin
-		self._waveform = []
-		if waveform is not None:
-			for waveformElement in waveform:
-				self._waveform.append(waveformElement)
-				waveformElement.Parent = self
-
-	@readonly
-	def Waveform(self) -> List[WaveformElement]:
-		"""
-		Read-only property to access the list waveform elements (:attr:`_waveform`).
-
-		:returns: A list of waveform elements.
-		"""
-		return self._waveform
+		WaveformMixin.__init__(self, waveform)
 
 
 @export
 class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin):
-	def __init__(self, target: Symbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
+
+
+@export
+class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      v := '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	_conditionalExpressions: List[ConditionalExpression]
+
+	def __init__(
+		self,
+		target: VariableSymbol,
+		conditionalExpressions: Iterable[ConditionalExpression],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		AssignmentMixin.__init__(self, target)
+
+		self._conditionalExpressions = []
+		for conditionalExpression in conditionalExpressions:
+			self._conditionalExpressions.append(conditionalExpression)
+			conditionalExpression.Parent = self
+
+	@readonly
+	def ConditionalExpressions(self) -> List[ConditionalExpression]:
+		return self._conditionalExpressions
+
+
+@export
+class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmentMixin, ConditionalWaveformsMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	def __init__(
+		self,
+		target: SignalSymbol,
+		conditionalWaveforms: Iterable[ConditionalWaveform],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
+
+
+@export
+class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin, ExpressionMixin, SelectedExpressionsMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select v := '1' when 0, '0' when others;
+	"""
+
+	def __init__(
+		self,
+		target: VariableSymbol,
+		expression: ExpressionUnion,
+		selectedExpressions: Iterable[SelectedExpression],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		AssignmentMixin.__init__(self, target)
+		ExpressionMixin.__init__(self, expression)
+		SelectedExpressionsMixin.__init__(self, selectedExpressions)
+
+
+@export
+class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin, SelectedWaveformsMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	"""
+
+	def __init__(
+		self,
+		target: SignalSymbol,
+		expression: ExpressionUnion,
+		selectedWaveforms: Iterable[SelectedWaveform],
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+		ExpressionMixin.__init__(self, expression)
+		SelectedWaveformsMixin.__init__(self, selectedWaveforms)
+
+
+@export
+class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= force '1';
+	"""
+
+	def __init__(
+		self,
+		target: SignalSymbol,
+		expression: ExpressionUnion,
+		label: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
+		ExpressionMixin.__init__(self, expression)
+
+
+@export
+class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= release;
+	"""
+
+	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(label, parent)
+		SignalAssignmentMixin.__init__(self, target)
 
 
 @export
@@ -282,34 +409,22 @@ class RangedChoice(SequentialChoice):
 
 
 @export
-class SequentialCase(BaseCase, SequentialStatementsMixin):
-	_choices: List
-
-	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+class SequentialCase(BaseCase, SequentialStatementsMixin, ChoicesMixin):
+	def __init__(
+		self,
+		statements: Nullable[Iterable[SequentialStatement]] = None,
+		choices: Nullable[Iterable[BaseChoice]] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
-
-		# TODO: what about choices?
-
-	@property
-	def Choices(self) -> List[BaseChoice]:
-		return self._choices
+		ChoicesMixin.__init__(self, choices)
 
 
 @export
 class Case(SequentialCase):
 	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(statements, parent)
-
-		self._choices = []
-		if choices is not None:
-			for choice in choices:
-				self._choices.append(choice)
-				choice.Parent = self
-
-	@property
-	def Choices(self) -> List[SequentialChoice]:
-		return self._choices
+		super().__init__(statements, choices, parent)
 
 	def __str__(self) -> str:
 		return "when {choices} =>".format(choices=" | ".join(str(c) for c in self._choices))

@@ -40,15 +40,19 @@ from pyTooling.Decorators    import export, readonly
 from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, DocumentedEntityMixin, Range, BaseChoice, BaseCase, IfBranchMixin
-from pyVHDLModel.Base        import ElsifBranchMixin, ElseBranchMixin, AssertStatementMixin, BlockStatementMixin, WaveformElement
+from pyVHDLModel.Base        import ElsifBranchMixin, ElseBranchMixin, AssertStatementMixin, BlockStatementMixin, WaveformElement, ChoicesMixin
 from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin
 from pyVHDLModel.Namespace   import Namespace
 from pyVHDLModel.Name        import Name
 from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol, ConfigurationInstantiationSymbol
+from pyVHDLModel.Symbol      import SignalSymbol
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
 from pyVHDLModel.Interface   import PortInterfaceItemMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
+from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
+from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
+from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -693,7 +697,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 
 @export
-class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
+class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin, ChoicesMixin):
 	_namespace: Namespace
 
 	def __init__(
@@ -701,6 +705,7 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 		declaredItems:    Nullable[Iterable] = None,
 		statements:       Nullable[Iterable[ConcurrentStatement]] = None,
 		alternativeLabel: Nullable[str] = None,
+		choices:          Nullable[Iterable[BaseChoice]] = None,
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
@@ -717,12 +722,11 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
+		ChoicesMixin.__init__(self, choices)
 
 
 @export
 class GenerateCase(ConcurrentCase):
-	_choices: List[ConcurrentChoice]
-
 	def __init__(
 		self,
 		choices:          Iterable[ConcurrentChoice],
@@ -732,19 +736,7 @@ class GenerateCase(ConcurrentCase):
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
-
-		# TODO: move to parent or grandparent
-		self._choices = []
-		if choices is not None:
-			for choice in choices:
-				self._choices.append(choice)
-				choice.Parent = self
-
-	# TODO: move to parent or grandparent
-	@property
-	def Choices(self) -> List[ConcurrentChoice]:
-		return self._choices
+		super().__init__(declaredItems, statements, alternativeLabel, choices, allowBlackbox, parent)
 
 	def __str__(self) -> str:
 		return "when {choices} =>".format(choices=" | ".join(str(c) for c in self._choices))
@@ -903,40 +895,60 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment`
 	   * :class:`~pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment`
 	"""
-	def __init__(self, label: str, target: Name, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
 
 @export
-class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment):
-	_waveform: List[WaveformElement]
-
-	def __init__(self, label: str, target: Name, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin):
+	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
-
-		# TODO: extract to mixin
-		self._waveform = []
-		if waveform is not None:
-			for waveformElement in waveform:
-				self._waveform.append(waveformElement)
-				waveformElement.Parent = self
-
-	@property
-	def Waveform(self) -> List[WaveformElement]:
-		return self._waveform
+		WaveformMixin.__init__(self, waveform)
 
 
 @export
-class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionMixin, SelectedWaveformsMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	"""
+
+	def __init__(
+		self,
+		label: str,
+		target: SignalSymbol,
+		expression: ExpressionUnion,
+		selectedWaveforms: Iterable[SelectedWaveform],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(label, target, parent)
+		ExpressionMixin.__init__(self, expression)
+		SelectedWaveformsMixin.__init__(self, selectedWaveforms)
 
 
 @export
-class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment):
-	def __init__(self, label: str, target: Name, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, ConditionalWaveformsMixin):
+	"""
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	"""
+
+	def __init__(
+		self,
+		label: str,
+		target: SignalSymbol,
+		conditionalWaveforms: Iterable[ConditionalWaveform],
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(label, target, parent)
+		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
 
 
 @export

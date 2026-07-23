@@ -35,7 +35,7 @@ This module contains parts of an abstract document language model for VHDL.
 Base-classes for the VHDL language model.
 """
 from enum                  import unique, Enum
-from typing                import Type, Tuple, Iterable, Optional as Nullable, Union, cast
+from typing                import Type, Tuple, List, Iterable, Optional as Nullable, Union, cast
 
 from pyTooling.Decorators  import export, readonly
 from pyTooling.MetaClasses import ExtendedType
@@ -459,6 +459,24 @@ class BaseCase(ModelEntity):
 	"""
 	A ``Case`` is a base-class for all cases.
 	"""
+
+
+@export
+class ChoicesMixin(metaclass=ExtendedType, mixin=True):
+	"""A mixin-class for all statements/entities holding a list of :class:`BaseChoice`."""
+
+	_choices: List[BaseChoice]
+
+	def __init__(self, choices: Nullable[Iterable[BaseChoice]] = None) -> None:
+		self._choices = []
+		if choices is not None:
+			for choice in choices:
+				self._choices.append(choice)
+				choice.Parent = self
+
+	@readonly
+	def Choices(self) -> List[BaseChoice]:
+		return self._choices
 
 
 @export
