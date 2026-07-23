@@ -52,6 +52,7 @@ from pyVHDLModel.Interface   import PortInterfaceItemMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
+from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
 
 
@@ -919,7 +920,7 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 
 
 @export
-class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
+class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionMixin, SelectedWaveformsMixin):
 	"""
 	.. admonition:: Example
 
@@ -927,9 +928,6 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
 
 	      with sel select s <= '1' when 0, '0' when others;
 	"""
-
-	_expression:        ExpressionUnion
-	_selectedWaveforms: List[SelectedWaveform]
 
 	def __init__(
 		self,
@@ -940,22 +938,8 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, target, parent)
-
-		self._expression = expression
-		expression.Parent = self
-
-		self._selectedWaveforms = []
-		for selectedWaveform in selectedWaveforms:
-			self._selectedWaveforms.append(selectedWaveform)
-			selectedWaveform.Parent = self
-
-	@readonly
-	def Expression(self) -> ExpressionUnion:
-		return self._expression
-
-	@readonly
-	def SelectedWaveforms(self) -> List[SelectedWaveform]:
-		return self._selectedWaveforms
+		ExpressionMixin.__init__(self, expression)
+		SelectedWaveformsMixin.__init__(self, selectedWaveforms)
 
 
 @export

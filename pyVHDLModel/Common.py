@@ -357,3 +357,44 @@ class OthersSelectedExpression(BaseCase, ExpressionMixin):
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		ExpressionMixin.__init__(self, expression)
+
+
+@export
+class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`SelectedWaveform`/
+	:class:`OthersSelectedWaveform` (both the concurrent and sequential forms of a selected signal
+	assignment).
+	"""
+
+	_selectedWaveforms: List[Union[SelectedWaveform, OthersSelectedWaveform]]
+
+	def __init__(self, selectedWaveforms: Iterable[Union[SelectedWaveform, OthersSelectedWaveform]]) -> None:
+		self._selectedWaveforms = []
+		for selectedWaveform in selectedWaveforms:
+			self._selectedWaveforms.append(selectedWaveform)
+			selectedWaveform.Parent = self
+
+	@readonly
+	def SelectedWaveforms(self) -> List[Union[SelectedWaveform, OthersSelectedWaveform]]:
+		return self._selectedWaveforms
+
+
+@export
+class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for all statements holding a list of :class:`SelectedExpression`/
+	:class:`OthersSelectedExpression`.
+	"""
+
+	_selectedExpressions: List[Union[SelectedExpression, OthersSelectedExpression]]
+
+	def __init__(self, selectedExpressions: Iterable[Union[SelectedExpression, OthersSelectedExpression]]) -> None:
+		self._selectedExpressions = []
+		for selectedExpression in selectedExpressions:
+			self._selectedExpressions.append(selectedExpression)
+			selectedExpression.Parent = self
+
+	@readonly
+	def SelectedExpressions(self) -> List[Union[SelectedExpression, OthersSelectedExpression]]:
+		return self._selectedExpressions

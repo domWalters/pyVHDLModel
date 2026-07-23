@@ -46,6 +46,7 @@ from pyVHDLModel.Common      import Statement, ProcedureCallMixin
 from pyVHDLModel.Common      import AssignmentMixin, SignalAssignmentMixin, VariableAssignmentMixin
 from pyVHDLModel.Common      import ConditionalWaveform, ConditionalExpression
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
+from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin, SelectedExpressionsMixin
 from pyVHDLModel.Common      import SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import SelectedExpression, OthersSelectedExpression
 from pyVHDLModel.Association import ParameterAssociationItem
@@ -167,7 +168,7 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 
 
 @export
-class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin):
+class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin, ExpressionMixin, SelectedExpressionsMixin):
 	"""
 	.. admonition:: Example
 
@@ -175,9 +176,6 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin)
 
 	      with sel select v := '1' when 0, '0' when others;
 	"""
-
-	_expression:         ExpressionUnion
-	_selectedExpressions: List[SelectedExpression]
 
 	def __init__(
 		self,
@@ -189,26 +187,12 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin)
 	) -> None:
 		super().__init__(label, parent)
 		AssignmentMixin.__init__(self, target)
-
-		self._expression = expression
-		expression.Parent = self
-
-		self._selectedExpressions = []
-		for selectedExpression in selectedExpressions:
-			self._selectedExpressions.append(selectedExpression)
-			selectedExpression.Parent = self
-
-	@readonly
-	def Expression(self) -> ExpressionUnion:
-		return self._expression
-
-	@readonly
-	def SelectedExpressions(self) -> List[SelectedExpression]:
-		return self._selectedExpressions
+		ExpressionMixin.__init__(self, expression)
+		SelectedExpressionsMixin.__init__(self, selectedExpressions)
 
 
 @export
-class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMixin):
+class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin, SelectedWaveformsMixin):
 	"""
 	.. admonition:: Example
 
@@ -216,9 +200,6 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 
 	      with sel select s <= '1' when 0, '0' when others;
 	"""
-
-	_expression:        ExpressionUnion
-	_selectedWaveforms: List[SelectedWaveform]
 
 	def __init__(
 		self,
@@ -230,26 +211,12 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 	) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
-
-		self._expression = expression
-		expression.Parent = self
-
-		self._selectedWaveforms = []
-		for selectedWaveform in selectedWaveforms:
-			self._selectedWaveforms.append(selectedWaveform)
-			selectedWaveform.Parent = self
-
-	@readonly
-	def Expression(self) -> ExpressionUnion:
-		return self._expression
-
-	@readonly
-	def SelectedWaveforms(self) -> List[SelectedWaveform]:
-		return self._selectedWaveforms
+		ExpressionMixin.__init__(self, expression)
+		SelectedWaveformsMixin.__init__(self, selectedWaveforms)
 
 
 @export
-class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin):
+class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin):
 	"""
 	.. admonition:: Example
 
@@ -257,8 +224,6 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin):
 
 	      s <= force '1';
 	"""
-
-	_expression: ExpressionUnion
 
 	def __init__(
 		self,
@@ -269,13 +234,7 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin):
 	) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
-
-		self._expression = expression
-		expression.Parent = self
-
-	@readonly
-	def Expression(self) -> ExpressionUnion:
-		return self._expression
+		ExpressionMixin.__init__(self, expression)
 
 
 @export
