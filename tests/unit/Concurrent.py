@@ -371,6 +371,8 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 	``ConcurrentStatementsMixin`` host - see tests/unit/DesignUnit.py)."""
 
 	def test_IndexStatements_BucketsByKind(self) -> None:
+		"""Blocks and generates both land in the single, unified ``_hierarchy`` dict (in source/
+		declaration order), not separate per-kind dicts."""
 		entitySymbol = _entitySymbol()
 		instance = ComponentInstantiation("inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk")
@@ -382,7 +384,8 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 
 		self.assertIs(instance, architecture._instantiations["inst"])
 		self.assertIs(block, architecture._hierarchy["blk"])
-		self.assertIs(generate, architecture._generates["gen"])
+		self.assertIs(generate, architecture._hierarchy["gen"])
+		self.assertEqual(["blk", "gen"], list(architecture._hierarchy.keys()))
 
 	def test_IterateInstantiations_RecursesIntoBlocksAndGenerates(self) -> None:
 		entitySymbol = _entitySymbol()

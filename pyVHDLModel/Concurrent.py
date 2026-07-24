@@ -84,16 +84,12 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 	_statements:     List[ConcurrentStatement]
 
 	_instantiations: Dict[str, 'Instantiation']  # TODO: add another instantiation class level for entity/configuration/component inst.
-	_blocks:         Dict[str, 'ConcurrentBlockStatement']
-	_generates:      Dict[str, 'GenerateStatement']
-	_hierarchy:      Dict[str, Union['ConcurrentBlockStatement', 'GenerateStatement']]
+	_hierarchy:      Dict[str, Union['ConcurrentBlockStatement', 'GenerateStatement']]  #: All elements creating a hierarchy level (blocks and generates), in declaration order.
 
 	def __init__(self, statements: Nullable[Iterable[ConcurrentStatement]] = None) -> None:
 		self._statements = []
 
 		self._instantiations = {}
-		self._blocks = {}
-		self._generates = {}
 		self._hierarchy = {}
 
 		if statements is not None:
@@ -109,11 +105,8 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 		for instance in self._instantiations.values():
 			yield instance
 
-		for block in self._blocks.values():
-			yield from block.IterateInstantiations()
-
-		for generate in self._generates.values():
-			yield from generate.IterateInstantiations()
+		for element in self._hierarchy.values():
+			yield from element.IterateInstantiations()
 
 	# TODO: move into _init__
 	def IndexStatements(self) -> None:
@@ -121,10 +114,9 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 			if isinstance(statement, (EntityInstantiation, ComponentInstantiation, ConfigurationInstantiation)):
 				self._instantiations[statement.NormalizedLabel] = statement
 			elif isinstance(statement, (ForGenerateStatement, IfGenerateStatement, CaseGenerateStatement)):
-				self._generates[statement.NormalizedLabel] = statement
+				self._hierarchy[statement.NormalizedLabel] = statement
 				statement.IndexStatement()
 			elif isinstance(statement, ConcurrentBlockStatement):
-				self._blocks[statement.NormalizedLabel] = statement
 				self._hierarchy[statement.NormalizedLabel] = statement
 				statement.IndexStatements()
 

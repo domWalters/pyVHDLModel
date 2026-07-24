@@ -324,7 +324,7 @@ class QualifiedExpressions(TestCase):
 		expression = QualifiedExpression(subtype, operand)
 
 		self.assertIs(operand, expression.Operand)
-		self.assertIs(subtype, expression.Subtyped)
+		self.assertIs(subtype, expression.Subtype)
 		self.assertIs(expression, operand.Parent)
 		self.assertIs(expression, subtype.Parent)
 		self.assertEqual("bit_vector?'(1)", str(expression))
