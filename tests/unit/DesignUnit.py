@@ -265,8 +265,10 @@ class Architectures(TestCase):
 		self.assertIs(signal, architecture.Signals["s"])
 		self.assertIs(sharedVariable, architecture.SharedVariables["sv"])
 		self.assertIs(file, architecture.Files["f"])
-		self.assertIs(function, architecture.Functions["f_func"])
-		self.assertIs(procedure, architecture.Procedures["p_proc"])
+		self.assertEqual(1, len(architecture.Functions["f_func"]))
+		self.assertIs(function, architecture.Functions["f_func"][0])
+		self.assertEqual(1, len(architecture.Procedures["p_proc"]))
+		self.assertIs(procedure, architecture.Procedures["p_proc"][0])
 
 	def test_IndexDeclaredItems_AlsoPopulatesNamespace(self) -> None:
 		constant = Constant(["C"], SimpleSubtypeSymbol(SimpleName("natural")))
@@ -284,17 +286,34 @@ class Architectures(TestCase):
 
 		architecture.IndexDeclaredItems()  # must not raise, only warn
 
-	def test_IndexDeclaredItems_OverloadsCollide(self) -> None:
-		"""Regression-tracking test, not a fix: see Findings.md - ``Functions``/``Procedures`` are
-		typed as ``Dict[str, Dict[str, Function]]`` (name -> signature -> subprogram) but indexed as a
-		flat ``Dict[str, Function]``, so two overloads sharing a name silently collide into one entry."""
+	def test_IndexDeclaredItems_Overloads(self) -> None:
+		"""Regression test: two overloads sharing a name used to silently collide into one entry (a
+		flat ``Dict[str, Function]``) - the second always overwrote the first, with no error or
+		warning. Fixed by collecting overloads into a list per name instead.
+
+		FIXME: this only *avoids the collision* - it doesn't actually resolve overloads by signature
+		(matching call-site argument types against each candidate's parameter/return types). A real
+		textual-signature-based attempt was tried and rejected as unreliable (aliased/case-differing
+		subtype names would be misjudged as distinct, and symbol resolution happening after indexing
+		could change the comparison basis). For now, ``Functions``/``Procedures`` just return every
+		overload found under a given name, unresolved."""
 		overload1 = Function("f", SimpleSubtypeSymbol(SimpleName("integer")))
 		overload2 = Function("f", SimpleSubtypeSymbol(SimpleName("boolean")))
 		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[overload1, overload2])
 		architecture.IndexDeclaredItems()
 
 		self.assertEqual(1, len(architecture.Functions))
-		self.assertIs(overload2, architecture.Functions["f"])
+		self.assertEqual([overload1, overload2], architecture.Functions["f"])
+
+	def test_IndexDeclaredItems_ProcedureOverloads(self) -> None:
+		"""Same as above, but for procedures."""
+		overload1 = Procedure("p")
+		overload2 = Procedure("p")
+		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[overload1, overload2])
+		architecture.IndexDeclaredItems()
+
+		self.assertEqual(1, len(architecture.Procedures))
+		self.assertEqual([overload1, overload2], architecture.Procedures["p"])
 
 
 class Components(TestCase):

@@ -40,7 +40,7 @@ from typing               import Tuple, List, Iterable, Union, ClassVar, Optiona
 from pyTooling.Decorators import export, readonly
 
 from pyVHDLModel.Base     import ModelEntity, Direction, Range
-from pyVHDLModel.Symbol   import Symbol
+from pyVHDLModel.Symbol   import Symbol, SubtypeSymbol
 
 
 ExpressionUnion = Union[
@@ -364,7 +364,26 @@ class AbsoluteExpression(UnaryExpression):
 
 @export
 class TypeConversion(UnaryExpression):
-	pass
+	"""``natural(x)`` - a type conversion. Unlike every other :class:`UnaryExpression` subclass, its
+	"operator" is the target type name itself, not a fixed string, so it doesn't participate in the
+	shared ``_FORMAT``-based :meth:`UnaryExpression.__str__` at all - it carries its own
+	:attr:`_targetSubtype` (mirroring :class:`QualifiedExpression`'s ``_subtype``) and overrides
+	``__str__`` accordingly."""
+
+	_targetSubtype: SubtypeSymbol
+
+	def __init__(self, targetSubtype: SubtypeSymbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		super().__init__(operand, parent)
+
+		self._targetSubtype = targetSubtype
+		targetSubtype.Parent = self
+
+	@readonly
+	def TargetSubtype(self) -> SubtypeSymbol:
+		return self._targetSubtype
+
+	def __str__(self) -> str:
+		return f"{self._targetSubtype!s}({self._operand!s})"
 
 
 @export
@@ -661,29 +680,41 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 
 @export
 class TernaryExpression(BaseExpression):
-	"""A ``TernaryExpression`` is a base-class for all ternary expressions."""
+	"""
+	A ``TernaryExpression`` is a base-class for all ternary expressions.
 
-	_FORMAT: Tuple[str, str, str, str]
+	The three operands are deliberately *not* exposed as public properties here: unlike
+	:class:`UnaryExpression`/:class:`BinaryExpression` (where "the operand"/"left operand"/"right
+	operand" are already the natural domain names for every consumer), a ternary's three operands
+	play a different semantic role depending on the concrete expression - e.g.
+	:class:`WhenElseExpression`'s are really "then value"/"condition"/"else value". Each concrete
+	subclass is expected to expose its own, appropriately-named properties over the shared
+	``_firstOperand``/``_secondOperand``/``_thirdOperand`` fields, rather than duplicating a
+	generic and a specific name for the same value.
+	"""
+
+	_FORMAT: Tuple[str, str, str, str]  # FIXME: needs ClassVar[...] when pyTooling gets fixed.
 	_firstOperand:  ExpressionUnion
 	_secondOperand: ExpressionUnion
 	_thirdOperand:  ExpressionUnion
 
-	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		firstOperand: ExpressionUnion,
+		secondOperand: ExpressionUnion,
+		thirdOperand: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		super().__init__(parent)
 
-		# FIXME: parameters and initializers are missing !!
+		self._firstOperand = firstOperand
+		firstOperand.Parent = self
 
-	@property
-	def FirstOperand(self):
-		return self._firstOperand
+		self._secondOperand = secondOperand
+		secondOperand.Parent = self
 
-	@property
-	def SecondOperand(self):
-		return self._secondOperand
-
-	@property
-	def ThirdOperand(self):
-		return self._thirdOperand
+		self._thirdOperand = thirdOperand
+		thirdOperand.Parent = self
 
 	def __str__(self) -> str:
 		return "{beforeFirstOperator}{firstOperand!s}{beforeSecondOperator}{secondOperand!s}{beforeThirdOperator}{thirdOperand!s}{lastOperator}".format(
@@ -693,13 +724,40 @@ class TernaryExpression(BaseExpression):
 			secondOperand=self._secondOperand,
 			beforeThirdOperator=self._FORMAT[2],
 			thirdOperand=self._thirdOperand,
-			lastOperator=self._FORMAT[4],
+			lastOperator=self._FORMAT[3],
 		)
 
 
 @export
 class WhenElseExpression(TernaryExpression):
+	"""
+	``thenValue when condition else elseValue`` (VHDL-2008 conditional expression, usable anywhere an
+	expression is expected - distinct from :class:`~pyVHDLModel.Common.ConditionalExpression`, which
+	models the cascading when/else list used in a conditional *assignment*).
+	"""
+
 	_FORMAT = ("", " when ", " else ", "")
+
+	def __init__(
+		self,
+		thenValue: ExpressionUnion,
+		condition: ExpressionUnion,
+		elseValue: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(thenValue, condition, elseValue, parent)
+
+	@readonly
+	def ThenValue(self) -> ExpressionUnion:
+		return self._firstOperand
+
+	@readonly
+	def Condition(self) -> ExpressionUnion:
+		return self._secondOperand
+
+	@readonly
+	def ElseValue(self) -> ExpressionUnion:
+		return self._thirdOperand
 
 
 @export

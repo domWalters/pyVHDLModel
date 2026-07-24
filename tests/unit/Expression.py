@@ -223,14 +223,6 @@ class UnaryExpressionFormats(TestCase):
 			with self.subTest(expression=expressionClass.__name__):
 				self.assertEqual(expected, str(expressionClass(IntegerLiteral(1))))
 
-	def test_TypeConversion_StrRaises(self) -> None:
-		"""Regression-tracking test, not a fix: see Findings.md - unlike every other
-		``UnaryExpression`` subclass, ``TypeConversion`` never fixes a ``_FORMAT`` (it has no field for
-		the target type at all), so ``str()`` always raises. Locked in here so a future fix shows up
-		as an intentional test change rather than a silent behaviour change."""
-		with self.assertRaises(AttributeError):
-			str(TypeConversion(IntegerLiteral(1)))
-
 	def test_SubExpression_IsAlsoAParenthesisExpression(self) -> None:
 		"""``SubExpression`` mixes in ``ParenthesisExpression``, whose own ``Operand`` hardcodes
 		``return None`` - but MRO puts ``UnaryExpression`` first, so the real operand wins and
@@ -239,6 +231,26 @@ class UnaryExpressionFormats(TestCase):
 		expression = SubExpression(operand)
 
 		self.assertIs(operand, expression.Operand)
+
+
+class TypeConversions(TestCase):
+	"""Regression test: ``TypeConversion`` previously had no field for the target type at all (just
+	``pass``, inheriting ``UnaryExpression`` unchanged) - unlike every other ``UnaryExpression``
+	subclass, its "operator" is the target type name itself, not a fixed ``_FORMAT`` string, so
+	``str()`` always raised ``AttributeError``. Fixed by adding ``_targetSubtype`` (mirroring
+	``QualifiedExpression._subtype``) and a dedicated ``__str__``."""
+
+	def test_Construction(self) -> None:
+		"""``natural(x)``"""
+		targetSubtype = SimpleSubtypeSymbol(SimpleName("natural"))
+		operand = IntegerLiteral(1)
+		expression = TypeConversion(targetSubtype, operand)
+
+		self.assertIs(targetSubtype, expression.TargetSubtype)
+		self.assertIs(expression, targetSubtype.Parent)
+		self.assertIs(operand, expression.Operand)
+		self.assertIs(expression, operand.Parent)
+		self.assertEqual("natural?(1)", str(expression))
 
 
 class BinaryExpressions(TestCase):
@@ -331,22 +343,31 @@ class QualifiedExpressions(TestCase):
 
 
 class TernaryExpressions(TestCase):
-	"""Regression-tracking test, not a fix: see Findings.md - the constructor never accepts or sets
-	its three operands at all, and ``__str__`` separately indexes past the end of the 4-element
-	``_FORMAT`` tuple. Both are confirmed still-open; this locks in the current (broken) behaviour so
-	a future fix shows up as an intentional test change."""
+	"""Regression test: the constructor previously never accepted or set its three operands at all
+	(``# FIXME: parameters and initializers are missing !!``), and ``__str__`` separately indexed past
+	the end of the 4-element ``_FORMAT`` tuple (``self._FORMAT[4]``). Both fixed together - the
+	constructor now takes the three operands (wiring ``Parent`` for each), and ``__str__`` reads
+	``_FORMAT[3]``.
 
-	def test_ConstructsButOperandsAreUnset(self) -> None:
-		expression = WhenElseExpression()
+	``TernaryExpression`` itself deliberately exposes no public ``FirstOperand``/``SecondOperand``/
+	``ThirdOperand`` properties (see its class docstring) - only ``WhenElseExpression``'s own
+	``ThenValue``/``Condition``/``ElseValue`` are public, so this is tested only through that concrete
+	subclass."""
 
-		with self.assertRaises(AttributeError):
-			expression.FirstOperand
+	def test_Construction(self) -> None:
+		"""``thenValue when condition else elseValue``"""
+		thenValue = IntegerLiteral(1)
+		condition = IntegerLiteral(2)
+		elseValue = IntegerLiteral(3)
+		expression = WhenElseExpression(thenValue, condition, elseValue)
 
-	def test_StrRaises(self) -> None:
-		expression = WhenElseExpression()
-
-		with self.assertRaises(Exception):
-			str(expression)
+		self.assertIs(thenValue, expression.ThenValue)
+		self.assertIs(expression, thenValue.Parent)
+		self.assertIs(condition, expression.Condition)
+		self.assertIs(expression, condition.Parent)
+		self.assertIs(elseValue, expression.ElseValue)
+		self.assertIs(expression, elseValue.Parent)
+		self.assertEqual("1 when 2 else 3", str(expression))
 
 
 class FunctionCallAndAllocation(TestCase):
