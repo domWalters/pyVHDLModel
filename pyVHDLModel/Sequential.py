@@ -380,7 +380,7 @@ class IndexedChoice(SequentialChoice):
 		super().__init__(parent)
 
 		self._expression = expression
-		# expression.Parent = self    # FIXME: received None
+		expression.Parent = self
 
 	@property
 	def Expression(self) -> ExpressionUnion:
@@ -520,6 +520,8 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 	def __init__(self, condition: Nullable[ExpressionUnion] = None, loopLabel: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:  # TODO: is this label (currently str) a Name or a Label class?
 		super().__init__(parent)
 		ConditionalMixin.__init__(self, condition)
+
+		self._loopReference = None
 
 		# TODO: loopLabel
 		# TODO: loop reference -> is it a symbol?

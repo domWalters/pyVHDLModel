@@ -124,6 +124,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 				self._generates[statement.NormalizedLabel] = statement
 				statement.IndexStatement()
 			elif isinstance(statement, ConcurrentBlockStatement):
+				self._blocks[statement.NormalizedLabel] = statement
 				self._hierarchy[statement.NormalizedLabel] = statement
 				statement.IndexStatements()
 
@@ -619,7 +620,7 @@ class IfGenerateStatement(GenerateStatement):
 		# Connect namespaces
 		namespace = self._ifBranch._namespace
 		namespace.ParentNamespace = parent._namespace
-		if namespace._name == "":
+		if namespace._name is None:
 			namespace._name = self._normalizedLabel
 
 		for elseBranch in self._elsifBranches:

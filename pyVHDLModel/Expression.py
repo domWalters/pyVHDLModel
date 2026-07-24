@@ -302,7 +302,7 @@ class UnaryExpression(BaseExpression):
 		super().__init__(parent)
 
 		self._operand = operand
-		# operand.Parent = self  # FIXME: operand is provided as None
+		operand.Parent = self
 
 	@readonly
 	def Operand(self):

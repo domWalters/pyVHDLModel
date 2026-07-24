@@ -222,7 +222,7 @@ class OpenName(Name):
 	Most likely this name is used in port associations.
 	"""
 	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__("open", parent)  # TODO: the case of 'OPEN' is not preserved
+		super().__init__("open", parent=parent)  # TODO: the case of 'OPEN' is not preserved
 
 	def __str__(self) -> str:
 		return "open"

@@ -162,9 +162,10 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 
 	_protectedType: ProtectedType
 
-	def __init__(self, protectedType: ProtectedType) -> None:
+	def __init__(self, protectedType: Nullable[ProtectedType] = None) -> None:
 		self._protectedType = protectedType
-		protectedType.Parent = self
+		if protectedType is not None:
+			protectedType.Parent = self
 
 	@readonly
 	def ProtectedType(self) -> ProtectedType:

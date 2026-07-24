@@ -521,7 +521,7 @@ class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMi
 
 
 @export
-class GenericGroup(InterfaceGroup):
+class GenericGroup(InterfaceGroup, WithGenericsMixin):
 	def __init__(
 		self,
 		genericItems:  Iterable[GenericInterfaceItemMixin],
@@ -565,7 +565,7 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 
 
 @export
-class ParameterGroup(InterfaceGroup):
+class ParameterGroup(InterfaceGroup, WithParametersMixin):
 	def __init__(
 		self,
 		parameterItems: Iterable[ParameterInterfaceItemMixin],
