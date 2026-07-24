@@ -167,6 +167,8 @@ class DeferredConstant(BaseConstant):
 	) -> None:
 		super().__init__(identifiers, subtype, documentation, parent)
 
+		self._constantReference = None
+
 	@readonly
 	def ConstantReference(self) -> Nullable[Constant]:
 		return self._constantReference

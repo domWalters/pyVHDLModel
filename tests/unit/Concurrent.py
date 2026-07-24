@@ -1,0 +1,397 @@
+# ==================================================================================================================== #
+#             __     ___   _ ____  _     __  __           _      _                                                     #
+#   _ __  _   \ \   / / | | |  _ \| |   |  \/  | ___   __| | ___| |                                                    #
+#  | '_ \| | | \ \ / /| |_| | | | | |   | |\/| |/ _ \ / _` |/ _ \ |                                                    #
+#  | |_) | |_| |\ V / |  _  | |_| | |___| |  | | (_) | (_| |  __/ |                                                    #
+#  | .__/ \__, | \_/  |_| |_|____/|_____|_|  |_|\___/ \__,_|\___|_|                                                    #
+#  |_|    |___/                                                                                                        #
+# ==================================================================================================================== #
+# Authors:                                                                                                             #
+#   Patrick Lehmann                                                                                                    #
+#                                                                                                                      #
+# License:                                                                                                             #
+# ==================================================================================================================== #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
+#                                                                                                                      #
+# Licensed under the Apache License, Version 2.0 (the "License");                                                      #
+# you may not use this file except in compliance with the License.                                                     #
+# You may obtain a copy of the License at                                                                              #
+#                                                                                                                      #
+#   http://www.apache.org/licenses/LICENSE-2.0                                                                         #
+#                                                                                                                      #
+# Unless required by applicable law or agreed to in writing, software                                                  #
+# distributed under the License is distributed on an "AS IS" BASIS,                                                    #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.                                             #
+# See the License for the specific language governing permissions and                                                  #
+# limitations under the License.                                                                                       #
+#                                                                                                                      #
+# SPDX-License-Identifier: Apache-2.0                                                                                  #
+# ==================================================================================================================== #
+#
+"""
+Tests for pyVHDLModel.Concurrent - the concurrent statement kinds not already covered by
+tests/unit/Assignment.py (conditional/selected signal assignments) or tests/unit/Base.py
+(ConcurrentBlockStatement's BlockStatementMixin/LabeledEntityMixin wiring).
+"""
+from unittest import TestCase
+
+from pyVHDLModel.Base        import Direction, Range
+from pyVHDLModel.Name        import SimpleName
+from pyVHDLModel.Symbol      import (
+	ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol,
+	ConfigurationInstantiationSymbol, SignalSymbol, Symbol, PossibleReference, EntitySymbol,
+)
+from pyVHDLModel.Expression  import IntegerLiteral, CharacterLiteral
+from pyVHDLModel.Association import GenericAssociationItem, PortAssociationItem
+from pyVHDLModel.Base        import WaveformElement
+from pyVHDLModel.DesignUnit  import Architecture
+from pyVHDLModel.Concurrent  import (
+	ComponentInstantiation, EntityInstantiation, ConfigurationInstantiation,
+	ProcessStatement, ConcurrentProcedureCall, ConcurrentBlockStatement,
+	IfGenerateBranch, ElsifGenerateBranch, ElseGenerateBranch,
+	GenerateStatement, IfGenerateStatement,
+	IndexedGenerateChoice, RangedGenerateChoice, GenerateCase, OthersGenerateCase, CaseGenerateStatement,
+	ForGenerateStatement, ConcurrentSimpleSignalAssignment, ConcurrentAssertStatement,
+)
+
+
+if __name__ == "__main__":  # pragma: no cover
+	print("ERROR: you called a testcase declaration file as an executable module.")
+	print("Use: 'python -m unitest <testcase module>'")
+	exit(1)
+
+
+def _entitySymbol(name: str = "e") -> EntitySymbol:
+	return EntitySymbol(SimpleName(name))
+
+
+class Instantiations(TestCase):
+	def test_ComponentInstantiation(self) -> None:
+		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
+		generic = GenericAssociationItem(SimpleName("G"), IntegerLiteral(1))
+		port = PortAssociationItem(SimpleName("p"), SimpleName("s"))
+		instance = ComponentInstantiation("inst", componentSymbol, [generic], [port])
+
+		self.assertIs(componentSymbol, instance.Component)
+		self.assertIs(instance, componentSymbol.Parent)
+		self.assertEqual(1, len(instance.GenericAssociationItems))
+		self.assertIs(instance, generic.Parent)
+		self.assertEqual(1, len(instance.PortAssociationItems))
+		self.assertIs(instance, port.Parent)
+
+	def test_EntityInstantiation_WithArchitecture(self) -> None:
+		entitySymbol = EntityInstantiationSymbol(SimpleName("ent"))
+		architectureSymbol = ArchitectureSymbol(SimpleName("rtl"))
+		instance = EntityInstantiation("inst", entitySymbol, architectureSymbol)
+
+		self.assertIs(entitySymbol, instance.Entity)
+		self.assertIs(architectureSymbol, instance.Architecture)
+		self.assertIs(instance, architectureSymbol.Parent)
+
+	def test_EntityInstantiation_WithoutArchitecture(self) -> None:
+		instance = EntityInstantiation("inst", EntityInstantiationSymbol(SimpleName("ent")))
+
+		self.assertIsNone(instance.Architecture)
+
+	def test_ConfigurationInstantiation(self) -> None:
+		configurationSymbol = ConfigurationInstantiationSymbol(SimpleName("cfg"))
+		instance = ConfigurationInstantiation("inst", configurationSymbol)
+
+		self.assertIs(configurationSymbol, instance.Configuration)
+		self.assertIs(instance, configurationSymbol.Parent)
+
+
+class ProcessStatements(TestCase):
+	def test_Empty(self) -> None:
+		"""``proc: process begin end process;``"""
+		process = ProcessStatement("proc")
+
+		self.assertEqual("proc", process.Label)
+		self.assertIsNone(process.SensitivityList)
+		self.assertEqual(0, len(process.DeclaredItems))
+		self.assertEqual(0, len(process.Statements))
+
+	def test_WithSensitivityList(self) -> None:
+		"""``proc: process(clk) begin end process;``"""
+		clk = SimpleName("clk")
+		process = ProcessStatement("proc", sensitivityList=[clk])
+
+		self.assertEqual(1, len(process.SensitivityList))
+		self.assertIs(clk, process.SensitivityList[0])
+
+
+class ConcurrentProcedureCalls(TestCase):
+	def test_Construction(self) -> None:
+		procedureName = Symbol(SimpleName("proc"), PossibleReference.Procedure)
+		call = ConcurrentProcedureCall("lbl", procedureName)
+
+		self.assertIs(procedureName, call.Procedure)
+		self.assertEqual("lbl", call.Label)
+
+
+class ConcurrentBlockStatements(TestCase):
+	"""``BlockStatementMixin``/``LabeledEntityMixin`` wiring is already covered in tests/unit/Base.py;
+	this covers the block-specific state (port items, declared items/statements via
+	``ConcurrentDeclarationRegionMixin``/``ConcurrentStatementsMixin``) instead."""
+
+	def test_WithPortItems(self) -> None:
+		portItem = PortAssociationItem(SimpleName("p"), SimpleName("s"))
+		block = ConcurrentBlockStatement("blk", portItems=[portItem])
+
+		self.assertEqual(1, len(block.PortItems))
+		self.assertIs(portItem, block.PortItems[0])
+		self.assertIs(block, portItem.Parent)
+
+	def test_NestedBlock_ConnectsNamespaceOnParentAssignment(self) -> None:
+		outer = ConcurrentBlockStatement("outer")
+		inner = ConcurrentBlockStatement("inner")
+		inner.Parent = outer
+
+		self.assertIs(outer, inner.Parent)
+		self.assertIs(outer._namespace, inner._namespace.ParentNamespace)
+
+
+class GenerateBranches(TestCase):
+	def test_IfGenerateBranch(self) -> None:
+		condition = IntegerLiteral(1)
+		branch = IfGenerateBranch(condition, alternativeLabel="LBL")
+
+		self.assertIs(condition, branch.Condition)
+		self.assertEqual("LBL", branch.AlternativeLabel)
+		self.assertEqual("lbl", branch.NormalizedAlternativeLabel)
+
+	def test_IfGenerateBranch_NoLabel(self) -> None:
+		branch = IfGenerateBranch(IntegerLiteral(1))
+
+		self.assertIsNone(branch.AlternativeLabel)
+		self.assertIsNone(branch.NormalizedAlternativeLabel)
+
+	def test_ElsifGenerateBranch(self) -> None:
+		condition = IntegerLiteral(1)
+		branch = ElsifGenerateBranch(condition)
+
+		self.assertIs(condition, branch.Condition)
+
+	def test_ElseGenerateBranch(self) -> None:
+		branch = ElseGenerateBranch()
+
+		self.assertEqual(0, len(branch.Statements))
+
+
+class GenerateStatements(TestCase):
+	def test_AbstractMethodsRaise(self) -> None:
+		"""``GenerateStatement`` itself is meant to always be used through a concrete subclass -
+		``IterateInstantiations``/``IndexStatement`` are placeholders raising ``NotImplementedError``
+		if a subclass doesn't override them (none of the three real subclasses omit them, so this only
+		matters if constructed directly, as done here)."""
+		statement = GenerateStatement("gen")
+
+		with self.assertRaises(NotImplementedError):
+			next(statement.IterateInstantiations())
+
+		with self.assertRaises(NotImplementedError):
+			statement.IndexStatement()
+
+
+class IfGenerateStatements(TestCase):
+	def test_IfOnly(self) -> None:
+		ifBranch = IfGenerateBranch(IntegerLiteral(1))
+		statement = IfGenerateStatement("gen", ifBranch)
+
+		self.assertIs(ifBranch, statement.IfBranch)
+		self.assertIs(statement, ifBranch.Parent)
+		self.assertEqual(0, len(statement.ElsifBranches))
+		self.assertIsNone(statement.ElseBranch)
+
+	def test_IfElsifElse_ConnectsNamespaces(self) -> None:
+		"""Namespace-connection happens in the ``Parent`` property setter override, not the
+		constructor - passing ``parent=`` to ``__init__`` sets ``self._parent`` directly and never
+		goes through the overridden setter, so this must assign ``.Parent`` after construction.
+
+		Also a regression test: the fallback that names the if-branch's namespace after the
+		statement's own label (for the common, unlabelled-branch case) compared
+		``namespace._name == ""``, but an unlabelled ``GenerateBranch`` always constructs its
+		namespace with ``_normalizedAlternativeLabel``, which defaults to ``None`` - not ``""`` - so
+		the fallback never actually fired. Fixed to compare against ``None``."""
+		architecture = Architecture("rtl", _entitySymbol())
+		ifBranch = IfGenerateBranch(IntegerLiteral(1))
+		elsifBranch = ElsifGenerateBranch(IntegerLiteral(2))
+		elseBranch = ElseGenerateBranch()
+		statement = IfGenerateStatement("gen", ifBranch, [elsifBranch], elseBranch)
+
+		statement.Parent = architecture
+
+		self.assertIs(architecture._namespace, ifBranch._namespace.ParentNamespace)
+		self.assertIs(architecture._namespace, elsifBranch._namespace.ParentNamespace)
+		self.assertIs(architecture._namespace, elseBranch._namespace.ParentNamespace)
+		self.assertEqual("gen", ifBranch._namespace._name)
+
+	def test_IterateInstantiations_And_IndexStatement(self) -> None:
+		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
+		instance = ComponentInstantiation("inst", componentSymbol)
+		ifBranch = IfGenerateBranch(IntegerLiteral(1), statements=[instance])
+		statement = IfGenerateStatement("gen", ifBranch)
+
+		statement.IndexStatement()
+		instantiations = list(statement.IterateInstantiations())
+
+		self.assertEqual(1, len(instantiations))
+		self.assertIs(instance, instantiations[0])
+
+
+class GenerateChoices(TestCase):
+	def test_IndexedGenerateChoice(self) -> None:
+		expression = IntegerLiteral(0)
+		choice = IndexedGenerateChoice(expression)
+
+		self.assertIs(expression, choice.Expression)
+		self.assertIs(choice, expression.Parent)
+		self.assertEqual("0", str(choice))
+
+	def test_RangedGenerateChoice(self) -> None:
+		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		choice = RangedGenerateChoice(rng)
+
+		self.assertIs(rng, choice.Range)
+		self.assertEqual("0 to 3", str(choice))
+
+
+class GenerateCases(TestCase):
+	def test_GenerateCase(self) -> None:
+		choice = IndexedGenerateChoice(IntegerLiteral(0))
+		case = GenerateCase([choice])
+
+		self.assertEqual(1, len(case.Choices))
+		self.assertEqual("when 0 =>", str(case))
+
+	def test_OthersGenerateCase(self) -> None:
+		case = OthersGenerateCase()
+
+		self.assertEqual("when others =>", str(case))
+
+
+class CaseGenerateStatements(TestCase):
+	def test_Construction(self) -> None:
+		expression = IntegerLiteral(0)
+		case = GenerateCase([IndexedGenerateChoice(IntegerLiteral(0))])
+		statement = CaseGenerateStatement("gen", expression, [case])
+
+		self.assertIs(expression, statement.SelectExpression)
+		self.assertIs(statement, expression.Parent)
+		self.assertEqual(1, len(statement.Cases))
+		self.assertIs(case, statement.Cases[0])
+		self.assertIs(statement, case.Parent)
+
+	def test_ConnectsNamespaceOnParentAssignment(self) -> None:
+		architecture = Architecture("rtl", _entitySymbol())
+		case = GenerateCase([IndexedGenerateChoice(IntegerLiteral(0))])
+		statement = CaseGenerateStatement("gen", IntegerLiteral(0), [case])
+
+		statement.Parent = architecture
+
+		self.assertIs(architecture._namespace, case._namespace.ParentNamespace)
+
+	def test_IterateInstantiations_And_IndexStatement(self) -> None:
+		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
+		instance = ComponentInstantiation("inst", componentSymbol)
+		case = GenerateCase([IndexedGenerateChoice(IntegerLiteral(0))], statements=[instance])
+		statement = CaseGenerateStatement("gen", IntegerLiteral(0), [case])
+
+		statement.IndexStatement()
+		instantiations = list(statement.IterateInstantiations())
+
+		self.assertEqual(1, len(instantiations))
+		self.assertIs(instance, instantiations[0])
+
+
+class ForGenerateStatements(TestCase):
+	def test_Construction(self) -> None:
+		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		statement = ForGenerateStatement("gen", "i", rng)
+
+		self.assertEqual("i", statement.LoopIndex)
+		self.assertIs(rng, statement.Range)
+		self.assertIs(statement, rng.Parent)
+
+	def test_ConnectsNamespaceOnParentAssignment(self) -> None:
+		architecture = Architecture("rtl", _entitySymbol())
+		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		statement = ForGenerateStatement("gen", "i", rng)
+
+		statement.Parent = architecture
+
+		self.assertIs(architecture._namespace, statement._namespace.ParentNamespace)
+
+	def test_IterateInstantiations_And_IndexStatement(self) -> None:
+		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
+		instance = ComponentInstantiation("inst", componentSymbol)
+		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		statement = ForGenerateStatement("gen", "i", rng, statements=[instance])
+
+		statement.IndexStatement()
+		instantiations = list(statement.IterateInstantiations())
+
+		self.assertEqual(1, len(instantiations))
+		self.assertIs(instance, instantiations[0])
+
+
+class ConcurrentSimpleSignalAssignments(TestCase):
+	def test_Construction(self) -> None:
+		"""``s <= '1';``"""
+		target = SignalSymbol(SimpleName("s"))
+		waveformElement = WaveformElement(CharacterLiteral("'1'"))
+		assignment = ConcurrentSimpleSignalAssignment("lbl", target, [waveformElement])
+
+		self.assertIs(target, assignment.Target)
+		self.assertEqual(1, len(assignment.Waveform))
+		self.assertIs(waveformElement, assignment.Waveform[0])
+
+
+class ConcurrentAssertStatements(TestCase):
+	def test_Full(self) -> None:
+		condition = IntegerLiteral(1)
+		message = CharacterLiteral("'a'")
+		severity = IntegerLiteral(2)
+		statement = ConcurrentAssertStatement(condition, message, severity, label="lbl")
+
+		self.assertIs(condition, statement.Condition)
+		self.assertIs(message, statement.Message)
+		self.assertIs(severity, statement.Severity)
+		self.assertEqual("lbl", statement.Label)
+
+	def test_NoSeverityNoLabel(self) -> None:
+		statement = ConcurrentAssertStatement(IntegerLiteral(1), CharacterLiteral("'a'"))
+
+		self.assertIsNone(statement.Severity)
+		self.assertIsNone(statement.Label)
+
+
+class ConcurrentStatementsMixinIndexing(TestCase):
+	"""Tested via ``Architecture`` (the canonical ``ConcurrentDeclarationRegionMixin``/
+	``ConcurrentStatementsMixin`` host - see tests/unit/DesignUnit.py)."""
+
+	def test_IndexStatements_BucketsByKind(self) -> None:
+		entitySymbol = _entitySymbol()
+		instance = ComponentInstantiation("inst", ComponentInstantiationSymbol(SimpleName("comp")))
+		block = ConcurrentBlockStatement("blk")
+		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		generate = ForGenerateStatement("gen", "i", rng)
+
+		architecture = Architecture("rtl", entitySymbol, statements=[instance, block, generate])
+		architecture.IndexStatements()
+
+		self.assertIs(instance, architecture._instantiations["inst"])
+		self.assertIs(block, architecture._hierarchy["blk"])
+		self.assertIs(generate, architecture._generates["gen"])
+
+	def test_IterateInstantiations_RecursesIntoBlocksAndGenerates(self) -> None:
+		entitySymbol = _entitySymbol()
+		nestedInstance = ComponentInstantiation("nested_inst", ComponentInstantiationSymbol(SimpleName("comp")))
+		block = ConcurrentBlockStatement("blk", statements=[nestedInstance])
+
+		architecture = Architecture("rtl", entitySymbol, statements=[block])
+		architecture.IndexStatements()
+		instantiations = list(architecture.IterateInstantiations())
+
+		self.assertEqual(1, len(instantiations))
+		self.assertIs(nestedInstance, instantiations[0])
