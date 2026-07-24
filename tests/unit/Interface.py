@@ -180,17 +180,33 @@ class GenericInterfaceItems(TestCase):
 
 		self.assertEqual("proc", item.Identifier)
 
-	def test_GenericFunctionInterfaceItem_ConstructionRaises(self) -> None:
-		"""``generic (function func return boolean);`` (VHDL-2008) - regression-tracking test, not a
-		fix (HIGH PRIORITY - confirmed live via pyGHDL.dom's actual translation dispatch, not just a
-		landmine). ``GenericFunctionInterfaceItem`` has no ``returnType``
-		parameter of its own, so ``super().__init__(identifier, documentation, parent)`` misaligns
-		against ``Function.__init__``'s real signature - ``documentation`` lands in the ``returnType``
-		slot, and ``Function.__init__`` unconditionally does ``returnType.Parent = self``, which
-		crashes on anything but a real ``Symbol``. Locked in here so the eventual fix (adding a real
-		``returnType`` parameter) shows up as an intentional test change."""
-		with self.assertRaises(AttributeError):
-			GenericFunctionInterfaceItem("func")
+	def test_GenericProcedureInterfaceItem_WithDocumentation(self) -> None:
+		"""Regression test: the constructor used to forward ``(identifier, documentation, parent)``
+		positionally into ``Procedure.__init__``'s real signature
+		``(identifier, genericItems, parameterItems, ...)``, so a non-``None`` ``documentation`` landed
+		in the ``genericItems`` slot and got iterated as if it were a list of interface items (crashing
+		on anything but ``None``/an empty iterable). Fixed by forwarding both as keyword arguments."""
+		item = GenericProcedureInterfaceItem("proc", documentation="some documentation")
+
+		self.assertEqual("proc", item.Identifier)
+		self.assertEqual("some documentation", item.Documentation)
+
+	def test_GenericFunctionInterfaceItem(self) -> None:
+		"""``generic (function func return boolean);`` (VHDL-2008) - regression test (HIGH PRIORITY,
+		confirmed live via pyGHDL.dom's actual translation dispatch, not just a landmine):
+		``GenericFunctionInterfaceItem`` had no ``returnType`` parameter of its own, so
+		``super().__init__(identifier, documentation, parent)`` misaligned against
+		``Function.__init__``'s real signature - ``documentation`` landed in the ``returnType`` slot,
+		and ``Function.__init__`` unconditionally does ``returnType.Parent = self``, which crashed on
+		anything but a real ``Symbol`` (including the plain, no-docs case, since ``None`` has no
+		``Parent`` either). Fixed by adding a real ``returnType`` parameter and forwarding
+		``documentation``/``parent`` as keyword arguments."""
+		returnType = _subtype("boolean")
+		item = GenericFunctionInterfaceItem("func", returnType)
+
+		self.assertEqual("func", item.Identifier)
+		self.assertIs(returnType, item.ReturnType)
+		self.assertIs(item, returnType.Parent)
 
 	def test_GenericPackageInterfaceItem(self) -> None:
 		"""``generic (package p is new q generic map (<>));`` (VHDL-2008)"""
@@ -218,6 +234,21 @@ class ParameterInterfaceItems(TestCase):
 		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
 
 		self.assertEqual(("f",), item.Identifiers)
+
+	def test_ParameterConstantInterfaceItem_WithDocumentation(self) -> None:
+		"""Regression test: every ``Generic*``/``Parameter*InterfaceItem`` class calls its mixin's own
+		``__init__(self)`` (no arguments) *after* the primary base already set ``documentation``
+		correctly. Since ``InterfaceItemMixin`` used to inherit ``DocumentedEntityMixin`` itself, that
+		trailing, argument-less call silently reset ``_documentation`` back to ``None`` every time - a
+		diamond back to the same mixin via two independent paths (the primary base and the interface-
+		item mixin), each initialized explicitly rather than cooperatively via ``super()``. Fixed by
+		removing ``DocumentedEntityMixin`` from ``InterfaceItemMixin``'s bases instead of removing the
+		call: every concrete interface item is already a documentable entity via its primary base
+		(constant, signal, variable, file, type, subprogram, or package), so the mixin never needed to
+		carry documentation of its own."""
+		item = ParameterConstantInterfaceItem(["c"], Mode.In, _subtype("natural"), documentation="some documentation")
+
+		self.assertEqual("some documentation", item.Documentation)
 
 
 class WithGenericsPortsParametersMixins(TestCase):

@@ -182,11 +182,10 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 
 @export
-class InterfaceItemMixin(DocumentedEntityMixin, mixin=True):
-	"""An ``InterfaceItem`` is a base-class for all mixin-classes for all interface items."""
-
-	def __init__(self, documentation: Nullable[str] = None) -> None:
-		super().__init__(documentation)
+class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A base-class for all mixin-classes for all interface items.
+	"""
 
 
 @export
@@ -259,8 +258,14 @@ class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
 
 @export
 class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(identifier, documentation, parent)
+	def __init__(
+		self,
+		identifier:    str,
+		returnType:    SubtypeSymbol,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(identifier, returnType, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
