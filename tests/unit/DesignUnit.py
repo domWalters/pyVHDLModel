@@ -161,12 +161,14 @@ class Contexts(TestCase):
 		self.assertIs(context, library.Parent)
 
 	def test_UnknownReferenceKind_Raises(self) -> None:
-		"""``VHDLModelException()`` is raised with no message at all (``# FIXME: needs exception
-		message`` in the source) - documented as a known, low-priority cosmetic gap; locked in here as
-		current behaviour. Uses a bare ``ModelEntity`` (not ``object()``) since the ``.Parent = self``
-		assignment a few lines above the kind-check runs first and needs a real settable ``Parent``."""
-		with self.assertRaises(VHDLModelException):
+		"""Regression test: ``VHDLModelException()`` previously carried no message at all (``# FIXME:
+		needs exception message`` in the source) - now includes the offending reference. Uses a bare
+		``ModelEntity`` (not ``object()``) since the ``.Parent = self`` assignment a few lines above
+		the kind-check runs first and needs a real settable ``Parent``."""
+		with self.assertRaises(VHDLModelException) as context:
 			Context("ctx", [ModelEntity()])
+
+		self.assertIn("neither a library clause, use clause, nor context reference", str(context.exception))
 
 
 class Packages(TestCase):

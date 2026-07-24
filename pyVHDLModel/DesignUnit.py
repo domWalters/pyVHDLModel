@@ -394,7 +394,7 @@ class Context(PrimaryUnit):
 				elif isinstance(reference, ContextReference):
 					self._contextReferences.append(reference)
 				else:
-					raise VHDLModelException()  # FIXME: needs exception message
+					raise VHDLModelException(f"Reference '{reference!r}' is neither a library clause, use clause, nor context reference.")
 
 	@property
 	def LibraryReferences(self) -> List[LibraryClause]:
