@@ -651,7 +651,7 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 	def Operand(self):
 		return self._operand
 
-	@property
+	@readonly
 	def Subtype(self):
 		return self._subtype
 
