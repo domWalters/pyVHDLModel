@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 Interface items are used in generic, port and parameter declarations.
 """
-from typing                 import Iterable, Optional as Nullable, List, Iterator
+from typing                 import Iterable, Optional as Nullable, List, Iterator, Tuple
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
@@ -46,6 +46,25 @@ from pyVHDLModel.Base       import ExpressionUnion, Mode
 from pyVHDLModel.Object     import Constant, Signal, Variable, File
 from pyVHDLModel.Subprogram import Procedure, Function
 from pyVHDLModel.Type       import Type
+
+
+def _identifiersOf(item) -> Tuple[str, ...]:
+	"""
+	Returns an item's identifier(s) as a tuple, regardless of whether it's ``NamedEntityMixin``-based
+	(a single ``Identifier``: ``GenericTypeInterfaceItem``, ``GenericProcedureInterfaceItem``,
+	``GenericFunctionInterfaceItem``, ``GenericPackageInterfaceItem``) or ``MultipleNamedEntityMixin``-
+	based (plural ``Identifiers``: every ``Constant``/``Signal``/``Variable``/``File``-derived item,
+	since a single declaration can name several objects at once, e.g. ``port (p1, p2 : in bit);``).
+
+	Narrowly-scoped fix; a bigger redesign is under consideration (a real ``__str__`` on
+	``NamedEntityMixin``/``MultipleNamedEntityMixin`` themselves, so a group's own ``__str__`` could
+	just delegate to ``str(item)`` instead of reaching into identifier shape at all) - deferred to its
+	own branch rather than done here.
+	"""
+	if isinstance(item, MultipleNamedEntityMixin):
+		return item.Identifiers
+
+	return (item.Identifier,)
 
 
 @export
@@ -539,7 +558,8 @@ class GenericGroup(InterfaceGroup, WithGenericsMixin):
 		return iter(self._genericItems)
 
 	def __str__(self) -> str:
-		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {', '.join(p._identifier for p in self._genericItems)})"
+		names = ", ".join(name for item in self._genericItems for name in _identifiersOf(item))
+		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {names})"
 
 
 @export
@@ -561,7 +581,8 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 		return iter(self._portItems)
 
 	def __str__(self) -> str:
-		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {', '.join(p._identifier for p in self._portItems)})"
+		names = ", ".join(name for item in self._portItems for name in _identifiersOf(item))
+		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {names})"
 
 
 @export
@@ -583,4 +604,5 @@ class ParameterGroup(InterfaceGroup, WithParametersMixin):
 		return iter(self._parameterItems)
 
 	def __str__(self) -> str:
-		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {', '.join(p._identifier for p in self._parameterItems)})"
+		names = ", ".join(name for item in self._parameterItems for name in _identifiersOf(item))
+		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {names})"

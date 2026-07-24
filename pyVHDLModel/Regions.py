@@ -60,9 +60,10 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	_signals:         Dict[str, Signal]                 #: Dictionary of all signals declared in this concurrent declaration region.
 	_sharedVariables: Dict[str, SharedVariable]         #: Dictionary of all shared variables declared in this concurrent declaration region.
 	_files:           Dict[str, File]                   #: Dictionary of all files declared in this concurrent declaration region.
-	# _subprograms:     Dict[str, Dict[str, Subprogram]]  #: Dictionary of all subprograms declared in this concurrent declaration region.
-	_functions:       Dict[str, Dict[str, Function]]    #: Dictionary of all functions declared in this concurrent declaration region.
-	_procedures:      Dict[str, Dict[str, Procedure]]   #: Dictionary of all procedures declared in this concurrent declaration region.
+	# _subprograms:     Dict[str, List[Subprogram]]  #: Dictionary of all subprograms declared in this concurrent declaration region.
+	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
+	_functions:       Dict[str, List[Function]]         #: Dictionary of all functions declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
+	_procedures:      Dict[str, List[Procedure]]        #: Dictionary of all procedures declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
 	_components:      Dict[str, Any]                    #: Dictionary of all components declared in this concurrent declaration region.
 
 	def __init__(self, declaredItems: Nullable[Iterable] = None) -> None:
@@ -122,11 +123,11 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	# 	return self._subprograms
 
 	@readonly
-	def Functions(self) -> Dict[str, Dict[str, Function]]:
+	def Functions(self) -> Dict[str, List[Function]]:
 		return self._functions
 
 	@readonly
-	def Procedures(self) -> Dict[str, Dict[str, Procedure]]:
+	def Procedures(self) -> Dict[str, List[Procedure]]:
 		return self._procedures
 
 	@readonly
@@ -173,10 +174,14 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 				self._subtypes[item._normalizedIdentifier] = item
 				self._namespace._elements[item._normalizedIdentifier] = item
 			elif isinstance(item, Function):
-				self._functions[item._normalizedIdentifier] = item
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
 				self._namespace._elements[item._normalizedIdentifier] = item
 			elif isinstance(item, Procedure):
-				self._procedures[item._normalizedIdentifier] = item
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
 				self._namespace._elements[item._normalizedIdentifier] = item
 			elif isinstance(item, Constant):
 				for normalizedIdentifier in item._normalizedIdentifiers:

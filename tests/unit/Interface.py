@@ -256,40 +256,47 @@ class WithGenericsPortsParametersMixins(TestCase):
 
 
 class Groups(TestCase):
-	"""Regression test: ``GenericGroup``/``ParameterGroup`` didn't list ``WithGenericsMixin``/
-	``WithParametersMixin`` as base classes at all (unlike ``PortGroup``, which correctly lists
-	``WithPortsMixin``), so the slots-based metaclass never allocated storage for
+	"""Regression test (missing base class): ``GenericGroup``/``ParameterGroup`` didn't list
+	``WithGenericsMixin``/``WithParametersMixin`` as base classes at all (unlike ``PortGroup``, which
+	correctly lists ``WithPortsMixin``), so the slots-based metaclass never allocated storage for
 	``_genericItems``/``_parameterItems`` - construction crashed immediately with
 	``AttributeError: ... no __dict__ for setting new attributes``, even for the simplest, empty-list
-	case. Fixed by adding the missing base class to both, mirroring ``PortGroup``."""
+	case. Fixed by adding the missing base class to both, mirroring ``PortGroup``.
+
+	Regression test (``__str__``): all three built their string via
+	``p._identifier for p in self._xItems``, but interface items come in two incompatible shapes -
+	``NamedEntityMixin``-based (singular ``_identifier`` - the four ``Generic*`` subprogram/package/
+	type items) vs. ``MultipleNamedEntityMixin``-based (plural ``_identifiers`` - every
+	``Constant``/``Signal``/``Variable``/``File``-derived item, i.e. every ``Port*``/``Parameter*``
+	item and ``GenericConstantInterfaceItem``, since a single declaration can name several objects at
+	once: ``port (p1, p2 : in bit);``). ``PortGroup``/``ParameterGroup.__str__`` crashed for
+	essentially any realistic content, and ``GenericGroup.__str__`` crashed the moment a
+	``GenericConstantInterfaceItem`` was included or a group mixed both item shapes. Fixed via the
+	shared ``_identifiersOf()`` helper, which flattens either shape into a plain tuple of names."""
 
 	def test_GenericGroup(self) -> None:
-		"""``str()`` happens to work here only because ``GenericTypeInterfaceItem`` is one of the four
-		``NamedEntityMixin``-based (singular ``_identifier``) generic item kinds - see
-		``test_GenericGroup_StrCrashesForObjectBasedItems`` for the far more common case where it
-		doesn't."""
 		item = GenericTypeInterfaceItem("T")
 		group = GenericGroup([item], name="generics")
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
-		self.assertIn("generics", str(group))
+		self.assertEqual("GenericGroup generics (1) - generics: T)", str(group))
 
 	def test_GenericGroup_Empty(self) -> None:
 		group = GenericGroup([])
 
 		self.assertEqual(0, len(group))
+		self.assertEqual("GenericGroup None (0) - generics: )", str(group))
 
-	def test_GenericGroup_StrCrashesForObjectBasedItems(self) -> None:
-		"""Regression-tracking test, not a fix: see Findings.md. ``GenericConstantInterfaceItem`` (and
-		every ``Port*``/``Parameter*`` item - see the two tests below) is ``MultipleNamedEntityMixin``-
-		based (plural ``_identifiers``), but ``GenericGroup.__str__`` reads the singular
-		``_identifier``, which doesn't exist on this kind of item."""
-		item = GenericConstantInterfaceItem(["G"], Mode.In, _subtype("positive"))
-		group = GenericGroup([item])
+	def test_GenericGroup_MixedItemShapes(self) -> None:
+		"""``generic (type T; G : positive := 8);`` - a single generic clause legally mixes a
+		``NamedEntityMixin``-based item (``GenericTypeInterfaceItem``) with a
+		``MultipleNamedEntityMixin``-based one (``GenericConstantInterfaceItem``)."""
+		typeItem = GenericTypeInterfaceItem("T")
+		constantItem = GenericConstantInterfaceItem(["G"], Mode.In, _subtype("positive"))
+		group = GenericGroup([typeItem, constantItem])
 
-		with self.assertRaises(AttributeError):
-			str(group)
+		self.assertEqual("GenericGroup None (2) - generics: T, G)", str(group))
 
 	def test_PortGroup(self) -> None:
 		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())
@@ -297,16 +304,14 @@ class Groups(TestCase):
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
+		self.assertEqual("PortGroup: ports (1) - ports: p)", str(group))
 
-	def test_PortGroup_StrCrashes(self) -> None:
-		"""Regression-tracking test, not a fix: see Findings.md - ports are always
-		``MultipleNamedEntityMixin``-based, so ``PortGroup.__str__`` (reading singular
-		``_identifier``) crashes for essentially any realistic content."""
-		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())
+	def test_PortGroup_MultipleIdentifiersPerItem(self) -> None:
+		"""``port (p1, p2 : in bit);`` - one declaration, two port names."""
+		item = PortSimpleSignalInterfaceItem(["p1", "p2"], Mode.In, _subtype())
 		group = PortGroup([item])
 
-		with self.assertRaises(AttributeError):
-			str(group)
+		self.assertEqual("PortGroup: None (1) - ports: p1, p2)", str(group))
 
 	def test_ParameterGroup(self) -> None:
 		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
@@ -314,21 +319,12 @@ class Groups(TestCase):
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
+		self.assertEqual("ParameterGroup parameters (1) - parameters: f)", str(group))
 
 	def test_ParameterGroup_Empty(self) -> None:
 		group = ParameterGroup([])
 
 		self.assertEqual(0, len(group))
-
-	def test_ParameterGroup_StrCrashes(self) -> None:
-		"""Regression-tracking test, not a fix: see Findings.md - parameters are always
-		``MultipleNamedEntityMixin``-based, so ``ParameterGroup.__str__`` (reading singular
-		``_identifier``) crashes for essentially any realistic content."""
-		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
-		group = ParameterGroup([item])
-
-		with self.assertRaises(AttributeError):
-			str(group)
 
 	def test_InterfaceGroup_NoName(self) -> None:
 		group = InterfaceGroup()
