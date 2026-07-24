@@ -182,8 +182,8 @@ class GenericInterfaceItems(TestCase):
 
 	def test_GenericFunctionInterfaceItem_ConstructionRaises(self) -> None:
 		"""``generic (function func return boolean);`` (VHDL-2008) - regression-tracking test, not a
-		fix: see Findings.md (HIGH PRIORITY - confirmed live via pyGHDL.dom's actual translation
-		dispatch, not just a landmine). ``GenericFunctionInterfaceItem`` has no ``returnType``
+		fix (HIGH PRIORITY - confirmed live via pyGHDL.dom's actual translation dispatch, not just a
+		landmine). ``GenericFunctionInterfaceItem`` has no ``returnType``
 		parameter of its own, so ``super().__init__(identifier, documentation, parent)`` misaligns
 		against ``Function.__init__``'s real signature - ``documentation`` lands in the ``returnType``
 		slot, and ``Function.__init__`` unconditionally does ``returnType.Parent = self``, which
