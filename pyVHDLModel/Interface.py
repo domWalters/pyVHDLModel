@@ -182,11 +182,20 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 
 @export
-class InterfaceItemMixin(DocumentedEntityMixin, mixin=True):
-	"""An ``InterfaceItem`` is a base-class for all mixin-classes for all interface items."""
+class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A base-class for all mixin-classes for all interface items.
 
-	def __init__(self, documentation: Nullable[str] = None) -> None:
-		super().__init__(documentation)
+	Doesn't inherit :class:`~pyVHDLModel.Base.DocumentedEntityMixin` itself: every concrete interface
+	item is already a documentable language entity in its own right (a constant, signal, variable,
+	file, type, subprogram or package) via its *other*, primary base, which provides
+	:class:`DocumentedEntityMixin` on its own. Adding it here too would create a diamond back to the
+	same mixin, reachable through two independent paths - harmless for Python's MRO (which
+	deduplicates it to a single slot), but a landmine for this codebase's constructor convention of
+	calling each base's ``__init__`` explicitly instead of cooperatively through ``super()``: the
+	second, argument-less call down this path would silently reset ``documentation`` back to
+	``None`` after the primary base had already set it correctly.
+	"""
 
 
 @export
@@ -253,14 +262,20 @@ class GenericSubprogramInterfaceItem(GenericInterfaceItemMixin):
 @export
 class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(identifier, documentation, parent)
+		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
 @export
 class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(identifier, documentation, parent)
+	def __init__(
+		self,
+		identifier:    str,
+		returnType:    SubtypeSymbol,
+		documentation: Nullable[str] = None,
+		parent:        Nullable[ModelEntity] = None
+	) -> None:
+		super().__init__(identifier, returnType, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
