@@ -252,7 +252,7 @@ class GenericSubprogramInterfaceItem(GenericInterfaceItemMixin):
 @export
 class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		super().__init__(identifier, documentation, parent)
+		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
@@ -265,7 +265,7 @@ class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
 		documentation: Nullable[str] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
-		super().__init__(identifier, returnType, documentation, parent)
+		super().__init__(identifier, returnType, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
 
