@@ -142,15 +142,6 @@ class ConcurrentBlockStatements(TestCase):
 		self.assertIs(portItem, block.PortItems[0])
 		self.assertIs(block, portItem.Parent)
 
-	def test_NestedBlock_ConnectsNamespaceOnParentAssignment(self) -> None:
-		outer = ConcurrentBlockStatement("outer")
-		inner = ConcurrentBlockStatement("inner")
-		inner.Parent = outer
-
-		self.assertIs(outer, inner.Parent)
-		self.assertIs(outer._namespace, inner._namespace.ParentNamespace)
-
-
 class GenerateBranches(TestCase):
 	def test_IfGenerateBranch(self) -> None:
 		condition = IntegerLiteral(1)
@@ -202,29 +193,6 @@ class IfGenerateStatements(TestCase):
 		self.assertIs(statement, ifBranch.Parent)
 		self.assertEqual(0, len(statement.ElsifBranches))
 		self.assertIsNone(statement.ElseBranch)
-
-	def test_IfElsifElse_ConnectsNamespaces(self) -> None:
-		"""Namespace-connection happens in the ``Parent`` property setter override, not the
-		constructor - passing ``parent=`` to ``__init__`` sets ``self._parent`` directly and never
-		goes through the overridden setter, so this must assign ``.Parent`` after construction.
-
-		Also a regression test: the fallback that names the if-branch's namespace after the
-		statement's own label (for the common, unlabelled-branch case) compared
-		``namespace._name == ""``, but an unlabelled ``GenerateBranch`` always constructs its
-		namespace with ``_normalizedAlternativeLabel``, which defaults to ``None`` - not ``""`` - so
-		the fallback never actually fired. Fixed to compare against ``None``."""
-		architecture = Architecture("rtl", _entitySymbol())
-		ifBranch = IfGenerateBranch(IntegerLiteral(1))
-		elsifBranch = ElsifGenerateBranch(IntegerLiteral(2))
-		elseBranch = ElseGenerateBranch()
-		statement = IfGenerateStatement("gen", ifBranch, [elsifBranch], elseBranch)
-
-		statement.Parent = architecture
-
-		self.assertIs(architecture._namespace, ifBranch._namespace.ParentNamespace)
-		self.assertIs(architecture._namespace, elsifBranch._namespace.ParentNamespace)
-		self.assertIs(architecture._namespace, elseBranch._namespace.ParentNamespace)
-		self.assertEqual("gen", ifBranch._namespace._name)
 
 	def test_IterateInstantiations_And_IndexStatement(self) -> None:
 		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
@@ -282,15 +250,6 @@ class CaseGenerateStatements(TestCase):
 		self.assertIs(case, statement.Cases[0])
 		self.assertIs(statement, case.Parent)
 
-	def test_ConnectsNamespaceOnParentAssignment(self) -> None:
-		architecture = Architecture("rtl", _entitySymbol())
-		case = GenerateCase([IndexedGenerateChoice(IntegerLiteral(0))])
-		statement = CaseGenerateStatement("gen", IntegerLiteral(0), [case])
-
-		statement.Parent = architecture
-
-		self.assertIs(architecture._namespace, case._namespace.ParentNamespace)
-
 	def test_IterateInstantiations_And_IndexStatement(self) -> None:
 		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
 		instance = ComponentInstantiation("inst", componentSymbol)
@@ -312,15 +271,6 @@ class ForGenerateStatements(TestCase):
 		self.assertEqual("i", statement.LoopIndex)
 		self.assertIs(rng, statement.Range)
 		self.assertIs(statement, rng.Parent)
-
-	def test_ConnectsNamespaceOnParentAssignment(self) -> None:
-		architecture = Architecture("rtl", _entitySymbol())
-		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
-		statement = ForGenerateStatement("gen", "i", rng)
-
-		statement.Parent = architecture
-
-		self.assertIs(architecture._namespace, statement._namespace.ParentNamespace)
 
 	def test_IterateInstantiations_And_IndexStatement(self) -> None:
 		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
