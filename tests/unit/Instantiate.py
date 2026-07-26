@@ -36,7 +36,7 @@ from unittest import TestCase
 from pyTooling.Graph import Graph
 
 from pyVHDLModel import Design, Library, Document, IEEEFlavor, LibraryExistsInDesignError
-from pyVHDLModel.Base import Direction, Range
+from pyVHDLModel.Base import Direction, SimpleRange
 from pyVHDLModel.Name import SelectedName, SimpleName, AllName, AttributeName
 from pyVHDLModel.Object import Constant, Signal
 from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, PackageMemberReferenceSymbol, SimpleSubtypeSymbol
@@ -357,7 +357,7 @@ class Symbols(TestCase):
 	def test_ConstrainedScalarSubtypeSymbol(self) -> None:
 		"""``signal s : integer range 0 to 15;`` - previously the range constraint was read by
 		pyGHDL.dom but had nowhere to go, since this class was a bare stub."""
-		rng = Range(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
 		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"), rng)
 
 		self.assertIs(rng, symbol.Constraint)
@@ -515,13 +515,13 @@ class SimpleInstance(TestCase):
 		self.assertEqual("bit", subtype.Identifier)
 
 	def test_Integer(self) -> None:
-		integer = IntegerType("integer", Range(IntegerLiteral(0), IntegerLiteral(7), Direction.To), None)
+		integer = IntegerType("integer", SimpleRange(IntegerLiteral(0), IntegerLiteral(7), Direction.To), None)
 
 		self.assertIsNotNone(integer)
 		self.assertEqual("integer", integer.Identifier)
 
 	def test_Real(self) -> None:
-		real = RealType("real", Range(FloatingPointLiteral(0.0), FloatingPointLiteral(1.0), Direction.To), None)
+		real = RealType("real", SimpleRange(FloatingPointLiteral(0.0), FloatingPointLiteral(1.0), Direction.To), None)
 
 		self.assertIsNotNone(real)
 		self.assertEqual("real", real.Identifier)

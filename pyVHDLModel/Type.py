@@ -42,7 +42,6 @@ from pyTooling.Graph        import Vertex
 
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, MultipleNamedEntityMixin, DocumentedEntityMixin, ExpressionUnion, Range
 from pyVHDLModel.Symbol     import Symbol
-from pyVHDLModel.Name       import Name
 from pyVHDLModel.Expression import EnumerationLiteral, PhysicalIntegerLiteral
 
 
@@ -125,16 +124,23 @@ class ScalarType(FullType):
 class RangedScalarType(ScalarType):
 	"""A ``RangedScalarType`` is a base-class for all scalar types with a range."""
 
-	_range:      Union[Range, Name]
-	_leftBound:  ExpressionUnion
-	_rightBound: ExpressionUnion
+	_range: Range
 
-	def __init__(self, identifier: str, rng: Union[Range, Name], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initialize a scalar type with a range.
+
+		:param identifier:    The type's identifier.
+		:param rng:           The type's range.
+		:param documentation: The type's documentation.
+		:param parent:        The parent model entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 		self._range = rng
 
 	@readonly
-	def Range(self) -> Union[Range, Name]:
+	def Range(self) -> Range:
+		"""Read-only property to access the type's range (:attr:`_range`)."""
 		return self._range
 
 
@@ -177,7 +183,7 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 @export
 class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
-	def __init__(self, identifier: str, rng: Union[Range, Name], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
 	def __str__(self) -> str:
@@ -186,7 +192,7 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 
 @export
 class RealType(RangedScalarType, NumericTypeMixin):
-	def __init__(self, identifier: str, rng: Union[Range, Name], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
 	def __str__(self) -> str:
@@ -201,7 +207,7 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 	def __init__(
 		self,
 		identifier: str,
-		rng: Union[Range, Name],
+		rng: Range,
 		primaryUnit: str,
 		units: Iterable[Tuple[str, PhysicalIntegerLiteral]],
 		documentation: Nullable[str] = None,

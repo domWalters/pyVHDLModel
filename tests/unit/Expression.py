@@ -39,7 +39,7 @@ table-driven in one ``str()``-formatting test rather than one hand-written test 
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base       import Direction, Range
+from pyVHDLModel.Base       import Direction, SimpleRange
 from pyVHDLModel.Name       import SimpleName
 from pyVHDLModel.Symbol     import SimpleSubtypeSymbol
 from pyVHDLModel.Expression import (
@@ -420,7 +420,7 @@ class AggregateElements(TestCase):
 		self.assertEqual("0 => 1", str(element))
 
 	def test_RangedAggregateElement(self) -> None:
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		expression = IntegerLiteral(1)
 		element = RangedAggregateElement(rng, expression)
 

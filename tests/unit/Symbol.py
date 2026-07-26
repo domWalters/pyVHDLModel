@@ -39,7 +39,7 @@ itself, the object/function-call symbols with no dedicated property) get their o
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base   import Direction, Range
+from pyVHDLModel.Base   import Direction, SimpleRange
 from pyVHDLModel.Name   import SimpleName, AllName
 from pyVHDLModel.Expression import IntegerLiteral
 from pyVHDLModel.Symbol import (
@@ -192,7 +192,7 @@ class ConstrainedSubtypeSymbols(TestCase):
 	"""``signal s : integer range 0 to 15;`` / ``std_logic_vector(7 downto 0)`` / record constraints."""
 
 	def test_ScalarConstraint_WithRange(self) -> None:
-		constraint = Range(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
+		constraint = SimpleRange(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
 		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"), constraint)
 
 		self.assertIs(constraint, symbol.Constraint)
@@ -206,7 +206,7 @@ class ConstrainedSubtypeSymbols(TestCase):
 		self.assertIsNone(symbol.Constraint)
 
 	def test_ArrayConstraint(self) -> None:
-		constraint = Range(IntegerLiteral(7), IntegerLiteral(0), Direction.DownTo)
+		constraint = SimpleRange(IntegerLiteral(7), IntegerLiteral(0), Direction.DownTo)
 		symbol = ConstrainedArraySubtypeSymbol(SimpleName("std_logic_vector"), [constraint])
 
 		self.assertEqual(1, len(symbol.Constraints))
@@ -214,7 +214,7 @@ class ConstrainedSubtypeSymbols(TestCase):
 
 	def test_RecordConstraint(self) -> None:
 		element = RecordElementSymbol(SimpleName("field"))
-		constraint = Range(IntegerLiteral(7), IntegerLiteral(0), Direction.DownTo)
+		constraint = SimpleRange(IntegerLiteral(7), IntegerLiteral(0), Direction.DownTo)
 		symbol = ConstrainedRecordSubtypeSymbol(SimpleName("rec_t"), {element: constraint})
 
 		self.assertEqual(1, len(symbol.Constraints))

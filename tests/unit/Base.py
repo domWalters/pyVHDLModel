@@ -45,11 +45,13 @@ Mixins already fully exercised elsewhere are intentionally not repeated here:
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base        import Direction, Mode, ModelEntity, Range, WaveformElement
+from pyVHDLModel.Base        import Direction, Mode, ModelEntity, Range, RangeFromName, SimpleRange, WaveformElement
 from pyVHDLModel.Expression  import IntegerLiteral, CharacterLiteral
 from pyVHDLModel.Interface   import InterfaceGroup
 from pyVHDLModel.Sequential  import IfBranch, ElsifBranch, ElseBranch, SequentialReportStatement, SequentialAssertStatement, SequentialCase
 from pyVHDLModel.Concurrent  import ConcurrentBlockStatement
+from pyVHDLModel.Name        import SimpleName
+from pyVHDLModel.Symbol      import ConstrainedScalarSubtypeSymbol, SimpleSubtypeSymbol
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -208,12 +210,12 @@ class ChoicesMixinHost(TestCase):
 
 
 class Ranges(TestCase):
-	"""``Range`` (``3 downto 0``) - a concrete class defined directly in Base.py, not a mixin."""
+	"""``SimpleRange`` (``3 downto 0``) - a concrete class defined directly in Base.py, not a mixin."""
 
 	def test_Construction(self) -> None:
 		left = IntegerLiteral(3)
 		right = IntegerLiteral(0)
-		range_ = Range(left, right, Direction.DownTo)
+		range_ = SimpleRange(left, right, Direction.DownTo)
 
 		self.assertIs(left, range_.LeftBound)
 		self.assertIs(right, range_.RightBound)
@@ -222,9 +224,42 @@ class Ranges(TestCase):
 		self.assertIs(range_, right.Parent)
 
 	def test_ToString(self) -> None:
-		range_ = Range(IntegerLiteral(0), IntegerLiteral(7), Direction.To)
+		range_ = SimpleRange(IntegerLiteral(0), IntegerLiteral(7), Direction.To)
 
 		self.assertEqual("0 to 7", str(range_))
+
+	def test_IsARange(self) -> None:
+		range_ = SimpleRange(IntegerLiteral(0), IntegerLiteral(7), Direction.To)
+
+		self.assertIsInstance(range_, Range)
+
+
+class RangesFromName(TestCase):
+	"""``RangeFromName`` (``vector'range``, ``bit``) - a range whose bounds come from a referenced symbol."""
+
+	def test_Construction(self) -> None:
+		symbol = SimpleSubtypeSymbol(SimpleName("bit"))
+		range_ = RangeFromName(symbol)
+
+		self.assertIs(symbol, range_.Symbol)
+		self.assertIs(range_, symbol.Parent)
+		self.assertIsInstance(range_, Range)
+
+	def test_ToStringUnresolved(self) -> None:
+		range_ = RangeFromName(SimpleSubtypeSymbol(SimpleName("bit")))
+
+		# An unresolved symbol renders with a trailing question mark.
+		self.assertEqual("bit?", str(range_))
+
+	def test_ConstrainedSubtypeKeepsTypeMarkAndConstraint(self) -> None:
+		# `integer range 0 to 7` - the type mark must survive alongside the range constraint.
+		constraint = SimpleRange(IntegerLiteral(0), IntegerLiteral(7), Direction.To)
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"), constraint)
+		range_ = RangeFromName(symbol)
+
+		self.assertIs(symbol, range_.Symbol)
+		self.assertIs(constraint, range_.Symbol.Constraint)
+		self.assertEqual("integer", range_.Symbol.Name.Identifier)
 
 
 class WaveformElements(TestCase):

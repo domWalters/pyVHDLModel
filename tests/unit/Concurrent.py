@@ -35,7 +35,7 @@ tests/unit/Assignment.py (conditional/selected signal assignments) or tests/unit
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base        import Direction, Range
+from pyVHDLModel.Base        import Direction, SimpleRange
 from pyVHDLModel.Name        import SimpleName
 from pyVHDLModel.Symbol      import (
 	ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol,
@@ -249,7 +249,7 @@ class GenerateChoices(TestCase):
 		self.assertEqual("0", str(choice))
 
 	def test_RangedGenerateChoice(self) -> None:
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		choice = RangedGenerateChoice(rng)
 
 		self.assertIs(rng, choice.Range)
@@ -306,7 +306,7 @@ class CaseGenerateStatements(TestCase):
 
 class ForGenerateStatements(TestCase):
 	def test_Construction(self) -> None:
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		statement = ForGenerateStatement("gen", "i", rng)
 
 		self.assertEqual("i", statement.LoopIndex)
@@ -315,7 +315,7 @@ class ForGenerateStatements(TestCase):
 
 	def test_ConnectsNamespaceOnParentAssignment(self) -> None:
 		architecture = Architecture("rtl", _entitySymbol())
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		statement = ForGenerateStatement("gen", "i", rng)
 
 		statement.Parent = architecture
@@ -325,7 +325,7 @@ class ForGenerateStatements(TestCase):
 	def test_IterateInstantiations_And_IndexStatement(self) -> None:
 		componentSymbol = ComponentInstantiationSymbol(SimpleName("comp"))
 		instance = ComponentInstantiation("inst", componentSymbol)
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		statement = ForGenerateStatement("gen", "i", rng, statements=[instance])
 
 		statement.IndexStatement()
@@ -376,7 +376,7 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 		entitySymbol = _entitySymbol()
 		instance = ComponentInstantiation("inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk")
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		generate = ForGenerateStatement("gen", "i", rng)
 
 		architecture = Architecture("rtl", entitySymbol, statements=[instance, block, generate])
