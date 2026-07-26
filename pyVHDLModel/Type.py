@@ -48,7 +48,10 @@ from pyVHDLModel.Expression import EnumerationLiteral, PhysicalIntegerLiteral
 @export
 class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	"""
-	A base-class for all type entities: full types, subtypes and anonymous types.
+	Represents the base-class of all type entities: full types, subtypes and anonymous types.
+
+	Every type is a named entity (:data:`Identifier`, :data:`NormalizedIdentifier`) and can carry
+	documentation (:data:`Documentation`).
 	"""
 
 	_objectVertex: Vertex
@@ -70,7 +73,7 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 @export
 class Type(BaseType):
 	"""
-	A base-class for types that are named by a type declaration.
+	Represents a base-class for types introduced by a type declaration.
 
 	Besides real type declarations, this is also the base-class of a generic type interface item, which
 	introduces a type name without defining the type itself.
@@ -81,16 +84,17 @@ class Type(BaseType):
 @export
 class AnonymousType(Type):
 	"""
-	A base-class for types that have no type definition of their own.
+	Represents a base-class for types without a type definition of their own.
 
-	An incomplete type is the typical case: it names a type whose definition appears later.
+	An incomplete type is the typical case: it names a type whose definition follows later in the same
+	declarative part.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type ptr;              -- incomplete, completed further down
-	      --   ^^^
+	      --   ^^^   <- Identifier
 	"""
 	pass
 
@@ -98,10 +102,10 @@ class AnonymousType(Type):
 @export
 class FullType(BaseType):
 	"""
-	A base-class for all full type definitions, as opposed to a :class:`Subtype`.
+	Represents a base-class for all full type definitions, as opposed to a :class:`Subtype`.
 
-	This is the distinction the declaration regions index on: a full type goes into ``Types``, a subtype
-	into ``Subtypes``.
+	This is the distinction the declaration regions index on: a full type is registered in ``Types``, a
+	subtype in ``Subtypes``.
 	"""
 	pass
 
@@ -109,16 +113,35 @@ class FullType(BaseType):
 @export
 class Subtype(BaseType):
 	"""
-	A subtype declaration: a type mark, optionally narrowed by a constraint and/or a resolution function.
+	Represents a subtype declaration.
+
+	A subtype is a named entity (:data:`Identifier`, :data:`NormalizedIdentifier`) referencing a type
+	(:data:`Type`). Optionally, the subtype can be narrowed by a constraint (:data:`Range`) and/or
+	resolved by a resolution function (:data:`ResolutionFunction`).
 
 	.. admonition:: Example
 
+	   Without a constraint:
+
 	   .. code-block:: VHDL
 
-	      subtype byte is bit_vector(7 downto 0);
-	      --      ^^^^                              <- Identifier
-	      --              ^^^^^^^^^^                <- Type (the type mark)
-	      --                        ^^^^^^^^^^^^   <- Range (the constraint)
+	      subtype byte is bit_vector;
+	      --      ^^^^                 <- Identifier
+	      --              ^^^^^^^^^^   <- Type
+
+	   With a constraint:
+
+	   .. code-block:: VHDL
+
+	      subtype nibble is bit_vector(3 downto 0);
+	      --                          ^^^^^^^^^^^^   <- Range
+
+	   With a resolution function:
+
+	   .. code-block:: VHDL
+
+	      subtype wired is resolved std_ulogic;
+	      --               ^^^^^^^^              <- ResolutionFunction
 	"""
 	_type:               Symbol
 	_baseType:           BaseType
@@ -176,17 +199,17 @@ class Subtype(BaseType):
 @export
 class ScalarType(FullType):
 	"""
-	A base-class for all scalar types: enumerated, integer, real and physical types.
+	Represents a base-class for all scalar types: enumerated, integer, real and physical types.
 	"""
 
 
 @export
 class RangedScalarType(ScalarType):
 	"""
-	A base-class for all scalar types constrained by a range: integer, real and physical types.
+	Represents a base-class for all scalar types constrained by a range (:data:`Range`).
 
-	An enumerated type is scalar but not ranged, which is why it derives from :class:`ScalarType`
-	directly.
+	Integer, real and physical types are ranged. An enumerated type is scalar but not ranged, so it
+	derives from :class:`ScalarType` directly.
 	"""
 
 	_range: Range
@@ -236,14 +259,18 @@ class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
 @export
 class EnumeratedType(ScalarType, DiscreteTypeMixin):
 	"""
-	An enumerated type definition, listing its literals in declaration order.
+	Represents an enumerated type definition.
+
+	An enumerated type is a named entity (:data:`Identifier`) listing its enumeration literals
+	(:data:`Literals`) in declaration order.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type state is (Idle, Running, Done);
-	      --             ^^^^^^^^^^^^^^^^^^^   <- Literals
+	      --   ^^^^^                            <- Identifier
+	      --             ^^^^^^^^^^^^^^^^^^^    <- Literals
 	"""
 	_literals: List[EnumerationLiteral]
 
@@ -272,14 +299,17 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 @export
 class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 	"""
-	An integer type definition, constrained by a range.
+	Represents an integer type definition.
+
+	An integer type is a named entity (:data:`Identifier`) constrained by a range (:data:`Range`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type nibble is range 0 to 15;
-	      --                   ^^^^^^^   <- Range
+	      --   ^^^^^^                     <- Identifier
+	      --                   ^^^^^^^    <- Range
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
@@ -291,14 +321,18 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 @export
 class RealType(RangedScalarType, NumericTypeMixin):
 	"""
-	A floating-point type definition, constrained by a range.
+	Represents a floating-point type definition.
+
+	A floating-point type is a named entity (:data:`Identifier`) constrained by a range
+	(:data:`Range`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type fraction is range 0.0 to 1.0;
-	      --                     ^^^^^^^^^^   <- Range
+	      --   ^^^^^^^^                        <- Identifier
+	      --                     ^^^^^^^^^^    <- Range
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
@@ -310,15 +344,21 @@ class RealType(RangedScalarType, NumericTypeMixin):
 @export
 class PhysicalType(RangedScalarType, NumericTypeMixin):
 	"""
-	A physical type definition: a range, a primary unit and any number of secondary units.
+	Represents a physical type definition.
+
+	A physical type is a named entity (:data:`Identifier`) constrained by a range (:data:`Range`), and
+	defines a primary unit (:data:`PrimaryUnit`) plus any number of secondary units
+	(:data:`SecondaryUnits`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      type distance is range 0 to 1e9 units
-	        um;                                  -- PrimaryUnit
-	        mm = 1000 um;                        -- SecondaryUnits
+	      type distance is range 0 to 1000000 units
+	      --   ^^^^^^^^                              <- Identifier
+	      --                     ^^^^^^^^^^^^        <- Range
+	        um;                                      -- PrimaryUnit
+	        mm = 1000 um;                            -- SecondaryUnits
 	        m  = 1000 mm;
 	      end units;
 	"""
@@ -368,22 +408,35 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 @export
 class CompositeType(FullType):
 	"""
-	A base-class for all composite types: array and record types.
+	Represents a base-class for all composite types: array and record types.
 	"""
 
 
 @export
 class ArrayType(CompositeType):
 	"""
-	An array type definition: one or more index ranges and an element subtype.
+	Represents an array type definition.
+
+	An array type is a named entity (:data:`Identifier`) defining one or more index ranges
+	(:data:`Dimensions`) and the subtype of its elements (:data:`ElementType`).
 
 	.. admonition:: Example
+
+	   One dimension:
 
 	   .. code-block:: VHDL
 
 	      type memory is array (0 to 255) of bit_vector(7 downto 0);
+	      --   ^^^^^^                                                 <- Identifier
 	      --                    ^^^^^^^^                              <- Dimensions
 	      --                                 ^^^^^^^^^^^^^^^^^^^^^^   <- ElementType
+
+	   Two dimensions, both unconstrained:
+
+	   .. code-block:: VHDL
+
+	      type matrix is array (natural range <>, natural range <>) of bit;
+	      --                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      <- Dimensions
 	"""
 	_dimensions:  List[Range]
 	_elementType: Symbol
@@ -431,10 +484,10 @@ class ArrayType(CompositeType):
 @export
 class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 	"""
-	One element declaration inside a record type definition.
+	Represents one element declaration inside a record type definition.
 
-	A single declaration may name several elements at once, hence ``Identifiers`` rather than one
-	identifier.
+	A single declaration may name several elements at once, hence :data:`Identifiers` rather than one
+	identifier. All of them share the same subtype (:data:`Subtype`).
 
 	.. admonition:: Example
 
@@ -471,14 +524,18 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 @export
 class RecordType(CompositeType):
 	"""
-	A record type definition, holding its elements in declaration order.
+	Represents a record type definition.
+
+	A record type is a named entity (:data:`Identifier`) holding its element declarations
+	(:data:`Elements`) in declaration order.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type frame is record
-	        header : bit_vector(7 downto 0);   -- Elements
+	      --   ^^^^^              <- Identifier
+	        a, b    : bit;        -- Elements
 	        payload : bit_vector(31 downto 0);
 	      end record;
 	"""
@@ -509,16 +566,18 @@ class RecordType(CompositeType):
 @export
 class ProtectedType(FullType):
 	"""
-	A protected type declaration, exposing only its methods (VHDL-2002).
+	Represents a protected type declaration (VHDL-2002).
 
-	The implementation lives in a separate :class:`ProtectedTypeBody`.
+	A protected type is a named entity (:data:`Identifier`) exposing only its methods
+	(:data:`Methods`). The implementation lives in a separate :class:`ProtectedTypeBody`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type counter is protected
-	        procedure increment;             -- Methods
+	      --   ^^^^^^^                             <- Identifier
+	        procedure increment;                   -- Methods
 	        impure function value return natural;
 	      end protected;
 	"""
@@ -546,15 +605,19 @@ class ProtectedType(FullType):
 @export
 class ProtectedTypeBody(FullType):
 	"""
-	A protected type body, implementing the methods declared by its :class:`ProtectedType`.
+	Represents a protected type body (VHDL-2002).
+
+	A protected type body implements the methods (:data:`Methods`) declared by the
+	:class:`ProtectedType` of the same identifier (:data:`Identifier`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type counter is protected body
+	      --   ^^^^^^^                        <- Identifier
 	        variable count : natural := 0;
-	        procedure increment is           -- Methods
+	        procedure increment is            -- Methods
 	        begin
 	          count := count + 1;
 	        end procedure;
@@ -585,14 +648,18 @@ class ProtectedTypeBody(FullType):
 @export
 class AccessType(FullType):
 	"""
-	An access type definition, pointing at values of its designated subtype.
+	Represents an access type definition.
+
+	An access type is a named entity (:data:`Identifier`) pointing at values of its designated subtype
+	(:data:`DesignatedSubtype`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type ptr is access integer;
-	      --                 ^^^^^^^   <- DesignatedSubtype
+	      --   ^^^                      <- Identifier
+	      --                 ^^^^^^^    <- DesignatedSubtype
 	"""
 	_designatedSubtype: Symbol
 
@@ -618,14 +685,18 @@ class AccessType(FullType):
 @export
 class FileType(FullType):
 	"""
-	A file type definition, holding values of its designated subtype.
+	Represents a file type definition.
+
+	A file type is a named entity (:data:`Identifier`) holding values of its designated subtype
+	(:data:`DesignatedSubtype`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type text_file is file of string;
-	      --                        ^^^^^^   <- DesignatedSubtype
+	      --   ^^^^^^^^^                      <- Identifier
+	      --                        ^^^^^^    <- DesignatedSubtype
 	"""
 	_designatedSubtype: Symbol
 
