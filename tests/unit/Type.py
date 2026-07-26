@@ -31,9 +31,9 @@
 """Tests for pyVHDLModel.Type."""
 from unittest import TestCase
 
-from pyVHDLModel.Base       import ModelEntity, Direction, SimpleRange
+from pyVHDLModel.Base       import ModelEntity, Direction, RangeFromName, SimpleRange
 from pyVHDLModel.Name       import SimpleName, AttributeName
-from pyVHDLModel.Symbol     import SimpleSubtypeSymbol
+from pyVHDLModel.Symbol     import RangeAttributeSymbol, SimpleSubtypeSymbol
 from pyVHDLModel.Expression import IntegerLiteral, EnumerationLiteral, PhysicalIntegerLiteral
 from pyVHDLModel.Type       import (
 	Subtype, RangedScalarType,
@@ -53,7 +53,7 @@ def _subtypeSymbol(name: str = "natural") -> SimpleSubtypeSymbol:
 	return SimpleSubtypeSymbol(SimpleName(name))
 
 
-def _range(left: int = 0, right: int = 15, direction: Direction = Direction.To) -> Range:
+def _range(left: int = 0, right: int = 15, direction: Direction = Direction.To) -> SimpleRange:
 	return SimpleRange(IntegerLiteral(left), IntegerLiteral(right), direction)
 
 
@@ -152,10 +152,9 @@ class EnumeratedTypes(TestCase):
 
 class IntegerTypes(TestCase):
 	"""Also covers ``RangedScalarType.Range`` (shared, unmodified, by ``IntegerType``/``RealType``/
-	``PhysicalType``): it accepts either a literal ``Range`` or a ``Name`` (an attribute-based range,
-	e.g. ``type t is range r'range;``), matching its ``Union[Range, Name]`` type hint - checked once
-	here since this behaviour genuinely is a single, shared implementation, unlike the constructor-
-	forwarding concern above."""
+	``PhysicalType``): it accepts any ``Range``, so either a ``SimpleRange`` or a ``RangeFromName`` for an
+	attribute-based range like ``type t is range r'range;`` - checked once here since this behaviour
+	genuinely is a single, shared implementation, unlike the constructor-forwarding concern above."""
 
 	def test_WithLiteralRange(self) -> None:
 		rng = _range(0, 15)
@@ -165,7 +164,7 @@ class IntegerTypes(TestCase):
 		self.assertEqual("nibble is range 0 to 15", str(integerType))
 
 	def test_WithAttributeRange(self) -> None:
-		rng = AttributeName("range", SimpleName("r"))
+		rng = RangeFromName(RangeAttributeSymbol(AttributeName("range", SimpleName("r"))))
 		integerType = IntegerType("t", rng)
 
 		self.assertIs(rng, integerType.Range)
