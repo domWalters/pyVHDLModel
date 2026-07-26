@@ -282,6 +282,58 @@ class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 
 
 @export
+def identifiersOf(item) -> Tuple[str, ...]:
+	"""
+	Return an item's identifier(s), regardless of how many names its declaration carries.
+
+	VHDL entities come in two shapes: singularly named ones deriving from :class:`NamedEntityMixin`
+	(``generic (type T)``, ``GenericProcedureInterfaceItem``, ...) and plurally named ones deriving from
+	:class:`MultipleNamedEntityMixin`, where one declaration names several items at once
+	(``port (p1, p2 : in bit)``, and every ``Constant``/``Signal``/``Variable``/``File``-derived item).
+
+	:param item:      A singularly or plurally named entity.
+	:returns:         The item's identifiers.
+	:raises TypeError: If the item is neither singularly nor plurally named.
+
+	.. seealso::
+
+	   :func:`normalizedIdentifiersOf`
+	     The same, but normalized (lower case) - use that for dictionary keys and name resolution.
+	"""
+	if isinstance(item, MultipleNamedEntityMixin):
+		return item._identifiers
+	elif isinstance(item, NamedEntityMixin):
+		return (item._identifier, )
+
+	raise TypeError(f"Item '{item!r}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+
+
+@export
+def normalizedIdentifiersOf(item) -> Tuple[str, ...]:
+	"""
+	Return an item's normalized (lower case) identifier(s).
+
+	This is the form used as dictionary keys and for name resolution, because VHDL identifiers are
+	case-insensitive.
+
+	:param item:      A singularly or plurally named entity.
+	:returns:         The item's normalized identifiers.
+	:raises TypeError: If the item is neither singularly nor plurally named.
+
+	.. seealso::
+
+	   :func:`identifiersOf`
+	     The same, but as written in the source - use that for rendering.
+	"""
+	if isinstance(item, MultipleNamedEntityMixin):
+		return item._normalizedIdentifiers
+	elif isinstance(item, NamedEntityMixin):
+		return (item._normalizedIdentifier, )
+
+	raise TypeError(f"Item '{item!r}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+
+
+@export
 class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A ``LabeledEntityMixin`` is a mixin class for all VHDL entities that can have labels.

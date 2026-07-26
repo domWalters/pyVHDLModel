@@ -48,7 +48,7 @@ from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstanti
 from pyVHDLModel.Symbol      import SignalSymbol
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
-from pyVHDLModel.Interface   import PortInterfaceItemMixin
+from pyVHDLModel.Interface   import PortInterfaceItemMixin, WithPortsMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
@@ -335,9 +335,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 
 @export
-class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
-	_portItems: List[PortInterfaceItemMixin]
-
+class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	_namespace: Namespace
 
 	def __init__(
@@ -358,27 +356,17 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 		BlockStatementMixin.__init__(self)
 		LabeledEntityMixin.__init__(self, label)
+		WithPortsMixin.__init__(self, portItems)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
-
-		# TODO: extract to mixin
-		self._portItems = []
-		if portItems is not None:
-			for item in portItems:
-				self._portItems.append(item)
-				item.Parent = self
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
 		ConcurrentStatement.Parent.fset(self, parent)
 
 		self._namespace.ParentNamespace = parent._namespace
-
-	@property
-	def PortItems(self) -> List[PortInterfaceItemMixin]:
-		return self._portItems
 
 
 @export

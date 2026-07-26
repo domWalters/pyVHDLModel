@@ -40,7 +40,7 @@ from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
 from pyTooling.Warning      import WarningCollector
 
-from pyVHDLModel.Base       import MultipleNamedEntityMixin
+from pyVHDLModel.Base       import normalizedIdentifiersOf
 from pyVHDLModel.Exception  import NotImplementedWarning
 from pyVHDLModel.Namespace  import Namespace
 from pyVHDLModel.Object     import Constant, SharedVariable, File, Variable, Signal
@@ -51,51 +51,25 @@ from pyVHDLModel.Type       import Subtype, FullType
 
 
 
-def _NormalizedIdentifiersOf(item) -> Iterable[str]:
-	"""
-	Return an item's normalized identifier(s).
-
-	Interface items come in two shapes: a plural :class:`~pyVHDLModel.Base.MultipleNamedEntityMixin`
-	(``port (a, b : in bit)``) and a singular :class:`~pyVHDLModel.Base.NamedEntityMixin`
-	(``generic (type T)``).
-
-	:param item: The declared or interface item.
-	:returns:    The item's normalized identifiers.
-	"""
-	if isinstance(item, MultipleNamedEntityMixin):
-		return item._normalizedIdentifiers
-
-	return (item._normalizedIdentifier, )
+def _IndexGenericItems(region) -> None:
+	"""Add a region's generics to its namespace."""
+	for item in region._genericItems:
+		for normalizedIdentifier in normalizedIdentifiersOf(item):
+			region._namespace._elements[normalizedIdentifier] = item
 
 
-def _IndexInterfaceItemsInto(region) -> None:
-	"""
-	Add a declaration region's generics, ports and parameters to its namespace.
+def _IndexPortItems(region) -> None:
+	"""Add a region's ports to its namespace."""
+	for item in region._portItems:
+		for normalizedIdentifier in normalizedIdentifiersOf(item):
+			region._namespace._elements[normalizedIdentifier] = item
 
-	An interface item shares the declarative region of the declarative part next to it: VHDL rejects
-	``port (g : in bit)`` beside ``generic (g : integer)``, ``signal x`` beside ``port (x : in bit)``, and a
-	subprogram variable named like one of its parameters - all as "identifier already used for a
-	declaration". So they belong in the *same* namespace, not a separate one.
 
-	Interface items are only added to the namespace; :attr:`WithGenericsMixin.GenericItems` and friends
-	already expose them as ordered lists, so no extra lookup table is needed.
-
-	.. note::
-
-	   The lists are looked up by name rather than via ``isinstance`` against
-	   :class:`~pyVHDLModel.Interface.WithGenericsMixin` and friends, because not every host can inherit
-	   those mixins: :mod:`pyVHDLModel.Interface` needs :class:`~pyVHDLModel.Subprogram.Procedure` and
-	   :class:`~pyVHDLModel.Subprogram.Function` as real base classes for its generic subprogram interface
-	   items, so :mod:`pyVHDLModel.Subprogram` may never import it and declares its own
-	   ``_genericItems``/``_parameterItems``. Reading the canonical field names covers both cases without
-	   importing :mod:`pyVHDLModel.Interface` at all.
-
-	:param region: The declaration region whose interface items are to be indexed.
-	"""
-	for attributeName in ("_genericItems", "_portItems", "_parameterItems"):
-		for item in getattr(region, attributeName, None) or ():
-			for normalizedIdentifier in _NormalizedIdentifiersOf(item):
-				region._namespace._elements[normalizedIdentifier] = item
+def _IndexParameterItems(region) -> None:
+	"""Add a region's parameters to its namespace."""
+	for item in region._parameterItems:
+		for normalizedIdentifier in normalizedIdentifiersOf(item):
+			region._namespace._elements[normalizedIdentifier] = item
 
 
 @export
@@ -217,9 +191,16 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		     Iterate all packages in the library and index declared items.
 		"""
 		from pyVHDLModel.DesignUnit import Component
+		from pyVHDLModel.Interface  import WithGenericsMixin, WithPortsMixin
 		from pyVHDLModel.Subprogram import Function, Procedure
 
-		_IndexInterfaceItemsInto(self)
+		# An interface item shares the declarative region of the declarative part beside it, so generics and
+		# ports go into this very namespace. Entities have both, generic packages only generics, blocks only
+		# ports.
+		if isinstance(self, WithGenericsMixin):
+			_IndexGenericItems(self)
+		if isinstance(self, WithPortsMixin):
+			_IndexPortItems(self)
 
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
@@ -377,9 +358,15 @@ class SequentialDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		   :meth:`ConcurrentDeclarationRegionMixin.IndexDeclaredItems`
 		     The same algorithm for a concurrent declaration region.
 		"""
-		from pyVHDLModel.Subprogram import Function, Procedure
+		from pyVHDLModel.Subprogram import Function, Procedure, Subprogram
 
-		_IndexInterfaceItemsInto(self)
+		# A subprogram's generics and parameters share its declarative region. `Subprogram` cannot inherit
+		# `WithGenericsMixin`/`WithParametersMixin`: `pyVHDLModel.Interface` needs `Procedure`/`Function` as
+		# real base classes for its generic subprogram interface items, so `pyVHDLModel.Subprogram` may never
+		# import it and declares the two lists itself.
+		if isinstance(self, Subprogram):
+			_IndexGenericItems(self)
+			_IndexParameterItems(self)
 
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
