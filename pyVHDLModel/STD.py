@@ -33,7 +33,7 @@
 
 from pyTooling.Decorators    import export
 
-from pyVHDLModel.Base        import Range, Direction
+from pyVHDLModel.Base        import SimpleRange, Direction
 from pyVHDLModel.Name        import SimpleName
 from pyVHDLModel.Symbol      import SimpleSubtypeSymbol
 from pyVHDLModel.Expression  import EnumerationLiteral, IntegerLiteral, FloatingPointLiteral, PhysicalIntegerLiteral
@@ -117,16 +117,16 @@ class Standard(PredefinedPackage):
 		self._types[severityLevel._normalizedIdentifier] = severityLevel
 		self._declaredItems.append(severityLevel)
 
-		integer = IntegerType("integer", Range(IntegerLiteral(-2**31), IntegerLiteral(2**31 - 1), Direction.To), None)
+		integer = IntegerType("integer", SimpleRange(IntegerLiteral(-2**31), IntegerLiteral(2**31 - 1), Direction.To), None)
 		self._types[integer._normalizedIdentifier] = integer
 		self._declaredItems.append(integer)
 
 		# real
-		real = RealType("real", Range(FloatingPointLiteral(-5.0), FloatingPointLiteral(5.0), Direction.To), None)
+		real = RealType("real", SimpleRange(FloatingPointLiteral(-5.0), FloatingPointLiteral(5.0), Direction.To), None)
 		self._types[real._normalizedIdentifier] = real
 		self._declaredItems.append(real)
 
-		time = PhysicalType("time", Range(IntegerLiteral(-2**63), IntegerLiteral(2**63 - 1), Direction.To), primaryUnit="fs", units=(
+		time = PhysicalType("time", SimpleRange(IntegerLiteral(-2**63), IntegerLiteral(2**63 - 1), Direction.To), primaryUnit="fs", units=(
 			("ps", PhysicalIntegerLiteral(1000, "fs")),
 			("ns", PhysicalIntegerLiteral(1000, "ps")),
 			("us", PhysicalIntegerLiteral(1000, "ns")),
@@ -144,13 +144,13 @@ class Standard(PredefinedPackage):
 
 		natural = Subtype("natural", SimpleSubtypeSymbol(SimpleName("integer")), None)
 		natural._baseType = integer
-		natural._range = Range(IntegerLiteral(0), IntegerLiteral(2**31 - 1), Direction.To)
+		natural._range = SimpleRange(IntegerLiteral(0), IntegerLiteral(2**31 - 1), Direction.To)
 		self._subtypes[natural._normalizedIdentifier] = natural
 		self._declaredItems.append(natural)
 
 		positive = Subtype("positive", SimpleSubtypeSymbol(SimpleName("integer")), None)
 		positive._baseType = integer
-		positive._range = Range(IntegerLiteral(1), IntegerLiteral(2**31 - 1), Direction.To)
+		positive._range = SimpleRange(IntegerLiteral(1), IntegerLiteral(2**31 - 1), Direction.To)
 		self._subtypes[positive._normalizedIdentifier] = positive
 		self._declaredItems.append(positive)
 

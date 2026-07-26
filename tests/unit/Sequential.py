@@ -35,7 +35,7 @@ tests/unit/Base.py (branches, report/assert statements, choices).
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base        import ModelEntity, Direction, Range
+from pyVHDLModel.Base        import ModelEntity, Direction, SimpleRange
 from pyVHDLModel.Name        import SimpleName
 from pyVHDLModel.Symbol      import SignalSymbol, VariableSymbol, Symbol, PossibleReference
 from pyVHDLModel.Expression  import IntegerLiteral, CharacterLiteral, PhysicalIntegerLiteral
@@ -144,7 +144,7 @@ class Choices(TestCase):
 		self.assertEqual("0", str(choice))
 
 	def test_RangedChoice(self) -> None:
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		choice = RangedChoice(rng)
 
 		self.assertIs(rng, choice.Range)
@@ -194,7 +194,7 @@ class LoopStatements(TestCase):
 		self.assertEqual(0, len(statement.Statements))
 
 	def test_ForLoopStatement(self) -> None:
-		rng = Range(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		statement = ForLoopStatement("i", rng)
 
 		self.assertEqual("i", statement.LoopIndex)

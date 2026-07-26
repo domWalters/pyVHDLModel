@@ -31,7 +31,7 @@
 """Tests for pyVHDLModel.Type."""
 from unittest import TestCase
 
-from pyVHDLModel.Base       import ModelEntity, Direction, Range
+from pyVHDLModel.Base       import ModelEntity, Direction, SimpleRange
 from pyVHDLModel.Name       import SimpleName, AttributeName
 from pyVHDLModel.Symbol     import SimpleSubtypeSymbol
 from pyVHDLModel.Expression import IntegerLiteral, EnumerationLiteral, PhysicalIntegerLiteral
@@ -54,7 +54,7 @@ def _subtypeSymbol(name: str = "natural") -> SimpleSubtypeSymbol:
 
 
 def _range(left: int = 0, right: int = 15, direction: Direction = Direction.To) -> Range:
-	return Range(IntegerLiteral(left), IntegerLiteral(right), direction)
+	return SimpleRange(IntegerLiteral(left), IntegerLiteral(right), direction)
 
 
 class ParentAndDocumentationWiringAcrossAllLeafTypes(TestCase):

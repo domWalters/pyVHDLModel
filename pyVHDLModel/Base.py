@@ -481,11 +481,33 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class Range(ModelEntity):
+	"""
+	Base-class for all ranges.
+
+	VHDL's ``range`` rule offers a range denoted by a name (:class:`RangeFromName`) as well as a range
+	given by explicit bounds (:class:`SimpleRange`).
+	"""
+
+
+@export
+class SimpleRange(Range):
+	"""
+	A range with both bounds given as expressions, e.g. ``0 to 7``.
+	"""
+
 	_leftBound:  ExpressionUnion
 	_rightBound: ExpressionUnion
 	_direction:  Direction
 
 	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initialize a simple range.
+
+		:param leftBound:  The range's left bound.
+		:param rightBound: The range's right bound.
+		:param direction:  The range's direction (``to`` or ``downto``).
+		:param parent:     The parent model entity.
+		"""
 		super().__init__(parent)
 
 		self._leftBound = leftBound
@@ -496,20 +518,67 @@ class Range(ModelEntity):
 
 		self._direction = direction
 
-	@property
+	@readonly
 	def LeftBound(self) -> ExpressionUnion:
+		"""Read-only property to access the range's left bound (:attr:`_leftBound`)."""
 		return self._leftBound
 
-	@property
+	@readonly
 	def RightBound(self) -> ExpressionUnion:
+		"""Read-only property to access the range's right bound (:attr:`_rightBound`)."""
 		return self._rightBound
 
-	@property
+	@readonly
 	def Direction(self) -> Direction:
+		"""Read-only property to access the range's direction (:attr:`_direction`)."""
 		return self._direction
 
 	def __str__(self) -> str:
 		return f"{self._leftBound!s} {self._direction!s} {self._rightBound!s}"
+
+
+@export
+class RangeFromName(Range):
+	"""
+	A range denoted by a name, so its bounds are inferred from whatever that name references.
+
+	The name is represented by a :class:`~pyVHDLModel.Symbol.Symbol`, so the bounds become available once
+	that symbol is resolved. A constrained subtype indication keeps its type mark *and* its range
+	constraint, because it's carried by a :class:`~pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol`.
+
+	.. note::
+
+	   Two forms reach this class, because a parser can't tell them apart beyond "a name, optionally with
+	   a range constraint":
+
+	   * a range attribute like ``vector'range``, and
+	   * a discrete subtype indication like ``bit`` or ``integer range 0 to 7``.
+
+	   VHDL's grammar puts the latter one level up (``discrete_range ::= discrete_subtype_indication |
+	   range``), so representing both as a range deviates from the rule split deliberately.
+	"""
+
+	_symbol: 'Symbol'
+
+	def __init__(self, symbol: 'Symbol', parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initialize a range denoted by a name.
+
+		:param symbol: The symbol referencing the range attribute or discrete subtype.
+		:param parent: The parent model entity.
+		"""
+		super().__init__(parent)
+
+		self._symbol = symbol
+		symbol.Parent = self
+
+	@readonly
+	def Symbol(self) -> 'Symbol':
+		"""Read-only property to access the referenced symbol (:attr:`_symbol`)."""
+		return self._symbol
+
+	def __str__(self) -> str:
+		return f"{self._symbol!s}"
 
 
 @export
