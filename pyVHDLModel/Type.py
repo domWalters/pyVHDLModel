@@ -47,7 +47,9 @@ from pyVHDLModel.Expression import EnumerationLiteral, PhysicalIntegerLiteral
 
 @export
 class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	"""``BaseType`` is the base-class of all type entities in this model."""
+	"""
+	A base-class for all type entities: full types, subtypes and anonymous types.
+	"""
 
 	_objectVertex: Vertex
 
@@ -67,21 +69,57 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class Type(BaseType):
+	"""
+	A base-class for types that are named by a type declaration.
+
+	Besides real type declarations, this is also the base-class of a generic type interface item, which
+	introduces a type name without defining the type itself.
+	"""
 	pass
 
 
 @export
 class AnonymousType(Type):
+	"""
+	A base-class for types that have no type definition of their own.
+
+	An incomplete type is the typical case: it names a type whose definition appears later.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type ptr;              -- incomplete, completed further down
+	      --   ^^^
+	"""
 	pass
 
 
 @export
 class FullType(BaseType):
+	"""
+	A base-class for all full type definitions, as opposed to a :class:`Subtype`.
+
+	This is the distinction the declaration regions index on: a full type goes into ``Types``, a subtype
+	into ``Subtypes``.
+	"""
 	pass
 
 
 @export
 class Subtype(BaseType):
+	"""
+	A subtype declaration: a type mark, optionally narrowed by a constraint and/or a resolution function.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      subtype byte is bit_vector(7 downto 0);
+	      --      ^^^^                              <- Identifier
+	      --              ^^^^^^^^^^                <- Type (the type mark)
+	      --                        ^^^^^^^^^^^^   <- Range (the constraint)
+	"""
 	_type:               Symbol
 	_baseType:           BaseType
 	_range:              Range
@@ -137,12 +175,19 @@ class Subtype(BaseType):
 
 @export
 class ScalarType(FullType):
-	"""A ``ScalarType`` is a base-class for all scalar types."""
+	"""
+	A base-class for all scalar types: enumerated, integer, real and physical types.
+	"""
 
 
 @export
 class RangedScalarType(ScalarType):
-	"""A ``RangedScalarType`` is a base-class for all scalar types with a range."""
+	"""
+	A base-class for all scalar types constrained by a range: integer, real and physical types.
+
+	An enumerated type is scalar but not ranged, which is why it derives from :class:`ScalarType`
+	directly.
+	"""
 
 	_range: Range
 
@@ -170,7 +215,9 @@ class RangedScalarType(ScalarType):
 
 @export
 class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
-	"""A ``NumericType`` is a mixin class for all numeric types."""
+	"""
+	A mixin-class for all numeric types: integer, real and physical types.
+	"""
 
 	def __init__(self) -> None:
 		pass
@@ -178,7 +225,9 @@ class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
-	"""A ``DiscreteType`` is a mixin class for all discrete types."""
+	"""
+	A mixin-class for all discrete types: enumerated and integer types.
+	"""
 
 	def __init__(self) -> None:
 		pass
@@ -186,6 +235,16 @@ class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class EnumeratedType(ScalarType, DiscreteTypeMixin):
+	"""
+	An enumerated type definition, listing its literals in declaration order.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type state is (Idle, Running, Done);
+	      --             ^^^^^^^^^^^^^^^^^^^   <- Literals
+	"""
 	_literals: List[EnumerationLiteral]
 
 	def __init__(self, identifier: str, literals: Iterable[EnumerationLiteral], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -212,6 +271,16 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 @export
 class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
+	"""
+	An integer type definition, constrained by a range.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type nibble is range 0 to 15;
+	      --                   ^^^^^^^   <- Range
+	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
@@ -221,6 +290,16 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 
 @export
 class RealType(RangedScalarType, NumericTypeMixin):
+	"""
+	A floating-point type definition, constrained by a range.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type fraction is range 0.0 to 1.0;
+	      --                     ^^^^^^^^^^   <- Range
+	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
@@ -230,6 +309,19 @@ class RealType(RangedScalarType, NumericTypeMixin):
 
 @export
 class PhysicalType(RangedScalarType, NumericTypeMixin):
+	"""
+	A physical type definition: a range, a primary unit and any number of secondary units.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type distance is range 0 to 1e9 units
+	        um;                                  -- PrimaryUnit
+	        mm = 1000 um;                        -- SecondaryUnits
+	        m  = 1000 mm;
+	      end units;
+	"""
 	_primaryUnit:    str
 	_secondaryUnits: List[Tuple[str, PhysicalIntegerLiteral]]
 
@@ -275,11 +367,24 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 
 @export
 class CompositeType(FullType):
-	"""A ``CompositeType`` is a base-class for all composite types."""
+	"""
+	A base-class for all composite types: array and record types.
+	"""
 
 
 @export
 class ArrayType(CompositeType):
+	"""
+	An array type definition: one or more index ranges and an element subtype.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type memory is array (0 to 255) of bit_vector(7 downto 0);
+	      --                    ^^^^^^^^                              <- Dimensions
+	      --                                 ^^^^^^^^^^^^^^^^^^^^^^   <- ElementType
+	"""
 	_dimensions:  List[Range]
 	_elementType: Symbol
 
@@ -325,6 +430,22 @@ class ArrayType(CompositeType):
 
 @export
 class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
+	"""
+	One element declaration inside a record type definition.
+
+	A single declaration may name several elements at once, hence ``Identifiers`` rather than one
+	identifier.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type frame is record
+	        a, b : bit;
+	      --^^^^         <- Identifiers
+	      --       ^^^   <- Subtype
+	      end record;
+	"""
 	_subtype: Symbol
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
@@ -349,6 +470,18 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 
 @export
 class RecordType(CompositeType):
+	"""
+	A record type definition, holding its elements in declaration order.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type frame is record
+	        header : bit_vector(7 downto 0);   -- Elements
+	        payload : bit_vector(31 downto 0);
+	      end record;
+	"""
 	_elements: List[RecordTypeElement]
 
 	def __init__(self, identifier: str, elements: Nullable[Iterable[RecordTypeElement]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -375,6 +508,20 @@ class RecordType(CompositeType):
 
 @export
 class ProtectedType(FullType):
+	"""
+	A protected type declaration, exposing only its methods (VHDL-2002).
+
+	The implementation lives in a separate :class:`ProtectedTypeBody`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type counter is protected
+	        procedure increment;             -- Methods
+	        impure function value return natural;
+	      end protected;
+	"""
 	_methods: List[Union['Procedure', 'Function']]
 
 	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -398,6 +545,21 @@ class ProtectedType(FullType):
 
 @export
 class ProtectedTypeBody(FullType):
+	"""
+	A protected type body, implementing the methods declared by its :class:`ProtectedType`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type counter is protected body
+	        variable count : natural := 0;
+	        procedure increment is           -- Methods
+	        begin
+	          count := count + 1;
+	        end procedure;
+	      end protected body;
+	"""
 	_methods: List[Union['Procedure', 'Function']]
 
 	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -422,6 +584,16 @@ class ProtectedTypeBody(FullType):
 
 @export
 class AccessType(FullType):
+	"""
+	An access type definition, pointing at values of its designated subtype.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type ptr is access integer;
+	      --                 ^^^^^^^   <- DesignatedSubtype
+	"""
 	_designatedSubtype: Symbol
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -445,6 +617,16 @@ class AccessType(FullType):
 
 @export
 class FileType(FullType):
+	"""
+	A file type definition, holding values of its designated subtype.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type text_file is file of string;
+	      --                        ^^^^^^   <- DesignatedSubtype
+	"""
 	_designatedSubtype: Symbol
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
