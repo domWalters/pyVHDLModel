@@ -106,7 +106,7 @@ class Name(ModelEntity):
 	@readonly
 	def HasPrefix(self) -> bool:
 		"""
-		Read-only property to return whether the name has a prefix, i.e. :attr:`_prefix` is set.
+		Check if the name has a prefix, i.e. :attr:`_prefix` is set.
 
 		This is true for all names except :class:`simple names <SimpleName>`.
 
