@@ -123,6 +123,8 @@ class FindComponent(TestCase):
 			namespace.FindComponent(ComponentInstantiationSymbol(SimpleName("comp")))
 
 		self.assertIn("not a component", str(context.exception))
+		# The note reports what was actually found, so the message needn't carry the type.
+		self.assertIn("Got type 'pyVHDLModel.Type.IntegerType'.", context.exception.__notes__)
 
 	def test_NotFoundWithoutParent_RaisesExtendedKeyError(self) -> None:
 		namespace = Namespace("architecture")
@@ -191,6 +193,9 @@ class FindSubtype(TestCase):
 			namespace.FindSubtype(symbol)
 
 		self.assertIn("was not expected", str(context.exception))
+		# Two notes: what was found, and what the symbol would have accepted.
+		self.assertIn("Got type 'pyVHDLModel.Type.Subtype'.", context.exception.__notes__)
+		self.assertIn("Expected one of: PossibleReference.Signal.", context.exception.__notes__)
 
 	def test_FoundTypeButNotExpected_RaisesTypeError(self) -> None:
 		namespace = Namespace("package")
@@ -309,6 +314,7 @@ class FindObject(TestCase):
 
 		# Regression: this branch used to report "not a type or subtype", copy-pasted from FindSubtype.
 		self.assertIn("not an object", str(context.exception))
+		self.assertIn("Got type 'pyVHDLModel.Type.Subtype'.", context.exception.__notes__)
 
 	def test_NotFoundWithoutParent_RaisesExtendedKeyError(self) -> None:
 		namespace = Namespace("architecture")

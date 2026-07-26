@@ -57,7 +57,6 @@ __issue_tracker_url__ = "https://GitHub.com/VHDL/pyVHDLModel/issues"
 
 from enum                      import unique, Enum, Flag, auto
 from pathlib                   import Path
-from sys                       import version_info
 
 from typing                    import Union, Dict, cast, List, Generator, Optional as Nullable
 
@@ -184,7 +183,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value < other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __le__(self, other: Any) -> bool:
 		"""
@@ -197,7 +198,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value <= other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __gt__(self, other: Any) -> bool:
 		"""
@@ -210,7 +213,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value > other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __ge__(self, other: Any) -> bool:
 		"""
@@ -223,7 +228,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value >= other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __ne__(self, other: Any) -> bool:
 		"""
@@ -236,7 +243,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value != other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __eq__(self, other: Any) -> bool:
 		"""
@@ -252,7 +261,9 @@ class VHDLVersion(Enum):
 			else:
 				return self.value == other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __hash__(self) -> int:
 		"""
@@ -2638,8 +2649,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, Entity):
 			ex = TypeError(f"Parameter 'item' is not of type 'Entity'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2663,8 +2673,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, Architecture):
 			ex = TypeError(f"Parameter 'item' is not of type 'Architecture'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		entity = item._entity.Name
@@ -2695,8 +2704,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, (Package, PackageInstantiation)):
 			ex = TypeError(f"Parameter 'item' is not of type 'Package' or 'PackageInstantiation'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2720,8 +2728,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, PackageBody):
 			ex = TypeError(f"Parameter 'item' is not of type 'PackageBody'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2745,8 +2752,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, Context):
 			ex = TypeError(f"Parameter 'item' is not of type 'Context'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2770,8 +2776,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, Configuration):
 			ex = TypeError(f"Parameter 'item' is not of type 'Configuration'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2788,8 +2793,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationUnit(self, item: VerificationUnit) -> None:
 		if not isinstance(item, VerificationUnit):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2805,8 +2809,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationProperty(self, item: VerificationProperty) -> None:
 		if not isinstance(item, VerificationProperty):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationProperty'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item.NormalizedIdentifier
@@ -2822,8 +2825,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationMode(self, item: VerificationMode) -> None:
 		if not isinstance(item, VerificationMode):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationMode'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item.NormalizedIdentifier
@@ -2847,8 +2849,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		if not isinstance(item, DesignUnit):
 			ex = TypeError(f"Parameter 'item' is not of type 'DesignUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		if isinstance(item, Entity):
@@ -2871,8 +2872,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 			self._AddVerificationMode(item)
 		else:
 			ex = ValueError(f"Parameter 'item' is an unknown 'DesignUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 	@readonly
