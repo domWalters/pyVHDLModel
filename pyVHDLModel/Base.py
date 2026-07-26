@@ -493,8 +493,6 @@ class Range(ModelEntity):
 class SimpleRange(Range):
 	"""
 	A range with both bounds given as expressions, e.g. ``0 to 7``.
-
-	Named after the ``simple_range`` rule in VHDL's grammar.
 	"""
 
 	_leftBound:  ExpressionUnion
@@ -544,16 +542,20 @@ class RangeFromName(Range):
 	"""
 	A range denoted by a name, so its bounds are inferred from whatever that name references.
 
-	Two forms reach this class, because a parser can't tell them apart beyond "a name, optionally with a
-	range constraint":
+	The name is represented by a :class:`~pyVHDLModel.Symbol.Symbol`, so the bounds become available once
+	that symbol is resolved. A constrained subtype indication keeps its type mark *and* its range
+	constraint, because it's carried by a :class:`~pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol`.
 
-	* a range attribute like ``vector'range``, and
-	* a discrete subtype indication like ``bit`` or ``integer range 0 to 7``.
+	.. note::
 
-	Both are represented by their :class:`~pyVHDLModel.Symbol.Symbol`, so the bounds become available
-	once that symbol is resolved. A constrained subtype indication keeps its type mark *and* its range
-	constraint, because it's carried by a
-	:class:`~pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol`.
+	   Two forms reach this class, because a parser can't tell them apart beyond "a name, optionally with
+	   a range constraint":
+
+	   * a range attribute like ``vector'range``, and
+	   * a discrete subtype indication like ``bit`` or ``integer range 0 to 7``.
+
+	   VHDL's grammar puts the latter one level up (``discrete_range ::= discrete_subtype_indication |
+	   range``), so representing both as a range deviates from the rule split deliberately.
 	"""
 
 	_symbol: 'Symbol'
