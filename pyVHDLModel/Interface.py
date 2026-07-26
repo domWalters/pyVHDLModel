@@ -84,7 +84,11 @@ class SimpleModeViewElement(ModeViewElement):
 
 	@readonly
 	def Mode(self) -> Mode:
-		"""Read-only property to access the mode (:attr:`_mode`)."""
+		"""
+		Read-only property to access the mode (:attr:`_mode`).
+
+		:returns: The mode.
+		"""
 		return self._mode
 
 
@@ -112,7 +116,11 @@ class CompositeModeViewElement(ModeViewElement):
 
 	@readonly
 	def ModeViewName(self) -> ModeViewSymbol:
-		"""Read-only property to access the mode view name (:attr:`_modeViewName`)."""
+		"""
+		Read-only property to access the mode view name (:attr:`_modeViewName`).
+
+		:returns: The mode view name.
+		"""
 		return self._modeViewName
 
 
@@ -157,12 +165,20 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> SubtypeSymbol:
-		"""Read-only property to access the subtype (:attr:`_subtype`)."""
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
 
 	@readonly
 	def Elements(self) -> List[ModeViewElement]:
-		"""Read-only property to access the elements (:attr:`_elements`)."""
+		"""
+		Read-only property to access the elements (:attr:`_elements`).
+
+		:returns: List of elements.
+		"""
 		return self._elements
 
 
@@ -184,7 +200,11 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Mode(self) -> Mode:
-		"""Read-only property to access the mode (:attr:`_mode`)."""
+		"""
+		Read-only property to access the mode (:attr:`_mode`).
+
+		:returns: The mode.
+		"""
 		return self._mode
 
 
@@ -334,7 +354,11 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
-		"""Read-only property to access the mode view indication (:attr:`_subtype`)."""
+		"""
+		Read-only property to access the mode view indication (:attr:`_subtype`).
+
+		:returns: The mode view indication.
+		"""
 		return self._subtype
 
 
@@ -432,7 +456,11 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
-		"""Read-only property to access the mode view indication (:attr:`_subtype`)."""
+		"""
+		Read-only property to access the mode view indication (:attr:`_subtype`).
+
+		:returns: The mode view indication.
+		"""
 		return self._subtype
 
 
@@ -465,12 +493,20 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
-		"""Read-only property to access the generic items (:attr:`_genericItems`)."""
+		"""
+		Read-only property to access the generic items (:attr:`_genericItems`).
+
+		:returns: List of generic items.
+		"""
 		return self._genericItems
 
 	@readonly
 	def GenericCount(self) -> int:
-		"""Read-only property to return the number of generics in :attr:`_genericItems`."""
+		"""
+		Read-only property to return the number of generics in :attr:`_genericItems`.
+
+		:returns: The generic count.
+		"""
 		return len(self._genericItems)
 
 
@@ -490,12 +526,20 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
-		"""Read-only property to access the port items (:attr:`_portItems`)."""
+		"""
+		Read-only property to access the port items (:attr:`_portItems`).
+
+		:returns: List of port items.
+		"""
 		return self._portItems
 
 	@readonly
 	def PortCount(self) -> int:
-		"""Read-only property to return the number of ports in :attr:`_portItems`."""
+		"""
+		Read-only property to return the number of ports in :attr:`_portItems`.
+
+		:returns: The port count.
+		"""
 		return len(self._portItems)
 
 
@@ -515,12 +559,20 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:
-		"""Read-only property to access the parameter items (:attr:`_parameterItems`)."""
+		"""
+		Read-only property to access the parameter items (:attr:`_parameterItems`).
+
+		:returns: List of parameter items.
+		"""
 		return self._parameterItems
 
 	@readonly
 	def ParameterCount(self) -> int:
-		"""Read-only property to return the number of parameters in :attr:`_parameterItems`."""
+		"""
+		Read-only property to return the number of parameters in :attr:`_parameterItems`.
+
+		:returns: The parameter count.
+		"""
 		return len(self._parameterItems)
 
 

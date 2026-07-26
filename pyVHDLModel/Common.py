@@ -73,7 +73,7 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 		1. If allow blackbox property is locally set, return the local value,
 		2. Otherwise, return allow blackbox value from parent object.
 
-		:returns:                   If blackboxes are allowed.
+		:returns:                   ``True``, if blackboxes are allowed.
 		:raises VHDLModelException: If neither a local value is set nor a parent object is available to inherit the
 		                            value from.
 		"""
@@ -119,12 +119,20 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Procedure(self) -> Symbol:
-		"""Read-only property to access the procedure (:attr:`_procedure`)."""
+		"""
+		Read-only property to access the procedure (:attr:`_procedure`).
+
+		:returns: The procedure.
+		"""
 		return self._procedure
 
 	@readonly
 	def ParameterAssociationItems(self) -> List[ParameterAssociationItem]:
-		"""Read-only property to access the parameter association items (:attr:`_parameterAssociationItems`)."""
+		"""
+		Read-only property to access the parameter association items (:attr:`_parameterAssociationItems`).
+
+		:returns: List of parameter association items.
+		"""
 		return self._parameterAssociationItems
 
 
@@ -140,7 +148,11 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Target(self) -> Symbol:
-		"""Read-only property to access the target (:attr:`_target`)."""
+		"""
+		Read-only property to access the target (:attr:`_target`).
+
+		:returns: The target.
+		"""
 		return self._target
 
 
@@ -150,7 +162,11 @@ class SignalAssignmentMixin(AssignmentMixin, mixin=True):
 
 	@readonly
 	def Target(self) -> SignalSymbol:
-		"""Read-only property to access the target (:attr:`_target`)."""
+		"""
+		Read-only property to access the target (:attr:`_target`).
+
+		:returns: The target.
+		"""
 		return self._target
 
 
@@ -169,12 +185,20 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 
 	@readonly
 	def Target(self) -> VariableSymbol:
-		"""Read-only property to access the target (:attr:`_target`)."""
+		"""
+		Read-only property to access the target (:attr:`_target`).
+
+		:returns: The target.
+		"""
 		return self._target
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 
@@ -192,7 +216,11 @@ class WaveformMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Waveform(self) -> List[WaveformElement]:
-		"""Read-only property to access the waveform (:attr:`_waveform`)."""
+		"""
+		Read-only property to access the waveform (:attr:`_waveform`).
+
+		:returns: List of waveform.
+		"""
 		return self._waveform
 
 
@@ -208,7 +236,11 @@ class ExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 
@@ -279,7 +311,11 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def ConditionalWaveforms(self) -> List[ConditionalWaveform]:
-		"""Read-only property to access the conditional waveforms (:attr:`_conditionalWaveforms`)."""
+		"""
+		Read-only property to access the conditional waveforms (:attr:`_conditionalWaveforms`).
+
+		:returns: List of conditional waveforms.
+		"""
 		return self._conditionalWaveforms
 
 
@@ -367,7 +403,11 @@ class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def SelectedWaveforms(self) -> List[Union[SelectedWaveform, OthersSelectedWaveform]]:
-		"""Read-only property to access the selected waveforms (:attr:`_selectedWaveforms`)."""
+		"""
+		Read-only property to access the selected waveforms (:attr:`_selectedWaveforms`).
+
+		:returns: List of selected waveforms.
+		"""
 		return self._selectedWaveforms
 
 
@@ -388,5 +428,9 @@ class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def SelectedExpressions(self) -> List[Union[SelectedExpression, OthersSelectedExpression]]:
-		"""Read-only property to access the selected expressions (:attr:`_selectedExpressions`)."""
+		"""
+		Read-only property to access the selected expressions (:attr:`_selectedExpressions`).
+
+		:returns: List of selected expressions.
+		"""
 		return self._selectedExpressions

@@ -68,7 +68,7 @@ class Name(ModelEntity):
 	@readonly
 	def Identifier(self) -> str:
 		"""
-		The identifier the name is referencing.
+		Read-only property to access the identifier this name references (:attr:`_identifier`).
 
 		:returns: The referenced identifier.
 		"""
@@ -77,7 +77,7 @@ class Name(ModelEntity):
 	@readonly
 	def NormalizedIdentifier(self) -> str:
 		"""
-		The normalized identifier the name is referencing.
+		Read-only property to access the normalized identifier this name references (:attr:`_normalizedIdentifier`).
 
 		:returns: The referenced identifier (normalized).
 		"""
@@ -86,7 +86,7 @@ class Name(ModelEntity):
 	@readonly
 	def Root(self) -> 'Name':
 		"""
-		The root (left-most) element in a chain of names.
+		Read-only property to access the root (left-most) element in a chain of names (:attr:`_root`).
 
 		In case the name is a :class:`simple name <SimpleName>`, the root points to the name itself.
 
@@ -97,7 +97,7 @@ class Name(ModelEntity):
 	@readonly
 	def Prefix(self) -> Nullable['Name']:
 		"""
-		The name's prefix in a chain of names.
+		Read-only property to access the name's prefix in a chain of names (:attr:`_prefix`).
 
 		:returns: The name left from current name, if not a simple name, otherwise ``None``.
 		"""
@@ -106,11 +106,11 @@ class Name(ModelEntity):
 	@readonly
 	def HasPrefix(self) -> bool:
 		"""
-		Returns true, if the name has a prefix.
+		Check if the name has a prefix, i.e. :attr:`_prefix` is set.
 
 		This is true for all names except :class:`simple names <SimpleName>`.
 
-		:returns: ``True``, if the name as a prefix.
+		:returns: ``True``, if the name has a prefix.
 		"""
 		return self._prefix is not None
 
@@ -146,7 +146,11 @@ class ParenthesisName(Name):
 
 	@readonly
 	def Associations(self) -> List:
-		"""Read-only property to access the associations (:attr:`_associations`)."""
+		"""
+		Read-only property to access the associations (:attr:`_associations`).
+
+		:returns: List of associations.
+		"""
 		return self._associations
 
 	def __str__(self) -> str:
@@ -167,7 +171,11 @@ class IndexedName(Name):
 
 	@readonly
 	def Indices(self) -> List[ExpressionUnion]:
-		"""Read-only property to access the indices (:attr:`_indices`)."""
+		"""
+		Read-only property to access the indices (:attr:`_indices`).
+
+		:returns: List of indices.
+		"""
 		return self._indices
 
 	def __str__(self) -> str:

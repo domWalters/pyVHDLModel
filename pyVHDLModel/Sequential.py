@@ -142,7 +142,11 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 
 	@readonly
 	def ConditionalExpressions(self) -> List[ConditionalExpression]:
-		"""Read-only property to access the conditional expressions (:attr:`_conditionalExpressions`)."""
+		"""
+		Read-only property to access the conditional expressions (:attr:`_conditionalExpressions`).
+
+		:returns: List of conditional expressions.
+		"""
 		return self._conditionalExpressions
 
 
@@ -385,7 +389,11 @@ class IndexedChoice(SequentialChoice):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 	def __str__(self) -> str:
@@ -404,7 +412,11 @@ class RangedChoice(SequentialChoice):
 
 	@readonly
 	def Range(self) -> 'Range':
-		"""Read-only property to access the range (:attr:`_range`)."""
+		"""
+		Read-only property to access the range (:attr:`_range`).
+
+		:returns: The range.
+		"""
 		return self._range
 
 	def __str__(self) -> str:
@@ -458,12 +470,20 @@ class CaseStatement(CompoundStatement):
 
 	@readonly
 	def SelectExpression(self) -> ExpressionUnion:
-		"""Read-only property to access the select expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the select expression (:attr:`_expression`).
+
+		:returns: The select expression.
+		"""
 		return self._expression
 
 	@readonly
 	def Cases(self) -> List[SequentialCase]:
-		"""Read-only property to access the cases (:attr:`_cases`)."""
+		"""
+		Read-only property to access the cases (:attr:`_cases`).
+
+		:returns: List of cases.
+		"""
 		return self._cases
 
 
@@ -496,12 +516,20 @@ class ForLoopStatement(LoopStatement):
 
 	@readonly
 	def LoopIndex(self) -> str:
-		"""Read-only property to access the loop index (:attr:`_loopIndex`)."""
+		"""
+		Read-only property to access the loop index (:attr:`_loopIndex`).
+
+		:returns: The loop index.
+		"""
 		return self._loopIndex
 
 	@readonly
 	def Range(self) -> Range:
-		"""Read-only property to access the range (:attr:`_range`)."""
+		"""
+		Read-only property to access the range (:attr:`_range`).
+
+		:returns: The range.
+		"""
 		return self._range
 
 
@@ -535,7 +563,11 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 
 	@readonly
 	def LoopReference(self) -> LoopStatement:
-		"""Read-only property to access the loop reference (:attr:`_loopReference`)."""
+		"""
+		Read-only property to access the loop reference (:attr:`_loopReference`).
+
+		:returns: The loop reference.
+		"""
 		return self._loopReference
 
 
@@ -572,7 +604,11 @@ class ReturnStatement(SequentialStatement):
 
 	@readonly
 	def ReturnValue(self) -> Nullable[ExpressionUnion]:
-		"""Read-only property to access the return value (:attr:`_returnValue`)."""
+		"""
+		Read-only property to access the return value (:attr:`_returnValue`).
+
+		:returns: The return value, or ``None`` if not set.
+		"""
 		return self._returnValue
 
 
@@ -606,12 +642,20 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 
 	@readonly
 	def SensitivityList(self) -> List[Symbol]:
-		"""Read-only property to access the sensitivity list (:attr:`_sensitivityList`)."""
+		"""
+		Read-only property to access the sensitivity list (:attr:`_sensitivityList`).
+
+		:returns: List of sensitivity list.
+		"""
 		return self._sensitivityList
 
 	@readonly
 	def Timeout(self) -> ExpressionUnion:
-		"""Read-only property to access the timeout (:attr:`_timeout`)."""
+		"""
+		Read-only property to access the timeout (:attr:`_timeout`).
+
+		:returns: The timeout.
+		"""
 		return self._timeout
 
 

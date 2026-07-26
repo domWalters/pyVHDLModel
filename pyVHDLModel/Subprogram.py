@@ -102,22 +102,38 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 	@readonly
 	def GenericItems(self) -> List['GenericInterfaceItemMixin']:
-		"""Read-only property to access the generic items (:attr:`_genericItems`)."""
+		"""
+		Read-only property to access the generic items (:attr:`_genericItems`).
+
+		:returns: List of generic items.
+		"""
 		return self._genericItems
 
 	@readonly
 	def ParameterItems(self) -> List['ParameterInterfaceItemMixin']:
-		"""Read-only property to access the parameter items (:attr:`_parameterItems`)."""
+		"""
+		Read-only property to access the parameter items (:attr:`_parameterItems`).
+
+		:returns: List of parameter items.
+		"""
 		return self._parameterItems
 
 	@readonly
 	def Statements(self) -> List[SequentialStatement]:
-		"""Read-only property to access the statements (:attr:`_statements`)."""
+		"""
+		Read-only property to access the statements (:attr:`_statements`).
+
+		:returns: List of statements.
+		"""
 		return self._statements
 
 	@readonly
 	def IsPure(self) -> bool:
-		"""Read-only property to access the subprogram's purity (:attr:`_isPure`)."""
+		"""
+		Check if the subprogram is pure (:attr:`_isPure`).
+
+		:returns: ``True``, if the subprogram is pure.
+		"""
 		return self._isPure
 
 
@@ -167,7 +183,11 @@ class Function(Subprogram):
 
 	@readonly
 	def ReturnType(self) -> SubtypeSymbol:
-		"""Read-only property to access the return type (:attr:`_returnType`)."""
+		"""
+		Read-only property to access the return type (:attr:`_returnType`).
+
+		:returns: The return type.
+		"""
 		return self._returnType
 
 
@@ -184,7 +204,11 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def ProtectedType(self) -> ProtectedType:
-		"""Read-only property to access the protected type (:attr:`_protectedType`)."""
+		"""
+		Read-only property to access the protected type (:attr:`_protectedType`).
+
+		:returns: The protected type.
+		"""
 		return self._protectedType
 
 

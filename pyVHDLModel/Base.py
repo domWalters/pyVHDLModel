@@ -185,7 +185,7 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifier(self) -> str:
 		"""
-		Returns a model entity's identifier (name).
+		Read-only property to access the model entity's identifier (:attr:`_identifier`).
 
 		:returns: Name of a model entity.
 		"""
@@ -194,7 +194,7 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedIdentifier(self) -> str:
 		"""
-		Returns a model entity's normalized identifier (lower case name).
+		Read-only property to access the model entity's normalized identifier (:attr:`_normalizedIdentifier`).
 
 		:returns: Normalized name of a model entity.
 		"""
@@ -225,18 +225,18 @@ class OptionallyNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifier(self) -> Nullable[str]:
 		"""
-		Returns a model entity's identifier (name).
+		Read-only property to access the model entity's optional identifier (:attr:`_identifier`).
 
-		:returns: Name of a model entity.
+		:returns: Name of a model entity, or ``None`` if unnamed.
 		"""
 		return self._identifier
 
 	@readonly
 	def NormalizedIdentifier(self) -> Nullable[str]:
 		"""
-		Returns a model entity's normalized identifier (lower case name).
+		Read-only property to access the model entity's optional normalized identifier (:attr:`_normalizedIdentifier`).
 
-		:returns: Normalized name of a model entity.
+		:returns: Normalized name of a model entity, or ``None`` if unnamed.
 		"""
 		return self._normalizedIdentifier
 
@@ -266,7 +266,7 @@ class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifiers(self) -> Tuple[str]:
 		"""
-		Returns a model entity's tuple of identifiers (names).
+		Read-only property to access the model entity's identifiers (:attr:`_identifiers`).
 
 		:returns: Tuple of identifiers.
 		"""
@@ -275,7 +275,7 @@ class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedIdentifiers(self) -> Tuple[str]:
 		"""
-		Returns a model entity's tuple of normalized identifiers (lower case names).
+		Read-only property to access the model entity's normalized identifiers (:attr:`_normalizedIdentifiers`).
 
 		:returns: Tuple of normalized identifiers.
 		"""
@@ -361,7 +361,7 @@ class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Label(self) -> Nullable[str]:
 		"""
-		Returns a model entity's label.
+		Read-only property to access the model entity's label (:attr:`_label`).
 
 		:returns: Label of a model entity.
 		"""
@@ -370,7 +370,7 @@ class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedLabel(self) -> Nullable[str]:
 		"""
-		Returns a model entity's normalized (lower case) label.
+		Read-only property to access the model entity's normalized label (:attr:`_normalizedLabel`).
 
 		:returns: Normalized label of a model entity.
 		"""
@@ -399,7 +399,7 @@ class DocumentedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Documentation(self) -> Nullable[str]:
 		"""
-		Returns a model entity's associated documentation.
+		Read-only property to access the model entity's documentation (:attr:`_documentation`).
 
 		:returns: Associated documentation of a model entity.
 		"""
@@ -483,12 +483,20 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Message(self) -> Nullable[ExpressionUnion]:
-		"""Read-only property to access the message (:attr:`_message`)."""
+		"""
+		Read-only property to access the message (:attr:`_message`).
+
+		:returns: The message, or ``None`` if not set.
+		"""
 		return self._message
 
 	@readonly
 	def Severity(self) -> Nullable[ExpressionUnion]:
-		"""Read-only property to access the severity (:attr:`_severity`)."""
+		"""
+		Read-only property to access the severity (:attr:`_severity`).
+
+		:returns: The severity, or ``None`` if not set.
+		"""
 		return self._severity
 
 
@@ -535,7 +543,11 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Choices(self) -> List[BaseChoice]:
-		"""Read-only property to access the choices (:attr:`_choices`)."""
+		"""
+		Read-only property to access the choices (:attr:`_choices`).
+
+		:returns: List of choices.
+		"""
 		return self._choices
 
 
@@ -580,17 +592,29 @@ class SimpleRange(Range):
 
 	@readonly
 	def LeftBound(self) -> ExpressionUnion:
-		"""Read-only property to access the range's left bound (:attr:`_leftBound`)."""
+		"""
+		Read-only property to access the range's left bound (:attr:`_leftBound`).
+
+		:returns: The left bound.
+		"""
 		return self._leftBound
 
 	@readonly
 	def RightBound(self) -> ExpressionUnion:
-		"""Read-only property to access the range's right bound (:attr:`_rightBound`)."""
+		"""
+		Read-only property to access the range's right bound (:attr:`_rightBound`).
+
+		:returns: The right bound.
+		"""
 		return self._rightBound
 
 	@readonly
 	def Direction(self) -> Direction:
-		"""Read-only property to access the range's direction (:attr:`_direction`)."""
+		"""
+		Read-only property to access the range's direction (:attr:`_direction`).
+
+		:returns: The direction.
+		"""
 		return self._direction
 
 	def __str__(self) -> str:
@@ -634,7 +658,11 @@ class RangeFromName(Range):
 
 	@readonly
 	def Symbol(self) -> 'Symbol':
-		"""Read-only property to access the referenced symbol (:attr:`_symbol`)."""
+		"""
+		Read-only property to access the referenced symbol (:attr:`_symbol`).
+
+		:returns: The symbol.
+		"""
 		return self._symbol
 
 	def __str__(self) -> str:
@@ -658,10 +686,18 @@ class WaveformElement(ModelEntity):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 	@readonly
 	def After(self) -> Expression:
-		"""Read-only property to access the waveform element's delay (:attr:`_after`)."""
+		"""
+		Read-only property to access the waveform element's delay (:attr:`_after`).
+
+		:returns: The after.
+		"""
 		return self._after

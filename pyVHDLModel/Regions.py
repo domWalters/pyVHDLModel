@@ -109,8 +109,8 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_files:           Dict[str, File]                   #: Dictionary of all files declared in this concurrent declaration region.
 	# _subprograms:     Dict[str, List[Subprogram]]  #: Dictionary of all subprograms declared in this concurrent declaration region.
 	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
-	_functions:       Dict[str, List['Function']]         #: Dictionary of all functions declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
-	_procedures:      Dict[str, List['Procedure']]        #: Dictionary of all procedures declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
+	_functions:       Dict[str, List['Function']]         #: Dictionary of all functions declared in this concurrent declaration region, indexed by name; each entry is a list of overloads.
+	_procedures:      Dict[str, List['Procedure']]        #: Dictionary of all procedures declared in this concurrent declaration region, indexed by name; each entry is a list of overloads.
 	_components:      Dict[str, Any]                    #: Dictionary of all components declared in this concurrent declaration region.
 
 	def __init__(self, declaredItems: Nullable[Iterable] = None) -> None:
@@ -135,17 +135,29 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def DeclaredItems(self) -> List:
-		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
+		"""
+		Read-only property to access the declared items (:attr:`_declaredItems`).
+
+		:returns: List of declared items.
+		"""
 		return self._declaredItems
 
 	@readonly
 	def Types(self) -> Dict[str, FullType]:
-		"""Read-only property to access the types (:attr:`_types`)."""
+		"""
+		Read-only property to access the types (:attr:`_types`).
+
+		:returns: Dictionary of types, indexed by normalized identifier.
+		"""
 		return self._types
 
 	@readonly
 	def Subtypes(self) -> Dict[str, Subtype]:
-		"""Read-only property to access the subtypes (:attr:`_subtypes`)."""
+		"""
+		Read-only property to access the subtypes (:attr:`_subtypes`).
+
+		:returns: Dictionary of subtypes, indexed by normalized identifier.
+		"""
 		return self._subtypes
 
 	# @readonly
@@ -154,22 +166,38 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def Constants(self) -> Dict[str, Constant]:
-		"""Read-only property to access the constants (:attr:`_constants`)."""
+		"""
+		Read-only property to access the constants (:attr:`_constants`).
+
+		:returns: Dictionary of constants, indexed by normalized identifier.
+		"""
 		return self._constants
 
 	@readonly
 	def Signals(self) -> Dict[str, Signal]:
-		"""Read-only property to access the signals (:attr:`_signals`)."""
+		"""
+		Read-only property to access the signals (:attr:`_signals`).
+
+		:returns: Dictionary of signals, indexed by normalized identifier.
+		"""
 		return self._signals
 
 	@readonly
 	def SharedVariables(self) -> Dict[str, SharedVariable]:
-		"""Read-only property to access the shared variables (:attr:`_sharedVariables`)."""
+		"""
+		Read-only property to access the shared variables (:attr:`_sharedVariables`).
+
+		:returns: Dictionary of shared variables, indexed by normalized identifier.
+		"""
 		return self._sharedVariables
 
 	@readonly
 	def Files(self) -> Dict[str, File]:
-		"""Read-only property to access the files (:attr:`_files`)."""
+		"""
+		Read-only property to access the files (:attr:`_files`).
+
+		:returns: Dictionary of files, indexed by normalized identifier.
+		"""
 		return self._files
 
 	# @readonly
@@ -178,17 +206,29 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def Functions(self) -> Dict[str, List['Function']]:
-		"""Read-only property to access the functions (:attr:`_functions`)."""
+		"""
+		Read-only property to access the functions (:attr:`_functions`).
+
+		:returns: Dictionary of functions, indexed by normalized identifier; each entry is a list of overloads.
+		"""
 		return self._functions
 
 	@readonly
 	def Procedures(self) -> Dict[str, List['Procedure']]:
-		"""Read-only property to access the procedures (:attr:`_procedures`)."""
+		"""
+		Read-only property to access the procedures (:attr:`_procedures`).
+
+		:returns: Dictionary of procedures, indexed by normalized identifier; each entry is a list of overloads.
+		"""
 		return self._procedures
 
 	@readonly
 	def Components(self) -> Dict[str, Any]:
-		"""Read-only property to access the components (:attr:`_components`)."""
+		"""
+		Read-only property to access the components (:attr:`_components`).
+
+		:returns: Dictionary of components, indexed by normalized identifier.
+		"""
 		return self._components
 
 	def IndexDeclaredItems(self) -> None:
@@ -293,8 +333,8 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_variables:     Dict[str, Variable]           #: Dictionary of all variables declared in this sequential declaration region.
 	_files:         Dict[str, File]               #: Dictionary of all files declared in this sequential declaration region.
 	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
-	_functions:     Dict[str, List['Function']]   #: Dictionary of all functions declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
-	_procedures:    Dict[str, List['Procedure']]  #: Dictionary of all procedures declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
+	_functions:     Dict[str, List['Function']]   #: Dictionary of all functions declared in this sequential declaration region, indexed by name; each entry is a list of overloads.
+	_procedures:    Dict[str, List['Procedure']]  #: Dictionary of all procedures declared in this sequential declaration region, indexed by name; each entry is a list of overloads.
 
 	def __init__(self, namespaceName: Nullable[str] = None, declaredItems: Nullable[Iterable] = None) -> None:
 		"""
@@ -321,47 +361,83 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def DeclaredItems(self) -> List:
-		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
+		"""
+		Read-only property to access the declared items (:attr:`_declaredItems`).
+
+		:returns: List of declared items.
+		"""
 		return self._declaredItems
 
 	@readonly
 	def Namespace(self) -> Namespace:
-		"""Read-only property to access this region's namespace (:attr:`_namespace`)."""
+		"""
+		Read-only property to access this region's namespace (:attr:`_namespace`).
+
+		:returns: The namespace.
+		"""
 		return self._namespace
 
 	@readonly
 	def Types(self) -> Dict[str, FullType]:
-		"""Read-only property to access the declared types (:attr:`_types`)."""
+		"""
+		Read-only property to access the declared types (:attr:`_types`).
+
+		:returns: Dictionary of types, indexed by normalized identifier.
+		"""
 		return self._types
 
 	@readonly
 	def Subtypes(self) -> Dict[str, Subtype]:
-		"""Read-only property to access the declared subtypes (:attr:`_subtypes`)."""
+		"""
+		Read-only property to access the declared subtypes (:attr:`_subtypes`).
+
+		:returns: Dictionary of subtypes, indexed by normalized identifier.
+		"""
 		return self._subtypes
 
 	@readonly
 	def Constants(self) -> Dict[str, Constant]:
-		"""Read-only property to access the declared constants (:attr:`_constants`)."""
+		"""
+		Read-only property to access the declared constants (:attr:`_constants`).
+
+		:returns: Dictionary of constants, indexed by normalized identifier.
+		"""
 		return self._constants
 
 	@readonly
 	def Variables(self) -> Dict[str, Variable]:
-		"""Read-only property to access the declared variables (:attr:`_variables`)."""
+		"""
+		Read-only property to access the declared variables (:attr:`_variables`).
+
+		:returns: Dictionary of variables, indexed by normalized identifier.
+		"""
 		return self._variables
 
 	@readonly
 	def Files(self) -> Dict[str, File]:
-		"""Read-only property to access the declared files (:attr:`_files`)."""
+		"""
+		Read-only property to access the declared files (:attr:`_files`).
+
+		:returns: Dictionary of files, indexed by normalized identifier.
+		"""
 		return self._files
 
 	@readonly
 	def Functions(self) -> Dict[str, List['Function']]:
-		"""Read-only property to access the declared functions (:attr:`_functions`)."""
+		"""
+		Read-only property to access the declared functions (:attr:`_functions`).
+
+		:returns: Dictionary of functions, indexed by normalized identifier; each entry is a list of overloads.
+		"""
 		return self._functions
 
 	@readonly
 	def Procedures(self) -> Dict[str, List['Procedure']]:
-		"""Read-only property to access the declared procedures (:attr:`_procedures`)."""
+		"""
+		Read-only property to access the declared procedures (:attr:`_procedures`).
+
+		:returns: Dictionary of procedures, indexed by normalized identifier; each entry is a list of overloads.
+		"""
 		return self._procedures
 
 	def IndexDeclaredItems(self) -> None:

@@ -82,12 +82,20 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 
 	@readonly
 	def SubprogramReference(self) -> SubprogramReferenceSymbol:
-		"""Read-only property to access the subprogram reference (:attr:`_subprogramReference`)."""
+		"""
+		Read-only property to access the subprogram reference (:attr:`_subprogramReference`).
+
+		:returns: The subprogram reference.
+		"""
 		return self._subprogramReference
 
 	@readonly
 	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
+		"""
+		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
 		return self._genericAssociationItems
 
 
@@ -161,7 +169,11 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 	@readonly
 	def ReturnType(self) -> Nullable[SubtypeSymbol]:
-		"""Read-only property to access the return type (:attr:`_returnType`)."""
+		"""
+		Read-only property to access the return type (:attr:`_returnType`).
+
+		:returns: The return type, or ``None`` if not set.
+		"""
 		return self._returnType
 
 
@@ -194,15 +206,23 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 
 	@readonly
 	def PackageReference(self) -> PackageReferenceSymbol:
-		"""Read-only property to access the package reference (:attr:`_packageReference`)."""
+		"""
+		Read-only property to access the package reference (:attr:`_packageReference`).
+
+		:returns: The package reference.
+		"""
 		return self._packageReference
 
 	@readonly
 	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
+		"""
+		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
 		return self._genericAssociationItems
 
-	def Instantiate(self):
+	def Instantiate(self) -> None:
 		genericPackage: Package = self._packageReference.Package
 		if genericPackage is None:
 			raise VHDLModelException(f"PackageInstantiation '{self.Identifier}' isn't linked to the generic package '{self._packageReference.Name}'.")
