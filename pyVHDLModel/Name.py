@@ -146,7 +146,11 @@ class ParenthesisName(Name):
 
 	@readonly
 	def Associations(self) -> List:
-		"""Read-only property to access the associations (:attr:`_associations`)."""
+		"""
+		Read-only property to access the associations (:attr:`_associations`).
+
+		:returns: List of associations.
+		"""
 		return self._associations
 
 	def __str__(self) -> str:
@@ -167,7 +171,11 @@ class IndexedName(Name):
 
 	@readonly
 	def Indices(self) -> List[ExpressionUnion]:
-		"""Read-only property to access the indices (:attr:`_indices`)."""
+		"""
+		Read-only property to access the indices (:attr:`_indices`).
+
+		:returns: List of indices.
+		"""
 		return self._indices
 
 	def __str__(self) -> str:

@@ -483,12 +483,20 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Message(self) -> Nullable[ExpressionUnion]:
-		"""Read-only property to access the message (:attr:`_message`)."""
+		"""
+		Read-only property to access the message (:attr:`_message`).
+
+		:returns: The message, or ``None`` if not set.
+		"""
 		return self._message
 
 	@readonly
 	def Severity(self) -> Nullable[ExpressionUnion]:
-		"""Read-only property to access the severity (:attr:`_severity`)."""
+		"""
+		Read-only property to access the severity (:attr:`_severity`).
+
+		:returns: The severity, or ``None`` if not set.
+		"""
 		return self._severity
 
 
@@ -535,7 +543,11 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Choices(self) -> List[BaseChoice]:
-		"""Read-only property to access the choices (:attr:`_choices`)."""
+		"""
+		Read-only property to access the choices (:attr:`_choices`).
+
+		:returns: List of choices.
+		"""
 		return self._choices
 
 
@@ -580,17 +592,29 @@ class SimpleRange(Range):
 
 	@readonly
 	def LeftBound(self) -> ExpressionUnion:
-		"""Read-only property to access the range's left bound (:attr:`_leftBound`)."""
+		"""
+		Read-only property to access the range's left bound (:attr:`_leftBound`).
+
+		:returns: The left bound.
+		"""
 		return self._leftBound
 
 	@readonly
 	def RightBound(self) -> ExpressionUnion:
-		"""Read-only property to access the range's right bound (:attr:`_rightBound`)."""
+		"""
+		Read-only property to access the range's right bound (:attr:`_rightBound`).
+
+		:returns: The right bound.
+		"""
 		return self._rightBound
 
 	@readonly
 	def Direction(self) -> Direction:
-		"""Read-only property to access the range's direction (:attr:`_direction`)."""
+		"""
+		Read-only property to access the range's direction (:attr:`_direction`).
+
+		:returns: The direction.
+		"""
 		return self._direction
 
 	def __str__(self) -> str:
@@ -634,7 +658,11 @@ class RangeFromName(Range):
 
 	@readonly
 	def Symbol(self) -> 'Symbol':
-		"""Read-only property to access the referenced symbol (:attr:`_symbol`)."""
+		"""
+		Read-only property to access the referenced symbol (:attr:`_symbol`).
+
+		:returns: The symbol.
+		"""
 		return self._symbol
 
 	def __str__(self) -> str:
@@ -658,10 +686,18 @@ class WaveformElement(ModelEntity):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 	@readonly
 	def After(self) -> Expression:
-		"""Read-only property to access the waveform element's delay (:attr:`_after`)."""
+		"""
+		Read-only property to access the waveform element's delay (:attr:`_after`).
+
+		:returns: The after.
+		"""
 		return self._after

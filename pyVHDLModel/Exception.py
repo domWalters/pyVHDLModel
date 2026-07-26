@@ -116,7 +116,11 @@ class LibraryRegisteredToForeignDesignError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 
@@ -141,7 +145,11 @@ class LibraryNotRegisteredError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 
@@ -169,12 +177,20 @@ class EntityExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Entity(self) -> 'Entity':
-		"""Read-only property to access the entity (:attr:`_entity`)."""
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 
@@ -205,17 +221,29 @@ class ArchitectureExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Entity(self) -> 'Entity':
-		"""Read-only property to access the entity (:attr:`_entity`)."""
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 	@readonly
 	def Architecture(self) -> 'Architecture':
-		"""Read-only property to access the architecture (:attr:`_architecture`)."""
+		"""
+		Read-only property to access the architecture (:attr:`_architecture`).
+
+		:returns: The architecture.
+		"""
 		return self._architecture
 
 
@@ -243,12 +271,20 @@ class PackageExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Package(self) -> 'Package':
-		"""Read-only property to access the package (:attr:`_package`)."""
+		"""
+		Read-only property to access the package (:attr:`_package`).
+
+		:returns: The package.
+		"""
 		return self._package
 
 
@@ -276,12 +312,20 @@ class PackageBodyExistsError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def PackageBody(self) -> 'PackageBody':
-		"""Read-only property to access the package body (:attr:`_packageBody`)."""
+		"""
+		Read-only property to access the package body (:attr:`_packageBody`).
+
+		:returns: The package body.
+		"""
 		return self._packageBody
 
 
@@ -309,12 +353,20 @@ class ConfigurationExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Configuration(self) -> 'Configuration':
-		"""Read-only property to access the configuration (:attr:`_configuration`)."""
+		"""
+		Read-only property to access the configuration (:attr:`_configuration`).
+
+		:returns: The configuration.
+		"""
 		return self._configuration
 
 
@@ -342,12 +394,20 @@ class ContextExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
-		"""Read-only property to access the library (:attr:`_library`)."""
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Context(self) -> 'Context':
-		"""Read-only property to access the context (:attr:`_context`)."""
+		"""
+		Read-only property to access the context (:attr:`_context`).
+
+		:returns: The context.
+		"""
 		return self._context
 
 
@@ -375,10 +435,18 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 
 	@readonly
 	def LibrarySymbol(self) -> Symbol:
-		"""Read-only property to access the library symbol (:attr:`_librarySymbol`)."""
+		"""
+		Read-only property to access the library symbol (:attr:`_librarySymbol`).
+
+		:returns: The library symbol.
+		"""
 		return self._librarySymbol
 
 	@readonly
 	def Context(self) -> 'Context':
-		"""Read-only property to access the context (:attr:`_context`)."""
+		"""
+		Read-only property to access the context (:attr:`_context`).
+
+		:returns: The context.
+		"""
 		return self._context

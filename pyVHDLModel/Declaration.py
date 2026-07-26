@@ -114,7 +114,11 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> None:
-		"""Read-only property to access the subtype (:attr:`_subtype`)."""
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
 
 
@@ -162,22 +166,38 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 
 	@readonly
 	def Identifiers(self) -> List[Name]:
-		"""Read-only property to access the identifiers (:attr:`_identifiers`)."""
+		"""
+		Read-only property to access the identifiers (:attr:`_identifiers`).
+
+		:returns: List of identifiers.
+		"""
 		return self._identifiers
 
 	@readonly
 	def Attribute(self) -> Name:
-		"""Read-only property to access the attribute (:attr:`_attribute`)."""
+		"""
+		Read-only property to access the attribute (:attr:`_attribute`).
+
+		:returns: The attribute.
+		"""
 		return self._attribute
 
 	@readonly
 	def EntityClass(self) -> EntityClass:
-		"""Read-only property to access the entity class (:attr:`_entityClass`)."""
+		"""
+		Read-only property to access the entity class (:attr:`_entityClass`).
+
+		:returns: The entity class.
+		"""
 		return self._entityClass
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 
@@ -234,10 +254,18 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Name(self) -> Symbol:
-		"""Read-only property to access the name (:attr:`_name`)."""
+		"""
+		Read-only property to access the name (:attr:`_name`).
+
+		:returns: The name.
+		"""
 		return self._name
 
 	@readonly
 	def Subtype(self) -> Nullable[SubtypeSymbol]:
-		"""Read-only property to access the subtype (:attr:`_subtype`)."""
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype, or ``None`` if not set.
+		"""
 		return self._subtype

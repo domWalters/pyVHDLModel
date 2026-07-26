@@ -74,12 +74,20 @@ class AssociationItem(ModelEntity):
 
 	@readonly
 	def Formal(self) -> Nullable[Symbol]:  # TODO: can also be a conversion function !!
-		"""Read-only property to access the formal (:attr:`_formal`)."""
+		"""
+		Read-only property to access the formal (:attr:`_formal`).
+
+		:returns: The formal, or ``None`` if not set.
+		"""
 		return self._formal
 
 	@readonly
 	def Actual(self) -> ExpressionUnion:
-		"""Read-only property to access the actual (:attr:`_actual`)."""
+		"""
+		Read-only property to access the actual (:attr:`_actual`).
+
+		:returns: The actual.
+		"""
 		return self._actual
 
 	def __str__(self) -> str:

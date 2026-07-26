@@ -99,7 +99,11 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Statements(self) -> List[ConcurrentStatement]:
-		"""Read-only property to access the statements (:attr:`_statements`)."""
+		"""
+		Read-only property to access the statements (:attr:`_statements`).
+
+		:returns: List of statements.
+		"""
 		return self._statements
 
 	def IterateInstantiations(self) -> Generator['Instantiation', None, None]:
@@ -156,12 +160,20 @@ class Instantiation(ConcurrentStatement):
 
 	@readonly
 	def GenericAssociationItems(self) -> List[AssociationItem]:
-		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
+		"""
+		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
 		return self._genericAssociationItems
 
 	@readonly
 	def PortAssociationItems(self) -> List[AssociationItem]:
-		"""Read-only property to access the port association items (:attr:`_portAssociationItems`)."""
+		"""
+		Read-only property to access the port association items (:attr:`_portAssociationItems`).
+
+		:returns: List of port association items.
+		"""
 		return self._portAssociationItems
 
 
@@ -194,7 +206,11 @@ class ComponentInstantiation(Instantiation):
 
 	@readonly
 	def Component(self) -> ComponentInstantiationSymbol:
-		"""Read-only property to access the component (:attr:`_component`)."""
+		"""
+		Read-only property to access the component (:attr:`_component`).
+
+		:returns: The component.
+		"""
 		return self._component
 
 
@@ -233,12 +249,20 @@ class EntityInstantiation(Instantiation):
 
 	@readonly
 	def Entity(self) -> EntityInstantiationSymbol:
-		"""Read-only property to access the entity (:attr:`_entity`)."""
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 	@readonly
 	def Architecture(self) -> ArchitectureSymbol:
-		"""Read-only property to access the architecture (:attr:`_architecture`)."""
+		"""
+		Read-only property to access the architecture (:attr:`_architecture`).
+
+		:returns: The architecture.
+		"""
 		return self._architecture
 
 
@@ -271,7 +295,11 @@ class ConfigurationInstantiation(Instantiation):
 
 	@readonly
 	def Configuration(self) -> ConfigurationInstantiationSymbol:
-		"""Read-only property to access the configuration (:attr:`_configuration`)."""
+		"""
+		Read-only property to access the configuration (:attr:`_configuration`).
+
+		:returns: The configuration.
+		"""
 		return self._configuration
 
 
@@ -325,7 +353,11 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 	@readonly
 	def SensitivityList(self) -> List[Name]:
-		"""Read-only property to access the sensitivity list (:attr:`_sensitivityList`)."""
+		"""
+		Read-only property to access the sensitivity list (:attr:`_sensitivityList`).
+
+		:returns: List of sensitivity list.
+		"""
 		return self._sensitivityList
 
 
@@ -424,12 +456,20 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 
 	@readonly
 	def AlternativeLabel(self) -> Nullable[str]:
-		"""Read-only property to access the alternative label (:attr:`_alternativeLabel`)."""
+		"""
+		Read-only property to access the alternative label (:attr:`_alternativeLabel`).
+
+		:returns: The alternative label, or ``None`` if not set.
+		"""
 		return self._alternativeLabel
 
 	@readonly
 	def NormalizedAlternativeLabel(self) -> Nullable[str]:
-		"""Read-only property to access the normalized alternative label (:attr:`_normalizedAlternativeLabel`)."""
+		"""
+		Read-only property to access the normalized alternative label (:attr:`_normalizedAlternativeLabel`).
+
+		:returns: The normalized alternative label, or ``None`` if not set.
+		"""
 		return self._normalizedAlternativeLabel
 
 
@@ -636,17 +676,29 @@ class IfGenerateStatement(GenerateStatement):
 
 	@readonly
 	def IfBranch(self) -> IfGenerateBranch:
-		"""Read-only property to access the if branch (:attr:`_ifBranch`)."""
+		"""
+		Read-only property to access the if branch (:attr:`_ifBranch`).
+
+		:returns: The if branch.
+		"""
 		return self._ifBranch
 
 	@readonly
 	def ElsifBranches(self) -> List[ElsifGenerateBranch]:
-		"""Read-only property to access the elsif branches (:attr:`_elsifBranches`)."""
+		"""
+		Read-only property to access the elsif branches (:attr:`_elsifBranches`).
+
+		:returns: List of elsif branches.
+		"""
 		return self._elsifBranches
 
 	@readonly
 	def ElseBranch(self) -> Nullable[ElseGenerateBranch]:
-		"""Read-only property to access the else branch (:attr:`_elseBranch`)."""
+		"""
+		Read-only property to access the else branch (:attr:`_elseBranch`).
+
+		:returns: The else branch, or ``None`` if not set.
+		"""
 		return self._elseBranch
 
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -681,7 +733,11 @@ class IndexedGenerateChoice(ConcurrentChoice):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
-		"""Read-only property to access the expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 	def __str__(self) -> str:
@@ -700,7 +756,11 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 	@readonly
 	def Range(self) -> 'Range':
-		"""Read-only property to access the range (:attr:`_range`)."""
+		"""
+		Read-only property to access the range (:attr:`_range`).
+
+		:returns: The range.
+		"""
 		return self._range
 
 	def __str__(self) -> str:
@@ -811,12 +871,20 @@ class CaseGenerateStatement(GenerateStatement):
 
 	@readonly
 	def SelectExpression(self) -> ExpressionUnion:
-		"""Read-only property to access the select expression (:attr:`_expression`)."""
+		"""
+		Read-only property to access the select expression (:attr:`_expression`).
+
+		:returns: The select expression.
+		"""
 		return self._expression
 
 	@readonly
 	def Cases(self) -> List[GenerateCase]:
-		"""Read-only property to access the cases (:attr:`_cases`)."""
+		"""
+		Read-only property to access the cases (:attr:`_cases`).
+
+		:returns: List of cases.
+		"""
 		return self._cases
 
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -879,12 +947,20 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 	@readonly
 	def LoopIndex(self) -> str:
-		"""Read-only property to access the loop index (:attr:`_loopIndex`)."""
+		"""
+		Read-only property to access the loop index (:attr:`_loopIndex`).
+
+		:returns: The loop index.
+		"""
 		return self._loopIndex
 
 	@readonly
 	def Range(self) -> Range:
-		"""Read-only property to access the range (:attr:`_range`)."""
+		"""
+		Read-only property to access the range (:attr:`_range`).
+
+		:returns: The range.
+		"""
 		return self._range
 
 	# IndexDeclaredItems = ConcurrentStatements.IndexDeclaredItems

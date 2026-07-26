@@ -93,12 +93,20 @@ class EntityAspectEntity(EntityAspect):
 
 	@readonly
 	def Entity(self) -> EntitySymbol:
-		"""Read-only property to access the entity (:attr:`_entity`)."""
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 	@readonly
 	def Architecture(self) -> Nullable[ArchitectureSymbol]:
-		"""Read-only property to access the architecture (:attr:`_architecture`)."""
+		"""
+		Read-only property to access the architecture (:attr:`_architecture`).
+
+		:returns: The architecture, or ``None`` if not set.
+		"""
 		return self._architecture
 
 
@@ -123,7 +131,11 @@ class EntityAspectConfiguration(EntityAspect):
 
 	@readonly
 	def Configuration(self) -> ConfigurationSymbol:
-		"""Read-only property to access the configuration (:attr:`_configuration`)."""
+		"""
+		Read-only property to access the configuration (:attr:`_configuration`).
+
+		:returns: The configuration.
+		"""
 		return self._configuration
 
 
@@ -180,17 +192,29 @@ class BindingIndication(ModelEntity):
 
 	@readonly
 	def EntityAspect(self) -> Nullable[EntityAspect]:
-		"""Read-only property to access the entity aspect (:attr:`_entityAspect`)."""
+		"""
+		Read-only property to access the entity aspect (:attr:`_entityAspect`).
+
+		:returns: The entity aspect, or ``None`` if not set.
+		"""
 		return self._entityAspect
 
 	@readonly
 	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
+		"""
+		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
 		return self._genericAssociationItems
 
 	@readonly
 	def PortAssociationItems(self) -> List[PortAssociationItem]:
-		"""Read-only property to access the port association items (:attr:`_portAssociationItems`)."""
+		"""
+		Read-only property to access the port association items (:attr:`_portAssociationItems`).
+
+		:returns: List of port association items.
+		"""
 		return self._portAssociationItems
 
 
@@ -271,17 +295,29 @@ class ComponentConfiguration(ModelEntity):
 
 	@readonly
 	def InstantiationList(self) -> InstantiationListUnion:
-		"""Read-only property to access the instantiation list (:attr:`_instantiationList`)."""
+		"""
+		Read-only property to access the instantiation list (:attr:`_instantiationList`).
+
+		:returns: The instantiation list.
+		"""
 		return self._instantiationList
 
 	@readonly
 	def ComponentName(self) -> ComponentInstantiationSymbol:
-		"""Read-only property to access the component name (:attr:`_componentName`)."""
+		"""
+		Read-only property to access the component name (:attr:`_componentName`).
+
+		:returns: The component name.
+		"""
 		return self._componentName
 
 	@readonly
 	def BindingIndication(self) -> Nullable[BindingIndication]:
-		"""Read-only property to access the binding indication (:attr:`_bindingIndication`)."""
+		"""
+		Read-only property to access the binding indication (:attr:`_bindingIndication`).
+
+		:returns: The binding indication, or ``None`` if not set.
+		"""
 		return self._bindingIndication
 
 
@@ -322,10 +358,18 @@ class BlockConfiguration(ModelEntity):
 
 	@readonly
 	def BlockSpecification(self) -> Symbol:
-		"""Read-only property to access the block specification (:attr:`_blockSpecification`)."""
+		"""
+		Read-only property to access the block specification (:attr:`_blockSpecification`).
+
+		:returns: The block specification.
+		"""
 		return self._blockSpecification
 
 	@readonly
 	def Items(self) -> List[Union["BlockConfiguration", ComponentConfiguration]]:
-		"""Read-only property to access the items (:attr:`_items`)."""
+		"""
+		Read-only property to access the items (:attr:`_items`).
+
+		:returns: List of items.
+		"""
 		return self._items

@@ -110,12 +110,20 @@ class Symbol(metaclass=ExtendedType):
 
 	@readonly
 	def Name(self) -> Name:
-		"""Read-only property to access the name (:attr:`_name`)."""
+		"""
+		Read-only property to access the name (:attr:`_name`).
+
+		:returns: The name.
+		"""
 		return self._name
 
 	@readonly
 	def Reference(self) -> Nullable[Any]:
-		"""Read-only property to access the reference (:attr:`_reference`)."""
+		"""
+		Read-only property to access the reference (:attr:`_reference`).
+
+		:returns: The reference, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@readonly
@@ -163,7 +171,11 @@ class LibraryReferenceSymbol(Symbol):
 
 	@property
 	def Library(self) -> Nullable['Library']:
-		"""Property to access the library (:attr:`_reference`)."""
+		"""
+		Property to access the library (:attr:`_reference`).
+
+		:returns: The library, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Library.setter
@@ -191,7 +203,11 @@ class PackageReferenceSymbol(Symbol):
 
 	@property
 	def Package(self) -> Nullable['Package']:
-		"""Property to access the package (:attr:`_reference`)."""
+		"""
+		Property to access the package (:attr:`_reference`).
+
+		:returns: The package, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Package.setter
@@ -222,7 +238,11 @@ class ModeViewSymbol(Symbol):
 
 	@property
 	def ModeView(self) -> Nullable['ModeViewDeclaration']:
-		"""Property to access the mode view (:attr:`_reference`)."""
+		"""
+		Property to access the mode view (:attr:`_reference`).
+
+		:returns: The mode view, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@ModeView.setter
@@ -249,7 +269,11 @@ class SubprogramReferenceSymbol(Symbol):
 
 	@property
 	def Subprogram(self) -> Nullable['Subprogram']:
-		"""Property to access the subprogram (:attr:`_reference`)."""
+		"""
+		Property to access the subprogram (:attr:`_reference`).
+
+		:returns: The subprogram, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Subprogram.setter
@@ -276,7 +300,11 @@ class ConfigurationSymbol(Symbol):
 
 	@property
 	def Configuration(self) -> Nullable['Configuration']:
-		"""Property to access the configuration (:attr:`_reference`)."""
+		"""
+		Property to access the configuration (:attr:`_reference`).
+
+		:returns: The configuration, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Configuration.setter
@@ -302,7 +330,11 @@ class VariableSymbol(Symbol):
 
 	@property
 	def Variable(self) -> Nullable['Variable']:
-		"""Property to access the variable (:attr:`_reference`)."""
+		"""
+		Property to access the variable (:attr:`_reference`).
+
+		:returns: The variable, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Variable.setter
@@ -328,7 +360,11 @@ class SignalSymbol(Symbol):
 
 	@property
 	def Signal(self) -> Nullable['Signal']:
-		"""Property to access the signal (:attr:`_reference`)."""
+		"""
+		Property to access the signal (:attr:`_reference`).
+
+		:returns: The signal, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Signal.setter
@@ -356,7 +392,11 @@ class ContextReferenceSymbol(Symbol):
 
 	@property
 	def Context(self) -> 'Context':
-		"""Property to access the context (:attr:`_reference`)."""
+		"""
+		Property to access the context (:attr:`_reference`).
+
+		:returns: The context.
+		"""
 		return self._reference
 
 	@Context.setter
@@ -384,7 +424,11 @@ class PackageMemberReferenceSymbol(Symbol):
 
 	@property
 	def Member(self) -> Nullable['Package']:  # TODO: typehint
-		"""Property to access the member (:attr:`_reference`)."""
+		"""
+		Property to access the member (:attr:`_reference`).
+
+		:returns: The member, or ``None`` if not set.
+		"""
 		return self._reference
 
 	@Member.setter
@@ -412,7 +456,11 @@ class AllPackageMembersReferenceSymbol(Symbol):
 
 	@property
 	def Members(self) -> 'Package':  # TODO: typehint
-		"""Property to access the members (:attr:`_reference`)."""
+		"""
+		Property to access the members (:attr:`_reference`).
+
+		:returns: The members.
+		"""
 		return self._reference
 
 	@Members.setter
@@ -440,7 +488,11 @@ class EntityInstantiationSymbol(Symbol):
 
 	@property
 	def Entity(self) -> 'Entity':
-		"""Property to access the entity (:attr:`_reference`)."""
+		"""
+		Property to access the entity (:attr:`_reference`).
+
+		:returns: The entity.
+		"""
 		return self._reference
 
 	@Entity.setter
@@ -468,7 +520,11 @@ class ComponentInstantiationSymbol(Symbol):
 
 	@property
 	def Component(self) -> 'Component':
-		"""Property to access the component (:attr:`_reference`)."""
+		"""
+		Property to access the component (:attr:`_reference`).
+
+		:returns: The component.
+		"""
 		return self._reference
 
 	@Component.setter
@@ -496,7 +552,11 @@ class ConfigurationInstantiationSymbol(Symbol):
 
 	@property
 	def Configuration(self) -> 'Configuration':
-		"""Property to access the configuration (:attr:`_reference`)."""
+		"""
+		Property to access the configuration (:attr:`_reference`).
+
+		:returns: The configuration.
+		"""
 		return self._reference
 
 	@Configuration.setter
@@ -526,7 +586,11 @@ class EntitySymbol(Symbol):
 
 	@property
 	def Entity(self) -> 'Entity':
-		"""Property to access the entity (:attr:`_reference`)."""
+		"""
+		Property to access the entity (:attr:`_reference`).
+
+		:returns: The entity.
+		"""
 		return self._reference
 
 	@Entity.setter
@@ -543,7 +607,11 @@ class ArchitectureSymbol(Symbol):
 
 	@property
 	def Architecture(self) -> 'Architecture':
-		"""Property to access the architecture (:attr:`_reference`)."""
+		"""
+		Property to access the architecture (:attr:`_reference`).
+
+		:returns: The architecture.
+		"""
 		return self._reference
 
 	@Architecture.setter
@@ -572,7 +640,11 @@ class PackageSymbol(Symbol):
 
 	@property
 	def Package(self) -> 'Package':
-		"""Property to access the package (:attr:`_reference`)."""
+		"""
+		Property to access the package (:attr:`_reference`).
+
+		:returns: The package.
+		"""
 		return self._reference
 
 	@Package.setter
@@ -606,7 +678,11 @@ class SubtypeSymbol(Symbol):
 
 	@property
 	def Subtype(self) -> 'Subtype':
-		"""Property to access the subtype (:attr:`_reference`)."""
+		"""
+		Property to access the subtype (:attr:`_reference`).
+
+		:returns: The subtype.
+		"""
 		return self._reference
 
 	@Subtype.setter
@@ -633,7 +709,11 @@ class ScalarConstraint(Constraint, mixin=True):
 
 	@readonly
 	def Constraint(self) -> Nullable[Range]:
-		"""Read-only property to access the scalar type's range constraint (:attr:`_constraint`)."""
+		"""
+		Read-only property to access the scalar type's range constraint (:attr:`_constraint`).
+
+		:returns: The constraint, or ``None`` if not set.
+		"""
 		return self._constraint
 
 
@@ -662,7 +742,11 @@ class ArrayConstraint(Constraint, mixin=True):
 
 	@readonly
 	def Constraints(self) -> List[Range]:
-		"""Read-only property to access the constraints (:attr:`_constraints`)."""
+		"""
+		Read-only property to access the constraints (:attr:`_constraints`).
+
+		:returns: List of constraints.
+		"""
 		return self._constraints
 
 
@@ -675,7 +759,11 @@ class RecordConstraint(Constraint, mixin=True):
 
 	@readonly
 	def Constraints(self) -> Dict[RecordElementSymbol, Range]:
-		"""Read-only property to access the constraints (:attr:`_constraints`)."""
+		"""
+		Read-only property to access the constraints (:attr:`_constraints`).
+
+		:returns: Dictionary of constraints.
+		"""
 		return self._constraints
 
 
