@@ -564,6 +564,19 @@ class RecordElementSymbol(Symbol):
 
 
 @export
+class RangeAttributeSymbol(Symbol):
+	"""A symbol referencing a range attribute, e.g. ``vector'range``."""
+
+	def __init__(self, name: Name) -> None:
+		"""
+		Initialize a range attribute symbol.
+
+		:param name: The attribute name referencing the range.
+		"""
+		super().__init__(name, PossibleReference.RangeAttribute)
+
+
+@export
 class SubtypeSymbol(Symbol):
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Type | PossibleReference.Subtype)
