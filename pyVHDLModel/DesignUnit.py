@@ -229,18 +229,22 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Document(self) -> 'Document':
+		"""Property to access the document (:attr:`_document`)."""
 		return self._document
 
 	@Document.setter
 	def Document(self, document: 'Document') -> None:
+		"""Property to set the document (:attr:`_document`)."""
 		self._document = document
 
 	@property
 	def Library(self) -> 'Library':
+		"""Property to access the library (:attr:`_parent`)."""
 		return self._parent
 
 	@Library.setter
 	def Library(self, library: 'Library') -> None:
+		"""Property to set the library (:attr:`_parent`)."""
 		self._parent = library
 
 	@readonly
@@ -282,14 +286,17 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def ReferencedLibraries(self) -> Dict[str, 'Library']:
+		"""Read-only property to access the referenced libraries (:attr:`_referencedLibraries`)."""
 		return self._referencedLibraries
 
 	@readonly
 	def ReferencedPackages(self) -> Dict[str, 'Package']:
+		"""Read-only property to access the referenced packages (:attr:`_referencedPackages`)."""
 		return self._referencedPackages
 
 	@readonly
 	def ReferencedContexts(self) -> Dict[str, 'Context']:
+		"""Read-only property to access the referenced contexts (:attr:`_referencedContexts`)."""
 		return self._referencedContexts
 
 	@readonly
@@ -398,14 +405,17 @@ class Context(PrimaryUnit):
 
 	@readonly
 	def LibraryReferences(self) -> List[LibraryClause]:
+		"""Read-only property to access the library references (:attr:`_libraryReferences`)."""
 		return self._libraryReferences
 
 	@readonly
 	def PackageReferences(self) -> List[UseClause]:
+		"""Read-only property to access the package references (:attr:`_packageReferences`)."""
 		return self._packageReferences
 
 	@readonly
 	def ContextReferences(self) -> List[ContextReference]:
+		"""Read-only property to access the context references (:attr:`_contextReferences`)."""
 		return self._contextReferences
 
 	def __str__(self) -> str:
@@ -467,18 +477,22 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 
 	@readonly
 	def PackageBody(self) -> Nullable["PackageBody"]:
+		"""Read-only property to access the package body (:attr:`_packageBody`)."""
 		return self._packageBody
 
 	@readonly
 	def DeclaredItems(self) -> List:
+		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
 		return self._declaredItems
 
 	@readonly
 	def DeferredConstants(self):
+		"""Read-only property to access the deferred constants (:attr:`_deferredConstants`)."""
 		return self._deferredConstants
 
 	@readonly
 	def Components(self):
+		"""Read-only property to access the components (:attr:`_components`)."""
 		return self._components
 
 	def _IndexOtherDeclaredItem(self, item):
@@ -541,10 +555,12 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 
 	@property
 	def Package(self) -> PackageSymbol:
+		"""Property to access the package (:attr:`_package`)."""
 		return self._package
 
 	@readonly
 	def DeclaredItems(self) -> List:
+		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
 		return self._declaredItems
 
 	def LinkDeclaredItemsToPackage(self) -> None:
@@ -601,6 +617,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 
 	@readonly
 	def Architectures(self) -> Dict[str, 'Architecture']:
+		"""Read-only property to access the architectures (:attr:`_architectures`)."""
 		return self._architectures
 
 	def __str__(self) -> str:
@@ -664,6 +681,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 
 	@property
 	def Entity(self) -> EntitySymbol:  # FIXME: change to entitySymbol, offer entity directly, but raise exception if not resolved.
+		"""Property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
 	def __str__(self) -> str:
@@ -744,18 +762,22 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 
 	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
+		"""Read-only property to access the generic items (:attr:`_genericItems`)."""
 		return self._genericItems
 
 	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
+		"""Read-only property to access the port items (:attr:`_portItems`)."""
 		return self._portItems
 
 	@property
 	def Entity(self) -> Nullable[Entity]:
+		"""Property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
 	@Entity.setter
 	def Entity(self, value: Entity) -> None:
+		"""Property to set the entity (:attr:`_entity`)."""
 		self._entity = value
 		self._isBlackBox = False
 
@@ -808,10 +830,12 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 
 	@readonly
 	def Entity(self) -> EntitySymbol:
+		"""Read-only property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
 	@readonly
 	def BlockConfiguration(self) -> BlockConfiguration:
+		"""Read-only property to access the block configuration (:attr:`_blockConfiguration`)."""
 		return self._blockConfiguration
 
 	def __str__(self) -> str:

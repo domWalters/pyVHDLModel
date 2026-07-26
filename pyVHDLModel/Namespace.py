@@ -72,19 +72,23 @@ class Namespace(Generic[K, O]):
 
 	@readonly
 	def Name(self) -> str:
+		"""Read-only property to access the name (:attr:`_name`)."""
 		return self._name
 
 	@readonly
 	def ParentNamespace(self) -> 'Namespace':
+		"""Property to access the parent namespace (:attr:`_parentNamespace`)."""
 		return self._parentNamespace
 
 	@ParentNamespace.setter
 	def ParentNamespace(self, value: 'Namespace'):
+		"""Property to set the parent namespace (:attr:`_parentNamespace`)."""
 		self._parentNamespace = value
 		value._subNamespaces[self._name] = self
 
 	@readonly
 	def SubNamespaces(self) -> Dict[str, 'Namespace']:
+		"""Read-only property to access the sub namespaces (:attr:`_subNamespaces`)."""
 		return self._subNamespaces
 
 	def Elements(self) -> Dict[K, O]:

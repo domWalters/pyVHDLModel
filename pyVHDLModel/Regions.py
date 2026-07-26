@@ -135,14 +135,17 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def DeclaredItems(self) -> List:
+		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
 		return self._declaredItems
 
 	@readonly
 	def Types(self) -> Dict[str, FullType]:
+		"""Read-only property to access the types (:attr:`_types`)."""
 		return self._types
 
 	@readonly
 	def Subtypes(self) -> Dict[str, Subtype]:
+		"""Read-only property to access the subtypes (:attr:`_subtypes`)."""
 		return self._subtypes
 
 	# @readonly
@@ -151,18 +154,22 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def Constants(self) -> Dict[str, Constant]:
+		"""Read-only property to access the constants (:attr:`_constants`)."""
 		return self._constants
 
 	@readonly
 	def Signals(self) -> Dict[str, Signal]:
+		"""Read-only property to access the signals (:attr:`_signals`)."""
 		return self._signals
 
 	@readonly
 	def SharedVariables(self) -> Dict[str, SharedVariable]:
+		"""Read-only property to access the shared variables (:attr:`_sharedVariables`)."""
 		return self._sharedVariables
 
 	@readonly
 	def Files(self) -> Dict[str, File]:
+		"""Read-only property to access the files (:attr:`_files`)."""
 		return self._files
 
 	# @readonly
@@ -171,14 +178,17 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	@readonly
 	def Functions(self) -> Dict[str, List['Function']]:
+		"""Read-only property to access the functions (:attr:`_functions`)."""
 		return self._functions
 
 	@readonly
 	def Procedures(self) -> Dict[str, List['Procedure']]:
+		"""Read-only property to access the procedures (:attr:`_procedures`)."""
 		return self._procedures
 
 	@readonly
 	def Components(self) -> Dict[str, Any]:
+		"""Read-only property to access the components (:attr:`_components`)."""
 		return self._components
 
 	def IndexDeclaredItems(self) -> None:

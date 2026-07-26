@@ -122,6 +122,7 @@ class Ieee(PredefinedLibrary):
 
 	@readonly
 	def Flavor(self) -> IEEEFlavor:
+		"""Read-only property to access the flavor (:attr:`_flavor`)."""
 		return self._flavor
 
 	def LoadSynopsysPackages(self) -> None:

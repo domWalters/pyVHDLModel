@@ -99,6 +99,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Statements(self) -> List[ConcurrentStatement]:
+		"""Read-only property to access the statements (:attr:`_statements`)."""
 		return self._statements
 
 	def IterateInstantiations(self) -> Generator['Instantiation', None, None]:
@@ -155,10 +156,12 @@ class Instantiation(ConcurrentStatement):
 
 	@readonly
 	def GenericAssociationItems(self) -> List[AssociationItem]:
+		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
 		return self._genericAssociationItems
 
 	@readonly
 	def PortAssociationItems(self) -> List[AssociationItem]:
+		"""Read-only property to access the port association items (:attr:`_portAssociationItems`)."""
 		return self._portAssociationItems
 
 
@@ -191,6 +194,7 @@ class ComponentInstantiation(Instantiation):
 
 	@property
 	def Component(self) -> ComponentInstantiationSymbol:
+		"""Property to access the component (:attr:`_component`)."""
 		return self._component
 
 
@@ -229,10 +233,12 @@ class EntityInstantiation(Instantiation):
 
 	@property
 	def Entity(self) -> EntityInstantiationSymbol:
+		"""Property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
 	@property
 	def Architecture(self) -> ArchitectureSymbol:
+		"""Property to access the architecture (:attr:`_architecture`)."""
 		return self._architecture
 
 
@@ -265,6 +271,7 @@ class ConfigurationInstantiation(Instantiation):
 
 	@property
 	def Configuration(self) -> ConfigurationInstantiationSymbol:
+		"""Property to access the configuration (:attr:`_configuration`)."""
 		return self._configuration
 
 
@@ -310,6 +317,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		ConcurrentStatement.Parent.fset(self, parent)
 
 		# Connect the process' namespace to the enclosing declaration region's namespace, so a declaration
@@ -318,6 +326,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 	@readonly
 	def SensitivityList(self) -> List[Name]:
+		"""Read-only property to access the sensitivity list (:attr:`_sensitivityList`)."""
 		return self._sensitivityList
 
 
@@ -364,6 +373,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		ConcurrentStatement.Parent.fset(self, parent)
 
 		self._namespace.ParentNamespace = parent._namespace
@@ -416,10 +426,12 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 
 	@readonly
 	def AlternativeLabel(self) -> Nullable[str]:
+		"""Read-only property to access the alternative label (:attr:`_alternativeLabel`)."""
 		return self._alternativeLabel
 
 	@readonly
 	def NormalizedAlternativeLabel(self) -> Nullable[str]:
+		"""Read-only property to access the normalized alternative label (:attr:`_normalizedAlternativeLabel`)."""
 		return self._normalizedAlternativeLabel
 
 
@@ -608,6 +620,7 @@ class IfGenerateStatement(GenerateStatement):
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		from pyVHDLModel.DesignUnit import Architecture
 
 		GenerateStatement.Parent.fset(self, parent)
@@ -626,14 +639,17 @@ class IfGenerateStatement(GenerateStatement):
 
 	@readonly
 	def IfBranch(self) -> IfGenerateBranch:
+		"""Read-only property to access the if branch (:attr:`_ifBranch`)."""
 		return self._ifBranch
 
 	@readonly
 	def ElsifBranches(self) -> List[ElsifGenerateBranch]:
+		"""Read-only property to access the elsif branches (:attr:`_elsifBranches`)."""
 		return self._elsifBranches
 
 	@readonly
 	def ElseBranch(self) -> Nullable[ElseGenerateBranch]:
+		"""Read-only property to access the else branch (:attr:`_elseBranch`)."""
 		return self._elseBranch
 
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -668,6 +684,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
+		"""Read-only property to access the expression (:attr:`_expression`)."""
 		return self._expression
 
 	def __str__(self) -> str:
@@ -686,6 +703,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 	@readonly
 	def Range(self) -> 'Range':
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 	def __str__(self) -> str:
@@ -788,6 +806,7 @@ class CaseGenerateStatement(GenerateStatement):
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		"""Property to set the parent."""
 		GenerateStatement.Parent.fset(self, parent)
 
 		# Connect namespaces
@@ -796,10 +815,12 @@ class CaseGenerateStatement(GenerateStatement):
 
 	@readonly
 	def SelectExpression(self) -> ExpressionUnion:
+		"""Read-only property to access the select expression (:attr:`_expression`)."""
 		return self._expression
 
 	@readonly
 	def Cases(self) -> List[GenerateCase]:
+		"""Read-only property to access the cases (:attr:`_cases`)."""
 		return self._cases
 
 	def IterateInstantiations(self) -> Generator[Instantiation, None, None]:
@@ -856,16 +877,19 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
+		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		GenerateStatement.Parent.fset(self, parent)
 
 		self._namespace.ParentNamespace = parent._namespace
 
 	@readonly
 	def LoopIndex(self) -> str:
+		"""Read-only property to access the loop index (:attr:`_loopIndex`)."""
 		return self._loopIndex
 
 	@readonly
 	def Range(self) -> Range:
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 	# IndexDeclaredItems = ConcurrentStatements.IndexDeclaredItems

@@ -129,6 +129,7 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 
 	@Parent.setter
 	def Parent(self, parent: 'ModelEntity') -> None:
+		"""Property to set the parent (:attr:`_parent`)."""
 		if parent is None:
 			raise ValueError("Parameter 'parent' is None.")
 
@@ -483,10 +484,12 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Message(self) -> Nullable[ExpressionUnion]:
+		"""Read-only property to access the message (:attr:`_message`)."""
 		return self._message
 
 	@readonly
 	def Severity(self) -> Nullable[ExpressionUnion]:
+		"""Read-only property to access the severity (:attr:`_severity`)."""
 		return self._severity
 
 
@@ -533,6 +536,7 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Choices(self) -> List[BaseChoice]:
+		"""Read-only property to access the choices (:attr:`_choices`)."""
 		return self._choices
 
 
@@ -655,8 +659,10 @@ class WaveformElement(ModelEntity):
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
+		"""Read-only property to access the expression (:attr:`_expression`)."""
 		return self._expression
 
 	@readonly
 	def After(self) -> Expression:
+		"""Read-only property to access the waveform element's delay (:attr:`_after`)."""
 		return self._after
