@@ -185,7 +185,7 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifier(self) -> str:
 		"""
-		Returns a model entity's identifier (name).
+		Read-only property to access the model entity's identifier (:attr:`_identifier`).
 
 		:returns: Name of a model entity.
 		"""
@@ -194,7 +194,7 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedIdentifier(self) -> str:
 		"""
-		Returns a model entity's normalized identifier (lower case name).
+		Read-only property to access the model entity's normalized identifier (:attr:`_normalizedIdentifier`).
 
 		:returns: Normalized name of a model entity.
 		"""
@@ -225,18 +225,18 @@ class OptionallyNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifier(self) -> Nullable[str]:
 		"""
-		Returns a model entity's identifier (name).
+		Read-only property to access the model entity's optional identifier (:attr:`_identifier`).
 
-		:returns: Name of a model entity.
+		:returns: Name of a model entity, or ``None`` if unnamed.
 		"""
 		return self._identifier
 
 	@readonly
 	def NormalizedIdentifier(self) -> Nullable[str]:
 		"""
-		Returns a model entity's normalized identifier (lower case name).
+		Read-only property to access the model entity's optional normalized identifier (:attr:`_normalizedIdentifier`).
 
-		:returns: Normalized name of a model entity.
+		:returns: Normalized name of a model entity, or ``None`` if unnamed.
 		"""
 		return self._normalizedIdentifier
 
@@ -266,7 +266,7 @@ class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Identifiers(self) -> Tuple[str]:
 		"""
-		Returns a model entity's tuple of identifiers (names).
+		Read-only property to access the model entity's identifiers (:attr:`_identifiers`).
 
 		:returns: Tuple of identifiers.
 		"""
@@ -275,7 +275,7 @@ class MultipleNamedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedIdentifiers(self) -> Tuple[str]:
 		"""
-		Returns a model entity's tuple of normalized identifiers (lower case names).
+		Read-only property to access the model entity's normalized identifiers (:attr:`_normalizedIdentifiers`).
 
 		:returns: Tuple of normalized identifiers.
 		"""
@@ -361,7 +361,7 @@ class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Label(self) -> Nullable[str]:
 		"""
-		Returns a model entity's label.
+		Read-only property to access the model entity's label (:attr:`_label`).
 
 		:returns: Label of a model entity.
 		"""
@@ -370,7 +370,7 @@ class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def NormalizedLabel(self) -> Nullable[str]:
 		"""
-		Returns a model entity's normalized (lower case) label.
+		Read-only property to access the model entity's normalized label (:attr:`_normalizedLabel`).
 
 		:returns: Normalized label of a model entity.
 		"""
@@ -399,7 +399,7 @@ class DocumentedEntityMixin(metaclass=ExtendedType, mixin=True):
 	@readonly
 	def Documentation(self) -> Nullable[str]:
 		"""
-		Returns a model entity's associated documentation.
+		Read-only property to access the model entity's documentation (:attr:`_documentation`).
 
 		:returns: Associated documentation of a model entity.
 		"""

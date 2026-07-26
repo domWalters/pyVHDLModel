@@ -283,18 +283,18 @@ class VHDLVersion(Enum):
 	@readonly
 	def IsVHDL(self) -> bool:
 		"""
-		Checks if the version is a VHDL (not VHDL-AMS) version.
+		Read-only property to return whether the version is a VHDL (not VHDL-AMS) version.
 
-		:returns:          True if version is a VHDL version.
+		:returns: ``True``, if the version is a VHDL version.
 		"""
 		return self in (self.VHDL87, self.VHDL93, self.VHDL2002, self.VHDL2008, self.VHDL2019)
 
 	@readonly
 	def IsAMS(self) -> bool:
 		"""
-		Checks if the version is a VHDL-AMS (not VHDL) version.
+		Read-only property to return whether the version is a VHDL-AMS (not VHDL) version.
 
-		:returns:          True if version is a VHDL-AMS version.
+		:returns: ``True``, if the version is a VHDL-AMS version.
 		"""
 		return self in (self.AMS93, self.AMS99, self.AMS2017)
 
@@ -2239,32 +2239,57 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:
-		"""Returns a list of all context declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all context declarations in this library (:attr:`_contexts`).
+
+		:returns: Dictionary of all contexts, keyed by normalized identifier.
+		"""
 		return self._contexts
 
 	@readonly
 	def Configurations(self) -> Dict[str, Configuration]:
-		"""Returns a list of all configuration declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all configuration declarations in this library (:attr:`_configurations`).
+
+		:returns: Dictionary of all configurations, keyed by normalized identifier.
+		"""
 		return self._configurations
 
 	@readonly
 	def Entities(self) -> Dict[str, Entity]:
-		"""Returns a list of all entity declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all entity declarations in this library (:attr:`_entities`).
+
+		:returns: Dictionary of all entities, keyed by normalized identifier.
+		"""
 		return self._entities
 
 	@readonly
 	def Architectures(self) -> Dict[str, Dict[str, Architecture]]:
-		"""Returns a list of all architectures declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all architecture declarations in this library (:attr:`_architectures`).
+
+		:returns: Dictionary of all architectures, keyed by normalized entity identifier, then by normalized
+		          architecture identifier.
+		"""
 		return self._architectures
 
 	@readonly
 	def Packages(self) -> Dict[str, Package]:
-		"""Returns a list of all package declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all package declarations in this library (:attr:`_packages`).
+
+		:returns: Dictionary of all packages, keyed by normalized identifier.
+		"""
 		return self._packages
 
 	@readonly
 	def PackageBodies(self) -> Dict[str, PackageBody]:
-		"""Returns a list of all package body declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all package body declarations in this library (:attr:`_packageBodies`).
+
+		:returns: Dictionary of all package bodies, keyed by normalized identifier.
+		"""
 		return self._packageBodies
 
 	@readonly
@@ -2921,81 +2946,82 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:
 		"""
-		Read-only property to access a list of all context declarations found in this document (:attr:`_contexts`).
+		Read-only property to access the dictionary of all context declarations in this document (:attr:`_contexts`).
 
-		:returns: List of all contexts.
+		:returns: Dictionary of all contexts, keyed by normalized identifier.
 		"""
 		return self._contexts
 
 	@readonly
 	def Configurations(self) -> Dict[str, Configuration]:
 		"""
-		Read-only property to access a list of all configuration declarations found in this document (:attr:`_configurations`).
+		Read-only property to access the dictionary of all configuration declarations in this document (:attr:`_configurations`).
 
-		:returns: List of all configurations.
+		:returns: Dictionary of all configurations, keyed by normalized identifier.
 		"""
 		return self._configurations
 
 	@readonly
 	def Entities(self) -> Dict[str, Entity]:
 		"""
-		Read-only property to access a list of all entity declarations found in this document (:attr:`_entities`).
+		Read-only property to access the dictionary of all entity declarations in this document (:attr:`_entities`).
 
-		:returns: List of all entities.
+		:returns: Dictionary of all entities, keyed by normalized identifier.
 		"""
 		return self._entities
 
 	@readonly
 	def Architectures(self) -> Dict[str, Dict[str, Architecture]]:
 		"""
-		Read-only property to access a list of all architecture declarations found in this document (:attr:`_architectures`).
+		Read-only property to access the dictionary of all architecture declarations in this document (:attr:`_architectures`).
 
-		:returns: List of all architectures.
+		:returns: Dictionary of all architectures, keyed by normalized entity identifier, then by normalized
+		          architecture identifier.
 		"""
 		return self._architectures
 
 	@readonly
 	def Packages(self) -> Dict[str, Package]:
 		"""
-		Read-only property to access a list of all package declarations found in this document (:attr:`_packages`).
+		Read-only property to access the dictionary of all package declarations in this document (:attr:`_packages`).
 
-		:returns: List of all packages.
+		:returns: Dictionary of all packages, keyed by normalized identifier.
 		"""
 		return self._packages
 
 	@readonly
 	def PackageBodies(self) -> Dict[str, PackageBody]:
 		"""
-		Read-only property to access a list of all package body declarations found in this document (:attr:`_packageBodies`).
+		Read-only property to access the dictionary of all package body declarations in this document (:attr:`_packageBodies`).
 
-		:returns: List of all package bodies.
+		:returns: Dictionary of all package bodies, keyed by normalized identifier.
 		"""
 		return self._packageBodies
 
 	@readonly
 	def VerificationUnits(self) -> Dict[str, VerificationUnit]:
 		"""
-		Read-only property to access a list of all verification unit declarations found in this document (:attr:`_verificationUnits`).
+		Read-only property to access the dictionary of all verification unit declarations in this document (:attr:`_verificationUnits`).
 
-		:returns: List of all verification units.
+		:returns: Dictionary of all verification units, keyed by normalized identifier.
 		"""
 		return self._verificationUnits
 
 	@readonly
 	def VerificationProperties(self) -> Dict[str, VerificationProperty]:
 		"""
-		Read-only property to access a list of all verification properties declarations found in this document (:attr:`_verificationProperties`).
+		Read-only property to access the dictionary of all verification property declarations in this document (:attr:`_verificationProperties`).
 
-		:returns: List of all verification properties.
+		:returns: Dictionary of all verification properties, keyed by normalized identifier.
 		"""
 		return self._verificationProperties
 
 	@readonly
 	def VerificationModes(self) -> Dict[str, VerificationMode]:
 		"""
-		Read-only property to access a list of all verification modes declarations found in this document (:attr:`_verificationModes`).
+		Read-only property to access the dictionary of all verification mode declarations in this document (:attr:`_verificationModes`).
 
-		:returns: List of all verification modes.
+		:returns: Dictionary of all verification mode declarations, keyed by normalized identifier.
 		"""
 		return self._verificationModes
 

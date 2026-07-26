@@ -629,14 +629,7 @@ class ScalarConstraint(Constraint, mixin=True):
 
 	@readonly
 	def Constraint(self) -> Nullable[Range]:
-		"""
-		The scalar type's range constraint.
-
-		``None`` only when the range constraint is written as an attribute name (e.g.
-		``subtype s is t'range;``) rather than a literal range - reading a range out of an attribute
-		name is not yet implemented, not because the source omits a constraint (it never does for a
-		constrained scalar subtype).
-		"""
+		"""Read-only property to access the scalar type's range constraint (:attr:`_constraint`)."""
 		return self._constraint
 
 
