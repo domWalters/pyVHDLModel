@@ -37,6 +37,7 @@ Base-classes for the VHDL language model.
 from enum                  import unique, Enum
 from typing                import Type, Tuple, List, Iterable, Optional as Nullable, Union, cast
 
+from pyTooling.Common      import getFullyQualifiedName
 from pyTooling.Decorators  import export, readonly
 from pyTooling.MetaClasses import ExtendedType
 
@@ -305,7 +306,9 @@ def identifiersOf(item) -> Tuple[str, ...]:
 	elif isinstance(item, NamedEntityMixin):
 		return (item._identifier, )
 
-	raise TypeError(f"Item '{item!r}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+	ex = TypeError(f"Item '{item}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+	ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+	raise ex
 
 
 @export
@@ -330,7 +333,9 @@ def normalizedIdentifiersOf(item) -> Tuple[str, ...]:
 	elif isinstance(item, NamedEntityMixin):
 		return (item._normalizedIdentifier, )
 
-	raise TypeError(f"Item '{item!r}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+	ex = TypeError(f"Item '{item}' is neither a NamedEntityMixin nor a MultipleNamedEntityMixin.")
+	ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+	raise ex
 
 
 @export

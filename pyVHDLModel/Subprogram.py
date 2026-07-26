@@ -117,6 +117,14 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 		return self._isPure
 
 
+	def IndexDeclaredItems(self) -> None:
+		"""A subprogram's generics and parameters share the declarative region of its declarative part."""
+		self._IndexGenericItems()
+		self._IndexParameterItems()
+
+		super().IndexDeclaredItems()
+
+
 @export
 class Procedure(Subprogram):
 	def __init__(

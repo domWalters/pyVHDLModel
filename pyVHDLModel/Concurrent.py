@@ -369,6 +369,13 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		self._namespace.ParentNamespace = parent._namespace
 
 
+	def IndexDeclaredItems(self) -> None:
+		"""A block's ports share the declarative region of its declarative part."""
+		self._IndexPortItems()
+
+		super().IndexDeclaredItems()
+
+
 @export
 class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin):
 	"""
