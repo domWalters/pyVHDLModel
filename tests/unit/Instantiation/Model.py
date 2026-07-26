@@ -29,7 +29,7 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
-"""Instantiation tests for the language model."""
+"""Instantiation tests for the model's top-level composition: names, symbols, design, library and document."""
 from pathlib  import Path
 from unittest import TestCase
 

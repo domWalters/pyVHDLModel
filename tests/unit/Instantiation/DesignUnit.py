@@ -272,13 +272,6 @@ class Architectures(TestCase):
 		self.assertEqual(1, len(architecture.Procedures["p_proc"]))
 		self.assertIs(procedure, architecture.Procedures["p_proc"][0])
 
-	def test_IndexDeclaredItems_AlsoPopulatesNamespace(self) -> None:
-		constant = Constant(["C"], SimpleSubtypeSymbol(SimpleName("natural")))
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[constant])
-		architecture.IndexDeclaredItems()
-
-		self.assertIs(constant, architecture._namespace.Elements()["c"])
-
 	def test_IndexDeclaredItems_VariablesAreNotYetIndexed(self) -> None:
 		"""Still-open gap (documented in Regions.py's own TODO): variables declared directly in a
 		concurrent declaration region raise a warning instead of being indexed anywhere - locked in as

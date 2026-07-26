@@ -126,10 +126,16 @@ class Namespace(Generic[K, O]):
 			else:
 				raise TypeError(f"Found element '{subtypeSymbol._name._identifier}', but it is not a type or subtype.")
 		except KeyError:
-			if (parentNamespace := self._parentNamespace) is None:
-				raise KeyError(f"Subtype '{subtypeSymbol._name._identifier}' not found in '{self._name}'.")
+			key = subtypeSymbol._name._identifier
 
-			return parentNamespace.FindSubtype(subtypeSymbol)
+			if (parentNamespace := self._parentNamespace) is None:
+				raise ExtendedKeyError(key, (self, ), f"Subtype '{key}' not found in '{self._name}'.")
+
+			try:
+				return parentNamespace.FindSubtype(subtypeSymbol)
+			except ExtendedKeyError as ex:
+				searchedNamespaces = (self, *ex.searchedNamespaces)
+				raise ExtendedKeyError(key, searchedNamespaces, f"Subtype '{key}' not found in: {', '.join(ns._name for ns in searchedNamespaces)}.") from ex
 
 	def FindObject(self, objectSymbol: Symbol) -> Obj:
 		try:
@@ -152,9 +158,15 @@ class Namespace(Generic[K, O]):
 				else:
 					raise TypeError(f"Found variable '{objectSymbol._name._identifier}', but it was not expected.")
 			else:
-				raise TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not a type or subtype.")
+				raise TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not an object.")
 		except KeyError:
-			if (parentNamespace := self._parentNamespace) is None:
-				raise KeyError(f"Subtype '{objectSymbol._name._identifier}' not found in '{self._name}'.")
+			key = objectSymbol._name._identifier
 
-			return parentNamespace.FindObject(objectSymbol)
+			if (parentNamespace := self._parentNamespace) is None:
+				raise ExtendedKeyError(key, (self, ), f"Object '{key}' not found in '{self._name}'.")
+
+			try:
+				return parentNamespace.FindObject(objectSymbol)
+			except ExtendedKeyError as ex:
+				searchedNamespaces = (self, *ex.searchedNamespaces)
+				raise ExtendedKeyError(key, searchedNamespaces, f"Object '{key}' not found in: {', '.join(ns._name for ns in searchedNamespaces)}.") from ex
