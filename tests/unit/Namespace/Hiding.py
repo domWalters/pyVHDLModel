@@ -67,7 +67,11 @@ def _signal(identifier: str) -> Signal:
 
 class EntityAndArchitecture(TestCase):
 	"""
-	An architecture's namespace nests inside its entity's.
+	An architecture's namespace nests inside its entity's, which is what makes an entity's ports and
+	declarations *visible* in the architecture.
+
+	Note this pair is a single declarative region in VHDL, so it is not a hiding scenario - see
+	:meth:`test_ArchitectureDeclarationShadowsEntityDeclaration_ButIsIllegalVHDL`.
 
 	That link is established by :meth:`~pyVHDLModel.Library.LinkArchitectures`, not by assigning
 	``Architecture.Parent`` - an architecture's parent is its document, and the entity relation goes
@@ -99,11 +103,24 @@ class EntityAndArchitecture(TestCase):
 	def test_ArchitectureNamespaceNestsInsideEntityNamespace(self) -> None:
 		self.assertIs(self._entity._namespace, self._architecture._namespace.ParentNamespace)
 
-	def test_ArchitectureDeclarationHidesEntityDeclaration(self) -> None:
+	def test_ArchitectureDeclarationShadowsEntityDeclaration_ButIsIllegalVHDL(self) -> None:
+		"""
+		Documents current *model* behaviour, which does **not** match VHDL.
+
+		An entity declaration and its architecture body form a **single** declarative region
+		(LRM 12.1), so re-declaring an entity-level name in the architecture is an error, not hiding.
+		Confirmed against GHDL: ``signal s`` in an architecture whose entity declares ``s`` gives
+		"identifier "s" already used for a declaration" - whereas a *process* variable shadowing an
+		architecture signal only warns (``-Whide``).
+
+		The model represents the entity/architecture pair as two nested namespaces, which gets
+		*visibility* right (see the next test) but silently resolves a duplicate instead of rejecting
+		it. Duplicate-declaration detection is a separate, missing feature - see
+		``pyVHDLModel.Findings.md``.
+		"""
 		found = self._architecture._namespace.FindObject(SignalSymbol(SimpleName("x")))
 
 		self.assertIs(self._architectureSignal, found)
-		self.assertIsNot(self._entitySignal, found)
 
 	def test_ArchitectureInheritsEntityOnlyDeclaration(self) -> None:
 		found = self._architecture._namespace.FindObject(SignalSymbol(SimpleName("entityOnly")))
@@ -111,7 +128,7 @@ class EntityAndArchitecture(TestCase):
 		self.assertIs(self._entityOnlySignal, found)
 
 	def test_EntityStillResolvesItsOwnDeclaration(self) -> None:
-		"""Hiding is one-directional - the outer scope is unaffected by the inner one."""
+		"""Lookup only walks outwards - the outer namespace is unaffected by the inner one."""
 		found = self._entity._namespace.FindObject(SignalSymbol(SimpleName("x")))
 
 		self.assertIs(self._entitySignal, found)
