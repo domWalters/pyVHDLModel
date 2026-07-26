@@ -75,14 +75,14 @@ class PredefinedPackageMixin(metaclass=ExtendedType, mixin=True):
 	A mixin-class for predefined VHDL packages and package bodies.
 	"""
 
-	def _AddLibraryClause(self, libraries: Iterable[str]):
+	def _AddLibraryClause(self, libraries: Iterable[str]) -> None:
 		symbols = [LibraryReferenceSymbol(SimpleName(libName)) for libName in libraries]
 		libraryClause = LibraryClause(symbols)
 
 		self._contextItems.append(libraryClause)
 		self._libraryReferences.append(libraryClause)
 
-	def _AddPackageClause(self, packages: Iterable[str]):
+	def _AddPackageClause(self, packages: Iterable[str]) -> None:
 		symbols = []
 		for qualifiedPackageName in packages:
 			libName, packName, members = qualifiedPackageName.split(".")

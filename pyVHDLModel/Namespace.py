@@ -89,7 +89,7 @@ class Namespace(Generic[K, O]):
 		return self._parentNamespace
 
 	@ParentNamespace.setter
-	def ParentNamespace(self, value: 'Namespace'):
+	def ParentNamespace(self, value: 'Namespace') -> None:
 		self._parentNamespace = value
 		value._subNamespaces[self._name] = self
 

@@ -1197,7 +1197,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				signalVertex["kind"] = ObjectGraphVertexKind.Signal
 				signal._objectVertex = signalVertex
 
-		def _LinkSymbolsInExpression(expression, namespace: Namespace, typeVertex: Vertex):
+		def _LinkSymbolsInExpression(expression, namespace: Namespace, typeVertex: Vertex) -> None:
 			if isinstance(expression, UnaryExpression):
 				_LinkSymbolsInExpression(expression.Operand, namespace, typeVertex)
 			elif isinstance(expression, BinaryExpression):
@@ -1214,7 +1214,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			else:
 				WarningCollector.Raise(NotImplementedWarning(f"Unhandled else-branch"))
 
-		def _LinkItems(package: Package):
+		def _LinkItems(package: Package) -> None:
 			for item in package._declaredItems:
 				if isinstance(item, Constant):
 					print(f"constant: {item}")

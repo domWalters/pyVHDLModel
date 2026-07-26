@@ -524,24 +524,24 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 		return self._declaredItems
 
 	@readonly
-	def DeferredConstants(self):
+	def DeferredConstants(self) -> Dict[str, DeferredConstant]:
 		"""
 		Read-only property to access the deferred constants (:attr:`_deferredConstants`).
 
-		:returns: The deferred constants.
+		:returns: Dictionary of deferred constants, indexed by normalized identifier.
 		"""
 		return self._deferredConstants
 
 	@readonly
-	def Components(self):
+	def Components(self) -> Dict[str, 'Component']:
 		"""
 		Read-only property to access the components (:attr:`_components`).
 
-		:returns: The components.
+		:returns: Dictionary of components, indexed by normalized identifier.
 		"""
 		return self._components
 
-	def _IndexOtherDeclaredItem(self, item):
+	def _IndexOtherDeclaredItem(self, item) -> None:
 		if isinstance(item, DeferredConstant):
 			for normalizedIdentifier in item.NormalizedIdentifiers:
 				self._deferredConstants[normalizedIdentifier] = item

@@ -375,7 +375,7 @@ class UnaryExpression(BaseExpression):
 		operand.Parent = self
 
 	@readonly
-	def Operand(self):
+	def Operand(self) -> ExpressionUnion:
 		"""
 		Read-only property to access the operand (:attr:`_operand`).
 
@@ -489,7 +489,7 @@ class BinaryExpression(BaseExpression):
 		rightOperand.Parent = self
 
 	@readonly
-	def LeftOperand(self):
+	def LeftOperand(self) -> ExpressionUnion:
 		"""
 		Read-only property to access the left operand (:attr:`_leftOperand`).
 
@@ -498,7 +498,7 @@ class BinaryExpression(BaseExpression):
 		return self._leftOperand
 
 	@readonly
-	def RightOperand(self):
+	def RightOperand(self) -> ExpressionUnion:
 		"""
 		Read-only property to access the right operand (:attr:`_rightOperand`).
 
@@ -762,7 +762,7 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		subtype.Parent = self
 
 	@readonly
-	def Operand(self):
+	def Operand(self) -> ExpressionUnion:
 		"""
 		Read-only property to access the operand (:attr:`_operand`).
 
@@ -771,7 +771,7 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		return self._operand
 
 	@readonly
-	def Subtype(self):
+	def Subtype(self) -> Symbol:
 		"""
 		Read-only property to access the subtype (:attr:`_subtype`).
 
@@ -949,7 +949,7 @@ class AggregateElement(ModelEntity):
 		expression.Parent = self
 
 	@readonly
-	def Expression(self):
+	def Expression(self) -> ExpressionUnion:
 		"""
 		Read-only property to access the expression (:attr:`_expression`).
 

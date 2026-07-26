@@ -431,7 +431,7 @@ class AccessType(FullType):
 		designatedSubtype.Parent = self
 
 	@readonly
-	def DesignatedSubtype(self):
+	def DesignatedSubtype(self) -> Symbol:
 		"""
 		Read-only property to access the designated subtype (:attr:`_designatedSubtype`).
 
@@ -454,7 +454,7 @@ class FileType(FullType):
 		designatedSubtype.Parent = self
 
 	@readonly
-	def DesignatedSubtype(self):
+	def DesignatedSubtype(self) -> Symbol:
 		"""
 		Read-only property to access the designated subtype (:attr:`_designatedSubtype`).
 

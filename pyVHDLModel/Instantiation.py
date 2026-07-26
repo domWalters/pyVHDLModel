@@ -222,7 +222,7 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		"""
 		return self._genericAssociationItems
 
-	def Instantiate(self):
+	def Instantiate(self) -> None:
 		genericPackage: Package = self._packageReference.Package
 		if genericPackage is None:
 			raise VHDLModelException(f"PackageInstantiation '{self.Identifier}' isn't linked to the generic package '{self._packageReference.Name}'.")
