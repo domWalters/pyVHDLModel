@@ -80,6 +80,7 @@ class EnumerationLiteral(Literal):
 
 	@readonly
 	def Value(self) -> str:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	def __str__(self) -> str:
@@ -101,6 +102,7 @@ class IntegerLiteral(NumericLiteral):
 
 	@readonly
 	def Value(self) -> int:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	def __str__(self) -> str:
@@ -117,6 +119,7 @@ class FloatingPointLiteral(NumericLiteral):
 
 	@readonly
 	def Value(self) -> float:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	def __str__(self) -> str:
@@ -133,6 +136,7 @@ class PhysicalLiteral(NumericLiteral):
 
 	@readonly
 	def UnitName(self) -> str:
+		"""Read-only property to access the unit name (:attr:`_unitName`)."""
 		return self._unitName
 
 	def __str__(self) -> str:
@@ -149,6 +153,7 @@ class PhysicalIntegerLiteral(PhysicalLiteral):
 
 	@readonly
 	def Value(self) -> int:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 
@@ -162,6 +167,7 @@ class PhysicalFloatingLiteral(PhysicalLiteral):
 
 	@readonly
 	def Value(self) -> float:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 
@@ -175,6 +181,7 @@ class CharacterLiteral(Literal):
 
 	@readonly
 	def Value(self) -> str:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	def __str__(self) -> str:
@@ -191,6 +198,7 @@ class StringLiteral(Literal):
 
 	@readonly
 	def Value(self) -> str:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	def __str__(self) -> str:
@@ -228,22 +236,27 @@ class BitStringLiteral(Literal):
 
 	@readonly
 	def Value(self) -> str:
+		"""Read-only property to access the value (:attr:`_value`)."""
 		return self._value
 
 	@readonly
 	def BinaryValue(self) -> str:
+		"""Read-only property to access the binary value (:attr:`_binaryValue`)."""
 		return self._binaryValue
 
 	@readonly
 	def Bits(self) -> Nullable[int]:
+		"""Read-only property to access the bits (:attr:`_bits`)."""
 		return self._bits
 
 	@readonly
 	def Length(self) -> Nullable[int]:
+		"""Read-only property to access the length (:attr:`_length`)."""
 		return self._length
 
 	@readonly
 	def Signed(self) -> Nullable[bool]:
+		"""Read-only property to access the signed (:attr:`_signed`)."""
 		return self._signed
 
 	def __str__(self) -> str:
@@ -288,6 +301,7 @@ class ParenthesisExpression: #(Protocol):
 
 	@readonly
 	def Operand(self) -> ExpressionUnion:
+		"""Read-only property to return the operand. A parenthesis expression has none of its own."""
 		return None
 
 
@@ -306,6 +320,7 @@ class UnaryExpression(BaseExpression):
 
 	@readonly
 	def Operand(self):
+		"""Read-only property to access the operand (:attr:`_operand`)."""
 		return self._operand
 
 	def __str__(self) -> str:
@@ -380,6 +395,7 @@ class TypeConversion(UnaryExpression):
 
 	@readonly
 	def TargetSubtype(self) -> SubtypeSymbol:
+		"""Read-only property to access the target subtype (:attr:`_targetSubtype`)."""
 		return self._targetSubtype
 
 	def __str__(self) -> str:
@@ -408,12 +424,14 @@ class BinaryExpression(BaseExpression):
 		self._rightOperand = rightOperand
 		rightOperand.Parent = self
 
-	@property
+	@readonly
 	def LeftOperand(self):
+		"""Read-only property to access the left operand (:attr:`_leftOperand`)."""
 		return self._leftOperand
 
-	@property
+	@readonly
 	def RightOperand(self):
+		"""Read-only property to access the right operand (:attr:`_rightOperand`)."""
 		return self._rightOperand
 
 	def __str__(self) -> str:
@@ -430,8 +448,9 @@ class BinaryExpression(BaseExpression):
 class RangeExpression(BinaryExpression):
 	_direction: Direction
 
-	@property
+	@readonly
 	def Direction(self) -> Direction:
+		"""Read-only property to access the direction (:attr:`_direction`)."""
 		return self._direction
 
 
@@ -666,12 +685,14 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Operand(self):
+		"""Read-only property to access the operand (:attr:`_operand`)."""
 		return self._operand
 
 	@readonly
 	def Subtype(self):
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	def __str__(self) -> str:
@@ -749,14 +770,17 @@ class WhenElseExpression(TernaryExpression):
 
 	@readonly
 	def ThenValue(self) -> ExpressionUnion:
+		"""Read-only property to access the then value (:attr:`_firstOperand`)."""
 		return self._firstOperand
 
 	@readonly
 	def Condition(self) -> ExpressionUnion:
+		"""Read-only property to access the condition (:attr:`_secondOperand`)."""
 		return self._secondOperand
 
 	@readonly
 	def ElseValue(self) -> ExpressionUnion:
+		"""Read-only property to access the else value (:attr:`_thirdOperand`)."""
 		return self._thirdOperand
 
 
@@ -780,8 +804,9 @@ class SubtypeAllocation(Allocation):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Subtype(self) -> Symbol:
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	def __str__(self) -> str:
@@ -798,8 +823,9 @@ class QualifiedExpressionAllocation(Allocation):
 		self._qualifiedExpression = qualifiedExpression
 		qualifiedExpression.Parent = self
 
-	@property
+	@readonly
 	def QualifiedExpression(self) -> QualifiedExpression:
+		"""Read-only property to access the qualified expression (:attr:`_qualifiedExpression`)."""
 		return self._qualifiedExpression
 
 	def __str__(self) -> str:
@@ -818,8 +844,9 @@ class AggregateElement(ModelEntity):
 		self._expression = expression
 		expression.Parent = self
 
-	@property
+	@readonly
 	def Expression(self):
+		"""Read-only property to access the expression (:attr:`_expression`)."""
 		return self._expression
 
 
@@ -838,8 +865,9 @@ class IndexedAggregateElement(AggregateElement):
 
 		self._index = index
 
-	@property
+	@readonly
 	def Index(self) -> int:
+		"""Read-only property to access the index (:attr:`_index`)."""
 		return self._index
 
 	def __str__(self) -> str:
@@ -856,8 +884,9 @@ class RangedAggregateElement(AggregateElement):
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def Range(self) -> Range:
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 	def __str__(self) -> str:
@@ -874,8 +903,9 @@ class NamedAggregateElement(AggregateElement):
 		self._name = name
 		name.Parent = self
 
-	@property
+	@readonly
 	def Name(self) -> Symbol:
+		"""Read-only property to access the name (:attr:`_name`)."""
 		return self._name
 
 	def __str__(self) -> str:
@@ -905,8 +935,9 @@ class Aggregate(BaseExpression):
 			self._elements.append(element)
 			element.Parent = self
 
-	@property
+	@readonly
 	def Elements(self) -> List[AggregateElement]:
+		"""Read-only property to access the elements (:attr:`_elements`)."""
 		return self._elements
 
 	def __str__(self) -> str:

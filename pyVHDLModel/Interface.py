@@ -84,6 +84,7 @@ class SimpleModeViewElement(ModeViewElement):
 
 	@readonly
 	def Mode(self) -> Mode:
+		"""Read-only property to access the mode (:attr:`_mode`)."""
 		return self._mode
 
 
@@ -111,6 +112,7 @@ class CompositeModeViewElement(ModeViewElement):
 
 	@readonly
 	def ModeViewName(self) -> ModeViewSymbol:
+		"""Read-only property to access the mode view name (:attr:`_modeViewName`)."""
 		return self._modeViewName
 
 
@@ -155,10 +157,12 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> SubtypeSymbol:
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	@readonly
 	def Elements(self) -> List[ModeViewElement]:
+		"""Read-only property to access the elements (:attr:`_elements`)."""
 		return self._elements
 
 
@@ -180,6 +184,7 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def Mode(self) -> Mode:
+		"""Read-only property to access the mode (:attr:`_mode`)."""
 		return self._mode
 
 
@@ -329,6 +334,7 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
+		"""Read-only property to access the mode view indication (:attr:`_subtype`)."""
 		return self._subtype
 
 
@@ -426,6 +432,7 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 	@readonly
 	def ModeViewIndication(self) -> ModeViewSymbol:
+		"""Read-only property to access the mode view indication (:attr:`_subtype`)."""
 		return self._subtype
 
 
@@ -456,12 +463,14 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 				self._genericItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
+		"""Read-only property to access the generic items (:attr:`_genericItems`)."""
 		return self._genericItems
 
-	@property
+	@readonly
 	def GenericCount(self) -> int:
+		"""Read-only property to return the number of generics in :attr:`_genericItems`."""
 		return len(self._genericItems)
 
 
@@ -479,12 +488,14 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 				self._portItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
+		"""Read-only property to access the port items (:attr:`_portItems`)."""
 		return self._portItems
 
-	@property
+	@readonly
 	def PortCount(self) -> int:
+		"""Read-only property to return the number of ports in :attr:`_portItems`."""
 		return len(self._portItems)
 
 
@@ -502,12 +513,14 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 				self._parameterItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:
+		"""Read-only property to access the parameter items (:attr:`_parameterItems`)."""
 		return self._parameterItems
 
-	@property
+	@readonly
 	def ParameterCount(self) -> int:
+		"""Read-only property to return the number of parameters in :attr:`_parameterItems`."""
 		return len(self._parameterItems)
 
 

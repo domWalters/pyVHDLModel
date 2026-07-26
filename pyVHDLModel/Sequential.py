@@ -142,6 +142,7 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 
 	@readonly
 	def ConditionalExpressions(self) -> List[ConditionalExpression]:
+		"""Read-only property to access the conditional expressions (:attr:`_conditionalExpressions`)."""
 		return self._conditionalExpressions
 
 
@@ -348,7 +349,7 @@ class IfStatement(CompoundStatement):
 		"""
 		return self._ifBranch
 
-	@property
+	@readonly
 	def ElsIfBranches(self) -> List['ElsifBranch']:
 		"""
 		Read-only property to access the elsif-branch of the if-statement (:attr:`_elsifBranch`).
@@ -357,7 +358,7 @@ class IfStatement(CompoundStatement):
 		"""
 		return self._elsifBranches
 
-	@property
+	@readonly
 	def ElseBranch(self) -> Nullable[ElseBranch]:
 		"""
 		Read-only property to access the else-branch of the if-statement (:attr:`_elseBranch`).
@@ -382,8 +383,9 @@ class IndexedChoice(SequentialChoice):
 		self._expression = expression
 		expression.Parent = self
 
-	@property
+	@readonly
 	def Expression(self) -> ExpressionUnion:
+		"""Read-only property to access the expression (:attr:`_expression`)."""
 		return self._expression
 
 	def __str__(self) -> str:
@@ -400,8 +402,9 @@ class RangedChoice(SequentialChoice):
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def Range(self) -> 'Range':
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 	def __str__(self) -> str:
@@ -453,12 +456,14 @@ class CaseStatement(CompoundStatement):
 				self._cases.append(case)
 				case.Parent = self
 
-	@property
+	@readonly
 	def SelectExpression(self) -> ExpressionUnion:
+		"""Read-only property to access the select expression (:attr:`_expression`)."""
 		return self._expression
 
-	@property
+	@readonly
 	def Cases(self) -> List[SequentialCase]:
+		"""Read-only property to access the cases (:attr:`_cases`)."""
 		return self._cases
 
 
@@ -489,12 +494,14 @@ class ForLoopStatement(LoopStatement):
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def LoopIndex(self) -> str:
+		"""Read-only property to access the loop index (:attr:`_loopIndex`)."""
 		return self._loopIndex
 
-	@property
+	@readonly
 	def Range(self) -> Range:
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 
@@ -526,8 +533,9 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 		# TODO: loopLabel
 		# TODO: loop reference -> is it a symbol?
 
-	@property
+	@readonly
 	def LoopReference(self) -> LoopStatement:
+		"""Read-only property to access the loop reference (:attr:`_loopReference`)."""
 		return self._loopReference
 
 
@@ -564,6 +572,7 @@ class ReturnStatement(SequentialStatement):
 
 	@readonly
 	def ReturnValue(self) -> Nullable[ExpressionUnion]:
+		"""Read-only property to access the return value (:attr:`_returnValue`)."""
 		return self._returnValue
 
 
@@ -595,12 +604,14 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 		if timeout is not None:
 			timeout.Parent = self
 
-	@property
+	@readonly
 	def SensitivityList(self) -> List[Symbol]:
+		"""Read-only property to access the sensitivity list (:attr:`_sensitivityList`)."""
 		return self._sensitivityList
 
-	@property
+	@readonly
 	def Timeout(self) -> ExpressionUnion:
+		"""Read-only property to access the timeout (:attr:`_timeout`)."""
 		return self._timeout
 
 

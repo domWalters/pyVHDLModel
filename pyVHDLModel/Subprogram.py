@@ -102,18 +102,22 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 	@readonly
 	def GenericItems(self) -> List['GenericInterfaceItemMixin']:
+		"""Read-only property to access the generic items (:attr:`_genericItems`)."""
 		return self._genericItems
 
 	@readonly
 	def ParameterItems(self) -> List['ParameterInterfaceItemMixin']:
+		"""Read-only property to access the parameter items (:attr:`_parameterItems`)."""
 		return self._parameterItems
 
 	@readonly
 	def Statements(self) -> List[SequentialStatement]:
+		"""Read-only property to access the statements (:attr:`_statements`)."""
 		return self._statements
 
 	@readonly
 	def IsPure(self) -> bool:
+		"""Read-only property to access the subprogram's purity (:attr:`_isPure`)."""
 		return self._isPure
 
 
@@ -163,6 +167,7 @@ class Function(Subprogram):
 
 	@readonly
 	def ReturnType(self) -> SubtypeSymbol:
+		"""Read-only property to access the return type (:attr:`_returnType`)."""
 		return self._returnType
 
 
@@ -179,6 +184,7 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def ProtectedType(self) -> ProtectedType:
+		"""Read-only property to access the protected type (:attr:`_protectedType`)."""
 		return self._protectedType
 
 

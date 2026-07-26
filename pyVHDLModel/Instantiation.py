@@ -82,10 +82,12 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 
 	@readonly
 	def SubprogramReference(self) -> SubprogramReferenceSymbol:
+		"""Read-only property to access the subprogram reference (:attr:`_subprogramReference`)."""
 		return self._subprogramReference
 
 	@readonly
 	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
 		return self._genericAssociationItems
 
 
@@ -159,6 +161,7 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 	@readonly
 	def ReturnType(self) -> Nullable[SubtypeSymbol]:
+		"""Read-only property to access the return type (:attr:`_returnType`)."""
 		return self._returnType
 
 
@@ -191,10 +194,12 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 
 	@readonly
 	def PackageReference(self) -> PackageReferenceSymbol:
+		"""Read-only property to access the package reference (:attr:`_packageReference`)."""
 		return self._packageReference
 
 	@readonly
 	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		"""Read-only property to access the generic association items (:attr:`_genericAssociationItems`)."""
 		return self._genericAssociationItems
 
 	def Instantiate(self):

@@ -36,6 +36,7 @@ A helper class to implement namespaces and scopes.
 """
 from typing import TypeVar, Generic, Dict, Optional as Nullable, Any, Tuple
 
+from pyTooling.Common     import getFullyQualifiedName
 from pyTooling.Decorators import readonly
 
 from pyVHDLModel.Object   import Obj, Signal, Constant, Variable
@@ -71,10 +72,12 @@ class Namespace(Generic[K, O]):
 
 	@readonly
 	def Name(self) -> str:
+		"""Read-only property to access the name (:attr:`_name`)."""
 		return self._name
 
-	@readonly
+	@property
 	def ParentNamespace(self) -> 'Namespace':
+		"""Property to access the parent namespace (:attr:`_parentNamespace`)."""
 		return self._parentNamespace
 
 	@ParentNamespace.setter
@@ -84,6 +87,7 @@ class Namespace(Generic[K, O]):
 
 	@readonly
 	def SubNamespaces(self) -> Dict[str, 'Namespace']:
+		"""Read-only property to access the sub namespaces (:attr:`_subNamespaces`)."""
 		return self._subNamespaces
 
 	def Elements(self) -> Dict[K, O]:
@@ -97,7 +101,9 @@ class Namespace(Generic[K, O]):
 			if isinstance(element, Component):
 				return element
 			else:
-				raise TypeError(f"Found element '{componentSymbol._name._identifier}', but it is not a component.")
+				ex = TypeError(f"Found element '{componentSymbol._name._identifier}', but it is not a component.")
+				ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+				raise ex
 		except KeyError:
 			key = componentSymbol._name._identifier
 
@@ -117,14 +123,22 @@ class Namespace(Generic[K, O]):
 				if PossibleReference.Subtype in subtypeSymbol._possibleReferences:
 					return element
 				else:
-					raise TypeError(f"Found subtype '{subtypeSymbol._name._identifier}', but it was not expected.")
+					ex = TypeError(f"Found subtype '{subtypeSymbol._name._identifier}', but it was not expected.")
+					ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+					ex.add_note(f"Expected one of: {subtypeSymbol._possibleReferences}.")
+					raise ex
 			elif isinstance(element, FullType):
 				if PossibleReference.Type in subtypeSymbol._possibleReferences:
 					return element
 				else:
-					raise TypeError(f"Found type '{subtypeSymbol._name._identifier}', but it was not expected.")
+					ex = TypeError(f"Found type '{subtypeSymbol._name._identifier}', but it was not expected.")
+					ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+					ex.add_note(f"Expected one of: {subtypeSymbol._possibleReferences}.")
+					raise ex
 			else:
-				raise TypeError(f"Found element '{subtypeSymbol._name._identifier}', but it is not a type or subtype.")
+				ex = TypeError(f"Found element '{subtypeSymbol._name._identifier}', but it is not a type or subtype.")
+				ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+				raise ex
 		except KeyError:
 			key = subtypeSymbol._name._identifier
 
@@ -146,19 +160,30 @@ class Namespace(Generic[K, O]):
 				elif PossibleReference.SignalAttribute in objectSymbol._possibleReferences:
 					return element
 				else:
-					raise TypeError(f"Found signal '{objectSymbol._name._identifier}', but it was not expected.")
+					ex = TypeError(f"Found signal '{objectSymbol._name._identifier}', but it was not expected.")
+					ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+					ex.add_note(f"Expected one of: {objectSymbol._possibleReferences}.")
+					raise ex
 			elif isinstance(element, Constant):
 				if PossibleReference.Constant in objectSymbol._possibleReferences:
 					return element
 				else:
-					raise TypeError(f"Found constant '{objectSymbol._name._identifier}', but it was not expected.")
+					ex = TypeError(f"Found constant '{objectSymbol._name._identifier}', but it was not expected.")
+					ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+					ex.add_note(f"Expected one of: {objectSymbol._possibleReferences}.")
+					raise ex
 			elif isinstance(element, Variable):
 				if PossibleReference.Variable in objectSymbol._possibleReferences:
 					return element
 				else:
-					raise TypeError(f"Found variable '{objectSymbol._name._identifier}', but it was not expected.")
+					ex = TypeError(f"Found variable '{objectSymbol._name._identifier}', but it was not expected.")
+					ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+					ex.add_note(f"Expected one of: {objectSymbol._possibleReferences}.")
+					raise ex
 			else:
-				raise TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not an object.")
+				ex = TypeError(f"Found element '{objectSymbol._name._identifier}', but it is not an object.")
+				ex.add_note(f"Got type '{getFullyQualifiedName(element)}'.")
+				raise ex
 		except KeyError:
 			key = objectSymbol._name._identifier
 

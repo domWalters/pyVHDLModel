@@ -74,6 +74,7 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> Symbol:
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	@readonly
@@ -106,6 +107,7 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	@readonly
 	def DefaultExpression(self) -> Nullable[ExpressionUnion]:
+		"""Read-only property to access the default expression (:attr:`_defaultExpression`)."""
 		return self._defaultExpression
 
 
@@ -171,6 +173,7 @@ class DeferredConstant(BaseConstant):
 
 	@readonly
 	def ConstantReference(self) -> Nullable[Constant]:
+		"""Read-only property to access the constant reference (:attr:`_constantReference`)."""
 		return self._constantReference
 
 	def __str__(self) -> str:

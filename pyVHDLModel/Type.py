@@ -97,18 +97,22 @@ class Subtype(BaseType):
 
 	@readonly
 	def Type(self) -> Symbol:
+		"""Read-only property to access the type (:attr:`_type`)."""
 		return self._type
 
 	@readonly
 	def BaseType(self) -> BaseType:
+		"""Read-only property to access the base type (:attr:`_baseType`)."""
 		return self._baseType
 
 	@readonly
 	def Range(self) -> Range:
+		"""Read-only property to access the range (:attr:`_range`)."""
 		return self._range
 
 	@readonly
 	def ResolutionFunction(self) -> 'Function':
+		"""Read-only property to access the resolution function (:attr:`_resolutionFunction`)."""
 		return self._resolutionFunction
 
 	def __str__(self) -> str:
@@ -175,6 +179,7 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 	@readonly
 	def Literals(self) -> List[EnumerationLiteral]:
+		"""Read-only property to access the literals (:attr:`_literals`)."""
 		return self._literals
 
 	def __str__(self) -> str:
@@ -224,10 +229,12 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 
 	@readonly
 	def PrimaryUnit(self) -> str:
+		"""Read-only property to access the primary unit (:attr:`_primaryUnit`)."""
 		return self._primaryUnit
 
-	@property
+	@readonly
 	def SecondaryUnits(self) -> List[Tuple[str, PhysicalIntegerLiteral]]:
+		"""Read-only property to access the secondary units (:attr:`_secondaryUnits`)."""
 		return self._secondaryUnits
 
 	def __str__(self) -> str:
@@ -262,12 +269,14 @@ class ArrayType(CompositeType):
 		self._elementType = elementSubtype
 		# elementSubtype.Parent = self   # FIXME: subtype is provided as None
 
-	@property
+	@readonly
 	def Dimensions(self) -> List[Range]:
+		"""Read-only property to access the dimensions (:attr:`_dimensions`)."""
 		return self._dimensions
 
-	@property
+	@readonly
 	def ElementType(self) -> Symbol:
+		"""Read-only property to access the element type (:attr:`_elementType`)."""
 		return self._elementType
 
 	def __str__(self) -> str:
@@ -285,8 +294,9 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Subtype(self) -> Symbol:
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	def __str__(self) -> str:
@@ -306,8 +316,9 @@ class RecordType(CompositeType):
 				self._elements.append(element)
 				element.Parent = self
 
-	@property
+	@readonly
 	def Elements(self) -> List[RecordTypeElement]:
+		"""Read-only property to access the elements (:attr:`_elements`)."""
 		return self._elements
 
 	def __str__(self) -> str:
@@ -327,8 +338,9 @@ class ProtectedType(FullType):
 				self._methods.append(method)
 				method.Parent = self
 
-	@property
+	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
+		"""Read-only property to access the methods (:attr:`_methods`)."""
 		return self._methods
 
 
@@ -346,8 +358,9 @@ class ProtectedTypeBody(FullType):
 				method.Parent = self
 
 	# FIXME: needs to be declared items or so
-	@property
+	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
+		"""Read-only property to access the methods (:attr:`_methods`)."""
 		return self._methods
 
 
@@ -361,8 +374,9 @@ class AccessType(FullType):
 		self._designatedSubtype = designatedSubtype
 		designatedSubtype.Parent = self
 
-	@property
+	@readonly
 	def DesignatedSubtype(self):
+		"""Read-only property to access the designated subtype (:attr:`_designatedSubtype`)."""
 		return self._designatedSubtype
 
 	def __str__(self) -> str:
@@ -379,8 +393,9 @@ class FileType(FullType):
 		self._designatedSubtype = designatedSubtype
 		designatedSubtype.Parent = self
 
-	@property
+	@readonly
 	def DesignatedSubtype(self):
+		"""Read-only property to access the designated subtype (:attr:`_designatedSubtype`)."""
 		return self._designatedSubtype
 
 	def __str__(self) -> str:
