@@ -256,7 +256,11 @@ class BitStringLiteral(Literal):
 
 	@readonly
 	def Signed(self) -> Nullable[bool]:
-		"""Read-only property to access the signed (:attr:`_signed`)."""
+		"""
+		Check if the bit string literal is signed (:attr:`_signed`).
+
+		:returns: ``True``, if the literal is signed; ``None``, if unspecified.
+		"""
 		return self._signed
 
 	def __str__(self) -> str:

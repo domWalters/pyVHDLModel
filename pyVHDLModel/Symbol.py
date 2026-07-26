@@ -120,7 +120,11 @@ class Symbol(metaclass=ExtendedType):
 
 	@readonly
 	def IsResolved(self) -> bool:
-		"""Read-only property to return whether the symbol is resolved, i.e. :attr:`_reference` is set."""
+		"""
+		Check if the symbol is resolved, i.e. :attr:`_reference` is set.
+
+		:returns: ``True``, if the symbol is resolved.
+		"""
 		return self._reference is not None
 
 	def __bool__(self) -> bool:

@@ -109,8 +109,8 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_files:           Dict[str, File]                   #: Dictionary of all files declared in this concurrent declaration region.
 	# _subprograms:     Dict[str, List[Subprogram]]  #: Dictionary of all subprograms declared in this concurrent declaration region.
 	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
-	_functions:       Dict[str, List['Function']]         #: Dictionary of all functions declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
-	_procedures:      Dict[str, List['Procedure']]        #: Dictionary of all procedures declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
+	_functions:       Dict[str, List['Function']]         #: Dictionary of all functions declared in this concurrent declaration region, indexed by name; each entry is a list of overloads.
+	_procedures:      Dict[str, List['Procedure']]        #: Dictionary of all procedures declared in this concurrent declaration region, indexed by name; each entry is a list of overloads.
 	_components:      Dict[str, Any]                    #: Dictionary of all components declared in this concurrent declaration region.
 
 	def __init__(self, declaredItems: Nullable[Iterable] = None) -> None:
@@ -293,8 +293,8 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_variables:     Dict[str, Variable]           #: Dictionary of all variables declared in this sequential declaration region.
 	_files:         Dict[str, File]               #: Dictionary of all files declared in this sequential declaration region.
 	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
-	_functions:     Dict[str, List['Function']]   #: Dictionary of all functions declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
-	_procedures:    Dict[str, List['Procedure']]  #: Dictionary of all procedures declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
+	_functions:     Dict[str, List['Function']]   #: Dictionary of all functions declared in this sequential declaration region, indexed by name; each entry is a list of overloads.
+	_procedures:    Dict[str, List['Procedure']]  #: Dictionary of all procedures declared in this sequential declaration region, indexed by name; each entry is a list of overloads.
 
 	def __init__(self, namespaceName: Nullable[str] = None, declaredItems: Nullable[Iterable] = None) -> None:
 		"""

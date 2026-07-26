@@ -750,9 +750,12 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	@readonly
 	def IsBlackbox(self) -> Nullable[bool]:
 		"""
-		Read-only property to access whether the component is a blackbox (:attr:`_isBlackBox`).
+		Check if the component is a blackbox (:attr:`_isBlackBox`).
 
-		:returns: ``True``, if the component is a blackbox.
+		If components were not linked to matching entities, this property returns ``None``.
+
+		:returns: ``True``, if the component is a blackbox; ``False``, if it is not; ``None``, if components
+		          were not linked to entities yet.
 		"""
 		return self._isBlackBox
 

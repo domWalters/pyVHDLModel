@@ -283,7 +283,7 @@ class VHDLVersion(Enum):
 	@readonly
 	def IsVHDL(self) -> bool:
 		"""
-		Read-only property to return whether the version is a VHDL (not VHDL-AMS) version.
+		Check if the version is a VHDL (not VHDL-AMS) version.
 
 		:returns: ``True``, if the version is a VHDL version.
 		"""
@@ -292,7 +292,7 @@ class VHDLVersion(Enum):
 	@readonly
 	def IsAMS(self) -> bool:
 		"""
-		Read-only property to return whether the version is a VHDL-AMS (not VHDL) version.
+		Check if the version is a VHDL-AMS (not VHDL) version.
 
 		:returns: ``True``, if the version is a VHDL-AMS version.
 		"""
@@ -2242,7 +2242,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all context declarations in this library (:attr:`_contexts`).
 
-		:returns: Dictionary of all contexts, keyed by normalized identifier.
+		:returns: Dictionary of all contexts, indexed by normalized identifier.
 		"""
 		return self._contexts
 
@@ -2251,7 +2251,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all configuration declarations in this library (:attr:`_configurations`).
 
-		:returns: Dictionary of all configurations, keyed by normalized identifier.
+		:returns: Dictionary of all configurations, indexed by normalized identifier.
 		"""
 		return self._configurations
 
@@ -2260,7 +2260,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all entity declarations in this library (:attr:`_entities`).
 
-		:returns: Dictionary of all entities, keyed by normalized identifier.
+		:returns: Dictionary of all entities, indexed by normalized identifier.
 		"""
 		return self._entities
 
@@ -2269,7 +2269,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all architecture declarations in this library (:attr:`_architectures`).
 
-		:returns: Dictionary of all architectures, keyed by normalized entity identifier, then by normalized
+		:returns: Dictionary of all architectures, indexed by normalized entity identifier, then by normalized
 		          architecture identifier.
 		"""
 		return self._architectures
@@ -2279,7 +2279,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all package declarations in this library (:attr:`_packages`).
 
-		:returns: Dictionary of all packages, keyed by normalized identifier.
+		:returns: Dictionary of all packages, indexed by normalized identifier.
 		"""
 		return self._packages
 
@@ -2288,7 +2288,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		"""
 		Read-only property to access the dictionary of all package body declarations in this library (:attr:`_packageBodies`).
 
-		:returns: Dictionary of all package bodies, keyed by normalized identifier.
+		:returns: Dictionary of all package bodies, indexed by normalized identifier.
 		"""
 		return self._packageBodies
 
@@ -2948,7 +2948,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all context declarations in this document (:attr:`_contexts`).
 
-		:returns: Dictionary of all contexts, keyed by normalized identifier.
+		:returns: Dictionary of all contexts, indexed by normalized identifier.
 		"""
 		return self._contexts
 
@@ -2957,7 +2957,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all configuration declarations in this document (:attr:`_configurations`).
 
-		:returns: Dictionary of all configurations, keyed by normalized identifier.
+		:returns: Dictionary of all configurations, indexed by normalized identifier.
 		"""
 		return self._configurations
 
@@ -2966,7 +2966,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all entity declarations in this document (:attr:`_entities`).
 
-		:returns: Dictionary of all entities, keyed by normalized identifier.
+		:returns: Dictionary of all entities, indexed by normalized identifier.
 		"""
 		return self._entities
 
@@ -2975,7 +2975,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all architecture declarations in this document (:attr:`_architectures`).
 
-		:returns: Dictionary of all architectures, keyed by normalized entity identifier, then by normalized
+		:returns: Dictionary of all architectures, indexed by normalized entity identifier, then by normalized
 		          architecture identifier.
 		"""
 		return self._architectures
@@ -2985,7 +2985,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all package declarations in this document (:attr:`_packages`).
 
-		:returns: Dictionary of all packages, keyed by normalized identifier.
+		:returns: Dictionary of all packages, indexed by normalized identifier.
 		"""
 		return self._packages
 
@@ -2994,7 +2994,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all package body declarations in this document (:attr:`_packageBodies`).
 
-		:returns: Dictionary of all package bodies, keyed by normalized identifier.
+		:returns: Dictionary of all package bodies, indexed by normalized identifier.
 		"""
 		return self._packageBodies
 
@@ -3003,7 +3003,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all verification unit declarations in this document (:attr:`_verificationUnits`).
 
-		:returns: Dictionary of all verification units, keyed by normalized identifier.
+		:returns: Dictionary of all verification units, indexed by normalized identifier.
 		"""
 		return self._verificationUnits
 
@@ -3012,7 +3012,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all verification property declarations in this document (:attr:`_verificationProperties`).
 
-		:returns: Dictionary of all verification properties, keyed by normalized identifier.
+		:returns: Dictionary of all verification properties, indexed by normalized identifier.
 		"""
 		return self._verificationProperties
 
@@ -3021,7 +3021,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		"""
 		Read-only property to access the dictionary of all verification mode declarations in this document (:attr:`_verificationModes`).
 
-		:returns: Dictionary of all verification mode declarations, keyed by normalized identifier.
+		:returns: Dictionary of all verification mode declarations, indexed by normalized identifier.
 		"""
 		return self._verificationModes
 

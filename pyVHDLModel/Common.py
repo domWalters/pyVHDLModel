@@ -73,7 +73,7 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 		1. If allow blackbox property is locally set, return the local value,
 		2. Otherwise, return allow blackbox value from parent object.
 
-		:returns:                   If blackboxes are allowed.
+		:returns:                   ``True``, if blackboxes are allowed.
 		:raises VHDLModelException: If neither a local value is set nor a parent object is available to inherit the
 		                            value from.
 		"""

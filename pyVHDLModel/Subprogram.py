@@ -117,7 +117,11 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 	@readonly
 	def IsPure(self) -> bool:
-		"""Read-only property to access the subprogram's purity (:attr:`_isPure`)."""
+		"""
+		Check if the subprogram is pure (:attr:`_isPure`).
+
+		:returns: ``True``, if the subprogram is pure.
+		"""
 		return self._isPure
 
 
