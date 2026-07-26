@@ -91,7 +91,6 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 	@ModelEntity.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent."""
 		ModelEntity.Parent.fset(self, parent)
 
 		# Connect the subprogram's namespace to the enclosing declaration region's namespace, so a

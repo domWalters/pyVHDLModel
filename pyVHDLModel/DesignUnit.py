@@ -227,14 +227,13 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 		self._namespace = Namespace(self._normalizedIdentifier)
 
-	@readonly
+	@property
 	def Document(self) -> 'Document':
 		"""Property to access the document (:attr:`_document`)."""
 		return self._document
 
 	@Document.setter
 	def Document(self, document: 'Document') -> None:
-		"""Property to set the document (:attr:`_document`)."""
 		self._document = document
 
 	@property
@@ -244,7 +243,6 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@Library.setter
 	def Library(self, library: 'Library') -> None:
-		"""Property to set the library (:attr:`_parent`)."""
 		self._parent = library
 
 	@readonly
@@ -553,9 +551,9 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		self._package = packageSymbol
 		packageSymbol.Parent = self
 
-	@property
+	@readonly
 	def Package(self) -> PackageSymbol:
-		"""Property to access the package (:attr:`_package`)."""
+		"""Read-only property to access the package (:attr:`_package`)."""
 		return self._package
 
 	@readonly
@@ -679,9 +677,9 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		self._entity = entity
 		entity.Parent = self
 
-	@property
+	@readonly
 	def Entity(self) -> EntitySymbol:  # FIXME: change to entitySymbol, offer entity directly, but raise exception if not resolved.
-		"""Property to access the entity (:attr:`_entity`)."""
+		"""Read-only property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
 	def __str__(self) -> str:
@@ -777,7 +775,6 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 
 	@Entity.setter
 	def Entity(self, value: Entity) -> None:
-		"""Property to set the entity (:attr:`_entity`)."""
 		self._entity = value
 		self._isBlackBox = False
 

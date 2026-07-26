@@ -129,7 +129,6 @@ class ModelEntity(metaclass=ExtendedType, slots=True):
 
 	@Parent.setter
 	def Parent(self, parent: 'ModelEntity') -> None:
-		"""Property to set the parent (:attr:`_parent`)."""
 		if parent is None:
 			raise ValueError("Parameter 'parent' is None.")
 

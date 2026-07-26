@@ -65,7 +65,8 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 	@property
 	def AllowBlackbox(self) -> bool:
 		"""
-		Read-only property to check if a design supports blackboxes (:attr:`_allowBlackbox`).
+		Property to return whether a design supports blackboxes, inherited from the parent if not set locally
+		(:attr:`_allowBlackbox`).
 
 		.. rubric:: Algorithm
 
@@ -87,7 +88,6 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 
 	@AllowBlackbox.setter
 	def AllowBlackbox(self, value: Nullable[bool]) -> None:
-		"""Property to set the allow blackbox (:attr:`_allowBlackbox`)."""
 		self._allowBlackbox = value
 
 

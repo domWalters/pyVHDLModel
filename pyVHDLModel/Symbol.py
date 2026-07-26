@@ -157,14 +157,13 @@ class LibraryReferenceSymbol(Symbol):
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Library)
 
-	@readonly
+	@property
 	def Library(self) -> Nullable['Library']:
 		"""Property to access the library (:attr:`_reference`)."""
 		return self._reference
 
 	@Library.setter
 	def Library(self, value: 'Library') -> None:
-		"""Property to set the library (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -193,7 +192,6 @@ class PackageReferenceSymbol(Symbol):
 
 	@Package.setter
 	def Package(self, value: 'Package') -> None:
-		"""Property to set the package (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -225,7 +223,6 @@ class ModeViewSymbol(Symbol):
 
 	@ModeView.setter
 	def ModeView(self, value: 'ModeViewDeclaration') -> None:
-		"""Property to set the mode view (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -253,7 +250,6 @@ class SubprogramReferenceSymbol(Symbol):
 
 	@Subprogram.setter
 	def Subprogram(self, value: 'Subprogram') -> None:
-		"""Property to set the subprogram (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -281,7 +277,6 @@ class ConfigurationSymbol(Symbol):
 
 	@Configuration.setter
 	def Configuration(self, value: 'Configuration') -> None:
-		"""Property to set the configuration (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -308,7 +303,6 @@ class VariableSymbol(Symbol):
 
 	@Variable.setter
 	def Variable(self, value: 'Variable') -> None:
-		"""Property to set the variable (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -335,7 +329,6 @@ class SignalSymbol(Symbol):
 
 	@Signal.setter
 	def Signal(self, value: 'Signal') -> None:
-		"""Property to set the signal (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -364,7 +357,6 @@ class ContextReferenceSymbol(Symbol):
 
 	@Context.setter
 	def Context(self, value: 'Context') -> None:
-		"""Property to set the context (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -393,7 +385,6 @@ class PackageMemberReferenceSymbol(Symbol):
 
 	@Member.setter
 	def Member(self, value: 'Package') -> None:  # TODO: typehint
-		"""Property to set the member (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -422,7 +413,6 @@ class AllPackageMembersReferenceSymbol(Symbol):
 
 	@Members.setter
 	def Members(self, value: 'Package') -> None:  # TODO: typehint
-		"""Property to set the members (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -451,7 +441,6 @@ class EntityInstantiationSymbol(Symbol):
 
 	@Entity.setter
 	def Entity(self, value: 'Entity') -> None:
-		"""Property to set the entity (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -480,7 +469,6 @@ class ComponentInstantiationSymbol(Symbol):
 
 	@Component.setter
 	def Component(self, value: 'Component') -> None:
-		"""Property to set the component (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -509,7 +497,6 @@ class ConfigurationInstantiationSymbol(Symbol):
 
 	@Configuration.setter
 	def Configuration(self, value: 'Configuration') -> None:
-		"""Property to set the configuration (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -540,7 +527,6 @@ class EntitySymbol(Symbol):
 
 	@Entity.setter
 	def Entity(self, value: 'Entity') -> None:
-		"""Property to set the entity (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -558,7 +544,6 @@ class ArchitectureSymbol(Symbol):
 
 	@Architecture.setter
 	def Architecture(self, value: 'Architecture') -> None:
-		"""Property to set the architecture (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -588,7 +573,6 @@ class PackageSymbol(Symbol):
 
 	@Package.setter
 	def Package(self, value: 'Package') -> None:
-		"""Property to set the package (:attr:`_reference`)."""
 		self._reference = value
 
 
@@ -623,7 +607,6 @@ class SubtypeSymbol(Symbol):
 
 	@Subtype.setter
 	def Subtype(self, value: 'Subtype') -> None:
-		"""Property to set the subtype (:attr:`_reference`)."""
 		self._reference = value
 
 

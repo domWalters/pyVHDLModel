@@ -307,14 +307,14 @@ class ConfigurationExistsInLibraryError(VHDLModelException):
 		self._library = library
 		self._configuration = configuration
 
-	@property
+	@readonly
 	def Library(self) -> 'Library':
-		"""Property to access the library (:attr:`_library`)."""
+		"""Read-only property to access the library (:attr:`_library`)."""
 		return self._library
 
-	@property
+	@readonly
 	def Configuration(self) -> 'Configuration':
-		"""Property to access the configuration (:attr:`_configuration`)."""
+		"""Read-only property to access the configuration (:attr:`_configuration`)."""
 		return self._configuration
 
 
@@ -340,14 +340,14 @@ class ContextExistsInLibraryError(VHDLModelException):
 		self._library = library
 		self._context = context
 
-	@property
+	@readonly
 	def Library(self) -> 'Library':
-		"""Property to access the library (:attr:`_library`)."""
+		"""Read-only property to access the library (:attr:`_library`)."""
 		return self._library
 
-	@property
+	@readonly
 	def Context(self) -> 'Context':
-		"""Property to access the context (:attr:`_context`)."""
+		"""Read-only property to access the context (:attr:`_context`)."""
 		return self._context
 
 
@@ -378,7 +378,7 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 		"""Read-only property to access the library symbol (:attr:`_librarySymbol`)."""
 		return self._librarySymbol
 
-	@property
+	@readonly
 	def Context(self) -> 'Context':
-		"""Property to access the context (:attr:`_context`)."""
+		"""Read-only property to access the context (:attr:`_context`)."""
 		return self._context

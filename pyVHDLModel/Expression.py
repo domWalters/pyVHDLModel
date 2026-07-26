@@ -804,9 +804,9 @@ class SubtypeAllocation(Allocation):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Subtype(self) -> Symbol:
-		"""Property to access the subtype (:attr:`_subtype`)."""
+		"""Read-only property to access the subtype (:attr:`_subtype`)."""
 		return self._subtype
 
 	def __str__(self) -> str:

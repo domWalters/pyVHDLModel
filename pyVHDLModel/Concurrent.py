@@ -192,9 +192,9 @@ class ComponentInstantiation(Instantiation):
 		self._component = componentSymbol
 		componentSymbol.Parent = self
 
-	@property
+	@readonly
 	def Component(self) -> ComponentInstantiationSymbol:
-		"""Property to access the component (:attr:`_component`)."""
+		"""Read-only property to access the component (:attr:`_component`)."""
 		return self._component
 
 
@@ -231,14 +231,14 @@ class EntityInstantiation(Instantiation):
 		if architectureSymbol is not None:
 			architectureSymbol.Parent = self
 
-	@property
+	@readonly
 	def Entity(self) -> EntityInstantiationSymbol:
-		"""Property to access the entity (:attr:`_entity`)."""
+		"""Read-only property to access the entity (:attr:`_entity`)."""
 		return self._entity
 
-	@property
+	@readonly
 	def Architecture(self) -> ArchitectureSymbol:
-		"""Property to access the architecture (:attr:`_architecture`)."""
+		"""Read-only property to access the architecture (:attr:`_architecture`)."""
 		return self._architecture
 
 
@@ -269,9 +269,9 @@ class ConfigurationInstantiation(Instantiation):
 		self._configuration = configurationSymbol
 		configurationSymbol.Parent = self
 
-	@property
+	@readonly
 	def Configuration(self) -> ConfigurationInstantiationSymbol:
-		"""Property to access the configuration (:attr:`_configuration`)."""
+		"""Read-only property to access the configuration (:attr:`_configuration`)."""
 		return self._configuration
 
 
@@ -317,7 +317,6 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		ConcurrentStatement.Parent.fset(self, parent)
 
 		# Connect the process' namespace to the enclosing declaration region's namespace, so a declaration
@@ -373,7 +372,6 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		ConcurrentStatement.Parent.fset(self, parent)
 
 		self._namespace.ParentNamespace = parent._namespace
@@ -620,7 +618,6 @@ class IfGenerateStatement(GenerateStatement):
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		from pyVHDLModel.DesignUnit import Architecture
 
 		GenerateStatement.Parent.fset(self, parent)
@@ -806,7 +803,6 @@ class CaseGenerateStatement(GenerateStatement):
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent."""
 		GenerateStatement.Parent.fset(self, parent)
 
 		# Connect namespaces
@@ -877,7 +873,6 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 	@GenerateStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
-		"""Property to set the parent (:attr:`ParentNamespace`)."""
 		GenerateStatement.Parent.fset(self, parent)
 
 		self._namespace.ParentNamespace = parent._namespace
