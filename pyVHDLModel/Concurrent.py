@@ -41,7 +41,7 @@ from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, DocumentedEntityMixin, Range, BaseChoice, BaseCase, IfBranchMixin
 from pyVHDLModel.Base        import ElsifBranchMixin, ElseBranchMixin, AssertStatementMixin, BlockStatementMixin, WaveformElement, ChoicesMixin
-from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin
+from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin
 from pyVHDLModel.Namespace   import Namespace
 from pyVHDLModel.Name        import Name
 from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol, ConfigurationInstantiationSymbol
@@ -53,7 +53,7 @@ from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignm
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
 from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin
-from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
+from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin
 
 
 ExpressionUnion = Union[
@@ -269,7 +269,7 @@ class ConfigurationInstantiation(Instantiation):
 
 
 @export
-class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, SequentialStatementsMixin, DocumentedEntityMixin):
+class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, SequentialStatementsMixin, DocumentedEntityMixin):
 	"""
 	Represents a process statement with sensitivity list, sequential declaration region and sequential statements.
 
@@ -296,7 +296,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, Sequent
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
-		SequentialDeclarationsMixin.__init__(self, declaredItems)
+		SequentialDeclarationRegionMixin.__init__(self, self._normalizedLabel, declaredItems)
 		SequentialStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
 
@@ -307,6 +307,14 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, Sequent
 			for signalSymbol in sensitivityList:
 				self._sensitivityList.append(signalSymbol)
 				# signalSymbol._parent = self  # FIXME: currently str are provided
+
+	@ConcurrentStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ConcurrentStatement.Parent.fset(self, parent)
+
+		# Connect the process' namespace to the enclosing declaration region's namespace, so a declaration
+		# inside the process hides a same-named one from the architecture, block or generate around it.
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def SensitivityList(self) -> List[Name]:

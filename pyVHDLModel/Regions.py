@@ -41,9 +41,12 @@ from pyTooling.MetaClasses  import ExtendedType
 from pyTooling.Warning      import WarningCollector
 
 from pyVHDLModel.Exception  import NotImplementedWarning
+from pyVHDLModel.Namespace  import Namespace
 from pyVHDLModel.Object     import Constant, SharedVariable, File, Variable, Signal
-from pyVHDLModel.Subprogram import Subprogram, Function, Procedure
 from pyVHDLModel.Type       import Subtype, FullType
+
+# `pyVHDLModel.Subprogram` imports this module (Subprogram is a sequential declaration region), so
+# `Function`/`Procedure` are quoted in annotations and imported lazily where they're needed at runtime.
 
 
 @export
@@ -62,8 +65,8 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	_files:           Dict[str, File]                   #: Dictionary of all files declared in this concurrent declaration region.
 	# _subprograms:     Dict[str, List[Subprogram]]  #: Dictionary of all subprograms declared in this concurrent declaration region.
 	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
-	_functions:       Dict[str, List[Function]]         #: Dictionary of all functions declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
-	_procedures:      Dict[str, List[Procedure]]        #: Dictionary of all procedures declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
+	_functions:       Dict[str, List['Function']]         #: Dictionary of all functions declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
+	_procedures:      Dict[str, List['Procedure']]        #: Dictionary of all procedures declared in this concurrent declaration region, keyed by name; each entry is a list of overloads.
 	_components:      Dict[str, Any]                    #: Dictionary of all components declared in this concurrent declaration region.
 
 	def __init__(self, declaredItems: Nullable[Iterable] = None) -> None:
@@ -123,11 +126,11 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	# 	return self._subprograms
 
 	@readonly
-	def Functions(self) -> Dict[str, List[Function]]:
+	def Functions(self) -> Dict[str, List['Function']]:
 		return self._functions
 
 	@readonly
-	def Procedures(self) -> Dict[str, List[Procedure]]:
+	def Procedures(self) -> Dict[str, List['Procedure']]:
 		return self._procedures
 
 	@readonly
@@ -165,6 +168,7 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		     Iterate all packages in the library and index declared items.
 		"""
 		from pyVHDLModel.DesignUnit import Component
+		from pyVHDLModel.Subprogram import Function, Procedure
 
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
@@ -214,3 +218,147 @@ class ConcurrentDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	def _IndexOtherDeclaredItem(self, item) -> None:
 		pass
 		# print(f"_IndexOtherDeclaredItem - {item}\n  ({' -> '.join(t.__name__ for t in type(item).mro())})")
+
+
+@export
+class SequentialDeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for sequential declaration regions: process statements and subprogram bodies.
+
+	.. note::
+
+	   VHDL's ``process_declarative_item`` and ``subprogram_declarative_item`` rules are identical, so both
+	   regions share this implementation. Compared to a concurrent region
+	   (:class:`ConcurrentDeclarationRegionMixin`, ``block_declarative_item``), a sequential region can
+	   declare a **variable**, but no signal, shared variable, component or mode view, and none of the
+	   specifications.
+	"""
+
+	_declaredItems: List                          #: List of all declared items in this sequential declaration region.
+	_namespace:     Namespace                     #: The namespace of this sequential declaration region.
+
+	_types:         Dict[str, FullType]           #: Dictionary of all types declared in this sequential declaration region.
+	_subtypes:      Dict[str, Subtype]            #: Dictionary of all subtypes declared in this sequential declaration region.
+	_constants:     Dict[str, Constant]           #: Dictionary of all constants declared in this sequential declaration region.
+	_variables:     Dict[str, Variable]           #: Dictionary of all variables declared in this sequential declaration region.
+	_files:         Dict[str, File]               #: Dictionary of all files declared in this sequential declaration region.
+	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
+	_functions:     Dict[str, List['Function']]   #: Dictionary of all functions declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
+	_procedures:    Dict[str, List['Procedure']]  #: Dictionary of all procedures declared in this sequential declaration region, keyed by name; each entry is a list of overloads.
+
+	def __init__(self, namespaceName: Nullable[str] = None, declaredItems: Nullable[Iterable] = None) -> None:
+		"""
+		Initialize a sequential declaration region.
+
+		:param namespaceName:  Name of this region's namespace, usually the host's label or identifier.
+		:param declaredItems:  The items declared in this region.
+		"""
+		self._namespace = Namespace(namespaceName)
+
+		self._declaredItems = []  # TODO: convert to dict
+		if declaredItems is not None:
+			for item in declaredItems:
+				self._declaredItems.append(item)
+				item.Parent = self
+
+		self._types =      {}
+		self._subtypes =   {}
+		self._constants =  {}
+		self._variables =  {}
+		self._files =      {}
+		self._functions =  {}
+		self._procedures = {}
+
+	@readonly
+	def DeclaredItems(self) -> List:
+		"""Read-only property to access the declared items (:attr:`_declaredItems`)."""
+		return self._declaredItems
+
+	@readonly
+	def Namespace(self) -> Namespace:
+		"""Read-only property to access this region's namespace (:attr:`_namespace`)."""
+		return self._namespace
+
+	@readonly
+	def Types(self) -> Dict[str, FullType]:
+		"""Read-only property to access the declared types (:attr:`_types`)."""
+		return self._types
+
+	@readonly
+	def Subtypes(self) -> Dict[str, Subtype]:
+		"""Read-only property to access the declared subtypes (:attr:`_subtypes`)."""
+		return self._subtypes
+
+	@readonly
+	def Constants(self) -> Dict[str, Constant]:
+		"""Read-only property to access the declared constants (:attr:`_constants`)."""
+		return self._constants
+
+	@readonly
+	def Variables(self) -> Dict[str, Variable]:
+		"""Read-only property to access the declared variables (:attr:`_variables`)."""
+		return self._variables
+
+	@readonly
+	def Files(self) -> Dict[str, File]:
+		"""Read-only property to access the declared files (:attr:`_files`)."""
+		return self._files
+
+	@readonly
+	def Functions(self) -> Dict[str, List['Function']]:
+		"""Read-only property to access the declared functions (:attr:`_functions`)."""
+		return self._functions
+
+	@readonly
+	def Procedures(self) -> Dict[str, List['Procedure']]:
+		"""Read-only property to access the declared procedures (:attr:`_procedures`)."""
+		return self._procedures
+
+	def IndexDeclaredItems(self) -> None:
+		"""
+		Index declared items listed in the sequential declaration region.
+
+		Every declared item is added to :attr:`_namespace`, and additionally to the lookup table matching its
+		kind. Items of an unhandled kind are passed to :meth:`_IndexOtherDeclaredItem`.
+
+		.. seealso::
+
+		   :meth:`ConcurrentDeclarationRegionMixin.IndexDeclaredItems`
+		     The same algorithm for a concurrent declaration region.
+		"""
+		from pyVHDLModel.Subprogram import Function, Procedure
+
+		for item in self._declaredItems:
+			if isinstance(item, FullType):
+				self._types[item._normalizedIdentifier] = item
+				self._namespace._elements[item._normalizedIdentifier] = item
+			elif isinstance(item, Subtype):
+				self._subtypes[item._normalizedIdentifier] = item
+				self._namespace._elements[item._normalizedIdentifier] = item
+			elif isinstance(item, Function):
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
+				self._namespace._elements[item._normalizedIdentifier] = item
+			elif isinstance(item, Procedure):
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
+				self._namespace._elements[item._normalizedIdentifier] = item
+			elif isinstance(item, Constant):
+				for normalizedIdentifier in item._normalizedIdentifiers:
+					self._constants[normalizedIdentifier] = item
+					self._namespace._elements[normalizedIdentifier] = item
+			elif isinstance(item, Variable):
+				for normalizedIdentifier in item._normalizedIdentifiers:
+					self._variables[normalizedIdentifier] = item
+					self._namespace._elements[normalizedIdentifier] = item
+			elif isinstance(item, File):
+				for normalizedIdentifier in item._normalizedIdentifiers:
+					self._files[normalizedIdentifier] = item
+					self._namespace._elements[normalizedIdentifier] = item
+			else:
+				self._IndexOtherDeclaredItem(item)
+
+	def _IndexOtherDeclaredItem(self, item) -> None:
+		pass

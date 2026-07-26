@@ -42,14 +42,14 @@ from pyTooling.MetaClasses  import ExtendedType
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.Symbol     import SubtypeSymbol
 from pyVHDLModel.Type       import ProtectedType
+from pyVHDLModel.Regions    import ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin
 from pyVHDLModel.Sequential import SequentialStatement
 
 
 @export
-class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
+class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, SequentialDeclarationRegionMixin):
 	_genericItems:   List['GenericInterfaceItemMixin']
 	_parameterItems: List['ParameterInterfaceItemMixin']
-	_declaredItems:  List
 	_statements:     List[SequentialStatement]
 	_isPure:         bool
 
@@ -67,6 +67,7 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+		SequentialDeclarationRegionMixin.__init__(self, self._normalizedIdentifier, declaredItems)
 
 		self._genericItems = []  # TODO: convert to dict
 		if genericItems is not None:
@@ -80,12 +81,6 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 				self._parameterItems.append(item)
 				item.Parent = self
 
-		self._declaredItems = []  # TODO: use mixin class
-		if declaredItems is not None:
-			for item in declaredItems:
-				self._declaredItems.append(item)
-				item.Parent = self
-
 		self._statements = []  # TODO: use mixin class
 		if statements is not None:
 			for item in statements:
@@ -94,6 +89,17 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 		self._isPure = isPure
 
+	@ModelEntity.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ModelEntity.Parent.fset(self, parent)
+
+		# Connect the subprogram's namespace to the enclosing declaration region's namespace, so a
+		# declaration inside the subprogram hides a same-named one from the scope around it. A subprogram
+		# can also be a protected type's method, and a protected type is no declaration region, hence the
+		# check.
+		if isinstance(parent, (ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin)):
+			self._namespace.ParentNamespace = parent._namespace
+
 	@readonly
 	def GenericItems(self) -> List['GenericInterfaceItemMixin']:
 		return self._genericItems
@@ -101,10 +107,6 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	@readonly
 	def ParameterItems(self) -> List['ParameterInterfaceItemMixin']:
 		return self._parameterItems
-
-	@readonly
-	def DeclaredItems(self) -> List:
-		return self._declaredItems
 
 	@readonly
 	def Statements(self) -> List[SequentialStatement]:
