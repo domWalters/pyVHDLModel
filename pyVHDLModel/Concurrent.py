@@ -41,19 +41,19 @@ from pyTooling.MetaClasses   import ExtendedType
 
 from pyVHDLModel.Base        import ModelEntity, LabeledEntityMixin, DocumentedEntityMixin, Range, BaseChoice, BaseCase, IfBranchMixin
 from pyVHDLModel.Base        import ElsifBranchMixin, ElseBranchMixin, AssertStatementMixin, BlockStatementMixin, WaveformElement, ChoicesMixin
-from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin
+from pyVHDLModel.Regions     import ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin
 from pyVHDLModel.Namespace   import Namespace
 from pyVHDLModel.Name        import Name
 from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol, ConfigurationInstantiationSymbol
 from pyVHDLModel.Symbol      import SignalSymbol
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
-from pyVHDLModel.Interface   import PortInterfaceItemMixin
+from pyVHDLModel.Interface   import PortInterfaceItemMixin, WithPortsMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
 from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin
-from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin, SequentialDeclarationsMixin
+from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin
 
 
 ExpressionUnion = Union[
@@ -269,7 +269,7 @@ class ConfigurationInstantiation(Instantiation):
 
 
 @export
-class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, SequentialStatementsMixin, DocumentedEntityMixin):
+class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, SequentialStatementsMixin, DocumentedEntityMixin):
 	"""
 	Represents a process statement with sensitivity list, sequential declaration region and sequential statements.
 
@@ -296,7 +296,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, Sequent
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		super().__init__(label, parent)
-		SequentialDeclarationsMixin.__init__(self, declaredItems)
+		SequentialDeclarationRegionMixin.__init__(self, self._normalizedLabel, declaredItems)
 		SequentialStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
 
@@ -307,6 +307,14 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationsMixin, Sequent
 			for signalSymbol in sensitivityList:
 				self._sensitivityList.append(signalSymbol)
 				# signalSymbol._parent = self  # FIXME: currently str are provided
+
+	@ConcurrentStatement.Parent.setter
+	def Parent(self, parent: ModelEntity) -> None:
+		ConcurrentStatement.Parent.fset(self, parent)
+
+		# Connect the process' namespace to the enclosing declaration region's namespace, so a declaration
+		# inside the process hides a same-named one from the architecture, block or generate around it.
+		self._namespace.ParentNamespace = parent._namespace
 
 	@property
 	def SensitivityList(self) -> List[Name]:
@@ -327,9 +335,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 
 @export
-class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
-	_portItems: List[PortInterfaceItemMixin]
-
+class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	_namespace: Namespace
 
 	def __init__(
@@ -350,17 +356,11 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 		BlockStatementMixin.__init__(self)
 		LabeledEntityMixin.__init__(self, label)
+		WithPortsMixin.__init__(self, portItems)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
-
-		# TODO: extract to mixin
-		self._portItems = []
-		if portItems is not None:
-			for item in portItems:
-				self._portItems.append(item)
-				item.Parent = self
 
 	@ConcurrentStatement.Parent.setter
 	def Parent(self, parent: ModelEntity) -> None:
@@ -368,9 +368,12 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 		self._namespace.ParentNamespace = parent._namespace
 
-	@property
-	def PortItems(self) -> List[PortInterfaceItemMixin]:
-		return self._portItems
+
+	def IndexDeclaredItems(self) -> None:
+		"""A block's ports share the declarative region of its declarative part."""
+		self._IndexPortItems()
+
+		super().IndexDeclaredItems()
 
 
 @export

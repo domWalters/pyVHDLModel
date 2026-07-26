@@ -501,6 +501,13 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 		return f"{lib}.{self._identifier}"
 
 
+	def IndexDeclaredItems(self) -> None:
+		"""A generic package's generics share the declarative region of its declarative part."""
+		self._IndexGenericItems()
+
+		super().IndexDeclaredItems()
+
+
 @export
 class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarationRegionMixin):
 	"""
@@ -607,6 +614,14 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
 
 		return f"{lib}.{self._identifier}({archs})"
+
+
+	def IndexDeclaredItems(self) -> None:
+		"""An entity's generics and ports share the declarative region of its declarative part."""
+		self._IndexGenericItems()
+		self._IndexPortItems()
+
+		super().IndexDeclaredItems()
 
 
 @export

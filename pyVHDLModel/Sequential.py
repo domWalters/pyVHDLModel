@@ -604,18 +604,3 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 		return self._timeout
 
 
-@export
-class SequentialDeclarationsMixin(metaclass=ExtendedType, mixin=True):
-	_declaredItems: List
-
-	def __init__(self, declaredItems: Iterable) -> None:
-		# TODO: extract to mixin
-		self._declaredItems = []  # TODO: convert to dict
-		if declaredItems is not None:
-			for item in declaredItems:
-				self._declaredItems.append(item)
-				item.Parent = self
-
-	@property
-	def DeclaredItems(self) -> List:
-		return self._declaredItems
