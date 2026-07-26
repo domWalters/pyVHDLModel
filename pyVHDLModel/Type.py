@@ -226,7 +226,7 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 	def PrimaryUnit(self) -> str:
 		return self._primaryUnit
 
-	@property
+	@readonly
 	def SecondaryUnits(self) -> List[Tuple[str, PhysicalIntegerLiteral]]:
 		return self._secondaryUnits
 
@@ -262,11 +262,11 @@ class ArrayType(CompositeType):
 		self._elementType = elementSubtype
 		# elementSubtype.Parent = self   # FIXME: subtype is provided as None
 
-	@property
+	@readonly
 	def Dimensions(self) -> List[Range]:
 		return self._dimensions
 
-	@property
+	@readonly
 	def ElementType(self) -> Symbol:
 		return self._elementType
 
@@ -306,7 +306,7 @@ class RecordType(CompositeType):
 				self._elements.append(element)
 				element.Parent = self
 
-	@property
+	@readonly
 	def Elements(self) -> List[RecordTypeElement]:
 		return self._elements
 
@@ -327,7 +327,7 @@ class ProtectedType(FullType):
 				self._methods.append(method)
 				method.Parent = self
 
-	@property
+	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
 		return self._methods
 
@@ -346,7 +346,7 @@ class ProtectedTypeBody(FullType):
 				method.Parent = self
 
 	# FIXME: needs to be declared items or so
-	@property
+	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
 		return self._methods
 
@@ -361,7 +361,7 @@ class AccessType(FullType):
 		self._designatedSubtype = designatedSubtype
 		designatedSubtype.Parent = self
 
-	@property
+	@readonly
 	def DesignatedSubtype(self):
 		return self._designatedSubtype
 
@@ -379,7 +379,7 @@ class FileType(FullType):
 		self._designatedSubtype = designatedSubtype
 		designatedSubtype.Parent = self
 
-	@property
+	@readonly
 	def DesignatedSubtype(self):
 		return self._designatedSubtype
 

@@ -269,7 +269,7 @@ class PackageBodyExistsError(VHDLModelException):
 	def Library(self) -> 'Library':
 		return self._library
 
-	@property
+	@readonly
 	def PackageBody(self) -> 'PackageBody':
 		return self._packageBody
 
@@ -358,7 +358,7 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 		self._librarySymbol = librarySymbol
 		self._context = context
 
-	@property
+	@readonly
 	def LibrarySymbol(self) -> Symbol:
 		return self._librarySymbol
 

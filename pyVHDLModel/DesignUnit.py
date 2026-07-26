@@ -243,7 +243,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	def Library(self, library: 'Library') -> None:
 		self._parent = library
 
-	@property
+	@readonly
 	def ContextItems(self) -> List['ContextUnion']:
 		"""
 		Read-only property to access the sequence of all context items comprising library, use and context clauses
@@ -253,7 +253,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._contextItems
 
-	@property
+	@readonly
 	def ContextReferences(self) -> List['ContextReference']:
 		"""
 		Read-only property to access the sequence of context clauses (:attr:`_contextReferences`).
@@ -262,7 +262,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._contextReferences
 
-	@property
+	@readonly
 	def LibraryReferences(self) -> List['LibraryClause']:
 		"""
 		Read-only property to access the sequence of library clauses (:attr:`_libraryReferences`).
@@ -271,7 +271,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._libraryReferences
 
-	@property
+	@readonly
 	def PackageReferences(self) -> List['UseClause']:
 		"""
 		Read-only property to access the sequence of use clauses (:attr:`_packageReferences`).
@@ -280,19 +280,19 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._packageReferences
 
-	@property
+	@readonly
 	def ReferencedLibraries(self) -> Dict[str, 'Library']:
 		return self._referencedLibraries
 
-	@property
+	@readonly
 	def ReferencedPackages(self) -> Dict[str, 'Package']:
 		return self._referencedPackages
 
-	@property
+	@readonly
 	def ReferencedContexts(self) -> Dict[str, 'Context']:
 		return self._referencedContexts
 
-	@property
+	@readonly
 	def DependencyVertex(self) -> Vertex:
 		"""
 		Read-only property to access the corresponding dependency vertex (:attr:`_dependencyVertex`).
@@ -303,7 +303,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._dependencyVertex
 
-	@property
+	@readonly
 	def HierarchyVertex(self) -> Vertex:
 		"""
 		Read-only property to access the corresponding hierarchy vertex (:attr:`_hierarchyVertex`).
@@ -396,15 +396,15 @@ class Context(PrimaryUnit):
 				else:
 					raise VHDLModelException(f"Reference '{reference!r}' is neither a library clause, use clause, nor context reference.")
 
-	@property
+	@readonly
 	def LibraryReferences(self) -> List[LibraryClause]:
 		return self._libraryReferences
 
-	@property
+	@readonly
 	def PackageReferences(self) -> List[UseClause]:
 		return self._packageReferences
 
-	@property
+	@readonly
 	def ContextReferences(self) -> List[ContextReference]:
 		return self._contextReferences
 
@@ -465,19 +465,19 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 		self._deferredConstants = {}
 		self._components = {}
 
-	@property
+	@readonly
 	def PackageBody(self) -> Nullable["PackageBody"]:
 		return self._packageBody
 
-	@property
+	@readonly
 	def DeclaredItems(self) -> List:
 		return self._declaredItems
 
-	@property
+	@readonly
 	def DeferredConstants(self):
 		return self._deferredConstants
 
-	@property
+	@readonly
 	def Components(self):
 		return self._components
 
@@ -543,7 +543,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	def Package(self) -> PackageSymbol:
 		return self._package
 
-	@property
+	@readonly
 	def DeclaredItems(self) -> List:
 		return self._declaredItems
 
@@ -599,7 +599,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 
 		self._architectures = {}
 
-	@property
+	@readonly
 	def Architectures(self) -> Dict[str, 'Architecture']:
 		return self._architectures
 
@@ -731,7 +731,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 				self._portItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def IsBlackbox(self) -> Nullable[bool]:
 		"""
 		Read-only property returning true, if this component is a blackbox (:attr:`_isBlackbox`).
@@ -742,11 +742,11 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		"""
 		return self._isBlackBox
 
-	@property
+	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
 		return self._genericItems
 
-	@property
+	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
 		return self._portItems
 

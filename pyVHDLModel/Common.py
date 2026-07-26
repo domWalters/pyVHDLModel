@@ -120,7 +120,7 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 	def Procedure(self) -> Symbol:
 		return self._procedure
 
-	@property
+	@readonly
 	def ParameterAssociationItems(self) -> List[ParameterAssociationItem]:
 		return self._parameterAssociationItems
 

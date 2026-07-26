@@ -157,7 +157,7 @@ class Instantiation(ConcurrentStatement):
 	def GenericAssociationItems(self) -> List[AssociationItem]:
 		return self._genericAssociationItems
 
-	@property
+	@readonly
 	def PortAssociationItems(self) -> List[AssociationItem]:
 		return self._portAssociationItems
 
@@ -316,7 +316,7 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 		# inside the process hides a same-named one from the architecture, block or generate around it.
 		self._namespace.ParentNamespace = parent._namespace
 
-	@property
+	@readonly
 	def SensitivityList(self) -> List[Name]:
 		return self._sensitivityList
 
@@ -414,11 +414,11 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		ConcurrentStatementsMixin.__init__(self, statements)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-	@property
+	@readonly
 	def AlternativeLabel(self) -> Nullable[str]:
 		return self._alternativeLabel
 
-	@property
+	@readonly
 	def NormalizedAlternativeLabel(self) -> Nullable[str]:
 		return self._normalizedAlternativeLabel
 
@@ -624,15 +624,15 @@ class IfGenerateStatement(GenerateStatement):
 		if self._elseBranch is not None:
 			self._elseBranch._namespace.ParentNamespace = parent._namespace
 
-	@property
+	@readonly
 	def IfBranch(self) -> IfGenerateBranch:
 		return self._ifBranch
 
-	@property
+	@readonly
 	def ElsifBranches(self) -> List[ElsifGenerateBranch]:
 		return self._elsifBranches
 
-	@property
+	@readonly
 	def ElseBranch(self) -> Nullable[ElseGenerateBranch]:
 		return self._elseBranch
 
@@ -666,7 +666,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 		self._expression = expression
 		expression.Parent = self
 
-	@property
+	@readonly
 	def Expression(self) -> ExpressionUnion:
 		return self._expression
 
@@ -684,7 +684,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def Range(self) -> 'Range':
 		return self._range
 
@@ -794,11 +794,11 @@ class CaseGenerateStatement(GenerateStatement):
 		for case in self._cases:
 			case._namespace.ParentNamespace = parent._namespace
 
-	@property
+	@readonly
 	def SelectExpression(self) -> ExpressionUnion:
 		return self._expression
 
-	@property
+	@readonly
 	def Cases(self) -> List[GenerateCase]:
 		return self._cases
 
@@ -860,11 +860,11 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 
 		self._namespace.ParentNamespace = parent._namespace
 
-	@property
+	@readonly
 	def LoopIndex(self) -> str:
 		return self._loopIndex
 
-	@property
+	@readonly
 	def Range(self) -> Range:
 		return self._range
 

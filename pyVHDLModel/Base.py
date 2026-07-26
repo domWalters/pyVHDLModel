@@ -481,11 +481,11 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 		if severity is not None:
 			severity.Parent = self
 
-	@property
+	@readonly
 	def Message(self) -> Nullable[ExpressionUnion]:
 		return self._message
 
-	@property
+	@readonly
 	def Severity(self) -> Nullable[ExpressionUnion]:
 		return self._severity
 
@@ -653,10 +653,10 @@ class WaveformElement(ModelEntity):
 		if after is not None:
 			after.Parent = self
 
-	@property
+	@readonly
 	def Expression(self) -> ExpressionUnion:
 		return self._expression
 
-	@property
+	@readonly
 	def After(self) -> Expression:
 		return self._after

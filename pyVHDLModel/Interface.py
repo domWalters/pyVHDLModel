@@ -456,11 +456,11 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 				self._genericItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
 		return self._genericItems
 
-	@property
+	@readonly
 	def GenericCount(self) -> int:
 		return len(self._genericItems)
 
@@ -479,11 +479,11 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 				self._portItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
 		return self._portItems
 
-	@property
+	@readonly
 	def PortCount(self) -> int:
 		return len(self._portItems)
 
@@ -502,11 +502,11 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 				self._parameterItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def ParameterItems(self) -> List[ParameterInterfaceItemMixin]:
 		return self._parameterItems
 
-	@property
+	@readonly
 	def ParameterCount(self) -> int:
 		return len(self._parameterItems)
 

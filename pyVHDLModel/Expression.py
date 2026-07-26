@@ -408,11 +408,11 @@ class BinaryExpression(BaseExpression):
 		self._rightOperand = rightOperand
 		rightOperand.Parent = self
 
-	@property
+	@readonly
 	def LeftOperand(self):
 		return self._leftOperand
 
-	@property
+	@readonly
 	def RightOperand(self):
 		return self._rightOperand
 
@@ -430,7 +430,7 @@ class BinaryExpression(BaseExpression):
 class RangeExpression(BinaryExpression):
 	_direction: Direction
 
-	@property
+	@readonly
 	def Direction(self) -> Direction:
 		return self._direction
 
@@ -666,7 +666,7 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Operand(self):
 		return self._operand
 
@@ -798,7 +798,7 @@ class QualifiedExpressionAllocation(Allocation):
 		self._qualifiedExpression = qualifiedExpression
 		qualifiedExpression.Parent = self
 
-	@property
+	@readonly
 	def QualifiedExpression(self) -> QualifiedExpression:
 		return self._qualifiedExpression
 
@@ -818,7 +818,7 @@ class AggregateElement(ModelEntity):
 		self._expression = expression
 		expression.Parent = self
 
-	@property
+	@readonly
 	def Expression(self):
 		return self._expression
 
@@ -838,7 +838,7 @@ class IndexedAggregateElement(AggregateElement):
 
 		self._index = index
 
-	@property
+	@readonly
 	def Index(self) -> int:
 		return self._index
 
@@ -856,7 +856,7 @@ class RangedAggregateElement(AggregateElement):
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def Range(self) -> Range:
 		return self._range
 
@@ -874,7 +874,7 @@ class NamedAggregateElement(AggregateElement):
 		self._name = name
 		name.Parent = self
 
-	@property
+	@readonly
 	def Name(self) -> Symbol:
 		return self._name
 
@@ -905,7 +905,7 @@ class Aggregate(BaseExpression):
 			self._elements.append(element)
 			element.Parent = self
 
-	@property
+	@readonly
 	def Elements(self) -> List[AggregateElement]:
 		return self._elements
 
