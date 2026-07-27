@@ -110,14 +110,14 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
-	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
-	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	   * :class:`Generate branch <pyVHDLModel.Concurrent.GenerateBranch>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
+	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
 	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
 	   * :class:`Namespace <pyVHDLModel.Namespace.Namespace>`
 	"""

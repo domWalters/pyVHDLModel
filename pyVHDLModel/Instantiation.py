@@ -55,8 +55,8 @@ class GenericInstantiationMixin(metaclass=ExtendedType, mixin=True):
 	.. seealso::
 
 	   * :class:`Generic entity instantiation mixin <pyVHDLModel.Instantiation.GenericEntityInstantiationMixin>`
-	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
 	   * :class:`Subprogram instantiation mixin <pyVHDLModel.Instantiation.SubprogramInstantiationMixin>`
+	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
 	"""
 	def __init__(self) -> None:
 		pass
@@ -78,8 +78,8 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
 	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
+	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
 	"""
 	_subprogramReference:     SubprogramReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]
@@ -129,8 +129,8 @@ class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
 	   .. code-block:: VHDL
 
 	      procedure p is new gp generic map (N => 1);
-	    --^                                             <- Identifier
-	    --                   ^^                         <- GenericProcedure
+	      --        ^                                   <- Identifier
+	      --                 ^^                         <- GenericProcedure
 	"""
 
 	def __init__(
@@ -159,8 +159,8 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 	   .. code-block:: VHDL
 
 	      function f is new gf generic map (N => 1);
-	    --^                                            <- Identifier
-	    --                  ^^                         <- GenericFunction
+	      --       ^                                   <- Identifier
+	      --                ^^                         <- GenericFunction
 	"""
 
 	def __init__(
@@ -204,8 +204,8 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 	   .. code-block:: VHDL
 
 	      package p is new gp generic map (N => 1);
-	    --^                                           <- Identifier
-	    --                 ^^                         <- PackageReference
+	      --      ^                                   <- Identifier
+	      --               ^^                         <- PackageReference
 	"""
 	_packageReference:        PackageReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]

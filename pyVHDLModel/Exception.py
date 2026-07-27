@@ -64,7 +64,7 @@ class NotImplementedWarning(VHDLModelWarning):
 @export
 class VHDLModelCriticalWarning(Warning):
 	"""
-	Base-class for warnings that likely indicate a defect in the model or its input.
+	Base-class for critical warnings that likely indicate a defect in the model or its input.
 
 	.. seealso::
 
@@ -88,15 +88,15 @@ class VHDLModelException(Exception):
 
 	.. seealso::
 
+	   * :class:`Library exists in design error <pyVHDLModel.Exception.LibraryExistsInDesignError>`
+	   * :class:`Registered to foreign design error <pyVHDLModel.Exception.LibraryRegisteredToForeignDesignError>`
+	   * :class:`Library not registered error <pyVHDLModel.Exception.LibraryNotRegisteredError>`
+	   * :class:`Entity exists in library error <pyVHDLModel.Exception.EntityExistsInLibraryError>`
 	   * :class:`Architecture exists in library error <pyVHDLModel.Exception.ArchitectureExistsInLibraryError>`
+	   * :class:`Package exists in library error <pyVHDLModel.Exception.PackageExistsInLibraryError>`
+	   * :class:`Package body exists error <pyVHDLModel.Exception.PackageBodyExistsError>`
 	   * :class:`Configuration exists in library error <pyVHDLModel.Exception.ConfigurationExistsInLibraryError>`
 	   * :class:`Context exists in library error <pyVHDLModel.Exception.ContextExistsInLibraryError>`
-	   * :class:`Entity exists in library error <pyVHDLModel.Exception.EntityExistsInLibraryError>`
-	   * :class:`Library exists in design error <pyVHDLModel.Exception.LibraryExistsInDesignError>`
-	   * :class:`Library not registered error <pyVHDLModel.Exception.LibraryNotRegisteredError>`
-	   * :class:`Library registered to foreign design error <pyVHDLModel.Exception.LibraryRegisteredToForeignDesignError>`
-	   * :class:`Package body exists error <pyVHDLModel.Exception.PackageBodyExistsError>`
-	   * :class:`Package exists in library error <pyVHDLModel.Exception.PackageExistsInLibraryError>`
 	   * :class:`Referenced library not existing error <pyVHDLModel.Exception.ReferencedLibraryNotExistingError>`
 	"""
 

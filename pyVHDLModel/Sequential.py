@@ -70,10 +70,10 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Branch <pyVHDLModel.Sequential.Branch>`
-	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
 	   * :class:`Process statement <pyVHDLModel.Concurrent.ProcessStatement>`
+	   * :class:`Branch <pyVHDLModel.Sequential.Branch>`
 	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
+	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
 	"""
 	_statements: List[SequentialStatement]
 
@@ -104,8 +104,8 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 	   .. code-block:: VHDL
 
-	      log("hello");
-	    --^^^^^^^^^^^^    <- the call
+	        log("hello");
+	      --^^^^^^^^^^^^    <- the call
 
 	.. seealso::
 
@@ -265,9 +265,9 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin,
 
 	   .. code-block:: VHDL
 
-	      with sel select v := '1' when 0, '0' when others;
-	      --   ^^^                                            <- the selector
-	      --                   ^^^^^^^^^^                     <- first alternative
+	      with sel select v := '1' when '0', '0' when others;
+	      --   ^^^                                              <- the selector
+	      --                   ^^^^^^^^^^^^                     <- first alternative
 
 	.. seealso::
 
@@ -297,9 +297,9 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 
 	   .. code-block:: VHDL
 
-	      with sel select t <= '1' when 0, '0' when others;
-	      --   ^^^                                            <- the selector
-	      --                   ^^^^^^^^^^                     <- first alternative
+	      with sel select s <= '1' when '0', '0' when others;
+	      --   ^^^                                              <- the selector
+	      --                   ^^^^^^^^^^^^                     <- first alternative
 
 	.. seealso::
 
@@ -426,8 +426,8 @@ class CompoundStatement(SequentialStatement):
 
 	.. seealso::
 
-	   * :class:`Case statement <pyVHDLModel.Sequential.CaseStatement>`
 	   * :class:`If statement <pyVHDLModel.Sequential.IfStatement>`
+	   * :class:`Case statement <pyVHDLModel.Sequential.CaseStatement>`
 	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
 	"""
 
@@ -439,9 +439,9 @@ class Branch(ModelEntity, SequentialStatementsMixin):
 
 	.. seealso::
 
-	   * :class:`Else branch <pyVHDLModel.Sequential.ElseBranch>`
-	   * :class:`Elsif branch <pyVHDLModel.Sequential.ElsifBranch>`
 	   * :class:`If branch <pyVHDLModel.Sequential.IfBranch>`
+	   * :class:`Elsif branch <pyVHDLModel.Sequential.ElsifBranch>`
+	   * :class:`Else branch <pyVHDLModel.Sequential.ElseBranch>`
 	"""
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -740,10 +740,10 @@ class CaseStatement(CompoundStatement):
 	   .. code-block:: VHDL
 
 	      case sel is
+	      --   ^^^                     <- SelectExpression
 	        when 0      => v := '1';
 	        when others => null;
 	      end case;
-	      --   ^^^                     <- SelectExpression
 
 	.. seealso::
 
@@ -914,8 +914,8 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 
 	.. seealso::
 
-	   * :class:`Exit statement <pyVHDLModel.Sequential.ExitStatement>`
 	   * :class:`Next statement <pyVHDLModel.Sequential.NextStatement>`
+	   * :class:`Exit statement <pyVHDLModel.Sequential.ExitStatement>`
 	"""
 
 	_loopReference: LoopStatement
@@ -967,8 +967,8 @@ class ExitStatement(LoopControlStatement):
 
 	   .. code-block:: VHDL
 
-	      exit;
-	    --^^^^    <- the statement
+	        exit;
+	      --^^^^    <- the statement
 	"""
 	pass
 
@@ -982,8 +982,8 @@ class NullStatement(SequentialStatement):
 
 	   .. code-block:: VHDL
 
-	      null;
-	    --^^^^    <- the statement
+	        null;
+	      --^^^^    <- the statement
 	"""
 	pass
 

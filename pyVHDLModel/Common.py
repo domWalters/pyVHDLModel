@@ -64,16 +64,16 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
-	   * :class:`Component <pyVHDLModel.DesignUnit.Component>`
 	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
-	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Design <pyVHDLModel.Design>`
-	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
 	   * :class:`Generate branch <pyVHDLModel.Concurrent.GenerateBranch>`
 	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
-	   * :class:`Library <pyVHDLModel.Library>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
 	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Component <pyVHDLModel.DesignUnit.Component>`
+	   * :class:`Design <pyVHDLModel.Design>`
+	   * :class:`Library <pyVHDLModel.Library>`
 	"""
 	_allowBlackbox: Nullable[bool]  #: Allow blackboxes for components in language entity.
 
@@ -177,10 +177,10 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.Sequential.SequentialConditionalVariableAssignment`
-	   * :class:`Sequential selected variable assignment <pyVHDLModel.Sequential.SequentialSelectedVariableAssignment>`
 	   * :class:`Signal assignment mixin <pyVHDLModel.Common.SignalAssignmentMixin>`
 	   * :class:`Variable assignment mixin <pyVHDLModel.Common.VariableAssignmentMixin>`
+	   * :class:`Conditional variable assignment <pyVHDLModel.Sequential.SequentialConditionalVariableAssignment>`
+	   * :class:`Sequential selected variable assignment <pyVHDLModel.Sequential.SequentialSelectedVariableAssignment>`
 	"""
 
 	_target: Symbol
@@ -207,9 +207,9 @@ class SignalAssignmentMixin(AssignmentMixin, mixin=True):
 	.. seealso::
 
 	   * :class:`Concurrent signal assignment <pyVHDLModel.Concurrent.ConcurrentSignalAssignment>`
-	   * :class:`Sequential conditional signal assignment <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`
-	   * :class:`Sequential selected signal assignment <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
 	   * :class:`Sequential signal assignment <pyVHDLModel.Sequential.SequentialSignalAssignment>`
+	   * :class:`Conditional signal assignment <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`
+	   * :class:`Sequential selected signal assignment <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
 	   * :class:`Signal force assignment <pyVHDLModel.Sequential.SignalForceAssignment>`
 	   * :class:`Signal release assignment <pyVHDLModel.Sequential.SignalReleaseAssignment>`
 	"""
@@ -269,10 +269,10 @@ class WaveformMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Concurrent simple signal assignment <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
 	   * :class:`Conditional waveform <pyVHDLModel.Common.ConditionalWaveform>`
-	   * :class:`Others selected waveform <pyVHDLModel.Common.OthersSelectedWaveform>`
 	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
+	   * :class:`Others selected waveform <pyVHDLModel.Common.OthersSelectedWaveform>`
+	   * :class:`Concurrent simple signal assignment <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
 	   * :class:`Sequential simple signal assignment <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
 	   * :class:`Waveform element <pyVHDLModel.Base.WaveformElement>`
 	"""
@@ -302,12 +302,12 @@ class ExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
 	   * :class:`Conditional expression <pyVHDLModel.Common.ConditionalExpression>`
-	   * :class:`Others selected expression <pyVHDLModel.Common.OthersSelectedExpression>`
 	   * :class:`Selected expression <pyVHDLModel.Common.SelectedExpression>`
-	   * :class:`Sequential selected signal assignment <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
+	   * :class:`Others selected expression <pyVHDLModel.Common.OthersSelectedExpression>`
+	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
 	   * :class:`Sequential selected variable assignment <pyVHDLModel.Sequential.SequentialSelectedVariableAssignment>`
+	   * :class:`Sequential selected signal assignment <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
 	   * :class:`Signal force assignment <pyVHDLModel.Sequential.SignalForceAssignment>`
 	"""
 
@@ -400,9 +400,8 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Concurrent conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`
-	   * :class:`Sequential conditional signal assignment <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`
-	"""
+	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`
+	   * :class:`Conditional signal assignment <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`	"""
 
 	_conditionalWaveforms: List[ConditionalWaveform]
 
@@ -434,8 +433,8 @@ class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when 0, '0' when others;
-	      --                   ^^^^^^^^^^                     <- this alternative: Choices=[0], Waveform=['1']
+	      with sel select s <= '1' when '0', '0' when others;
+	      --                   ^^^^^^^^^^^^                     <- this alternative: Choices=['0'], Waveform=['1']
 
 	.. seealso::
 
@@ -465,8 +464,8 @@ class OthersSelectedWaveform(BaseCase, WaveformMixin):
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when 0, '0' when others;
-	      --                               ^^^^^^^^^^^^^^^    <- the others alternative
+	      with sel select s <= '1' when '0', '0' when others;
+	      --                                 ^^^^^^^^^^^^^^^    <- the others alternative
 	"""
 
 	def __init__(self, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
@@ -486,8 +485,8 @@ class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
 
 	   .. code-block:: VHDL
 
-	      with sel select v := '1' when 0, '0' when others;
-	      --                   ^^^^^^^^^^                     <- this alternative: Choices=[0], Expression='1'
+	      with sel select v := '1' when '0', '0' when others;
+	      --                   ^^^^^^^^^^^^                     <- this alternative: Choices=['0'], Expression='1'
 
 	.. seealso::
 
@@ -516,8 +515,8 @@ class OthersSelectedExpression(BaseCase, ExpressionMixin):
 
 	   .. code-block:: VHDL
 
-	      with sel select v := '1' when 0, '0' when others;
-	      --                               ^^^^^^^^^^^^^^^    <- the others alternative
+	      with sel select v := '1' when '0', '0' when others;
+	      --                                 ^^^^^^^^^^^^^^^    <- the others alternative
 	"""
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:

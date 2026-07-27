@@ -60,14 +60,14 @@ class BaseExpression(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`Aggregate <pyVHDLModel.Expression.Aggregate>`
-	   * :class:`Allocation <pyVHDLModel.Expression.Allocation>`
-	   * :class:`Binary expression <pyVHDLModel.Expression.BinaryExpression>`
-	   * :class:`Function call <pyVHDLModel.Expression.FunctionCall>`
 	   * :class:`Literal <pyVHDLModel.Expression.Literal>`
+	   * :class:`Unary expression <pyVHDLModel.Expression.UnaryExpression>`
+	   * :class:`Binary expression <pyVHDLModel.Expression.BinaryExpression>`
 	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
 	   * :class:`Ternary expression <pyVHDLModel.Expression.TernaryExpression>`
-	   * :class:`Unary expression <pyVHDLModel.Expression.UnaryExpression>`
+	   * :class:`Function call <pyVHDLModel.Expression.FunctionCall>`
+	   * :class:`Allocation <pyVHDLModel.Expression.Allocation>`
+	   * :class:`Aggregate <pyVHDLModel.Expression.Aggregate>`
 	"""
 
 
@@ -80,12 +80,12 @@ class Literal(BaseExpression):
 
 	.. seealso::
 
-	   * :class:`Bit string literal <pyVHDLModel.Expression.BitStringLiteral>`
-	   * :class:`Character literal <pyVHDLModel.Expression.CharacterLiteral>`
-	   * :class:`Enumeration literal <pyVHDLModel.Expression.EnumerationLiteral>`
 	   * :class:`Null literal <pyVHDLModel.Expression.NullLiteral>`
+	   * :class:`Enumeration literal <pyVHDLModel.Expression.EnumerationLiteral>`
 	   * :class:`Numeric literal <pyVHDLModel.Expression.NumericLiteral>`
+	   * :class:`Character literal <pyVHDLModel.Expression.CharacterLiteral>`
 	   * :class:`String literal <pyVHDLModel.Expression.StringLiteral>`
+	   * :class:`Bit string literal <pyVHDLModel.Expression.BitStringLiteral>`
 	"""
 
 
@@ -150,8 +150,8 @@ class NumericLiteral(Literal):
 
 	.. seealso::
 
-	   * :class:`Floating point literal <pyVHDLModel.Expression.FloatingPointLiteral>`
 	   * :class:`Integer literal <pyVHDLModel.Expression.IntegerLiteral>`
+	   * :class:`Floating point literal <pyVHDLModel.Expression.FloatingPointLiteral>`
 	   * :class:`Physical literal <pyVHDLModel.Expression.PhysicalLiteral>`
 	"""
 
@@ -239,8 +239,8 @@ class PhysicalLiteral(NumericLiteral):
 
 	.. seealso::
 
-	   * :class:`Physical floating literal <pyVHDLModel.Expression.PhysicalFloatingLiteral>`
 	   * :class:`Physical integer literal <pyVHDLModel.Expression.PhysicalIntegerLiteral>`
+	   * :class:`Physical floating literal <pyVHDLModel.Expression.PhysicalFloatingLiteral>`
 	"""
 	_unitName: str
 
@@ -423,9 +423,9 @@ class BitStringLiteral(Literal):
 	.. seealso::
 
 	   * :class:`Binary bit string literal <pyVHDLModel.Expression.BinaryBitStringLiteral>`
+	   * :class:`Octal bit string literal <pyVHDLModel.Expression.OctalBitStringLiteral>`
 	   * :class:`Decimal bit string literal <pyVHDLModel.Expression.DecimalBitStringLiteral>`
 	   * :class:`Hexadecimal bit string literal <pyVHDLModel.Expression.HexadecimalBitStringLiteral>`
-	   * :class:`Octal bit string literal <pyVHDLModel.Expression.OctalBitStringLiteral>`
 	"""
 	_value:       str
 	_binaryValue: str
@@ -576,8 +576,8 @@ class ParenthesisExpression: #(Protocol):
 
 	.. seealso::
 
-	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
 	   * :class:`Sub expression <pyVHDLModel.Expression.SubExpression>`
+	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
 	"""
 	__slots__ = ()  # FIXME: use ExtendedType?
 
@@ -632,9 +632,9 @@ class NegationExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      res := -a;
-	      --     ^^    <- the expression
-	      --      ^    <- Operand
+	      res := - operand;
+	      --     ^^^^^^^^^    <- the expression
+	      --       ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("-", "")
 
@@ -642,7 +642,7 @@ class NegationExpression(UnaryExpression):
 @export
 class IdentityExpression(UnaryExpression):
 	"""
-	Represents a identity (unary plus) expression.
+	Represents an identity (unary plus) expression.
 
 	The operand is available as :data:`Operand`.
 
@@ -650,9 +650,9 @@ class IdentityExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      res := +a;
-	      --     ^^    <- the expression
-	      --      ^    <- Operand
+	      res := + operand;
+	      --     ^^^^^^^^^    <- the expression
+	      --       ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("+", "")
 
@@ -668,9 +668,9 @@ class InverseExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := not f;
-	      --      ^^^^^    <- the expression
-	      --          ^    <- Operand
+	      bres := not boperand;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("not ", "")
 
@@ -680,15 +680,16 @@ class UnaryAndExpression(UnaryExpression):
 	"""
 	Represents a ``and`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := and v;
-	      --      ^^^^^    <- the expression
-	      --          ^    <- Operand
+	      sres := and voperand;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("and ", "")
 
@@ -698,15 +699,16 @@ class UnaryNandExpression(UnaryExpression):
 	"""
 	Represents a ``nand`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := nand v;
-	      --      ^^^^^^    <- the expression
-	      --           ^    <- Operand
+	      sres := nand voperand;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --           ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("nand ", "")
 
@@ -716,15 +718,16 @@ class UnaryOrExpression(UnaryExpression):
 	"""
 	Represents a ``or`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := or v;
-	      --      ^^^^    <- the expression
-	      --         ^    <- Operand
+	      sres := or voperand;
+	      --      ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("or ", "")
 
@@ -734,15 +737,16 @@ class UnaryNorExpression(UnaryExpression):
 	"""
 	Represents a ``nor`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := nor v;
-	      --      ^^^^^    <- the expression
-	      --          ^    <- Operand
+	      sres := nor voperand;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("nor ", "")
 
@@ -752,15 +756,16 @@ class UnaryXorExpression(UnaryExpression):
 	"""
 	Represents a ``xor`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := xor v;
-	      --      ^^^^^    <- the expression
-	      --          ^    <- Operand
+	      sres := xor voperand;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("xor ", "")
 
@@ -770,15 +775,16 @@ class UnaryXnorExpression(UnaryExpression):
 	"""
 	Represents a ``xnor`` reduction expression.
 
-	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := xnor v;
-	      --      ^^^^^^    <- the expression
-	      --           ^    <- Operand
+	      sres := xnor voperand;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --           ^^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("xnor ", "")
 
@@ -786,7 +792,7 @@ class UnaryXnorExpression(UnaryExpression):
 @export
 class AbsoluteExpression(UnaryExpression):
 	"""
-	Represents a absolute value expression (``abs``).
+	Represents an absolute value expression (``abs``).
 
 	The operand is available as :data:`Operand`.
 
@@ -794,9 +800,9 @@ class AbsoluteExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      res := abs a;
-	      --     ^^^^^    <- the expression
-	      --     ^        <- Operand
+	      res := abs operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("abs ", "")
 
@@ -814,9 +820,9 @@ class TypeConversion(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      res := integer(r);
-	      --     ^^^^^^^       <- TargetSubtype
-	      --^                  <- Operand
+	      res := integer(realval);
+	      --     ^^^^^^^             <- TargetSubtype
+	      --             ^^^^^^^     <- Operand
 	"""
 
 	_targetSubtype: SubtypeSymbol
@@ -851,9 +857,9 @@ class SubExpression(UnaryExpression, ParenthesisExpression):
 
 	   .. code-block:: VHDL
 
-	      res := (a + b);
-	      --     ^^^^^^^    <- the sub-expression
-	      --      ^^^^^     <- Operand
+	      res := (lhs + rhs);
+	      --     ^^^^^^^^^^^    <- the sub-expression
+	      --      ^^^^^^^^^     <- Operand
 	"""
 	_FORMAT = ("(", ")")
 
@@ -867,10 +873,10 @@ class BinaryExpression(BaseExpression):
 
 	.. seealso::
 
-	   * :class:`Adding expression <pyVHDLModel.Expression.AddingExpression>`
-	   * :class:`Logical expression <pyVHDLModel.Expression.LogicalExpression>`
-	   * :class:`Multiplying expression <pyVHDLModel.Expression.MultiplyingExpression>`
 	   * :class:`Range expression <pyVHDLModel.Expression.RangeExpression>`
+	   * :class:`Adding expression <pyVHDLModel.Expression.AddingExpression>`
+	   * :class:`Multiplying expression <pyVHDLModel.Expression.MultiplyingExpression>`
+	   * :class:`Logical expression <pyVHDLModel.Expression.LogicalExpression>`
 	   * :class:`Relational expression <pyVHDLModel.Expression.RelationalExpression>`
 	   * :class:`Shift expression <pyVHDLModel.Expression.ShiftExpression>`
 	"""
@@ -991,8 +997,8 @@ class AddingExpression(BinaryExpression):
 	.. seealso::
 
 	   * :class:`Addition expression <pyVHDLModel.Expression.AdditionExpression>`
-	   * :class:`Concatenation expression <pyVHDLModel.Expression.ConcatenationExpression>`
 	   * :class:`Subtraction expression <pyVHDLModel.Expression.SubtractionExpression>`
+	   * :class:`Concatenation expression <pyVHDLModel.Expression.ConcatenationExpression>`
 	"""
 
 
@@ -1007,10 +1013,10 @@ class AdditionExpression(AddingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a + b;
-	      --     ^^^^^    <- the expression
-	      --     ^        <- LeftOperand
-	      --         ^    <- RightOperand
+	      res := lhs + rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " + ", "")
 
@@ -1026,10 +1032,10 @@ class SubtractionExpression(AddingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a - b;
-	      --     ^^^^^    <- the expression
-	      --     ^        <- LeftOperand
-	      --         ^    <- RightOperand
+	      res := lhs - rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " - ", "")
 
@@ -1045,10 +1051,10 @@ class ConcatenationExpression(AddingExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v & w;
-	      --      ^^^^^    <- the expression
-	      --^              <- LeftOperand
-	      --          ^    <- RightOperand
+	      vres := vlhs & vrhs;
+	      --      ^^^^^^^^^^^    <- the expression
+	      --      ^^^^           <- LeftOperand
+	      --             ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " & ", "")
 
@@ -1062,11 +1068,11 @@ class MultiplyingExpression(BinaryExpression):
 
 	.. seealso::
 
-	   * :class:`Division expression <pyVHDLModel.Expression.DivisionExpression>`
-	   * :class:`Exponentiation expression <pyVHDLModel.Expression.ExponentiationExpression>`
-	   * :class:`Modulo expression <pyVHDLModel.Expression.ModuloExpression>`
 	   * :class:`Multiply expression <pyVHDLModel.Expression.MultiplyExpression>`
+	   * :class:`Division expression <pyVHDLModel.Expression.DivisionExpression>`
 	   * :class:`Remainder expression <pyVHDLModel.Expression.RemainderExpression>`
+	   * :class:`Modulo expression <pyVHDLModel.Expression.ModuloExpression>`
+	   * :class:`Exponentiation expression <pyVHDLModel.Expression.ExponentiationExpression>`
 	"""
 
 
@@ -1081,10 +1087,10 @@ class MultiplyExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a * b;
-	      --     ^^^^^    <- the expression
-	      --     ^        <- LeftOperand
-	      --         ^    <- RightOperand
+	      res := lhs * rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " * ", "")
 
@@ -1100,10 +1106,10 @@ class DivisionExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a / b;
-	      --     ^^^^^    <- the expression
-	      --     ^        <- LeftOperand
-	      --         ^    <- RightOperand
+	      res := lhs / rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " / ", "")
 
@@ -1119,10 +1125,10 @@ class RemainderExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a rem b;
-	      --     ^^^^^^^    <- the expression
-	      --     ^          <- LeftOperand
-	      --           ^    <- RightOperand
+	      res := lhs rem rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " rem ", "")
 
@@ -1138,10 +1144,10 @@ class ModuloExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a mod b;
-	      --     ^^^^^^^    <- the expression
-	      --     ^          <- LeftOperand
-	      --           ^    <- RightOperand
+	      res := lhs mod rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " mod ", "")
 
@@ -1157,10 +1163,10 @@ class ExponentiationExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := a ** 2;
-	      --     ^^^^^^    <- the expression
-	      --     ^         <- LeftOperand
-	      --          ^    <- RightOperand
+	      res := lhs ** 2;
+	      --     ^^^^^^^^    <- the expression
+	      --     ^^^         <- LeftOperand
+	      --            ^    <- RightOperand
 	"""
 	_FORMAT = ("", "**", "")
 
@@ -1176,10 +1182,10 @@ class LogicalExpression(BinaryExpression):
 
 	   * :class:`And expression <pyVHDLModel.Expression.AndExpression>`
 	   * :class:`Nand expression <pyVHDLModel.Expression.NandExpression>`
-	   * :class:`Nor expression <pyVHDLModel.Expression.NorExpression>`
 	   * :class:`Or expression <pyVHDLModel.Expression.OrExpression>`
-	   * :class:`Xnor expression <pyVHDLModel.Expression.XnorExpression>`
+	   * :class:`Nor expression <pyVHDLModel.Expression.NorExpression>`
 	   * :class:`Xor expression <pyVHDLModel.Expression.XorExpression>`
+	   * :class:`Xnor expression <pyVHDLModel.Expression.XnorExpression>`
 	"""
 
 
@@ -1194,10 +1200,10 @@ class AndExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f and g;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      bres := blhs and brhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " and ", "")
 
@@ -1213,10 +1219,10 @@ class NandExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f nand g;
-	      --      ^^^^^^^^    <- the expression
-	      --      ^           <- LeftOperand
-	      --             ^    <- RightOperand
+	      bres := blhs nand brhs;
+	      --      ^^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^              <- LeftOperand
+	      --                ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " nand ", "")
 
@@ -1232,10 +1238,10 @@ class OrExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f or g;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --           ^    <- RightOperand
+	      bres := blhs or brhs;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --      ^^^^            <- LeftOperand
+	      --              ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " or ", "")
 
@@ -1251,10 +1257,10 @@ class NorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f nor g;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      bres := blhs nor brhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " nor ", "")
 
@@ -1270,10 +1276,10 @@ class XorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f xor g;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      bres := blhs xor brhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " xor ", "")
 
@@ -1289,10 +1295,10 @@ class XnorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := f xnor g;
-	      --      ^^^^^^^^    <- the expression
-	      --      ^           <- LeftOperand
-	      --             ^    <- RightOperand
+	      bres := blhs xnor brhs;
+	      --      ^^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^              <- LeftOperand
+	      --                ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " xnor ", "")
 
@@ -1307,12 +1313,12 @@ class RelationalExpression(BinaryExpression):
 	.. seealso::
 
 	   * :class:`Equal expression <pyVHDLModel.Expression.EqualExpression>`
-	   * :class:`Greater equal expression <pyVHDLModel.Expression.GreaterEqualExpression>`
-	   * :class:`Greater than expression <pyVHDLModel.Expression.GreaterThanExpression>`
-	   * :class:`Less equal expression <pyVHDLModel.Expression.LessEqualExpression>`
-	   * :class:`Less than expression <pyVHDLModel.Expression.LessThanExpression>`
-	   * :class:`Matching relational expression <pyVHDLModel.Expression.MatchingRelationalExpression>`
 	   * :class:`Unequal expression <pyVHDLModel.Expression.UnequalExpression>`
+	   * :class:`Greater than expression <pyVHDLModel.Expression.GreaterThanExpression>`
+	   * :class:`Greater equal expression <pyVHDLModel.Expression.GreaterEqualExpression>`
+	   * :class:`Less than expression <pyVHDLModel.Expression.LessThanExpression>`
+	   * :class:`Less equal expression <pyVHDLModel.Expression.LessEqualExpression>`
+	   * :class:`Matching relational expression <pyVHDLModel.Expression.MatchingRelationalExpression>`
 	"""
 
 
@@ -1327,10 +1333,10 @@ class EqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a = b;
-	      --      ^^^^^    <- the expression
-	      --      ^        <- LeftOperand
-	      --^              <- RightOperand
+	      bres := lhs = rhs;
+	      --      ^^^^^^^^^    <- the expression
+	      --      ^^^          <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " = ", "")
 
@@ -1346,10 +1352,10 @@ class UnequalExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a /= b;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --^               <- RightOperand
+	      bres := lhs /= rhs;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^           <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " /= ", "")
 
@@ -1365,10 +1371,10 @@ class GreaterThanExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a > b;
-	      --      ^^^^^    <- the expression
-	      --      ^        <- LeftOperand
-	      --^              <- RightOperand
+	      bres := lhs > rhs;
+	      --      ^^^^^^^^^    <- the expression
+	      --      ^^^          <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " > ", "")
 
@@ -1384,10 +1390,10 @@ class GreaterEqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a >= b;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --^               <- RightOperand
+	      bres := lhs >= rhs;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^           <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " >= ", "")
 
@@ -1403,10 +1409,10 @@ class LessThanExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a < b;
-	      --      ^^^^^    <- the expression
-	      --      ^        <- LeftOperand
-	      --^              <- RightOperand
+	      bres := lhs < rhs;
+	      --      ^^^^^^^^^    <- the expression
+	      --      ^^^          <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " < ", "")
 
@@ -1422,10 +1428,10 @@ class LessEqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := a <= b;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --^               <- RightOperand
+	      bres := lhs <= rhs;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^           <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " <= ", "")
 
@@ -1441,11 +1447,11 @@ class MatchingRelationalExpression(RelationalExpression):
 	.. seealso::
 
 	   * :class:`Matching equal expression <pyVHDLModel.Expression.MatchingEqualExpression>`
-	   * :class:`Matching greater equal expression <pyVHDLModel.Expression.MatchingGreaterEqualExpression>`
-	   * :class:`Matching greater than expression <pyVHDLModel.Expression.MatchingGreaterThanExpression>`
-	   * :class:`Matching less equal expression <pyVHDLModel.Expression.MatchingLessEqualExpression>`
-	   * :class:`Matching less than expression <pyVHDLModel.Expression.MatchingLessThanExpression>`
 	   * :class:`Matching unequal expression <pyVHDLModel.Expression.MatchingUnequalExpression>`
+	   * :class:`Matching greater than expression <pyVHDLModel.Expression.MatchingGreaterThanExpression>`
+	   * :class:`Matching greater equal expression <pyVHDLModel.Expression.MatchingGreaterEqualExpression>`
+	   * :class:`Matching less than expression <pyVHDLModel.Expression.MatchingLessThanExpression>`
+	   * :class:`Matching less equal expression <pyVHDLModel.Expression.MatchingLessEqualExpression>`
 	"""
 	pass
 
@@ -1455,17 +1461,17 @@ class MatchingEqualExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching equality expression (``?=``).
 
-	Unlike ``=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
-	and :data:`RightOperand`.
+	Unlike ``=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?= w;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --           ^    <- RightOperand
+	      sres := vlhs ?= vrhs;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --      ^^^^            <- LeftOperand
+	      --              ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?= ", "")
 
@@ -1475,17 +1481,17 @@ class MatchingUnequalExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching inequality expression (``?/=``).
 
-	Unlike ``/=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
-	:data:`LeftOperand` and :data:`RightOperand`.
+	Unlike ``/=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?/= w;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      sres := vlhs ?/= vrhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?/= ", "")
 
@@ -1495,17 +1501,17 @@ class MatchingGreaterThanExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching greater-than expression (``?>``).
 
-	Unlike ``>``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
-	and :data:`RightOperand`.
+	Unlike ``>``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?> w;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --           ^    <- RightOperand
+	      sres := vlhs ?> vrhs;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --      ^^^^            <- LeftOperand
+	      --              ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?> ", "")
 
@@ -1515,17 +1521,17 @@ class MatchingGreaterEqualExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching greater-or-equal expression (``?>=``).
 
-	Unlike ``>=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
-	:data:`LeftOperand` and :data:`RightOperand`.
+	Unlike ``>=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?>= w;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      sres := vlhs ?>= vrhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?>= ", "")
 
@@ -1535,17 +1541,17 @@ class MatchingLessThanExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching less-than expression (``?<``).
 
-	Unlike ``<``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
-	and :data:`RightOperand`.
+	Unlike ``<``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?< w;
-	      --      ^^^^^^    <- the expression
-	      --      ^         <- LeftOperand
-	      --           ^    <- RightOperand
+	      sres := vlhs ?< vrhs;
+	      --      ^^^^^^^^^^^^    <- the expression
+	      --      ^^^^            <- LeftOperand
+	      --              ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?< ", "")
 
@@ -1555,17 +1561,17 @@ class MatchingLessEqualExpression(MatchingRelationalExpression):
 	"""
 	Represents a matching less-or-equal expression (``?<=``).
 
-	Unlike ``<=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
-	:data:`LeftOperand` and :data:`RightOperand`.
+	Unlike ``<=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      sres := v ?<= w;
-	      --      ^^^^^^^    <- the expression
-	      --      ^          <- LeftOperand
-	      --            ^    <- RightOperand
+	      sres := vlhs ?<= vrhs;
+	      --      ^^^^^^^^^^^^^    <- the expression
+	      --      ^^^^             <- LeftOperand
+	      --               ^^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?<= ", "")
 
@@ -1579,9 +1585,9 @@ class ShiftExpression(BinaryExpression):
 
 	.. seealso::
 
-	   * :class:`Rotate expression <pyVHDLModel.Expression.RotateExpression>`
-	   * :class:`Shift arithmetic expression <pyVHDLModel.Expression.ShiftArithmeticExpression>`
 	   * :class:`Shift logic expression <pyVHDLModel.Expression.ShiftLogicExpression>`
+	   * :class:`Shift arithmetic expression <pyVHDLModel.Expression.ShiftArithmeticExpression>`
+	   * :class:`Rotate expression <pyVHDLModel.Expression.RotateExpression>`
 	"""
 
 
@@ -1594,8 +1600,8 @@ class ShiftLogicExpression(ShiftExpression):
 
 	.. seealso::
 
-	   * :class:`Shift left logic expression <pyVHDLModel.Expression.ShiftLeftLogicExpression>`
 	   * :class:`Shift right logic expression <pyVHDLModel.Expression.ShiftRightLogicExpression>`
+	   * :class:`Shift left logic expression <pyVHDLModel.Expression.ShiftLeftLogicExpression>`
 	"""
 	pass
 
@@ -1609,8 +1615,8 @@ class ShiftArithmeticExpression(ShiftExpression):
 
 	.. seealso::
 
-	   * :class:`Shift left arithmetic expression <pyVHDLModel.Expression.ShiftLeftArithmeticExpression>`
 	   * :class:`Shift right arithmetic expression <pyVHDLModel.Expression.ShiftRightArithmeticExpression>`
+	   * :class:`Shift left arithmetic expression <pyVHDLModel.Expression.ShiftLeftArithmeticExpression>`
 	"""
 	pass
 
@@ -1624,8 +1630,8 @@ class RotateExpression(ShiftExpression):
 
 	.. seealso::
 
-	   * :class:`Rotate left expression <pyVHDLModel.Expression.RotateLeftExpression>`
 	   * :class:`Rotate right expression <pyVHDLModel.Expression.RotateRightExpression>`
+	   * :class:`Rotate left expression <pyVHDLModel.Expression.RotateLeftExpression>`
 	"""
 	pass
 
@@ -1641,10 +1647,10 @@ class ShiftRightLogicExpression(ShiftLogicExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v srl 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs srl 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " srl ", "")
 
@@ -1660,10 +1666,10 @@ class ShiftLeftLogicExpression(ShiftLogicExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v sll 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs sll 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " sll ", "")
 
@@ -1679,10 +1685,10 @@ class ShiftRightArithmeticExpression(ShiftArithmeticExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v sra 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs sra 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " sra ", "")
 
@@ -1698,10 +1704,10 @@ class ShiftLeftArithmeticExpression(ShiftArithmeticExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v sla 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs sla 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " sla ", "")
 
@@ -1717,10 +1723,10 @@ class RotateRightExpression(RotateExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v ror 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs ror 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " ror ", "")
 
@@ -1736,10 +1742,10 @@ class RotateLeftExpression(RotateExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v rol 1;
-	      --      ^^^^^^^    <- the expression
-	      --^                <- LeftOperand
-	      --            ^    <- RightOperand
+	      vres := vlhs rol 1;
+	      --      ^^^^^^^^^^    <- the expression
+	      --      ^^^^          <- LeftOperand
+	      --               ^    <- RightOperand
 	"""
 	_FORMAT = ("", " rol ", "")
 
@@ -1920,8 +1926,8 @@ class Allocation(BaseExpression):
 
 	.. seealso::
 
-	   * :class:`Qualified expression allocation <pyVHDLModel.Expression.QualifiedExpressionAllocation>`
 	   * :class:`Subtype allocation <pyVHDLModel.Expression.SubtypeAllocation>`
+	   * :class:`Qualified expression allocation <pyVHDLModel.Expression.QualifiedExpressionAllocation>`
 	"""
 	pass
 
@@ -2005,11 +2011,11 @@ class AggregateElement(ModelEntity):
 
 	.. seealso::
 
+	   * :class:`Simple aggregate element <pyVHDLModel.Expression.SimpleAggregateElement>`
 	   * :class:`Indexed aggregate element <pyVHDLModel.Expression.IndexedAggregateElement>`
+	   * :class:`Ranged aggregate element <pyVHDLModel.Expression.RangedAggregateElement>`
 	   * :class:`Named aggregate element <pyVHDLModel.Expression.NamedAggregateElement>`
 	   * :class:`Others aggregate element <pyVHDLModel.Expression.OthersAggregateElement>`
-	   * :class:`Ranged aggregate element <pyVHDLModel.Expression.RangedAggregateElement>`
-	   * :class:`Simple aggregate element <pyVHDLModel.Expression.SimpleAggregateElement>`
 	"""
 
 	_expression: ExpressionUnion

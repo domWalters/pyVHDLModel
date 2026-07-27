@@ -73,13 +73,13 @@ class ConcurrentStatement(Statement):
 
 	.. seealso::
 
-	   * :class:`Concurrent assert statement <pyVHDLModel.Concurrent.ConcurrentAssertStatement>`
-	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
-	   * :class:`Concurrent procedure call <pyVHDLModel.Concurrent.ConcurrentProcedureCall>`
-	   * :class:`Concurrent signal assignment <pyVHDLModel.Concurrent.ConcurrentSignalAssignment>`
-	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
 	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
 	   * :class:`Process statement <pyVHDLModel.Concurrent.ProcessStatement>`
+	   * :class:`Concurrent procedure call <pyVHDLModel.Concurrent.ConcurrentProcedureCall>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
+	   * :class:`Concurrent signal assignment <pyVHDLModel.Concurrent.ConcurrentSignalAssignment>`
+	   * :class:`Concurrent assert statement <pyVHDLModel.Concurrent.ConcurrentAssertStatement>`
 	"""
 
 
@@ -90,12 +90,12 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
-	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
-	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	   * :class:`Generate branch <pyVHDLModel.Concurrent.GenerateBranch>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
+	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 
 	   .. todo:: concurrent declaration region
 	"""
@@ -153,8 +153,8 @@ class Instantiation(ConcurrentStatement):
 	.. seealso::
 
 	   * :class:`Component instantiation <pyVHDLModel.Concurrent.ComponentInstantiation>`
-	   * :class:`Configuration instantiation <pyVHDLModel.Concurrent.ConfigurationInstantiation>`
 	   * :class:`Entity instantiation <pyVHDLModel.Concurrent.EntityInstantiation>`
+	   * :class:`Configuration instantiation <pyVHDLModel.Concurrent.ConfigurationInstantiation>`
 	"""
 
 	_genericAssociationItems: List[AssociationItem]
@@ -395,9 +395,9 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 	   .. code-block:: VHDL
 
-	      proc_lbl : proc(clk, open);
-	    --^^^^^^^^                      <- Label
-	    --           ^^^^^^^^^^^^^^^    <- the call
+	        proc_lbl : proc(clk, open);
+	      --^^^^^^^^                      <- Label
+	      --           ^^^^^^^^^^^^^^^    <- the call
 
 	.. seealso::
 
@@ -419,21 +419,25 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 	"""
 	Represents a block statement.
 
-	A block groups concurrent statements and may declare its own items. It can also have a port
-	clause (:data:`PortItems`), which makes it a hierarchy level of its own.
+	A block groups concurrent statements (:data:`Statements`) and may declare its own items
+	(:data:`DeclaredItems`). It always forms a hierarchy level; independently of that, it may also
+	have a port clause (:data:`PortItems`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      blk : block
-	    --^^^                            <- Label
-	        port (bp : in bit);
-	      --      ^^^^^^^^^^^            <- PortItems
-	        signal inner : bit := '0';
-	      --^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
-	      begin
-	      end block;
+	        blk : block
+	      --^^^                            <- Label
+	          port (bp : in bit);
+	      --        ^^^^^^^^^^^            <- PortItems
+	          port map (bp => clk);
+	          signal inner : bit := '0';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
+	        begin
+	          inner <= bp;
+	      --  ^^^^^^^^^^^^                 <- Statements
+	        end block;
 
 	.. seealso::
 
@@ -486,9 +490,9 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 
 	.. seealso::
 
-	   * :class:`If-generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
-	   * :class:`Elsif-generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
-	   * :class:`Else-generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
+	   * :class:`If generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
+	   * :class:`Elsif generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
+	   * :class:`Else generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
 	"""
 
 	_alternativeLabel:           Nullable[str]
@@ -643,9 +647,9 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 
 	.. seealso::
 
+	   * :class:`If generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
 	   * :class:`Case generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
 	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
-	   * :class:`If generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
 	"""
 
 	def __init__(
@@ -1120,10 +1124,9 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 
 	.. seealso::
 
-	   * :class:`Concurrent conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`
-	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
 	   * :class:`Concurrent simple signal assignment <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
-	"""
+	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
+	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`	"""
 	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
@@ -1138,9 +1141,9 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 
 	   .. code-block:: VHDL
 
-	      q <= '1';
-	    --^           <- Target
-	    --     ^^^    <- the waveform
+	        q <= '1';
+	      --^           <- Target
+	      --     ^^^    <- the waveform
 
 	.. seealso::
 
@@ -1163,9 +1166,9 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when 0, '0' when others;
-	      --   ^^^                                            <- SelectExpression
-	      --                   ^^^^^^^^^^                     <- first alternative
+	      with sel select s <= '1' when '0', '0' when others;
+	      --   ^^^                                              <- SelectExpression
+	      --                   ^^^^^^^^^^^^                     <- first alternative
 
 	.. seealso::
 

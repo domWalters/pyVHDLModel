@@ -59,9 +59,9 @@ class Reference(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.LibraryClause`
-	   * :class:`~pyVHDLModel.DesignUnit.UseClause`
-	   * :class:`~pyVHDLModel.DesignUnit.ContextReference`
+	   * :class:`Library clause <pyVHDLModel.DesignUnit.LibraryClause>`
+	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
+	   * :class:`Context reference <pyVHDLModel.DesignUnit.ContextReference>`
 	"""
 
 	_symbols:       List[Symbol]
@@ -151,11 +151,11 @@ class DesignUnitWithContextMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
-	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
-	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
 	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
 	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
 
@@ -168,15 +168,15 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	   * :class:`Primary design units <pyVHDLModel.DesignUnit.PrimaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Context`
-	     * :class:`~pyVHDLModel.DesignUnit.Entity`
-	     * :class:`~pyVHDLModel.DesignUnit.Package`
-	     * :class:`~pyVHDLModel.DesignUnit.Configuration`
+	     * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	     * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	     * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	     * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 
 	   * :class:`Secondary design units <pyVHDLModel.DesignUnit.SecondaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	     * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	     * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	     * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
 	_document: 'Document'                                  #: The VHDL library, the design unit was analyzed into.
@@ -355,11 +355,11 @@ class PrimaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Context`
-	   * :class:`~pyVHDLModel.DesignUnit.Entity`
-	   * :class:`~pyVHDLModel.DesignUnit.Package`
-	   * :class:`~pyVHDLModel.DesignUnit.Configuration`
-	   * :class:`PSL primary unit <pyVHDLModel.PSLModel.PSLPrimaryUnit>`
+	   * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
+	   * :class:`PSL primary unit <pyVHDLModel.PSLModel.PSLPrimaryUnit>` (PSL is not supported)
 	"""
 
 
@@ -370,8 +370,8 @@ class SecondaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	   * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	"""
 
 

@@ -57,8 +57,8 @@ class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
 
 	.. seealso::
 
-	   * :class:`Composite mode view element <pyVHDLModel.Interface.CompositeModeViewElement>`
 	   * :class:`Simple mode view element <pyVHDLModel.Interface.SimpleModeViewElement>`
+	   * :class:`Composite mode view element <pyVHDLModel.Interface.CompositeModeViewElement>`
 	"""
 
 	def __init__(self, identifiers: Iterable[str], parent: Nullable[ModelEntity] = None) -> None:
@@ -203,8 +203,8 @@ class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
 	.. seealso::
 
 	   * :class:`Generic interface item mixin <pyVHDLModel.Interface.GenericInterfaceItemMixin>`
-	   * :class:`Parameter interface item mixin <pyVHDLModel.Interface.ParameterInterfaceItemMixin>`
 	   * :class:`Port interface item mixin <pyVHDLModel.Interface.PortInterfaceItemMixin>`
+	   * :class:`Parameter interface item mixin <pyVHDLModel.Interface.ParameterInterfaceItemMixin>`
 	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
 	"""
 
@@ -218,12 +218,12 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Generic constant interface item <pyVHDLModel.Interface.GenericConstantInterfaceItem>`
-	   * :class:`Parameter constant interface item <pyVHDLModel.Interface.ParameterConstantInterfaceItem>`
-	   * :class:`Parameter simple signal interface item <pyVHDLModel.Interface.ParameterSimpleSignalInterfaceItem>`
-	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
 	   * :class:`Port interface item mixin <pyVHDLModel.Interface.PortInterfaceItemMixin>`
+	   * :class:`Generic constant interface item <pyVHDLModel.Interface.GenericConstantInterfaceItem>`
 	   * :class:`Port simple signal interface item <pyVHDLModel.Interface.PortSimpleSignalInterfaceItem>`
+	   * :class:`Parameter constant interface item <pyVHDLModel.Interface.ParameterConstantInterfaceItem>`
+	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
+	   * :class:`Parameter simple signal interface item <pyVHDLModel.Interface.ParameterSimpleSignalInterfaceItem>`
 	"""
 
 	_mode: Mode
@@ -249,11 +249,11 @@ class GenericInterfaceItemMixin(InterfaceItemMixin, mixin=True):
 	.. seealso::
 
 	   * :class:`Generic constant interface item <pyVHDLModel.Interface.GenericConstantInterfaceItem>`
+	   * :class:`Generic type interface item <pyVHDLModel.Interface.GenericTypeInterfaceItem>`
+	   * :class:`Generic subprogram interface item <pyVHDLModel.Interface.GenericSubprogramInterfaceItem>`
+	   * :class:`Generic procedure interface item <pyVHDLModel.Interface.GenericProcedureInterfaceItem>`
 	   * :class:`Generic function interface item <pyVHDLModel.Interface.GenericFunctionInterfaceItem>`
 	   * :class:`Generic package interface item <pyVHDLModel.Interface.GenericPackageInterfaceItem>`
-	   * :class:`Generic procedure interface item <pyVHDLModel.Interface.GenericProcedureInterfaceItem>`
-	   * :class:`Generic subprogram interface item <pyVHDLModel.Interface.GenericSubprogramInterfaceItem>`
-	   * :class:`Generic type interface item <pyVHDLModel.Interface.GenericTypeInterfaceItem>`
 	"""
 
 
@@ -276,9 +276,9 @@ class ParameterInterfaceItemMixin(InterfaceItemMixin, mixin=True):
 	.. seealso::
 
 	   * :class:`Parameter constant interface item <pyVHDLModel.Interface.ParameterConstantInterfaceItem>`
-	   * :class:`Parameter file interface item <pyVHDLModel.Interface.ParameterFileInterfaceItem>`
-	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
 	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
+	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
+	   * :class:`Parameter file interface item <pyVHDLModel.Interface.ParameterFileInterfaceItem>`
 	"""
 
 
@@ -436,9 +436,9 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 	   .. code-block:: VHDL
 
 	      port (p : in bit);
-	    --^                    <- Identifiers
-	    --          ^^         <- Mode
-	    --             ^^^     <- Subtype
+	      --    ^              <- Identifiers
+	      --        ^^         <- Mode
+	      --           ^^^     <- Subtype
 
 	.. seealso::
 
@@ -471,17 +471,8 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 	   .. code-block:: VHDL
 
 	      port (p : view MyView);
-	    --^                         <- Identifiers
-	    --               ^^^^^^     <- ModeViewIndication
-
-	. note::
-
-	  VHDL's grammar treats a mode view indication as occupying the same structural position as an
-	  ordinary subtype indication (``mode_indication ::= simple_mode_indication | mode_view_indication``).
-	  Accordingly, the mode view reference *is* this object's :attr:`Subtype` (a :class:`Symbol` is a
-	  :class:`Symbol`, whether it names a subtype or a mode view) - :attr:`ModeViewIndication` is just a
-	  more specific, aliased name for the same value, not a separate field. An object's subtype can never
-	  be ``None`` - there is no VHDL syntax that omits it.
+	      --    ^                   <- Identifiers
+	      --             ^^^^^^     <- ModeViewIndication
 
 	.. seealso::
 
@@ -517,10 +508,10 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 
 	   .. code-block:: VHDL
 
-	      function fun(constant c : in integer) return integer;
-	      -- ^                                                    <- Identifiers
-	      --                        ^^                            <- Mode
-	      --                           ^^^^^^^                    <- Subtype
+	      function fun(constant cst : in integer) return integer;
+	      --                    ^^^                                 <- Identifiers
+	      --                          ^^                            <- Mode
+	      --                             ^^^^^^^                    <- Subtype
 	"""
 	def __init__(
 		self,
@@ -545,10 +536,10 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 
 	   .. code-block:: VHDL
 
-	      procedure proc(variable v : out bit);
-	      --             ^                        <- Identifiers
-	      --                          ^^^         <- Mode
-	      --                              ^^^     <- Subtype
+	      procedure proc(variable var : out bit);
+	      --                      ^^^               <- Identifiers
+	      --                            ^^^         <- Mode
+	      --                                ^^^     <- Subtype
 	"""
 	def __init__(
 		self,
@@ -573,10 +564,10 @@ class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin):
 
 	   .. code-block:: VHDL
 
-	      procedure proc(signal s : in bit);
-	      --             ^                     <- Identifiers
-	      --                        ^^         <- Mode
-	      --                           ^^^     <- Subtype
+	      procedure proc(signal sig : in bit);
+	      --                    ^^^              <- Identifiers
+	      --                          ^^         <- Mode
+	      --                             ^^^     <- Subtype
 
 	.. seealso::
 
@@ -596,10 +587,10 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 
 	   .. code-block:: VHDL
 
-	      procedure proc(signal s : in bit);
-	      --             ^                     <- Identifiers
-	      --                        ^^         <- Mode
-	      --                           ^^^     <- Subtype
+	      procedure proc(signal sig : in bit);
+	      --                    ^^^              <- Identifiers
+	      --                          ^^         <- Mode
+	      --                             ^^^     <- Subtype
 	"""
 
 	def __init__(
@@ -628,14 +619,9 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 	   .. code-block:: VHDL
 
-	      procedure proc(signal s : view MyView);
-	      --             ^                          <- Identifiers
-	      --                             ^^^^^^     <- ModeViewIndication
-
-	. note::
-
-	  See :class:`PortViewSignalInterfaceItem` for why the mode view reference *is* :attr:`Subtype`
-	  (aliased as :attr:`ModeViewIndication`), rather than a separate, possibly-``None`` field.
+	      procedure proc(signal sig : view MasterView);
+	      --                    ^^^                       <- Identifiers
+	      --                               ^^^^^^^^^^     <- ModeViewIndication
 
 	.. seealso::
 
@@ -672,9 +658,9 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 
 	   .. code-block:: VHDL
 
-	      procedure proc(file f : text_file);
-	      --             ^                      <- Identifiers
-	      --                      ^^^^^^^^^     <- Subtype
+	      procedure proc(file fil : text_file);
+	      --                  ^^^                 <- Identifiers
+	      --                        ^^^^^^^^^     <- Subtype
 	"""
 	def __init__(
 		self,
@@ -694,9 +680,9 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
 	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
 	   * :class:`Generic group <pyVHDLModel.Interface.GenericGroup>`
-	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
 	"""
 	_genericItems: List[GenericInterfaceItemMixin]
 
@@ -821,8 +807,8 @@ class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMi
 	.. seealso::
 
 	   * :class:`Generic group <pyVHDLModel.Interface.GenericGroup>`
-	   * :class:`Parameter group <pyVHDLModel.Interface.ParameterGroup>`
 	   * :class:`Port group <pyVHDLModel.Interface.PortGroup>`
+	   * :class:`Parameter group <pyVHDLModel.Interface.ParameterGroup>`
 	"""
 	def __init__(
 		self,

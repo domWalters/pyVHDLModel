@@ -50,13 +50,13 @@ class Name(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`Attribute name <pyVHDLModel.Name.AttributeName>`
-	   * :class:`Indexed name <pyVHDLModel.Name.IndexedName>`
-	   * :class:`Open name <pyVHDLModel.Name.OpenName>`
-	   * :class:`Parenthesis name <pyVHDLModel.Name.ParenthesisName>`
-	   * :class:`Selected name <pyVHDLModel.Name.SelectedName>`
 	   * :class:`Simple name <pyVHDLModel.Name.SimpleName>`
+	   * :class:`Parenthesis name <pyVHDLModel.Name.ParenthesisName>`
+	   * :class:`Indexed name <pyVHDLModel.Name.IndexedName>`
 	   * :class:`Sliced name <pyVHDLModel.Name.SlicedName>`
+	   * :class:`Selected name <pyVHDLModel.Name.SelectedName>`
+	   * :class:`Attribute name <pyVHDLModel.Name.AttributeName>`
+	   * :class:`Open name <pyVHDLModel.Name.OpenName>`
 	"""
 
 	_identifier: str

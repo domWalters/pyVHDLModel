@@ -61,10 +61,10 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	.. seealso::
 
 	   * :class:`Base constant <pyVHDLModel.Object.BaseConstant>`
-	   * :class:`File <pyVHDLModel.Object.File>`
+	   * :class:`Variable <pyVHDLModel.Object.Variable>`
 	   * :class:`Shared variable <pyVHDLModel.Object.SharedVariable>`
 	   * :class:`Signal <pyVHDLModel.Object.Signal>`
-	   * :class:`Variable <pyVHDLModel.Object.Variable>`
+	   * :class:`File <pyVHDLModel.Object.File>`
 	"""
 
 	_subtype:      Symbol
@@ -112,8 +112,8 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 	.. seealso::
 
 	   * :class:`Constant <pyVHDLModel.Object.Constant>`
-	   * :class:`Signal <pyVHDLModel.Object.Signal>`
 	   * :class:`Variable <pyVHDLModel.Object.Variable>`
+	   * :class:`Signal <pyVHDLModel.Object.Signal>`
 	"""
 
 	_defaultExpression: Nullable[ExpressionUnion]
@@ -271,8 +271,8 @@ class Signal(Obj, WithDefaultExpressionMixin):
 
 	.. seealso::
 
-	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
 	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
+	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
 	"""
 
 	def __init__(

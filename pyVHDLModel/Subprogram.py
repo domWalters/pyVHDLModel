@@ -57,8 +57,8 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 	.. seealso::
 
-	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
+	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
 	_genericItems:   List['GenericInterfaceItemMixin']
 	_parameterItems: List['ParameterInterfaceItemMixin']
@@ -162,22 +162,28 @@ class Procedure(Subprogram):
 	"""
 	Represents a procedure.
 
-	Unlike a function, a procedure returns no value.
+	Unlike a function, a procedure returns no value. Besides its parameters, it has its own
+	declarative part (:data:`DeclaredItems`) and statements (:data:`Statements`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      procedure proc(signal s : in bit) is
-	    --^^^^                                   <- Identifier
-	    --                      ^^^^^^^^^^       <- ParameterItems
+	      procedure proc(signal s : in bit; variable v : out bit) is
+	      --        ^^^^                                               <- Identifier
+	      --             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^       <- ParameterItems
+	        variable tmp : bit;
+	      --^^^^^^^^^^^^^^^^^^^                                        <- DeclaredItems
 	      begin
+	        tmp := s;
+	      --^^^^^^^^^                                                  <- Statements
+	        v := tmp;
 	      end procedure;
 
 	.. seealso::
 
-	   * :class:`Generic procedure interface item <pyVHDLModel.Interface.GenericProcedureInterfaceItem>`
 	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
+	   * :class:`Generic procedure interface item <pyVHDLModel.Interface.GenericProcedureInterfaceItem>`
 	   * :class:`Procedure method <pyVHDLModel.Subprogram.ProcedureMethod>`
 	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
@@ -200,24 +206,30 @@ class Function(Subprogram):
 	Represents a function.
 
 	A function returns a value of its return type (:data:`ReturnType`) and is either pure or impure
-	(:data:`IsPure`).
+	(:data:`IsPure`). Besides its parameters, it has its own declarative part (:data:`DeclaredItems`)
+	and statements (:data:`Statements`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      function fun(constant c : in integer) return integer is
-	    --^^^                                                       <- Identifier
-	    --                      ^^^^^^^^^^^^^^                      <- ParameterItems
-	    --                             ^^^^^^^                      <- ReturnType
+	      function fun(constant c : in positive) return integer is
+	      --       ^^^                                               <- Identifier
+	      --           ^^^^^^^^^^^^^^^^^^^^^^^^                      <- ParameterItems
+	      --                                            ^^^^^^^      <- ReturnType
+	        variable tmp : integer;
+	      --^^^^^^^^^^^^^^^^^^^^^^^                                  <- DeclaredItems
 	      begin
+	        tmp := c;
+	      --^^^^^^^^^                                                <- Statements
+	        return tmp;
 	      end function;
 
 	.. seealso::
 
 	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
-	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	   * :class:`Generic function interface item <pyVHDLModel.Interface.GenericFunctionInterfaceItem>`
+	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	"""
 	_returnType: SubtypeSymbol
@@ -256,8 +268,8 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	   * :class:`Procedure method <pyVHDLModel.Subprogram.ProcedureMethod>`
+	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	"""
 
 	_protectedType: ProtectedType

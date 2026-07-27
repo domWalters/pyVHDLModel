@@ -171,16 +171,16 @@ class NamedEntityMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Alias <pyVHDLModel.Declaration.Alias>`
 	   * :class:`Attribute <pyVHDLModel.Declaration.Attribute>`
-	   * :class:`Base type <pyVHDLModel.Type.BaseType>`
-	   * :class:`Component <pyVHDLModel.DesignUnit.Component>`
-	   * :class:`Default clock <pyVHDLModel.PSLModel.DefaultClock>`
+	   * :class:`Alias <pyVHDLModel.Declaration.Alias>`
 	   * :class:`Design unit <pyVHDLModel.DesignUnit.DesignUnit>`
-	   * :class:`Interface package <pyVHDLModel.Interface.InterfacePackage>`
-	   * :class:`Library <pyVHDLModel.Library>`
+	   * :class:`Component <pyVHDLModel.DesignUnit.Component>`
 	   * :class:`Mode view declaration <pyVHDLModel.Interface.ModeViewDeclaration>`
+	   * :class:`Interface package <pyVHDLModel.Interface.InterfacePackage>`
+	   * :class:`Default clock <pyVHDLModel.PSLModel.DefaultClock>`
 	   * :class:`Subprogram <pyVHDLModel.Subprogram.Subprogram>`
+	   * :class:`Base type <pyVHDLModel.Type.BaseType>`
+	   * :class:`Library <pyVHDLModel.Library>`
 	"""
 
 	_identifier:           str  #: The identifier of a model entity.
@@ -371,9 +371,9 @@ class LabeledEntityMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
+	   * :class:`Statement <pyVHDLModel.Common.Statement>`
 	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
 	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Statement <pyVHDLModel.Common.Statement>`
 	"""
 	_label:           Nullable[str]  #: The label of a model entity.
 	_normalizedLabel: Nullable[str]  #: The normalized (lower case) label of a model entity.
@@ -442,13 +442,13 @@ class ConditionalMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Assert statement mixin <pyVHDLModel.Base.AssertStatementMixin>`
 	   * :class:`Conditional branch mixin <pyVHDLModel.Base.ConditionalBranchMixin>`
-	   * :class:`Conditional expression <pyVHDLModel.Common.ConditionalExpression>`
+	   * :class:`Assert statement mixin <pyVHDLModel.Base.AssertStatementMixin>`
 	   * :class:`Conditional waveform <pyVHDLModel.Common.ConditionalWaveform>`
+	   * :class:`Conditional expression <pyVHDLModel.Common.ConditionalExpression>`
+	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
 	   * :class:`Loop control statement <pyVHDLModel.Sequential.LoopControlStatement>`
 	   * :class:`Wait statement <pyVHDLModel.Sequential.WaitStatement>`
-	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
 	"""
 
 	_condition: ExpressionUnion
@@ -497,8 +497,8 @@ class ConditionalBranchMixin(BranchMixin, ConditionalMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Elsif branch mixin <pyVHDLModel.Base.ElsifBranchMixin>`
 	   * :class:`If branch mixin <pyVHDLModel.Base.IfBranchMixin>`
+	   * :class:`Elsif branch mixin <pyVHDLModel.Base.ElsifBranchMixin>`
 	"""
 	def __init__(self, condition: ExpressionUnion) -> None:
 		super().__init__()
@@ -512,8 +512,8 @@ class IfBranchMixin(ConditionalBranchMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`If branch <pyVHDLModel.Sequential.IfBranch>`
 	   * :class:`If generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
+	   * :class:`If branch <pyVHDLModel.Sequential.IfBranch>`
 	"""
 
 
@@ -524,8 +524,8 @@ class ElsifBranchMixin(ConditionalBranchMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Elsif branch <pyVHDLModel.Sequential.ElsifBranch>`
 	   * :class:`Elsif generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
+	   * :class:`Elsif branch <pyVHDLModel.Sequential.ElsifBranch>`
 	"""
 
 
@@ -536,8 +536,8 @@ class ElseBranchMixin(BranchMixin, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Else branch <pyVHDLModel.Sequential.ElseBranch>`
 	   * :class:`Else generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
+	   * :class:`Else branch <pyVHDLModel.Sequential.ElseBranch>`
 	"""
 
 
@@ -631,11 +631,11 @@ class BaseCase(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Others selected expression <pyVHDLModel.Common.OthersSelectedExpression>`
+	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
 	   * :class:`Others selected waveform <pyVHDLModel.Common.OthersSelectedWaveform>`
 	   * :class:`Selected expression <pyVHDLModel.Common.SelectedExpression>`
-	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
+	   * :class:`Others selected expression <pyVHDLModel.Common.OthersSelectedExpression>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
 	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
 	"""
 
@@ -647,9 +647,9 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
-	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
-	   * :class:`Selected expression <pyVHDLModel.Common.SelectedExpression>`
 	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
+	   * :class:`Selected expression <pyVHDLModel.Common.SelectedExpression>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
 	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
 	"""
 
@@ -682,8 +682,8 @@ class Range(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`Range from name <pyVHDLModel.Base.RangeFromName>`
 	   * :class:`Simple range <pyVHDLModel.Base.SimpleRange>`
+	   * :class:`Range from name <pyVHDLModel.Base.RangeFromName>`
 	"""
 
 

@@ -218,19 +218,26 @@ class PackageReferenceSymbol(Symbol):
 @export
 class ModeViewSymbol(Symbol):
 	"""
-	Represents a reference (name) to a mode view declaration.
+	Represents a reference to a mode view (VHDL-2019).
 
-	The internal name will be a :class:`~pyVHDLModel.Name.SimpleName` (or an
-	:class:`~pyVHDLModel.Name.AttributeName` for the ``'converse`` case).
+	The referenced mode view is available as :data:`Reference` once resolved. A reference may also
+	select the converse view.
 
 	.. admonition:: Example
 
+	   Referencing a mode view:
+
 	   .. code-block:: VHDL
 
-	      port (p : view MyView);
-	      --          ^^^^^^
-	      port (p : view MyView'converse);
-	      --          ^^^^^^^^^^^^^^^^^^
+	      port (p : view MasterView);
+	      --             ^^^^^^^^^^     <- Name
+
+	   Referencing its converse:
+
+	   .. code-block:: VHDL
+
+	      port (p : view MasterView'converse);
+	      --             ^^^^^^^^^^^^^^^^^^^     <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -253,15 +260,16 @@ class ModeViewSymbol(Symbol):
 @export
 class SubprogramReferenceSymbol(Symbol):
 	"""
-	Represents a reference (name) to a subprogram (procedure or function), e.g. the uninstantiated
-	subprogram named by a subprogram instantiation.
+	Represents a reference to a subprogram.
+
+	The referenced subprogram is available as :data:`Reference` once resolved.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      function f is new g generic map (...);
-	      --                  ^
+	      function f is new gen_fun generic map (N => 1);
+	      --                ^^^^^^^                         <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -284,15 +292,16 @@ class SubprogramReferenceSymbol(Symbol):
 @export
 class ConfigurationSymbol(Symbol):
 	"""
-	Represents a reference (name) to a configuration declaration, e.g. in an entity aspect of a
-	binding indication.
+	Represents a reference to a configuration.
+
+	The referenced configuration is available as :data:`Reference` once resolved.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for U1 : comp use configuration work.cfg;
-	      --                              ^^^^^^^
+	      --                              ^^^^^^^^    <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -692,9 +701,9 @@ class SubtypeSymbol(Symbol):
 
 	.. seealso::
 
-	   * :class:`Constrained composite subtype symbol <pyVHDLModel.Symbol.ConstrainedCompositeSubtypeSymbol>`
-	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
 	   * :class:`Simple subtype symbol <pyVHDLModel.Symbol.SimpleSubtypeSymbol>`
+	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
+	   * :class:`Constrained composite subtype symbol <pyVHDLModel.Symbol.ConstrainedCompositeSubtypeSymbol>`
 	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Type | PossibleReference.Subtype)
@@ -737,9 +746,9 @@ class Constraint(metaclass=ExtendedType, mixin=True):
 
 	.. seealso::
 
+	   * :class:`Scalar constraint <pyVHDLModel.Symbol.ScalarConstraint>`
 	   * :class:`Array constraint <pyVHDLModel.Symbol.ArrayConstraint>`
 	   * :class:`Record constraint <pyVHDLModel.Symbol.RecordConstraint>`
-	   * :class:`Scalar constraint <pyVHDLModel.Symbol.ScalarConstraint>`
 	"""
 	pass
 

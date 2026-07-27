@@ -61,8 +61,8 @@ class EntityAspect(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`Entity aspect configuration <pyVHDLModel.Configuration.EntityAspectConfiguration>`
 	   * :class:`Entity aspect entity <pyVHDLModel.Configuration.EntityAspectEntity>`
+	   * :class:`Entity aspect configuration <pyVHDLModel.Configuration.EntityAspectConfiguration>`
 	   * :class:`Entity aspect open <pyVHDLModel.Configuration.EntityAspectOpen>`
 	"""
 
@@ -232,28 +232,28 @@ class BindingIndication(ModelEntity):
 @export
 class AllInstantiationList(ModelEntity):
 	"""
-	Represents the reserved word ``all`` used as an instantiation list.
+	Represents an instantiation list naming ``all`` instances of a component.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for all : comp use entity work.sub(behav);
-	      --    ^^^
+	      --  ^^^                                      <- the instantiation list
 	"""
 
 
 @export
 class OthersInstantiationList(ModelEntity):
 	"""
-	Represents the reserved word ``others`` used as an instantiation list.
+	Represents an instantiation list naming all instances not configured elsewhere.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for others : comp use entity work.sub(behav);
-	      --    ^^^^^^
+	      --  ^^^^^^                                      <- the instantiation list
 	"""
 
 

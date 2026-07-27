@@ -61,8 +61,8 @@ class AssociationItem(ModelEntity):
 	.. seealso::
 
 	   * :class:`Generic association item <pyVHDLModel.Association.GenericAssociationItem>`
-	   * :class:`Parameter association item <pyVHDLModel.Association.ParameterAssociationItem>`
 	   * :class:`Port association item <pyVHDLModel.Association.PortAssociationItem>`
+	   * :class:`Parameter association item <pyVHDLModel.Association.ParameterAssociationItem>`
 	"""
 
 	_formal: Nullable[Symbol]

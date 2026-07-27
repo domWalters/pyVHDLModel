@@ -55,9 +55,9 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	.. seealso::
 
+	   * :class:`Type <pyVHDLModel.Type.Type>`
 	   * :class:`Full type <pyVHDLModel.Type.FullType>`
 	   * :class:`Subtype <pyVHDLModel.Type.Subtype>`
-	   * :class:`Type <pyVHDLModel.Type.Type>`
 	"""
 
 	_objectVertex: Vertex
@@ -86,8 +86,8 @@ class Type(BaseType):
 
 	.. seealso::
 
-	   * :class:`Anonymous type <pyVHDLModel.Type.AnonymousType>`
 	   * :class:`Generic type interface item <pyVHDLModel.Interface.GenericTypeInterfaceItem>`
+	   * :class:`Anonymous type <pyVHDLModel.Type.AnonymousType>`
 	"""
 	pass
 
@@ -120,12 +120,12 @@ class FullType(BaseType):
 
 	.. seealso::
 
-	   * :class:`Access type <pyVHDLModel.Type.AccessType>`
+	   * :class:`Scalar type <pyVHDLModel.Type.ScalarType>`
 	   * :class:`Composite type <pyVHDLModel.Type.CompositeType>`
-	   * :class:`File type <pyVHDLModel.Type.FileType>`
 	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
 	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
-	   * :class:`Scalar type <pyVHDLModel.Type.ScalarType>`
+	   * :class:`Access type <pyVHDLModel.Type.AccessType>`
+	   * :class:`File type <pyVHDLModel.Type.FileType>`
 	"""
 	pass
 
@@ -227,8 +227,8 @@ class ScalarType(FullType):
 
 	.. seealso::
 
-	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
 	   * :class:`Ranged scalar type <pyVHDLModel.Type.RangedScalarType>`
+	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
 	"""
 
 
@@ -243,8 +243,8 @@ class RangedScalarType(ScalarType):
 	.. seealso::
 
 	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
-	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
 	   * :class:`Real type <pyVHDLModel.Type.RealType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
 	"""
 
 	_range: Range
@@ -279,8 +279,8 @@ class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 	.. seealso::
 
 	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
-	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
 	   * :class:`Real type <pyVHDLModel.Type.RealType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
 	"""
 
 	def __init__(self) -> None:

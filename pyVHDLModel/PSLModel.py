@@ -60,9 +60,9 @@ class PSLPrimaryUnit(PrimaryUnit):
 
 	.. seealso::
 
-	   * :class:`Verification mode <pyVHDLModel.PSLModel.VerificationMode>`
-	   * :class:`Verification property <pyVHDLModel.PSLModel.VerificationProperty>`
 	   * :class:`Verification unit <pyVHDLModel.PSLModel.VerificationUnit>`
+	   * :class:`Verification property <pyVHDLModel.PSLModel.VerificationProperty>`
+	   * :class:`Verification mode <pyVHDLModel.PSLModel.VerificationMode>`
 	"""
 	pass
 
