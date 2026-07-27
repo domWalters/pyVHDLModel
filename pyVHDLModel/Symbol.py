@@ -99,11 +99,17 @@ class Symbol(metaclass=ExtendedType):
 	Base-class for all symbol classes.
 	"""
 
-	_name:               Name               #: The name to reference the langauge entity.
+	_name:               Name               #: The name to reference the language entity.
 	_possibleReferences: PossibleReference  #: An enumeration to filter possible references.
 	_reference:          Nullable[Any]      #: The resolved language entity, otherwise ``None``.
 
 	def __init__(self, name: Name, possibleReferences: PossibleReference) -> None:
+		"""
+		Initializes a symbol.
+
+		:param name:               The name to reference the language entity.
+		:param possibleReferences: An enumeration to filter possible references.
+		"""
 		self._name = name
 		self._possibleReferences = possibleReferences
 		self._reference = None
@@ -167,6 +173,11 @@ class LibraryReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a library reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Library)
 
 	@property
@@ -199,6 +210,11 @@ class PackageReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a package reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Package)
 
 	@property
@@ -241,6 +257,11 @@ class ModeViewSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a mode view symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.View)
 
 	@property
@@ -273,6 +294,11 @@ class SubprogramReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a subprogram reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.SubProgram)
 
 	@property
@@ -305,6 +331,11 @@ class ConfigurationSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a configuration symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Configuration)
 
 	@property
@@ -335,6 +366,11 @@ class VariableSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a variable symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Variable)
 
 	@property
@@ -365,6 +401,11 @@ class SignalSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a signal symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Signal)
 
 	@property
@@ -397,6 +438,11 @@ class ContextReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a context reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Context)
 
 	@property
@@ -429,6 +475,11 @@ class PackageMemberReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a package member reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.PackageMember)
 
 	@property
@@ -461,6 +512,11 @@ class AllPackageMembersReferenceSymbol(Symbol):
 	"""
 
 	def __init__(self, name: AllName) -> None:
+		"""
+		Initializes an all package members reference symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.PackageMember)
 
 	@property
@@ -493,6 +549,11 @@ class EntityInstantiationSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes an entity instantiation symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Entity)
 
 	@property
@@ -525,6 +586,11 @@ class ComponentInstantiationSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a component instantiation symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Component)
 
 	@property
@@ -557,6 +623,11 @@ class ConfigurationInstantiationSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a configuration instantiation symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Configuration)
 
 	@property
@@ -591,6 +662,11 @@ class EntitySymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes an entity symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Entity)
 
 	@property
@@ -612,6 +688,11 @@ class ArchitectureSymbol(Symbol):
 	"""An entity reference in an entity instantiation with architecture name."""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes an architecture symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Architecture)
 
 	@property
@@ -645,6 +726,11 @@ class PackageSymbol(Symbol):
 	"""
 
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a package symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Package)
 
 	@property
@@ -676,6 +762,11 @@ class RecordElementSymbol(Symbol):
 	      --    ^                      <- Name
 	"""
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a record element symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.RecordElement)
 
 
@@ -706,6 +797,11 @@ class SubtypeSymbol(Symbol):
 	   * :class:`Constrained composite subtype symbol <pyVHDLModel.Symbol.ConstrainedCompositeSubtypeSymbol>`
 	"""
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a subtype symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Type | PossibleReference.Subtype)
 
 	@property
@@ -767,6 +863,11 @@ class ScalarConstraint(Constraint, mixin=True):
 	_constraint: Nullable[Range]  #: The range constraining the scalar subtype, or ``None`` if unconstrained.
 
 	def __init__(self, constraint: Nullable[Range]) -> None:
+		"""
+		Initializes a scalar constraint.
+
+		:param constraint: The range constraining the scalar subtype, or ``None`` if unconstrained.
+		"""
 		self._constraint = constraint
 
 	@readonly
@@ -796,6 +897,12 @@ class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 	"""
 
 	def __init__(self, name: Name, constraint: Nullable[Range] = None) -> None:
+		"""
+		Initializes a constrained scalar subtype symbol.
+
+		:param name:       The name to reference the language entity.
+		:param constraint: The range constraining the scalar subtype, or ``None`` if unconstrained.
+		"""
 		super().__init__(name)
 		ScalarConstraint.__init__(self, constraint)
 
@@ -814,6 +921,11 @@ class ArrayConstraint(Constraint, mixin=True):
 	_constraints: List[Range]  #: List of all index ranges, one per dimension.
 
 	def __init__(self, constraints: Iterable[Range]) -> None:
+		"""
+		Initializes an array constraint.
+
+		:param constraints: List of all index ranges, one per dimension.
+		"""
 		self._constraints = [constraint for constraint in constraints]
 
 	@readonly
@@ -840,6 +952,11 @@ class RecordConstraint(Constraint, mixin=True):
 	_constraints: Dict[RecordElementSymbol, Range]  #: Dictionary of the constraint per constrained record element.
 
 	def __init__(self, constraints: Mapping[RecordElementSymbol, Range]) -> None:
+		"""
+		Initializes a record constraint.
+
+		:param constraints: Dictionary of the constraint per constrained record element.
+		"""
 		self._constraints = {key: value for key, value in constraints.items()}
 
 	@readonly
@@ -885,6 +1002,12 @@ class ConstrainedArraySubtypeSymbol(ConstrainedCompositeSubtypeSymbol, ArrayCons
 	_constraints: List  #: List of all index ranges, one per dimension.
 
 	def __init__(self, name: Name, constraints: Iterable) -> None:
+		"""
+		Initializes a constrained array subtype symbol.
+
+		:param name:        The name to reference the language entity.
+		:param constraints: List of all index ranges, one per dimension.
+		"""
 		super().__init__(name)
 		ArrayConstraint.__init__(self, constraints)
 
@@ -899,6 +1022,12 @@ class ConstrainedRecordSubtypeSymbol(ConstrainedCompositeSubtypeSymbol, RecordCo
 	_constraints: Dict[RecordElementSymbol, Any]  #: Dictionary of the constraint per constrained record element.
 
 	def __init__(self, name: Name, constraints: Mapping) -> None:
+		"""
+		Initializes a constrained record subtype symbol.
+
+		:param name:        The name to reference the language entity.
+		:param constraints: Dictionary of the constraint per constrained record element.
+		"""
 		super().__init__(name)
 		RecordConstraint.__init__(self, constraints)
 
@@ -912,6 +1041,11 @@ class SimpleObjectOrFunctionCallSymbol(Symbol):
 	entity is available as :data:`Reference` once resolved.
 	"""
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes a simple object or function call symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.SimpleNameInExpression)
 
 
@@ -924,4 +1058,9 @@ class IndexedObjectOrFunctionCallSymbol(Symbol):
 	name is resolved. The referenced language entity is available as :data:`Reference` once resolved.
 	"""
 	def __init__(self, name: Name) -> None:
+		"""
+		Initializes an indexed object or function call symbol.
+
+		:param name: The name to reference the language entity.
+		"""
 		super().__init__(name, PossibleReference.Object | PossibleReference.Function)

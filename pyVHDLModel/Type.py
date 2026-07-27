@@ -66,8 +66,9 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		Initializes underlying ``BaseType``.
 
-		:param identifier: Name of the type.
-		:param parent:     Reference to the logical parent in the model hierarchy.
+		:param identifier:    Name of the type.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        Reference to the logical parent in the model hierarchy.
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -178,6 +179,14 @@ class Subtype(BaseType):
 	_resolutionFunction: 'Function'  #: The resolution function, or ``None`` if the subtype is unresolved.
 
 	def __init__(self, identifier: str, symbol: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a subtype.
+
+		:param identifier:    The identifier of a model entity.
+		:param symbol:        Reference to the type or subtype this subtype is derived from.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._type = symbol
@@ -289,6 +298,9 @@ class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a numeric type.
+		"""
 		pass
 
 
@@ -304,6 +316,9 @@ class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a discrete type.
+		"""
 		pass
 
 
@@ -326,6 +341,14 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 	_literals: List[EnumerationLiteral]  #: List of all enumeration literals, in declaration order.
 
 	def __init__(self, identifier: str, literals: Iterable[EnumerationLiteral], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an enumerated type.
+
+		:param identifier:    The identifier of a model entity.
+		:param literals:      List of all enumeration literals, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._literals = []
@@ -363,6 +386,14 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 	      --                   ^^^^^^^    <- Range
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an integer type.
+
+		:param identifier:    The identifier of a model entity.
+		:param rng:           The range constraining this scalar type.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, rng, documentation, parent)
 
 	def __str__(self) -> str:
@@ -386,6 +417,14 @@ class RealType(RangedScalarType, NumericTypeMixin):
 	      --                     ^^^^^^^^^^    <- Range
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a real type.
+
+		:param identifier:    The identifier of a model entity.
+		:param rng:           The range constraining this scalar type.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, rng, documentation, parent)
 
 	def __str__(self) -> str:
@@ -429,6 +468,16 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a physical type.
+
+		:param identifier:    The identifier of a model entity.
+		:param rng:           The range constraining this scalar type.
+		:param primaryUnit:   The name of the type's primary unit.
+		:param units:         Iterable of the secondary units as (name, value) pairs.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, rng, documentation, parent)
 
 		self._primaryUnit = primaryUnit
@@ -513,6 +562,15 @@ class ArrayType(CompositeType):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an array type.
+
+		:param identifier:     The identifier of a model entity.
+		:param indices:        List of all index ranges, one per dimension.
+		:param elementSubtype: Reference to the subtype of the array's elements.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._dimensions = []
@@ -570,6 +628,13 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 	_subtype: Symbol  #: Reference to the subtype shared by all identifiers of this element declaration.
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a record type element.
+
+		:param identifiers: A list of identifiers.
+		:param subtype:     Reference to the subtype shared by all identifiers of this element declaration.
+		:param parent:      The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 
@@ -618,6 +683,14 @@ class RecordType(CompositeType):
 	_elements: List[RecordTypeElement]  #: List of all element declarations, in declaration order.
 
 	def __init__(self, identifier: str, elements: Nullable[Iterable[RecordTypeElement]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a record type.
+
+		:param identifier:    The identifier of a model entity.
+		:param elements:      List of all element declarations, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._elements = []  # TODO: convert to dict
@@ -669,6 +742,14 @@ class ProtectedType(FullType):
 	_methods: List[Union['Procedure', 'Function']]  #: All methods, in declaration order.
 
 	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a protected type.
+
+		:param identifier:    The identifier of a model entity.
+		:param methods:       All methods, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._methods = []
@@ -722,6 +803,14 @@ class ProtectedTypeBody(FullType):
 	_methods: List[Union['Procedure', 'Function']]  #: All declared items; see the class docs on the conflation.
 
 	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a protected type body.
+
+		:param identifier:    The identifier of a model entity.
+		:param declaredItems: Iterable of all items declared in this body.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._methods = []
@@ -760,6 +849,14 @@ class AccessType(FullType):
 	_designatedSubtype: Symbol  #: Reference to the subtype the access values designate.
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an access type.
+
+		:param identifier:        The identifier of a model entity.
+		:param designatedSubtype: Reference to the subtype the access values designate.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._designatedSubtype = designatedSubtype
@@ -797,6 +894,14 @@ class FileType(FullType):
 	_designatedSubtype: Symbol  #: Reference to the subtype of the values stored in the file.
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a file type.
+
+		:param identifier:        The identifier of a model entity.
+		:param designatedSubtype: Reference to the subtype of the values stored in the file.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 
 		self._designatedSubtype = designatedSubtype

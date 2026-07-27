@@ -90,6 +90,13 @@ class EntityAspectEntity(EntityAspect):
 		architecture: Nullable[ArchitectureSymbol] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an entity aspect entity.
+
+		:param entity:       Reference to the named entity.
+		:param architecture: Reference to the selected architecture, or ``None`` if none was given.
+		:param parent:       The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._entity = entity
@@ -134,6 +141,12 @@ class EntityAspectConfiguration(EntityAspect):
 	_configuration: ConfigurationSymbol  #: Reference to the named configuration.
 
 	def __init__(self, configuration: ConfigurationSymbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an entity aspect configuration.
+
+		:param configuration: Reference to the named configuration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._configuration = configuration
@@ -183,6 +196,14 @@ class BindingIndication(ModelEntity):
 		portAssociationItems: Nullable[Iterable[PortAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a binding indication.
+
+		:param entityAspect:            The bound design entity, or ``None`` if not given.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._entityAspect = entityAspect
@@ -287,6 +308,14 @@ class ComponentConfiguration(ModelEntity):
 		bindingIndication: Nullable[BindingIndication] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a component configuration.
+
+		:param instantiationList: The instances this configuration applies to.
+		:param componentName:     Reference to the component being configured.
+		:param bindingIndication: The binding indication, or ``None`` if none was given.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		if isinstance(instantiationList, (AllInstantiationList, OthersInstantiationList)):
@@ -357,6 +386,13 @@ class BlockConfiguration(ModelEntity):
 		items: Nullable[Iterable[Union["BlockConfiguration", ComponentConfiguration]]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a block configuration.
+
+		:param blockSpecification: The configured block.
+		:param items:              Nested configurations.
+		:param parent:             The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._blockSpecification = blockSpecification

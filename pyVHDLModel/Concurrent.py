@@ -107,6 +107,11 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 	_hierarchy:      Dict[str, Union['ConcurrentBlockStatement', 'GenerateStatement']]  #: All elements creating a hierarchy level (blocks and generates), in declaration order.
 
 	def __init__(self, statements: Nullable[Iterable[ConcurrentStatement]] = None) -> None:
+		"""
+		Initializes a concurrent statements.
+
+		:param statements: List of all concurrent statements in this construct.
+		"""
 		self._statements = []
 
 		self._instantiations = {}
@@ -168,6 +173,14 @@ class Instantiation(ConcurrentStatement):
 		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an instantiation.
+
+		:param label:                   The label of a model entity.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 
 		# TODO: extract to mixin
@@ -230,6 +243,15 @@ class ComponentInstantiation(Instantiation):
 		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a component instantiation.
+
+		:param label:                   The label of a model entity.
+		:param componentSymbol:         Reference to the instantiated component.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._component = componentSymbol
@@ -275,6 +297,16 @@ class EntityInstantiation(Instantiation):
 		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an entity instantiation.
+
+		:param label:                   The label of a model entity.
+		:param entitySymbol:            Reference to the directly instantiated entity.
+		:param architectureSymbol:      Reference to the selected architecture, if one was given.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._entity = entitySymbol
@@ -329,6 +361,15 @@ class ConfigurationInstantiation(Instantiation):
 		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a configuration instantiation.
+
+		:param label:                   The label of a model entity.
+		:param configurationSymbol:     Reference to the instantiated configuration.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(label, genericAssociationItems, portAssociationItems, parent)
 
 		self._configuration = configurationSymbol
@@ -379,6 +420,16 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a process statement.
+
+		:param label:           The label of a model entity.
+		:param declaredItems:   List of all declared items in this sequential declaration region.
+		:param statements:      List of all sequential statements in this construct.
+		:param sensitivityList: List of all signal names in the sensitivity list, or ``None`` if none was given.
+		:param documentation:   The documentation comment associated with this declaration.
+		:param parent:          The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SequentialDeclarationRegionMixin.__init__(self, self._normalizedLabel, declaredItems)
 		SequentialStatementsMixin.__init__(self, statements)
@@ -436,6 +487,14 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 		parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent procedure call.
+
+		:param label:                     The label of a model entity.
+		:param procedureName:             Reference to the called procedure.
+		:param parameterAssociationItems: List of all parameter associations of the call.
+		:param parent:                    The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		ProcedureCallMixin.__init__(self, procedureName, parameterAssociationItems)
 
@@ -486,6 +545,17 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent block statement.
+
+		:param label:         The label of a model entity.
+		:param portItems:     List of all ports, in declaration order.
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 
 		self._namespace = Namespace(self._normalizedLabel)
@@ -539,6 +609,15 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a generate branch.
+
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The branch's alternative label, if one was given.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._alternativeLabel = alternativeLabel
@@ -600,6 +679,16 @@ class IfGenerateBranch(GenerateBranch, IfBranchMixin):
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an if generate branch.
+
+		:param condition:        The condition guarding this statement.
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The branch's alternative label, if one was given.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		IfBranchMixin.__init__(self, condition)
 
@@ -633,6 +722,16 @@ class ElsifGenerateBranch(GenerateBranch, ElsifBranchMixin):
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an elsif generate branch.
+
+		:param condition:        The condition guarding this statement.
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The branch's alternative label, if one was given.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElsifBranchMixin.__init__(self, condition)
 
@@ -665,6 +764,15 @@ class ElseGenerateBranch(GenerateBranch, ElseBranchMixin):
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an else generate branch.
+
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The branch's alternative label, if one was given.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(declaredItems, statements, alternativeLabel, allowBlackbox, parent)
 		ElseBranchMixin.__init__(self)
 
@@ -689,6 +797,13 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a generate statement.
+
+		:param label:         The label of a model entity.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
@@ -749,6 +864,16 @@ class IfGenerateStatement(GenerateStatement):
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an if generate statement.
+
+		:param label:         The label of a model entity.
+		:param ifBranch:      The mandatory ``if`` branch.
+		:param elsifBranches: List of all ``elsif`` branches, in the order they were written.
+		:param elseBranch:    The optional ``else`` branch, or ``None`` if none was given.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, allowBlackbox, parent)
 
 		self._ifBranch = ifBranch
@@ -855,6 +980,12 @@ class IndexedGenerateChoice(ConcurrentChoice):
 	_expression: ExpressionUnion  #: The expression this choice selects on.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an indexed generate choice.
+
+		:param expression: The expression this choice selects on.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._expression = expression
@@ -890,6 +1021,12 @@ class RangedGenerateChoice(ConcurrentChoice):
 	_range: 'Range'  #: The range this choice selects on.
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a ranged generate choice.
+
+		:param rng:    The range this choice selects on.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._range = rng
@@ -929,6 +1066,16 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent case.
+
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The alternative's label.
+		:param choices:          List of all choices selecting this alternative.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, alternativeLabel)
 
@@ -966,6 +1113,16 @@ class GenerateCase(ConcurrentCase):
 		allowBlackbox:    Nullable[bool] = None,
 		parent:           Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a generate case.
+
+		:param choices:          List of all choices selecting this alternative.
+		:param declaredItems:    List of all declared items in this concurrent declaration region.
+		:param statements:       List of all concurrent statements in this construct.
+		:param alternativeLabel: The alternative's label.
+		:param allowBlackbox:    Allow blackboxes for components in language entity.
+		:param parent:           The parent model entity of this entity.
+		"""
 		super().__init__(declaredItems, statements, alternativeLabel, choices, allowBlackbox, parent)
 
 	def __str__(self) -> str:
@@ -1028,6 +1185,15 @@ class CaseGenerateStatement(GenerateStatement):
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a case generate statement.
+
+		:param label:         The label of a model entity.
+		:param expression:    The expression being tested; it must be static.
+		:param cases:         List of all alternatives, in the order they were written.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, allowBlackbox, parent)
 
 		self._expression = expression
@@ -1116,6 +1282,17 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a for generate statement.
+
+		:param label:         The label of a model entity.
+		:param loopIndex:     The name of the generate loop's index.
+		:param rng:           The range the generate loop iterates over.
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, allowBlackbox, parent)
 
 		self._namespace = Namespace(self._normalizedLabel)
@@ -1177,6 +1354,13 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
 	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`	"""
 	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a concurrent signal assignment.
+
+		:param label:  The label of a model entity.
+		:param target: Reference to the assignment's destination.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -1202,6 +1386,14 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
 	"""
 	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a concurrent simple signal assignment.
+
+		:param label:    The label of a model entity.
+		:param target:   Reference to the assignment's destination.
+		:param waveform: List of all waveform elements, in the order they were written.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(label, target, parent)
 		WaveformMixin.__init__(self, waveform)
 
@@ -1240,6 +1432,15 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 		selectedWaveforms: Iterable[SelectedWaveform],
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent selected signal assignment.
+
+		:param label:             The label of a model entity.
+		:param target:            Reference to the assignment's destination.
+		:param expression:        The selector expression.
+		:param selectedWaveforms: All alternatives, in order.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(label, target, parent)
 		ExpressionMixin.__init__(self, expression)
 		SelectedWaveformsMixin.__init__(self, selectedWaveforms)
@@ -1277,6 +1478,14 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 		conditionalWaveforms: Iterable[ConditionalWaveform],
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent conditional signal assignment.
+
+		:param label:                The label of a model entity.
+		:param target:               Reference to the assignment's destination.
+		:param conditionalWaveforms: All alternatives, in order.
+		:param parent:               The parent model entity of this entity.
+		"""
 		super().__init__(label, target, parent)
 		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
 
@@ -1311,5 +1520,14 @@ class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a concurrent assert statement.
+
+		:param condition: The condition guarding this statement.
+		:param message:   The reported message, or ``None`` if none was given.
+		:param severity:  The reported severity level, or ``None`` if none was given.
+		:param label:     The label of a model entity.
+		:param parent:    The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		AssertStatementMixin.__init__(self, condition, message, severity)

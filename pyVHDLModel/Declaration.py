@@ -105,6 +105,14 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an attribute.
+
+		:param identifier:    The identifier of a model entity.
+		:param subtype:       Reference to the attribute's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -148,6 +156,16 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an attribute specification.
+
+		:param identifiers:   List of all names the attribute is specified for.
+		:param attribute:     Reference to the specified attribute.
+		:param entityClass:   The entity class the named items belong to.
+		:param expression:    The value assigned to the attribute.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
@@ -241,6 +259,15 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		documentation: Nullable[str] =            None,
 		parent:        Nullable[ModelEntity] =    None
 	) -> None:
+		"""
+		Initializes an alias.
+
+		:param identifier:    The identifier of a model entity.
+		:param name:          Reference to the name being aliased.
+		:param subtype:       Reference to the alias' subtype, or ``None`` if none was given.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)

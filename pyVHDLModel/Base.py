@@ -487,6 +487,9 @@ class BranchMixin(metaclass=ExtendedType, mixin=True):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a branch.
+		"""
 		pass
 
 
@@ -501,6 +504,11 @@ class ConditionalBranchMixin(BranchMixin, ConditionalMixin, mixin=True):
 	   * :class:`Elsif branch mixin <pyVHDLModel.Base.ElsifBranchMixin>`
 	"""
 	def __init__(self, condition: ExpressionUnion) -> None:
+		"""
+		Initializes a conditional branch.
+
+		:param condition: The condition guarding this statement.
+		"""
 		super().__init__()
 		ConditionalMixin.__init__(self, condition)
 
@@ -556,6 +564,12 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 	_severity: Nullable[ExpressionUnion]  #: The reported severity level, or ``None`` if none was given.
 
 	def __init__(self, message: Nullable[ExpressionUnion] = None, severity: Nullable[ExpressionUnion] = None) -> None:
+		"""
+		Initializes a report statement.
+
+		:param message:  The reported message, or ``None`` if none was given.
+		:param severity: The reported severity level, or ``None`` if none was given.
+		"""
 		self._message = message
 		if message is not None:
 			message.Parent = self
@@ -595,6 +609,13 @@ class AssertStatementMixin(ReportStatementMixin, ConditionalMixin, mixin=True):
 	"""
 
 	def __init__(self, condition: ExpressionUnion, message: Nullable[ExpressionUnion] = None, severity: Nullable[ExpressionUnion] = None) -> None:
+		"""
+		Initializes an assert statement.
+
+		:param condition: The condition guarding this statement.
+		:param message:   The reported message, or ``None`` if none was given.
+		:param severity:  The reported severity level, or ``None`` if none was given.
+		"""
 		super().__init__(message, severity)
 		ConditionalMixin.__init__(self, condition)
 
@@ -609,6 +630,9 @@ class BlockStatementMixin(metaclass=ExtendedType, mixin=True):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a block statement.
+		"""
 		pass
 
 
@@ -656,6 +680,11 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 	_choices: List[BaseChoice]  #: List of all choices selecting this alternative.
 
 	def __init__(self, choices: Nullable[Iterable[BaseChoice]] = None) -> None:
+		"""
+		Initializes a choices.
+
+		:param choices: List of all choices selecting this alternative.
+		"""
 		self._choices = []
 		if choices is not None:
 			for choice in choices:
@@ -820,6 +849,13 @@ class WaveformElement(ModelEntity):
 	_after: ExpressionUnion       #: The delay after which the value is assigned, or ``None`` if none was given.
 
 	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a waveform element.
+
+		:param expression: The value this waveform element assigns.
+		:param after:      The delay after which the value is assigned, or ``None`` if none was given.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._expression = expression

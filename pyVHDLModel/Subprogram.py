@@ -76,6 +76,18 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 		documentation:  Nullable[str] =                                     None,
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
+		"""
+		Initializes a subprogram.
+
+		:param identifier:     The identifier of a model entity.
+		:param isPure:         ``True`` if the subprogram was declared pure.
+		:param genericItems:   List of all generics, in declaration order.
+		:param parameterItems: List of all parameters, in declaration order.
+		:param declaredItems:  List of all declared items in this sequential declaration region.
+		:param statements:     List of all sequential statements in the subprogram's body.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -197,6 +209,17 @@ class Procedure(Subprogram):
 		documentation:  Nullable[str] =                                     None,
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
+		"""
+		Initializes a procedure.
+
+		:param identifier:     The identifier of a model entity.
+		:param genericItems:   List of all generics, in declaration order.
+		:param parameterItems: List of all parameters, in declaration order.
+		:param declaredItems:  List of all declared items in this sequential declaration region.
+		:param statements:     List of all sequential statements in the subprogram's body.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(identifier, False, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 
 
@@ -246,6 +269,19 @@ class Function(Subprogram):
 		documentation:  Nullable[str] =                                     None,
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
+		"""
+		Initializes a function.
+
+		:param identifier:     The identifier of a model entity.
+		:param returnType:     Reference to the subtype of the function's return value.
+		:param isPure:         ``True`` if the subprogram was declared pure.
+		:param genericItems:   List of all generics, in declaration order.
+		:param parameterItems: List of all parameters, in declaration order.
+		:param declaredItems:  List of all declared items in this sequential declaration region.
+		:param statements:     List of all sequential statements in the subprogram's body.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(identifier, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 
 		self._returnType = returnType
@@ -275,6 +311,11 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 	_protectedType: ProtectedType  #: Reference to the protected type this method belongs to.
 
 	def __init__(self, protectedType: Nullable[ProtectedType] = None) -> None:
+		"""
+		Initializes a method.
+
+		:param protectedType: Reference to the protected type this method belongs to.
+		"""
 		self._protectedType = protectedType
 		if protectedType is not None:
 			protectedType.Parent = self
@@ -311,6 +352,18 @@ class ProcedureMethod(Procedure, MethodMixin):
 		protectedType:  Nullable[ProtectedType] =                           None,
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
+		"""
+		Initializes a procedure method.
+
+		:param identifier:     The identifier of a model entity.
+		:param genericItems:   List of all generics, in declaration order.
+		:param parameterItems: List of all parameters, in declaration order.
+		:param declaredItems:  List of all declared items in this sequential declaration region.
+		:param statements:     List of all sequential statements in the subprogram's body.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param protectedType:  Reference to the protected type this method belongs to.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(identifier, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		MethodMixin.__init__(self, protectedType)
 
@@ -339,5 +392,19 @@ class FunctionMethod(Function, MethodMixin):
 		protectedType:  Nullable[ProtectedType] =                           None,
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
+		"""
+		Initializes a function method.
+
+		:param identifier:     The identifier of a model entity.
+		:param returnType:     Reference to the subtype of the function's return value.
+		:param isPure:         ``True`` if the subprogram was declared pure.
+		:param genericItems:   List of all generics, in declaration order.
+		:param parameterItems: List of all parameters, in declaration order.
+		:param declaredItems:  List of all declared items in this sequential declaration region.
+		:param statements:     List of all sequential statements in the subprogram's body.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param protectedType:  Reference to the protected type this method belongs to.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(identifier, returnType, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		MethodMixin.__init__(self, protectedType)

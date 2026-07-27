@@ -59,6 +59,9 @@ class Std(PredefinedLibrary):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a std.
+		"""
 		super().__init__(PACKAGES)
 
 
@@ -84,6 +87,9 @@ class Standard(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a standard.
+		"""
 		super().__init__()
 
 		boolean = EnumeratedType("boolean", (EnumerationLiteral("false"), EnumerationLiteral("true")), None)
@@ -237,6 +243,9 @@ class Env(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes an env.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("work.textio.all",))

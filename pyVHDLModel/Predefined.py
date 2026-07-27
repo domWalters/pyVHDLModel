@@ -58,6 +58,11 @@ class PredefinedLibrary(Library):
 	"""
 
 	def __init__(self, packages) -> None:
+		"""
+		Initializes a predefined library.
+
+		:param packages: Dictionary of all packages defined in a library.
+		"""
 		super().__init__(self.__class__.__name__, None)
 
 		self.AddPackages(packages)
@@ -115,6 +120,9 @@ class PredefinedPackage(Package, PredefinedPackageMixin):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a predefined package.
+		"""
 		super().__init__(self.__class__.__name__, parent=None)
 
 
@@ -125,5 +133,8 @@ class PredefinedPackageBody(PackageBody, PredefinedPackageMixin):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes a predefined package body.
+		"""
 		packageSymbol = PackageSymbol(SimpleName(self.__class__.__name__[:-5]))
 		super().__init__(packageSymbol, parent=None)

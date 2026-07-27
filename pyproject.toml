@@ -53,7 +53,7 @@ junit_xml = "report/unit/unittest.xml"
 [tool.interrogate]
 color = true
 verbose = 1             # possible values: 0 (minimal output), 1 (-v), 2 (-vv)
-fail-under = 59
+fail-under = 90
 exclude = [
 	"build",
 	"dist",
@@ -62,6 +62,7 @@ exclude = [
 	"setup.py"
 ]
 ignore-setters = true
+ignore-nested-functions = true   # Nested helper functions are implementation-internal and never rendered by Sphinx.
 
 [tool.coverage.run]
 branch = true

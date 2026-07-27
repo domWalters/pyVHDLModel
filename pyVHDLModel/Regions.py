@@ -140,6 +140,11 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	def __init__(self, declaredItems: Nullable[Iterable] = None) -> None:
 		# TODO: extract to mixin
+		"""
+		Initializes a concurrent declaration region.
+
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		"""
 		self._declaredItems = []  # TODO: convert to dict
 		if declaredItems is not None:
 			for item in declaredItems:

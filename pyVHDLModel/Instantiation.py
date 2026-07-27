@@ -59,6 +59,9 @@ class GenericInstantiationMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
 	"""
 	def __init__(self) -> None:
+		"""
+		Initializes a generic instantiation.
+		"""
 		pass
 
 
@@ -68,6 +71,9 @@ class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
 	A mixin-class for instantiations of a design entity.
 	"""
 	def __init__(self) -> None:
+		"""
+		Initializes a generic entity instantiation.
+		"""
 		pass
 
 
@@ -89,6 +95,12 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 		subprogramReference: SubprogramReferenceSymbol,
 		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None
 	) -> None:
+		"""
+		Initializes a subprogram instantiation.
+
+		:param subprogramReference:     Reference to the instantiated generic subprogram.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		"""
 		super().__init__()
 
 		self._subprogramReference = subprogramReference
@@ -145,6 +157,19 @@ class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a procedure instantiation.
+
+		:param identifier:              The identifier of a model entity.
+		:param subprogramReference:     Reference to the instantiated generic subprogram.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param genericItems:            List of all generics, in declaration order.
+		:param parameterItems:          List of all parameters, in declaration order.
+		:param declaredItems:           List of all declared items in this sequential declaration region.
+		:param statements:              List of all sequential statements in the subprogram's body.
+		:param documentation:           The documentation comment associated with this declaration.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(identifier, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		SubprogramInstantiationMixin.__init__(self, subprogramReference, genericAssociationItems)
 
@@ -179,6 +204,20 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 		# NOTE: deliberately calls Subprogram.__init__ directly, not super().__init__() (which would
 		# resolve to Function.__init__ and require a returnType that can never be known here - see
 		# the class docstring above).
+		"""
+		Initializes a function instantiation.
+
+		:param identifier:              The identifier of a model entity.
+		:param subprogramReference:     Reference to the instantiated generic subprogram.
+		:param isPure:                  ``True`` if the subprogram was declared pure.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param genericItems:            List of all generics, in declaration order.
+		:param parameterItems:          List of all parameters, in declaration order.
+		:param declaredItems:           List of all declared items in this sequential declaration region.
+		:param statements:              List of all sequential statements in the subprogram's body.
+		:param documentation:           The documentation comment associated with this declaration.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		Subprogram.__init__(self, identifier, isPure, genericItems, parameterItems, declaredItems, statements, documentation, parent)
 		SubprogramInstantiationMixin.__init__(self, subprogramReference, genericAssociationItems)
 
@@ -219,6 +258,16 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		documentation:           Nullable[str] =                              None,
 		parent:                  Nullable[ModelEntity] =                      None
 	) -> None:
+		"""
+		Initializes a package instantiation.
+
+		:param identifier:              The identifier of a model entity.
+		:param genericPackage:          Reference to the instantiated generic package.
+		:param contextItems:            List of all context items (library, use and context clauses).
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param documentation:           The documentation comment associated with this declaration.
+		:param parent:                  The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
 

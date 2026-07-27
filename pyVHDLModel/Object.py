@@ -71,6 +71,14 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	_objectVertex: Nullable[Vertex]  #: The vertex representing this object in the design's object graph.
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an obj.
+
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the object's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -119,6 +127,11 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 	_defaultExpression: Nullable[ExpressionUnion]  #: The default value, or ``None`` if none was given.
 
 	def __init__(self, defaultExpression: Nullable[ExpressionUnion] = None) -> None:
+		"""
+		Initializes a with default expression.
+
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		"""
 		self._defaultExpression = defaultExpression
 		if defaultExpression is not None:
 			defaultExpression.Parent = self
@@ -172,6 +185,15 @@ class Constant(BaseConstant, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a constant.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 
@@ -199,6 +221,14 @@ class DeferredConstant(BaseConstant):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a deferred constant.
+
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the object's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 
 		self._constantReference = None
@@ -242,6 +272,15 @@ class Variable(Obj, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a variable.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 
@@ -283,6 +322,15 @@ class Signal(Obj, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a signal.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 

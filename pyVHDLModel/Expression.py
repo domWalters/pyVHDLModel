@@ -124,6 +124,12 @@ class EnumerationLiteral(Literal):
 	_value: str  #: The enumeration literal's name.
 
 	def __init__(self, value: str, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an enumeration literal.
+
+		:param value:  The enumeration literal's name.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._value = value
@@ -173,6 +179,11 @@ class IntegerLiteral(NumericLiteral):
 	_value: int  #: The literal's integer value.
 
 	def __init__(self, value: int) -> None:
+		"""
+		Initializes an integer literal.
+
+		:param value: The literal's integer value.
+		"""
 		super().__init__()
 		self._value = value
 
@@ -206,6 +217,11 @@ class FloatingPointLiteral(NumericLiteral):
 	_value: float  #: The literal's floating-point value.
 
 	def __init__(self, value: float) -> None:
+		"""
+		Initializes a floating point literal.
+
+		:param value: The literal's floating-point value.
+		"""
 		super().__init__()
 		self._value = value
 
@@ -245,6 +261,11 @@ class PhysicalLiteral(NumericLiteral):
 	_unitName: str  #: The name of the physical unit the value is given in.
 
 	def __init__(self, unitName: str) -> None:
+		"""
+		Initializes a physical literal.
+
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__()
 		self._unitName = unitName
 
@@ -279,6 +300,12 @@ class PhysicalIntegerLiteral(PhysicalLiteral):
 	_value: int  #: The literal's integer value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: int, unitName: str) -> None:
+		"""
+		Initializes a physical integer literal.
+
+		:param value:    The literal's integer value, in units of :attr:`_unitName`.
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__(unitName)
 		self._value = value
 
@@ -310,6 +337,12 @@ class PhysicalFloatingLiteral(PhysicalLiteral):
 	_value: float  #: The literal's floating-point value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: float, unitName: str) -> None:
+		"""
+		Initializes a physical floating literal.
+
+		:param value:    The literal's floating-point value, in units of :attr:`_unitName`.
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__(unitName)
 		self._value = value
 
@@ -340,6 +373,11 @@ class CharacterLiteral(Literal):
 	_value: str  #: The literal's character value.
 
 	def __init__(self, value: str) -> None:
+		"""
+		Initializes a character literal.
+
+		:param value: The literal's character value.
+		"""
 		super().__init__()
 		self._value = value
 
@@ -373,6 +411,11 @@ class StringLiteral(Literal):
 	_value: str  #: The literal's string value, without the enclosing double quotes.
 
 	def __init__(self, value: str) -> None:
+		"""
+		Initializes a string literal.
+
+		:param value: The literal's string value, without the enclosing double quotes.
+		"""
 		super().__init__()
 		self._value = value
 
@@ -434,6 +477,13 @@ class BitStringLiteral(Literal):
 	_signed:      Nullable[bool]  #: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
 
 	def __init__(self, value: str, length: Nullable[int] = None, signed: Nullable[bool] = None) -> None:
+		"""
+		Initializes a bit string literal.
+
+		:param value:  The literal as written in the source, without the enclosing double quotes.
+		:param length: The explicitly given length, or ``None`` if the literal has no length specification.
+		:param signed: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
+		"""
 		super().__init__()
 		self._value = value
 		self._length = length
@@ -603,6 +653,12 @@ class UnaryExpression(BaseExpression):
 	_operand: ExpressionUnion  #: The expression the operator is applied to.
 
 	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an unary expression.
+
+		:param operand: The expression the operator is applied to.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._operand = operand
@@ -828,6 +884,13 @@ class TypeConversion(UnaryExpression):
 	_targetSubtype: SubtypeSymbol  #: Reference to the subtype the expression is converted to.
 
 	def __init__(self, targetSubtype: SubtypeSymbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a type conversion.
+
+		:param targetSubtype: Reference to the subtype the expression is converted to.
+		:param operand:       The expression the operator is applied to.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(operand, parent)
 
 		self._targetSubtype = targetSubtype
@@ -886,6 +949,13 @@ class BinaryExpression(BaseExpression):
 	_rightOperand: ExpressionUnion  #: The expression right of the operator.
 
 	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a binary expression.
+
+		:param leftOperand:  The expression left of the operator.
+		:param rightOperand: The expression right of the operator.
+		:param parent:       The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._leftOperand = leftOperand
@@ -1770,6 +1840,13 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 	_subtype:  Symbol           #: Reference to the subtype qualifying the expression.
 
 	def __init__(self, subtype: Symbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a qualified expression.
+
+		:param subtype: Reference to the subtype qualifying the expression.
+		:param operand: The expression being qualified.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._operand = operand
@@ -1823,6 +1900,14 @@ class TernaryExpression(BaseExpression):
 		thirdOperand: ExpressionUnion,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a ternary expression.
+
+		:param firstOperand:  The operator's first operand.
+		:param secondOperand: The operator's second operand.
+		:param thirdOperand:  The operator's third operand.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._firstOperand = firstOperand
@@ -1875,6 +1960,14 @@ class WhenElseExpression(TernaryExpression):
 		elseValue: ExpressionUnion,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a when else expression.
+
+		:param thenValue: The value if the condition holds.
+		:param condition: The condition selecting between both values.
+		:param elseValue: The value if the condition does not hold.
+		:param parent:    The parent model entity of this entity.
+		"""
 		super().__init__(thenValue, condition, elseValue, parent)
 
 	@readonly
@@ -1950,6 +2043,12 @@ class SubtypeAllocation(Allocation):
 	_subtype: Symbol  #: Reference to the subtype being allocated.
 
 	def __init__(self, subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a subtype allocation.
+
+		:param subtype: Reference to the subtype being allocated.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._subtype = subtype
@@ -1985,6 +2084,12 @@ class QualifiedExpressionAllocation(Allocation):
 	_qualifiedExpression: QualifiedExpression  #: The qualified expression the allocated object is initialized with.
 
 	def __init__(self, qualifiedExpression: QualifiedExpression, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a qualified expression allocation.
+
+		:param qualifiedExpression: The qualified expression the allocated object is initialized with.
+		:param parent:              The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._qualifiedExpression = qualifiedExpression
@@ -2022,6 +2127,12 @@ class AggregateElement(ModelEntity):
 	_expression: ExpressionUnion  #: The expression this aggregate element supplies.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate element.
+
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._expression = expression
@@ -2073,6 +2184,13 @@ class IndexedAggregateElement(AggregateElement):
 	_index: int  #: The index selecting the element this value is assigned to.
 
 	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an indexed aggregate element.
+
+		:param index:      The index selecting the element this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._index = index
@@ -2108,6 +2226,13 @@ class RangedAggregateElement(AggregateElement):
 	_range: Range  #: The range selecting the elements this value is assigned to.
 
 	def __init__(self, rng: Range, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a ranged aggregate element.
+
+		:param rng:        The range selecting the elements this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._range = rng
@@ -2144,6 +2269,13 @@ class NamedAggregateElement(AggregateElement):
 	_name: Symbol  #: Reference to the name selecting the element this value is assigned to.
 
 	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a named aggregate element.
+
+		:param name:       Reference to the name selecting the element this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._name = name
@@ -2204,6 +2336,12 @@ class Aggregate(BaseExpression):
 	_elements: List[AggregateElement]  #: List of all elements of this aggregate, in the order they were written.
 
 	def __init__(self, elements: Iterable[AggregateElement], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate.
+
+		:param elements: List of all elements of this aggregate, in the order they were written.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._elements = []

@@ -523,8 +523,8 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		"""
 		Initialize a VHDL design.
 
-		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		:param name:          Name of the design.
+		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		"""
 		super().__init__()
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
@@ -2650,6 +2650,15 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		library:       Nullable[Library] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a document.
+
+		:param path:          path to the document. ``None`` if virtual document.
+		:param documentation: The documentation comment associated with this declaration.
+		:param vhdlVersion:   VHDL version used for analyzing this source file.
+		:param library:       VHDL library used for analyzing the source file's content into.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
