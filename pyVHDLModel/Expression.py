@@ -733,11 +733,11 @@ class UnaryExpression(BaseExpression):
 
 	def __str__(self) -> str:
 		"""
-		Formats the expression.
+		Formats the unary expression.
 
 		**Format:** ``not operand``
 
-		:returns: Formatted expression.
+		:returns: Formatted unary expression.
 		"""
 		return f"{self._FORMAT[0]}{self._operand!s}{self._FORMAT[1]}"
 
@@ -1056,11 +1056,11 @@ class BinaryExpression(BaseExpression):
 
 	def __str__(self) -> str:
 		"""
-		Formats the expression.
+		Formats the binary expression.
 
 		**Format:** ``lhs + rhs``
 
-		:returns: Formatted expression.
+		:returns: Formatted binary expression.
 		"""
 		return "{leftOperator}{leftOperand!s}{middleOperator}{rightOperand!s}{rightOperator}".format(
 			leftOperator=self._FORMAT[0],
@@ -2007,11 +2007,11 @@ class TernaryExpression(BaseExpression):
 
 	def __str__(self) -> str:
 		"""
-		Formats the expression.
+		Formats the ternary expression.
 
 		**Format:** ``val when cond else other``
 
-		:returns: Formatted expression.
+		:returns: Formatted ternary expression.
 		"""
 		return "{beforeFirstOperator}{firstOperand!s}{beforeSecondOperator}{secondOperand!s}{beforeThirdOperator}{thirdOperand!s}{lastOperator}".format(
 			beforeFirstOperator=self._FORMAT[0],
@@ -2158,11 +2158,11 @@ class SubtypeAllocation(Allocation):
 
 	def __str__(self) -> str:
 		"""
-		Formats the allocation.
+		Formats the subtype allocation.
 
 		**Format:** ``new node``
 
-		:returns: Formatted allocation.
+		:returns: Formatted subtype allocation.
 		"""
 		return f"new {self._subtype!s}"
 
@@ -2206,11 +2206,11 @@ class QualifiedExpressionAllocation(Allocation):
 
 	def __str__(self) -> str:
 		"""
-		Formats the allocation.
+		Formats the qualified expression allocation.
 
 		**Format:** ``new byte'(val)``
 
-		:returns: Formatted allocation.
+		:returns: Formatted qualified expression allocation.
 		"""
 		return f"new {self._qualifiedExpression!s}"
 
@@ -2271,11 +2271,11 @@ class SimpleAggregateElement(AggregateElement):
 	"""
 	def __str__(self) -> str:
 		"""
-		Formats the aggregate element.
+		Formats the simple aggregate element.
 
 		**Format:** ``val``
 
-		:returns: Formatted aggregate element.
+		:returns: Formatted simple aggregate element.
 		"""
 		return str(self._expression)
 
@@ -2320,11 +2320,11 @@ class IndexedAggregateElement(AggregateElement):
 
 	def __str__(self) -> str:
 		"""
-		Formats the aggregate element.
+		Formats the indexed aggregate element.
 
 		**Format:** ``0 => val``
 
-		:returns: Formatted aggregate element.
+		:returns: Formatted indexed aggregate element.
 		"""
 		return f"{self._index!s} => {self._expression!s}"
 
@@ -2370,11 +2370,11 @@ class RangedAggregateElement(AggregateElement):
 
 	def __str__(self) -> str:
 		"""
-		Formats the aggregate element.
+		Formats the ranged aggregate element.
 
 		**Format:** ``0 to 3 => val``
 
-		:returns: Formatted aggregate element.
+		:returns: Formatted ranged aggregate element.
 		"""
 		return f"{self._range!s} => {self._expression!s}"
 
@@ -2420,11 +2420,11 @@ class NamedAggregateElement(AggregateElement):
 
 	def __str__(self) -> str:
 		"""
-		Formats the aggregate element.
+		Formats the named aggregate element.
 
 		**Format:** ``elem => val``
 
-		:returns: Formatted aggregate element.
+		:returns: Formatted named aggregate element.
 		"""
 		return "{name!s} => {value!s}".format(
 			name=self._name,
@@ -2449,11 +2449,11 @@ class OthersAggregateElement(AggregateElement):
 	"""
 	def __str__(self) -> str:
 		"""
-		Formats the aggregate element.
+		Formats the ``others`` aggregate element.
 
 		**Format:** ``others => val``
 
-		:returns: Formatted aggregate element.
+		:returns: Formatted ``others`` aggregate element.
 		"""
 		return "others => {value!s}".format(
 			value=self._expression,

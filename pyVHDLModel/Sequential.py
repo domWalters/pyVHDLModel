@@ -858,11 +858,11 @@ class IndexedChoice(SequentialChoice):
 
 	def __str__(self) -> str:
 		"""
-		Formats the choice.
+		Formats the indexed case choice.
 
 		**Format:** ``0``
 
-		:returns: Formatted choice.
+		:returns: Formatted indexed case choice.
 		"""
 		return str(self._expression)
 
@@ -906,11 +906,11 @@ class RangedChoice(SequentialChoice):
 
 	def __str__(self) -> str:
 		"""
-		Formats the choice.
+		Formats the ranged case choice.
 
 		**Format:** ``0 to 3``
 
-		:returns: Formatted choice.
+		:returns: Formatted ranged case choice.
 		"""
 		return str(self._range)
 
@@ -968,11 +968,11 @@ class Case(SequentialCase):
 
 	def __str__(self) -> str:
 		"""
-		Formats the alternative.
+		Formats the case alternative.
 
 		**Format:** ``when 0 | 1 =>``
 
-		:returns: Formatted alternative.
+		:returns: Formatted case alternative.
 		"""
 		return "when {choices} =>".format(choices=" | ".join(str(c) for c in self._choices))
 
@@ -993,11 +993,11 @@ class OthersCase(SequentialCase):
 	"""
 	def __str__(self) -> str:
 		"""
-		Formats the alternative.
+		Formats the ``others`` case alternative.
 
 		**Format:** ``when others =>``
 
-		:returns: Formatted alternative.
+		:returns: Formatted ``others`` case alternative.
 		"""
 		return "when others =>"
 

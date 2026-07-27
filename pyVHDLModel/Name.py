@@ -201,11 +201,11 @@ class ParenthesisName(Name):
 
 	def __str__(self) -> str:
 		"""
-		Formats the name.
+		Formats the parenthesis name.
 
 		**Format:** ``func(a, b)``
 
-		:returns: Formatted name.
+		:returns: Formatted parenthesis name.
 		"""
 		return f"{self._prefix!s}({', '.join(str(a) for a in self._associations)})"
 
@@ -250,11 +250,11 @@ class IndexedName(Name):
 
 	def __str__(self) -> str:
 		"""
-		Formats the name.
+		Formats the indexed name.
 
 		**Format:** ``arr(0)``
 
-		:returns: Formatted name.
+		:returns: Formatted indexed name.
 		"""
 		return f"{self._prefix!s}({', '.join(str(i) for i in self._indices)})"
 
@@ -300,11 +300,11 @@ class SelectedName(Name):
 
 	def __str__(self) -> str:
 		"""
-		Formats the name.
+		Formats the selected name.
 
 		**Format:** ``rec.elem``
 
-		:returns: Formatted name.
+		:returns: Formatted selected name.
 		"""
 		return f"{self._prefix!s}.{self._identifier}"
 
@@ -333,11 +333,11 @@ class AttributeName(Name):
 
 	def __str__(self) -> str:
 		"""
-		Formats the name.
+		Formats the attribute name.
 
 		**Format:** ``v'range``
 
-		:returns: Formatted name.
+		:returns: Formatted attribute name.
 		"""
 		return f"{self._prefix!s}'{self._identifier}"
 
@@ -376,10 +376,10 @@ class OpenName(Name):
 
 	def __str__(self) -> str:
 		"""
-		Formats the name.
+		Formats the open name.
 
 		**Format:** ``open``
 
-		:returns: Formatted name.
+		:returns: Formatted open name.
 		"""
 		return "open"

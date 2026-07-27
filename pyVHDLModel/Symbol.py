@@ -47,7 +47,7 @@ from pyVHDLModel.Name      import Name, AllName
 @export
 class PossibleReference(Flag):
 	"""
-	Is an enumeration, representing possible targets for a reference in a :mod:`pyVHDLModel.Symbol`.
+	Is an enumeration, representing possible targets for a reference in a :class:`~pyVHDLModel.Symbol.Symbol`.
 	"""
 
 	Unknown =         0

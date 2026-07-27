@@ -232,13 +232,13 @@ class Subtype(BaseType):
 
 	def __str__(self) -> str:
 		"""
-		Formats the subtype.
+		Formats the subtype declaration.
 
 		**Format:** ``subtype byte is bit_vector``
 
 		The *base type* is rendered, so an unlinked subtype shows ``None``.
 
-		:returns: Formatted subtype.
+		:returns: Formatted subtype declaration.
 		"""
 		return f"subtype {self._identifier} is {self._baseType}"
 
@@ -377,11 +377,11 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the enumerated type definition.
 
 		**Format:** ``state is (idle, run)``
 
-		:returns: Formatted type definition.
+		:returns: Formatted enumerated type definition.
 		"""
 		return f"{self._identifier} is ({', '.join(str(l) for l in self._literals)})"
 
@@ -414,11 +414,11 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the integer type definition.
 
 		**Format:** ``byte_count is range 0 to 7``
 
-		:returns: Formatted type definition.
+		:returns: Formatted integer type definition.
 		"""
 		return f"{self._identifier} is range {self._range}"
 
@@ -452,11 +452,11 @@ class RealType(RangedScalarType, NumericTypeMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the floating-point type definition.
 
 		**Format:** ``gain is range 0.0 to 1.0``
 
-		:returns: Formatted type definition.
+		:returns: Formatted floating-point type definition.
 		"""
 		return f"{self._identifier} is range {self._range}"
 
@@ -537,11 +537,11 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the physical type definition.
 
 		**Format:** ``distance is range 0 to 1000 units um; mm = 1000 um;``
 
-		:returns: Formatted type definition.
+		:returns: Formatted physical type definition.
 		"""
 		return f"{self._identifier} is range {self._range} units {self._primaryUnit}; {'; '.join(su + ' = ' + str(pu) for su, pu in self._secondaryUnits)};"
 
@@ -638,11 +638,11 @@ class ArrayType(CompositeType):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the array type definition.
 
 		**Format:** ``memory is array(0 to 7) of bit``
 
-		:returns: Formatted type definition.
+		:returns: Formatted array type definition.
 		"""
 		return f"{self._identifier} is array({'; '.join(str(r) for r in self._dimensions)}) of {self._elementType}"
 
@@ -696,11 +696,11 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the element declaration.
+		Formats the record element declaration.
 
 		**Format:** ``a, b : bit``
 
-		:returns: Formatted element declaration.
+		:returns: Formatted record element declaration.
 		"""
 		return f"{', '.join(self._identifiers)} : {self._subtype}"
 
@@ -761,11 +761,11 @@ class RecordType(CompositeType):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the record type definition.
 
 		**Format:** ``frame is record a : bit;``
 
-		:returns: Formatted type definition.
+		:returns: Formatted record type definition.
 		"""
 		return f"{self._identifier} is record {'; '.join(str(re) for re in self._elements)};"
 
@@ -931,11 +931,11 @@ class AccessType(FullType):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the access type definition.
 
 		**Format:** ``ptr is access node``
 
-		:returns: Formatted type definition.
+		:returns: Formatted access type definition.
 		"""
 		return f"{self._identifier} is access {self._designatedSubtype}"
 
@@ -983,10 +983,10 @@ class FileType(FullType):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type definition.
+		Formats the file type definition.
 
 		**Format:** ``ft is file of character``
 
-		:returns: Formatted type definition.
+		:returns: Formatted file type definition.
 		"""
 		return f"{self._identifier} is file of {self._designatedSubtype}"
