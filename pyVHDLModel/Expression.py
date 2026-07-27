@@ -417,8 +417,8 @@ class BitStringLiteral(Literal):
 
 	   .. code-block:: VHDL
 
-	      vres := b"10100000";
-	      --      ^^^^^^^^^^^    <- Value
+	      res := b"10100000";
+	      --     ^^^^^^^^^^^    <- Value
 
 	.. seealso::
 
@@ -512,8 +512,8 @@ class BinaryBitStringLiteral(BitStringLiteral):
 
 	   .. code-block:: VHDL
 
-	      vres := b"10100000";
-	      --      ^^^^^^^^^^^    <- Value
+	      res := b"10100000";
+	      --     ^^^^^^^^^^^    <- Value
 	"""
 	_base: ClassVar[BitStringBase] = BitStringBase.Binary
 
@@ -544,8 +544,8 @@ class DecimalBitStringLiteral(BitStringLiteral):
 
 	   .. code-block:: VHDL
 
-	      vres := d"160";
-	      --      ^^^^^^    <- Value
+	      res := d"160";
+	      --     ^^^^^^    <- Value
 	"""
 	_base: ClassVar[BitStringBase] = BitStringBase.Decimal
 
@@ -561,8 +561,8 @@ class HexadecimalBitStringLiteral(BitStringLiteral):
 
 	   .. code-block:: VHDL
 
-	      vres := x"A0";
-	      --      ^^^^^    <- Value
+	      res := x"A0";
+	      --     ^^^^^    <- Value
 	"""
 	_base: ClassVar[BitStringBase] = BitStringBase.Hexadecimal
 
@@ -668,9 +668,9 @@ class InverseExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := not boperand;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --          ^^^^^^^^    <- Operand
+	      res := not operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("not ", "")
 
@@ -687,9 +687,9 @@ class UnaryAndExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := and voperand;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --          ^^^^^^^^    <- Operand
+	      res := and operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("and ", "")
 
@@ -706,9 +706,9 @@ class UnaryNandExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := nand voperand;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --           ^^^^^^^^    <- Operand
+	      res := nand operand;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("nand ", "")
 
@@ -725,9 +725,9 @@ class UnaryOrExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := or voperand;
-	      --      ^^^^^^^^^^^    <- the expression
-	      --         ^^^^^^^^    <- Operand
+	      res := or operand;
+	      --     ^^^^^^^^^^    <- the expression
+	      --        ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("or ", "")
 
@@ -744,9 +744,9 @@ class UnaryNorExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := nor voperand;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --          ^^^^^^^^    <- Operand
+	      res := nor operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("nor ", "")
 
@@ -763,9 +763,9 @@ class UnaryXorExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := xor voperand;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --          ^^^^^^^^    <- Operand
+	      res := xor operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("xor ", "")
 
@@ -782,9 +782,9 @@ class UnaryXnorExpression(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := xnor voperand;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --           ^^^^^^^^    <- Operand
+	      res := xnor operand;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^    <- Operand
 	"""
 	_FORMAT = ("xnor ", "")
 
@@ -820,9 +820,9 @@ class TypeConversion(UnaryExpression):
 
 	   .. code-block:: VHDL
 
-	      res := integer(realval);
-	      --     ^^^^^^^             <- TargetSubtype
-	      --             ^^^^^^^     <- Operand
+	      res := integer(val);
+	      --     ^^^^^^^         <- TargetSubtype
+	      --             ^^^     <- Operand
 	"""
 
 	_targetSubtype: SubtypeSymbol
@@ -958,10 +958,10 @@ class AscendingRangeExpression(RangeExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v(0 to 3);
-	      --        ^^^^^^     <- the range
-	      --        ^          <- LeftOperand
-	      --             ^     <- RightOperand
+	      res := v(0 to 3);
+	      --       ^^^^^^     <- the range
+	      --       ^          <- LeftOperand
+	      --            ^     <- RightOperand
 	"""
 	_direction = Direction.To
 	_FORMAT = ("", " to ", "")
@@ -978,10 +978,10 @@ class DescendingRangeExpression(RangeExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := v(7 downto 4);
-	      --        ^^^^^^^^^^     <- the range
-	      --        ^              <- LeftOperand
-	      --                 ^     <- RightOperand
+	      res := v(7 downto 4);
+	      --       ^^^^^^^^^^     <- the range
+	      --       ^              <- LeftOperand
+	      --                ^     <- RightOperand
 	"""
 	_direction = Direction.DownTo
 	_FORMAT = ("", " downto ", "")
@@ -1051,10 +1051,10 @@ class ConcatenationExpression(AddingExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs & vrhs;
-	      --      ^^^^^^^^^^^    <- the expression
-	      --      ^^^^           <- LeftOperand
-	      --             ^^^^    <- RightOperand
+	      res := lhs & rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " & ", "")
 
@@ -1163,10 +1163,10 @@ class ExponentiationExpression(MultiplyingExpression):
 
 	   .. code-block:: VHDL
 
-	      res := lhs ** 2;
-	      --     ^^^^^^^^    <- the expression
-	      --     ^^^         <- LeftOperand
-	      --            ^    <- RightOperand
+	      res := lhs ** rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", "**", "")
 
@@ -1200,10 +1200,10 @@ class AndExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs and brhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs and rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " and ", "")
 
@@ -1219,10 +1219,10 @@ class NandExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs nand brhs;
-	      --      ^^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^              <- LeftOperand
-	      --                ^^^^    <- RightOperand
+	      res := lhs nand rhs;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --     ^^^             <- LeftOperand
+	      --              ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " nand ", "")
 
@@ -1238,10 +1238,10 @@ class OrExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs or brhs;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --      ^^^^            <- LeftOperand
-	      --              ^^^^    <- RightOperand
+	      res := lhs or rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " or ", "")
 
@@ -1257,10 +1257,10 @@ class NorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs nor brhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs nor rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " nor ", "")
 
@@ -1276,10 +1276,10 @@ class XorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs xor brhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs xor rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " xor ", "")
 
@@ -1295,10 +1295,10 @@ class XnorExpression(LogicalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := blhs xnor brhs;
-	      --      ^^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^              <- LeftOperand
-	      --                ^^^^    <- RightOperand
+	      res := lhs xnor rhs;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --     ^^^             <- LeftOperand
+	      --              ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " xnor ", "")
 
@@ -1333,10 +1333,10 @@ class EqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs = rhs;
-	      --      ^^^^^^^^^    <- the expression
-	      --      ^^^          <- LeftOperand
-	      --            ^^^    <- RightOperand
+	      res := lhs = rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " = ", "")
 
@@ -1352,10 +1352,10 @@ class UnequalExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs /= rhs;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^           <- LeftOperand
-	      --             ^^^    <- RightOperand
+	      res := lhs /= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " /= ", "")
 
@@ -1371,10 +1371,10 @@ class GreaterThanExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs > rhs;
-	      --      ^^^^^^^^^    <- the expression
-	      --      ^^^          <- LeftOperand
-	      --            ^^^    <- RightOperand
+	      res := lhs > rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " > ", "")
 
@@ -1390,10 +1390,10 @@ class GreaterEqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs >= rhs;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^           <- LeftOperand
-	      --             ^^^    <- RightOperand
+	      res := lhs >= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " >= ", "")
 
@@ -1409,10 +1409,10 @@ class LessThanExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs < rhs;
-	      --      ^^^^^^^^^    <- the expression
-	      --      ^^^          <- LeftOperand
-	      --            ^^^    <- RightOperand
+	      res := lhs < rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " < ", "")
 
@@ -1428,10 +1428,10 @@ class LessEqualExpression(RelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      bres := lhs <= rhs;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^           <- LeftOperand
-	      --             ^^^    <- RightOperand
+	      res := lhs <= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " <= ", "")
 
@@ -1468,10 +1468,10 @@ class MatchingEqualExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?= vrhs;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --      ^^^^            <- LeftOperand
-	      --              ^^^^    <- RightOperand
+	      res := lhs ?= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?= ", "")
 
@@ -1488,10 +1488,10 @@ class MatchingUnequalExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?/= vrhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs ?/= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?/= ", "")
 
@@ -1508,10 +1508,10 @@ class MatchingGreaterThanExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?> vrhs;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --      ^^^^            <- LeftOperand
-	      --              ^^^^    <- RightOperand
+	      res := lhs ?> rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?> ", "")
 
@@ -1528,10 +1528,10 @@ class MatchingGreaterEqualExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?>= vrhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs ?>= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?>= ", "")
 
@@ -1548,10 +1548,10 @@ class MatchingLessThanExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?< vrhs;
-	      --      ^^^^^^^^^^^^    <- the expression
-	      --      ^^^^            <- LeftOperand
-	      --              ^^^^    <- RightOperand
+	      res := lhs ?< rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?< ", "")
 
@@ -1568,10 +1568,10 @@ class MatchingLessEqualExpression(MatchingRelationalExpression):
 
 	   .. code-block:: VHDL
 
-	      sres := vlhs ?<= vrhs;
-	      --      ^^^^^^^^^^^^^    <- the expression
-	      --      ^^^^             <- LeftOperand
-	      --               ^^^^    <- RightOperand
+	      res := lhs ?<= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ?<= ", "")
 
@@ -1647,10 +1647,10 @@ class ShiftRightLogicExpression(ShiftLogicExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs srl 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs srl rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " srl ", "")
 
@@ -1666,10 +1666,10 @@ class ShiftLeftLogicExpression(ShiftLogicExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs sll 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs sll rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " sll ", "")
 
@@ -1685,10 +1685,10 @@ class ShiftRightArithmeticExpression(ShiftArithmeticExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs sra 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs sra rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " sra ", "")
 
@@ -1704,10 +1704,10 @@ class ShiftLeftArithmeticExpression(ShiftArithmeticExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs sla 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs sla rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " sla ", "")
 
@@ -1723,10 +1723,10 @@ class RotateRightExpression(RotateExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs ror 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs ror rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " ror ", "")
 
@@ -1742,10 +1742,10 @@ class RotateLeftExpression(RotateExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := vlhs rol 1;
-	      --      ^^^^^^^^^^    <- the expression
-	      --      ^^^^          <- LeftOperand
-	      --               ^    <- RightOperand
+	      res := lhs rol rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
 	"""
 	_FORMAT = ("", " rol ", "")
 
@@ -1762,9 +1762,9 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := byte'(others => '0');
-	      --      ^^^^                    <- Subtype
-	      --           ^^^^^^^^^^^^^^^    <- Operand
+	      res := byte'(others => '0');
+	      --     ^^^^                    <- Subtype
+	      --          ^^^^^^^^^^^^^^^    <- Operand
 	"""
 	_operand:  ExpressionUnion
 	_subtype:  Symbol
@@ -2047,8 +2047,8 @@ class SimpleAggregateElement(AggregateElement):
 
 	   .. code-block:: VHDL
 
-	      vres := ('1', '0', '1', '0', '1', '0', '1', '0');
-	      --       ^^^                                        <- Expression
+	      res := ('1', '0', '1', '0', '1', '0', '1', '0');
+	      --      ^^^                                        <- Expression
 	"""
 	def __str__(self) -> str:
 		return str(self._expression)
@@ -2065,9 +2065,9 @@ class IndexedAggregateElement(AggregateElement):
 
 	   .. code-block:: VHDL
 
-	      vres := (0 => '1', others => '0');
-	      --       ^                           <- Index
-	      --            ^^^                    <- Expression
+	      res := (0 => '1', others => '0');
+	      --      ^                           <- Index
+	      --           ^^^                    <- Expression
 	"""
 	_index: int
 
@@ -2100,9 +2100,9 @@ class RangedAggregateElement(AggregateElement):
 
 	   .. code-block:: VHDL
 
-	      vres := (1 to 3 => '0', others => '1');
-	      --       ^^^^^^                           <- Range
-	      --                 ^^^                    <- Expression
+	      res := (1 to 3 => '0', others => '1');
+	      --      ^^^^^^                           <- Range
+	      --                ^^^                    <- Expression
 	"""
 	_range: Range
 
@@ -2175,9 +2175,9 @@ class OthersAggregateElement(AggregateElement):
 
 	   .. code-block:: VHDL
 
-	      vres := (0 => '1', others => '0');
-	      --                 ^^^^^^            <- the choice
-	      --                           ^^^     <- Expression
+	      res := (0 => '1', others => '0');
+	      --                ^^^^^^            <- the choice
+	      --                          ^^^     <- Expression
 	"""
 	def __str__(self) -> str:
 		return "others => {value!s}".format(
@@ -2197,8 +2197,8 @@ class Aggregate(BaseExpression):
 
 	   .. code-block:: VHDL
 
-	      vres := (0 => '1', 1 to 3 => '0', others => '1');
-	      --      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    <- Elements
+	      res := (0 => '1', 1 to 3 => '0', others => '1');
+	      --     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    <- Elements
 	"""
 	_elements: List[AggregateElement]
 

@@ -391,13 +391,15 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 	"""
 	Represents a concurrent procedure call.
 
+	Like every concurrent statement, it can carry an optional label (:data:`Label`).
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	        proc_lbl : proc(clk, open);
-	      --^^^^^^^^                      <- Label
-	      --           ^^^^^^^^^^^^^^^    <- the call
+	        proc_lbl : proc(clock, open);
+	      --^^^^^^^^                        <- Label (optional)
+	      --           ^^^^^^^^^^^^^^^^^    <- the call
 
 	.. seealso::
 
@@ -431,13 +433,18 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 	      --^^^                            <- Label
 	          port (bp : in bit);
 	      --        ^^^^^^^^^^^            <- PortItems
-	          port map (bp => clk);
+	          port map (bp => clock);
 	          signal inner : bit := '0';
 	      --  ^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
 	        begin
 	          inner <= bp;
 	      --  ^^^^^^^^^^^^                 <- Statements
 	        end block;
+
+	.. note::
+
+	   The block's *port map aspect* (``port map (bp => clock);`` above) is not represented by the
+	   model yet - there is no field for the association items, so it has no marker.
 
 	.. seealso::
 

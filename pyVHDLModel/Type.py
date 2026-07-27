@@ -97,15 +97,20 @@ class AnonymousType(Type):
 	"""
 	Represents a base-class for types without a type definition of their own.
 
-	An incomplete type is the typical case: it names a type whose definition follows later in the same
-	declarative part.
+	An incomplete type is the typical case: it names a type (:data:`Identifier`) whose full
+	definition follows later in the same declarative part.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      type ptr;              -- incomplete, completed further down
-	      --   ^^^   <- Identifier
+	      type node;
+	      --   ^^^^                  <- Identifier
+	      type ptr is access node;
+	      type node is record
+	        value    : integer;
+	        nextNode : ptr;
+	      end record;
 	"""
 	pass
 
@@ -146,22 +151,22 @@ class Subtype(BaseType):
 	   .. code-block:: VHDL
 
 	      subtype byte is bit_vector;
-	      --      ^^^^                 <- Identifier
-	      --              ^^^^^^^^^^   <- Type
+	      --      ^^^^                  <- Identifier
+	      --              ^^^^^^^^^^    <- Type
 
 	   With a constraint:
 
 	   .. code-block:: VHDL
 
 	      subtype nibble is bit_vector(3 downto 0);
-	      --                          ^^^^^^^^^^^^   <- Range
+	      --                          ^^^^^^^^^^^^    <- Range
 
 	   With a resolution function:
 
 	   .. code-block:: VHDL
 
 	      subtype wired is resolved std_ulogic;
-	      --               ^^^^^^^^              <- ResolutionFunction
+	      --               ^^^^^^^^               <- ResolutionFunction
 
 	.. seealso::
 
@@ -315,8 +320,8 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 	   .. code-block:: VHDL
 
 	      type state is (Idle, Running, Done);
-	      --   ^^^^^                            <- Identifier
-	      --             ^^^^^^^^^^^^^^^^^^^    <- Literals
+	      --   ^^^^^                             <- Identifier
+	      --             ^^^^^^^^^^^^^^^^^^^     <- Literals
 	"""
 	_literals: List[EnumerationLiteral]
 
@@ -394,18 +399,22 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 
 	A physical type is a named entity (:data:`Identifier`) constrained by a range (:data:`Range`), and
 	defines a primary unit (:data:`PrimaryUnit`) plus any number of secondary units
-	(:data:`SecondaryUnits`).
+	(:data:`SecondaryUnits`). The model holds the secondary units in a list and has no distinct field
+	per unit, so the markers below name list elements.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type distance is range 0 to 1000000 units
-	      --   ^^^^^^^^                              <- Identifier
-	      --                     ^^^^^^^^^^^^        <- Range
-	        um;                                      -- PrimaryUnit
-	        mm = 1000 um;                            -- SecondaryUnits
+	      --   ^^^^^^^^                               <- Identifier
+	      --                     ^^^^^^^^^^^^         <- Range
+	        um;
+	      --^^^                                       <- PrimaryUnit
+	        mm = 1000 um;
+	      --^^^^^^^^^^^^^                             <- SecondaryUnits[0]
 	        m  = 1000 mm;
+	      --^^^^^^^^^^^^^                             <- SecondaryUnits[1]
 	      end units;
 	"""
 	_primaryUnit:    str
@@ -478,16 +487,16 @@ class ArrayType(CompositeType):
 	   .. code-block:: VHDL
 
 	      type memory is array (0 to 255) of bit_vector(7 downto 0);
-	      --   ^^^^^^                                                 <- Identifier
-	      --                    ^^^^^^^^                              <- Dimensions
-	      --                                 ^^^^^^^^^^^^^^^^^^^^^^   <- ElementType
+	      --   ^^^^^^                                                  <- Identifier
+	      --                    ^^^^^^^^                               <- Dimensions
+	      --                                 ^^^^^^^^^^^^^^^^^^^^^^    <- ElementType
 
 	   Two dimensions, both unconstrained:
 
 	   .. code-block:: VHDL
 
 	      type matrix is array (natural range <>, natural range <>) of bit;
-	      --                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      <- Dimensions
+	      --                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^            <- Dimensions
 
 	.. seealso::
 
@@ -550,8 +559,8 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 
 	      type frame is record
 	        a, b : bit;
-	      --^^^^         <- Identifiers
-	      --       ^^^   <- Subtype
+	      --^^^^                 <- Identifiers
+	      --       ^^^           <- Subtype
 	      end record;
 
 	.. seealso::
@@ -586,16 +595,19 @@ class RecordType(CompositeType):
 	Represents a record type definition.
 
 	A record type is a named entity (:data:`Identifier`) holding its element declarations
-	(:data:`Elements`) in declaration order.
+	(:data:`Elements`) in declaration order. The model holds them in a list and has no distinct
+	field per element, so the markers below name list elements.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type frame is record
-	      --   ^^^^^              <- Identifier
-	        a, b    : bit;        -- Elements
+	      --   ^^^^^                             <- Identifier
+	        a, b    : bit;
+	      --^^^^^^^^^^^^^^                       <- Elements[0]
 	        payload : bit_vector(31 downto 0);
+	      --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   <- Elements[1]
 	      end record;
 
 	.. seealso::
@@ -634,15 +646,19 @@ class ProtectedType(FullType):
 
 	A protected type is a named entity (:data:`Identifier`) exposing only its methods
 	(:data:`Methods`). The implementation lives in a separate :class:`ProtectedTypeBody`.
+	The model holds the methods in a list and has no distinct field per method, so the markers
+	below name list elements.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      type counter is protected
-	      --   ^^^^^^^                             <- Identifier
-	        procedure increment;                   -- Methods
+	      --   ^^^^^^^                              <- Identifier
+	        procedure increment;
+	      --^^^^^^^^^^^^^^^^^^^^                    <- Methods[0]
 	        impure function value return natural;
+	      --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   <- Methods[1]
 	      end protected;
 
 	.. seealso::
@@ -684,13 +700,20 @@ class ProtectedTypeBody(FullType):
 	   .. code-block:: VHDL
 
 	      type counter is protected body
-	      --   ^^^^^^^                        <- Identifier
+	      --   ^^^^^^^                       <- Identifier
 	        variable count : natural := 0;
-	        procedure increment is            -- Methods
+	        procedure increment is
+	      --^^^^^^^^^^^^^^^^^^^^^^           <- Methods[0]
 	        begin
 	          count := count + 1;
 	        end procedure;
 	      end protected body;
+
+	.. note::
+
+	   A protected type body may also declare non-subprogram items - ``variable count`` above. The
+	   model currently stores every declared item in :data:`Methods`, so such declarations are
+	   conflated with the methods and have no marker of their own.
 
 	.. seealso::
 
