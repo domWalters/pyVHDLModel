@@ -472,6 +472,13 @@ class Context(PrimaryUnit):
 		return self._contextReferences
 
 	def __str__(self) -> str:
+		"""
+		Formats the context declaration.
+
+		**Format:** ``Context: mylib?.myContext``
+
+		:returns: Formatted context declaration.
+		"""
 		lib = self._parent._identifier + "?" if self._parent is not None else ""
 
 		return f"Context: {lib}.{self._identifier}"
@@ -580,11 +587,25 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 			super()._IndexOtherDeclaredItem(item)
 
 	def __str__(self) -> str:
+		"""
+		Formats the package declaration.
+
+		**Format:** ``Package: 'mylib.myPackage'``
+
+		:returns: Formatted package declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 
 		return f"Package: '{lib}.{self._identifier}'"
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the package declaration.
+
+		**Format:** ``mylib.myPackage``
+
+		:returns: String representation of the package declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 
 		return f"{lib}.{self._identifier}"
@@ -664,11 +685,25 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		pass
 
 	def __str__(self) -> str:
+		"""
+		Formats the package body declaration.
+
+		**Format:** ``Package Body: mylib?.myPackage(body)``
+
+		:returns: Formatted package body declaration.
+		"""
 		lib = self._parent._identifier + "?" if self._parent is not None else ""
 
 		return f"Package Body: {lib}.{self._identifier}(body)"
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the package body declaration.
+
+		**Format:** ``mylib?.myPackage(body)``
+
+		:returns: String representation of the package body declaration.
+		"""
 		lib = self._parent._identifier + "?" if self._parent is not None else ""
 
 		return f"{lib}.{self._identifier}(body)"
@@ -741,12 +776,28 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 		return self._architectures
 
 	def __str__(self) -> str:
+		"""
+		Formats the entity declaration.
+
+		**Format:** ``Entity: 'mylib.myEntity(rtl, sim)'``
+
+		The parenthesis lists the known architectures, or ``%`` if there are none.
+
+		:returns: Formatted entity declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
 
 		return f"Entity: '{lib}.{self._identifier}({archs})'"
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the entity declaration.
+
+		**Format:** ``mylib.myEntity(rtl, sim)``
+
+		:returns: String representation of the entity declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
 
@@ -825,12 +876,26 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		return self._entity
 
 	def __str__(self) -> str:
+		"""
+		Formats the architecture declaration.
+
+		**Format:** ``Architecture: mylib.myEntity(rtl)``
+
+		:returns: Formatted architecture declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 		ent = self._entity._name._identifier if self._entity is not None else "%"
 
 		return f"Architecture: {lib}.{ent}({self._identifier})"
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the architecture declaration.
+
+		**Format:** ``mylib.myEntity(rtl)``
+
+		:returns: String representation of the architecture declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 		ent = self._entity._name._identifier if self._entity is not None else "%"
 
@@ -949,13 +1014,24 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		self._isBlackBox = False
 
 	def __str__(self) -> str:
+		"""
+		Formats the component declaration.
+
+		**Format:** ``Component: myComponent``
+
+		:returns: Formatted component declaration.
+		"""
 		return f"Component: {self._identifier}"
 
 	def __repr__(self) -> str:
-		if isinstance(self._parent, Package):
-			return f"{self._parent!r}:{self._identifier}"
-		elif isinstance(self._parent, Architecture):
-			return f"{self._parent!r}:{self._identifier}"
+		"""
+		Formats a representation of the component declaration.
+
+		**Format:** ``mylib.myPackage:myComponent``
+
+		:returns: String representation of the component declaration.
+		"""
+		return f"{self._parent!r}:{self._identifier}"
 
 
 @export
@@ -1029,11 +1105,25 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 		return self._blockConfiguration
 
 	def __str__(self) -> str:
+		"""
+		Formats the configuration declaration.
+
+		**Format:** ``Configuration: mylib.myConfiguration``
+
+		:returns: Formatted configuration declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 
 		return f"Configuration: {lib}.{self._identifier}"
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the configuration declaration.
+
+		**Format:** ``mylib.myConfiguration``
+
+		:returns: String representation of the configuration declaration.
+		"""
 		lib = self._parent._identifier if self._parent is not None else "%"
 
 		return f"{lib}.{self._identifier}"

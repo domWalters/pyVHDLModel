@@ -104,6 +104,13 @@ class NullLiteral(Literal):
 	      --   ^^^^    <- the literal
 	"""
 	def __str__(self) -> str:
+		"""
+		Formats the null literal.
+
+		**Format:** ``null``
+
+		:returns: Formatted null literal.
+		"""
 		return "null"
 
 
@@ -144,6 +151,13 @@ class EnumerationLiteral(Literal):
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the enumeration literal.
+
+		**Format:** ``idle``
+
+		:returns: Formatted enumeration literal.
+		"""
 		return self._value
 
 
@@ -197,6 +211,13 @@ class IntegerLiteral(NumericLiteral):
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the integer literal.
+
+		**Format:** ``42``
+
+		:returns: Formatted integer literal.
+		"""
 		return str(self._value)
 
 
@@ -235,6 +256,13 @@ class FloatingPointLiteral(NumericLiteral):
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the floating-point literal.
+
+		**Format:** ``3.5``
+
+		:returns: Formatted floating-point literal.
+		"""
 		return str(self._value)
 
 
@@ -279,6 +307,13 @@ class PhysicalLiteral(NumericLiteral):
 		return self._unitName
 
 	def __str__(self) -> str:
+		"""
+		Formats the physical literal.
+
+		**Format:** ``10 ns``
+
+		:returns: Formatted physical literal.
+		"""
 		return f"{self._value} {self._unitName}"
 
 
@@ -391,6 +426,13 @@ class CharacterLiteral(Literal):
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the character literal.
+
+		**Format:** ``a``
+
+		:returns: Formatted character literal.
+		"""
 		return str(self._value)
 
 
@@ -429,6 +471,13 @@ class StringLiteral(Literal):
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the string literal.
+
+		**Format:** ``"hello"``
+
+		:returns: Formatted string literal.
+		"""
 		return "\"" + self._value + "\""
 
 
@@ -538,6 +587,15 @@ class BitStringLiteral(Literal):
 		return self._signed
 
 	def __str__(self) -> str:
+		"""
+		Formats the bit string literal.
+
+		**Format:** ``8ub"10100000"``
+
+		The length and the signedness marker (``s``/``u``) are omitted when unspecified.
+
+		:returns: Formatted bit string literal.
+		"""
 		signed = "" if self._signed is None else "s" if self._signed is True else "u"
 		if self._base is BitStringBase.NoBase:
 			base = ""
@@ -674,6 +732,13 @@ class UnaryExpression(BaseExpression):
 		return self._operand
 
 	def __str__(self) -> str:
+		"""
+		Formats the expression.
+
+		**Format:** ``not operand``
+
+		:returns: Formatted expression.
+		"""
 		return f"{self._FORMAT[0]}{self._operand!s}{self._FORMAT[1]}"
 
 
@@ -906,6 +971,13 @@ class TypeConversion(UnaryExpression):
 		return self._targetSubtype
 
 	def __str__(self) -> str:
+		"""
+		Formats the type conversion.
+
+		**Format:** ``integer(val)``
+
+		:returns: Formatted type conversion.
+		"""
 		return f"{self._targetSubtype!s}({self._operand!s})"
 
 
@@ -983,6 +1055,13 @@ class BinaryExpression(BaseExpression):
 		return self._rightOperand
 
 	def __str__(self) -> str:
+		"""
+		Formats the expression.
+
+		**Format:** ``lhs + rhs``
+
+		:returns: Formatted expression.
+		"""
 		return "{leftOperator}{leftOperand!s}{middleOperator}{rightOperand!s}{rightOperator}".format(
 			leftOperator=self._FORMAT[0],
 			leftOperand=self._leftOperand,
@@ -1874,6 +1953,13 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		return self._subtype
 
 	def __str__(self) -> str:
+		"""
+		Formats the qualified expression.
+
+		**Format:** ``byte'(val)``
+
+		:returns: Formatted qualified expression.
+		"""
 		return f"{self._subtype}'({self._operand!s})"
 
 
@@ -1920,6 +2006,13 @@ class TernaryExpression(BaseExpression):
 		thirdOperand.Parent = self
 
 	def __str__(self) -> str:
+		"""
+		Formats the expression.
+
+		**Format:** ``val when cond else other``
+
+		:returns: Formatted expression.
+		"""
 		return "{beforeFirstOperator}{firstOperand!s}{beforeSecondOperator}{secondOperand!s}{beforeThirdOperator}{thirdOperand!s}{lastOperator}".format(
 			beforeFirstOperator=self._FORMAT[0],
 			firstOperand=self._firstOperand,
@@ -2064,6 +2157,13 @@ class SubtypeAllocation(Allocation):
 		return self._subtype
 
 	def __str__(self) -> str:
+		"""
+		Formats the allocation.
+
+		**Format:** ``new node``
+
+		:returns: Formatted allocation.
+		"""
 		return f"new {self._subtype!s}"
 
 
@@ -2105,6 +2205,13 @@ class QualifiedExpressionAllocation(Allocation):
 		return self._qualifiedExpression
 
 	def __str__(self) -> str:
+		"""
+		Formats the allocation.
+
+		**Format:** ``new byte'(val)``
+
+		:returns: Formatted allocation.
+		"""
 		return f"new {self._qualifiedExpression!s}"
 
 
@@ -2163,6 +2270,13 @@ class SimpleAggregateElement(AggregateElement):
 	      --      ^^^                                        <- Expression
 	"""
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate element.
+
+		**Format:** ``val``
+
+		:returns: Formatted aggregate element.
+		"""
 		return str(self._expression)
 
 
@@ -2205,6 +2319,13 @@ class IndexedAggregateElement(AggregateElement):
 		return self._index
 
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate element.
+
+		**Format:** ``0 => val``
+
+		:returns: Formatted aggregate element.
+		"""
 		return f"{self._index!s} => {self._expression!s}"
 
 
@@ -2248,6 +2369,13 @@ class RangedAggregateElement(AggregateElement):
 		return self._range
 
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate element.
+
+		**Format:** ``0 to 3 => val``
+
+		:returns: Formatted aggregate element.
+		"""
 		return f"{self._range!s} => {self._expression!s}"
 
 
@@ -2291,6 +2419,13 @@ class NamedAggregateElement(AggregateElement):
 		return self._name
 
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate element.
+
+		**Format:** ``elem => val``
+
+		:returns: Formatted aggregate element.
+		"""
 		return "{name!s} => {value!s}".format(
 			name=self._name,
 			value=self._expression,
@@ -2313,6 +2448,13 @@ class OthersAggregateElement(AggregateElement):
 	      --                          ^^^     <- Expression
 	"""
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate element.
+
+		**Format:** ``others => val``
+
+		:returns: Formatted aggregate element.
+		"""
 		return "others => {value!s}".format(
 			value=self._expression,
 		)
@@ -2359,6 +2501,13 @@ class Aggregate(BaseExpression):
 		return self._elements
 
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate.
+
+		**Format:** ``(1, others => 0)``
+
+		:returns: Formatted aggregate.
+		"""
 		choices = [str(element) for element in self._elements]
 		return "({choices})".format(
 			choices=", ".join(choices)

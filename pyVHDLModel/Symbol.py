@@ -142,15 +142,34 @@ class Symbol(metaclass=ExtendedType):
 		return self._reference is not None
 
 	def __bool__(self) -> bool:
+		"""
+		Reports whether this symbol has been resolved.
+
+		:returns: ``True`` if the symbol references a model entity.
+		"""
 		return self._reference is not None
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the symbol.
+
+		**Format:** ``SignalSymbol: 'clk' -> <signal>``, or ``... -> ?`` while unresolved
+
+		:returns: String representation of the symbol.
+		"""
 		if self._reference is not None:
 			return f"{self.__class__.__name__}: '{self._name!s}' -> {self._reference!s}"
 
 		return f"{self.__class__.__name__}: '{self._name!s}' -> unresolved"
 
 	def __str__(self) -> str:
+		"""
+		Formats the symbol.
+
+		**Format:** the referenced model entity once resolved, else the name plus ``?``
+
+		:returns: Formatted symbol.
+		"""
 		if self._reference is not None:
 			return str(self._reference)
 

@@ -1001,6 +1001,13 @@ class IndexedGenerateChoice(ConcurrentChoice):
 		return self._expression
 
 	def __str__(self) -> str:
+		"""
+		Formats the choice.
+
+		**Format:** ``0``
+
+		:returns: Formatted choice.
+		"""
 		return str(self._expression)
 
 
@@ -1042,6 +1049,13 @@ class RangedGenerateChoice(ConcurrentChoice):
 		return self._range
 
 	def __str__(self) -> str:
+		"""
+		Formats the choice.
+
+		**Format:** ``0 to 3``
+
+		:returns: Formatted choice.
+		"""
 		return str(self._range)
 
 
@@ -1126,6 +1140,13 @@ class GenerateCase(ConcurrentCase):
 		super().__init__(declaredItems, statements, alternativeLabel, choices, allowBlackbox, parent)
 
 	def __str__(self) -> str:
+		"""
+		Formats the alternative.
+
+		**Format:** ``when 0 | 1 =>``
+
+		:returns: Formatted alternative.
+		"""
 		return "when {choices} =>".format(choices=" | ".join(str(c) for c in self._choices))
 
 
@@ -1144,6 +1165,13 @@ class OthersGenerateCase(ConcurrentCase):
 	      --   ^^^^^^      <- the choice
 	"""
 	def __str__(self) -> str:
+		"""
+		Formats the alternative.
+
+		**Format:** ``when others =>``
+
+		:returns: Formatted alternative.
+		"""
 		return "when others =>"
 
 

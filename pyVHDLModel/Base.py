@@ -773,6 +773,13 @@ class SimpleRange(Range):
 		return self._direction
 
 	def __str__(self) -> str:
+		"""
+		Formats the range.
+
+		**Format:** ``0 to 7``
+
+		:returns: Formatted range.
+		"""
 		return f"{self._leftBound!s} {self._direction!s} {self._rightBound!s}"
 
 
@@ -821,6 +828,13 @@ class RangeFromName(Range):
 		return self._symbol
 
 	def __str__(self) -> str:
+		"""
+		Formats the range.
+
+		**Format:** ``v'range``
+
+		:returns: Formatted range.
+		"""
 		return f"{self._symbol!s}"
 
 

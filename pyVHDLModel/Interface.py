@@ -1023,12 +1023,29 @@ class GenericGroup(InterfaceGroup, WithGenericsMixin):
 		WithGenericsMixin.__init__(self, genericItems)
 
 	def __len__(self) -> int:
+		"""
+		Returns the number of generics in this group.
+
+		:returns: Number of generics.
+		"""
 		return len(self._genericItems)
 
 	def __iter__(self) -> Iterator[GenericInterfaceItemMixin]:
+		"""
+		Iterates the generics in this group.
+
+		:returns: An iterator over the group's generics.
+		"""
 		return iter(self._genericItems)
 
 	def __str__(self) -> str:
+		"""
+		Formats the generic group.
+
+		**Format:** ``GenericGroup myGroup (2) - generics: WIDTH, DEPTH)``
+
+		:returns: Formatted generic group.
+		"""
 		names = ", ".join(name for item in self._genericItems for name in identifiersOf(item))
 		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {names})"
 
@@ -1064,12 +1081,29 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 		WithPortsMixin.__init__(self, portItems)
 
 	def __len__(self) -> int:
+		"""
+		Returns the number of ports in this group.
+
+		:returns: Number of ports.
+		"""
 		return len(self._portItems)
 
 	def __iter__(self) -> Iterator[PortInterfaceItemMixin]:
+		"""
+		Iterates the ports in this group.
+
+		:returns: An iterator over the group's ports.
+		"""
 		return iter(self._portItems)
 
 	def __str__(self) -> str:
+		"""
+		Formats the port group.
+
+		**Format:** ``PortGroup: myGroup (2) - ports: clock, reset)``
+
+		:returns: Formatted port group.
+		"""
 		names = ", ".join(name for item in self._portItems for name in identifiersOf(item))
 		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {names})"
 
@@ -1105,11 +1139,28 @@ class ParameterGroup(InterfaceGroup, WithParametersMixin):
 		WithParametersMixin.__init__(self, parameterItems)
 
 	def __len__(self) -> int:
+		"""
+		Returns the number of parameters in this group.
+
+		:returns: Number of parameters.
+		"""
 		return len(self._parameterItems)
 
 	def __iter__(self) -> Iterator[ParameterInterfaceItemMixin]:
+		"""
+		Iterates the parameters in this group.
+
+		:returns: An iterator over the group's parameters.
+		"""
 		return iter(self._parameterItems)
 
 	def __str__(self) -> str:
+		"""
+		Formats the parameter group.
+
+		**Format:** ``ParameterGroup myGroup (2) - parameters: a, b)``
+
+		:returns: Formatted parameter group.
+		"""
 		names = ", ".join(name for item in self._parameterItems for name in identifiersOf(item))
 		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {names})"
