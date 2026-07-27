@@ -106,9 +106,9 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 	   .. code-block:: VHDL
 
-	        call_lbl : log("hello");
-	      --^^^^^^^^                   <- Label (optional)
-	      --           ^^^^^^^^^^^^    <- the call
+	        lbl : log("hello");
+	      --^^^                   <- optional Label
+	      --      ^^^^^^^^^^^^    <- the call
 
 	.. seealso::
 
@@ -150,9 +150,10 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin
 
 	   .. code-block:: VHDL
 
-	        s <= '1';
-	      --^           <- Target
-	      --     ^^^    <- Waveform
+	        lbl : s <= '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Waveform
 
 	.. seealso::
 
@@ -174,9 +175,10 @@ class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin)
 
 	   .. code-block:: VHDL
 
-	        v := '1';
-	      --^           <- Target
-	      --     ^^^    <- Expression
+	        lbl : v := '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Expression
 	"""
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
@@ -196,10 +198,11 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 
 	   .. code-block:: VHDL
 
-	        v := '1' when sel = '0' else '0';
-	      --^                                   <- Target
-	      --     ^^^^^^^^^^^^^^^^^^             <- ConditionalExpressions[0]
-	      --                             ^^^    <- ConditionalExpressions[1]
+	        lbl : v := '1' when sel = '0' else '0';
+	      --^^^                                       <- optional Label
+	      --      ^                                   <- Target
+	      --           ^^^^^^^^^^^^^^^^^^             <- ConditionalExpressions[0]
+	      --                                   ^^^    <- ConditionalExpressions[1]
 
 	.. seealso::
 
@@ -246,10 +249,11 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 
 	   .. code-block:: VHDL
 
-	        s <= '1' when sel = '0' else '0';
-	      --^                                   <- Target
-	      --     ^^^^^^^^^^^^^^^^^^             <- ConditionalWaveforms[0]
-	      --                             ^^^    <- ConditionalWaveforms[1]
+	        lbl : s <= '1' when sel = '0' else '0';
+	      --^^^                                       <- optional Label
+	      --      ^                                   <- Target
+	      --           ^^^^^^^^^^^^^^^^^^             <- ConditionalWaveforms[0]
+	      --                                   ^^^    <- ConditionalWaveforms[1]
 
 	.. seealso::
 
@@ -282,11 +286,12 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin,
 
 	   .. code-block:: VHDL
 
-	      with sel select v := '1' when '0', '0' when others;
-	      --   ^^^                                              <- Expression
-	      --              ^                                     <- Target
-	      --                   ^^^^^^^^^^^^                     <- SelectedExpressions[0]
-	      --                                 ^^^^^^^^^^^^^^^    <- SelectedExpressions[1]
+	        lbl : with sel select v := '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedExpressions[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedExpressions[1]
 
 	.. seealso::
 
@@ -320,11 +325,12 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when '0', '0' when others;
-	      --   ^^^                                              <- Expression
-	      --              ^                                     <- Target
-	      --                   ^^^^^^^^^^^^                     <- SelectedWaveforms[0]
-	      --                                 ^^^^^^^^^^^^^^^    <- SelectedWaveforms[1]
+	        lbl : with sel select s <= '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedWaveforms[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedWaveforms[1]
 
 	.. seealso::
 
@@ -357,9 +363,10 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, Expressi
 
 	   .. code-block:: VHDL
 
-	        s <= force '1';
-	      --^                 <- Target
-	      --           ^^^    <- Expression
+	        lbl : s <= force '1';
+	      --^^^                     <- optional Label
+	      --      ^                 <- Target
+	      --                 ^^^    <- Expression
 	"""
 
 	def __init__(
@@ -385,8 +392,9 @@ class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
 
 	   .. code-block:: VHDL
 
-	        s <= release;
-	      --^               <- Target
+	        lbl : s <= release;
+	      --^^^                   <- optional Label
+	      --      ^               <- Target
 	"""
 
 	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -399,13 +407,16 @@ class SequentialReportStatement(SequentialStatement, ReportStatementMixin):
 	"""
 	Represents a sequential report statement.
 
+	The report string is available as :data:`Message`, the optional severity as :data:`Severity`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      report "message" severity note;
-	      --     ^^^^^^^^^                  <- Message
-	      --                        ^^^^    <- Severity
+	        lbl : report "message" severity note;
+	      --^^^                                     <- optional Label
+	      --             ^^^^^^^^^                  <- Message
+	      --                                ^^^^    <- optional Severity
 	"""
 	def __init__(self, message: ExpressionUnion, severity: Nullable[ExpressionUnion] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
@@ -424,10 +435,11 @@ class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
 
 	   .. code-block:: VHDL
 
-	      assert sel = '0' report "bad" severity error;
-	      --     ^^^^^^^^^                                <- Condition
-	      --                      ^^^^^                   <- Message (optional)
-	      --                                     ^^^^^    <- Severity (optional)
+	        lbl : assert sel = '0' report "bad" severity error;
+	      --^^^                                                   <- optional Label
+	      --             ^^^^^^^^^                                <- Condition
+	      --                              ^^^^^                   <- optional Message
+	      --                                             ^^^^^    <- optional Severity
 
 	.. seealso::
 
@@ -576,22 +588,24 @@ class IfStatement(CompoundStatement):
 
 	   .. code-block:: VHDL
 
-	      if sel = '0' then
-	        s <= '0';
-	      end if;
+	        lbl : if sel = '0' then
+	      --^^^                       <- optional Label
+	          s <= '0';
+	        end if;
 
 	   With ``elsif`` and ``else`` branches:
 
 	   .. code-block:: VHDL
 
-	        if sel = '0' then
-	      --^^^^^^^^^^^^^^^^^      <- IfBranch
+	        lbl : if sel = '0' then
+	      --^^^                       <- optional Label
+	      --      ^^^^^^^^^^^^^^^^^   <- IfBranch
 	          s <= '0';
 	        elsif sel = '1' then
-	      --^^^^^^^^^^^^^^^^^^^^   <- ElsIfBranches[0]
+	      --^^^^^^^^^^^^^^^^^^^^      <- ElsIfBranches[0]
 	          s <= '1';
 	        else
-	      --^^^^                   <- ElseBranch
+	      --^^^^                      <- ElseBranch
 	          s <= '0';
 	        end if;
 
@@ -809,13 +823,14 @@ class CaseStatement(CompoundStatement):
 
 	   .. code-block:: VHDL
 
-	      case sel is
-	      --   ^^^                     <- SelectExpression
-	        when '0'    => s <= '1';
-	      --^^^^^^^^^^^^^^^^^^^^^^^^   <- Cases[0]
-	        when others => null;
-	      --^^^^^^^^^^^^^^^^^^^^       <- Cases[1]
-	      end case;
+	        lbl : case sel is
+	      --^^^                          <- optional Label
+	      --           ^^^               <- SelectExpression
+	          when '0'    => s <= '1';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^   <- Cases[0]
+	          when others => null;
+	      --  ^^^^^^^^^^^^^^^^^^^^       <- Cases[1]
+	        end case;
 
 	.. seealso::
 
@@ -877,15 +892,18 @@ class EndlessLoopStatement(LoopStatement):
 	"""
 	Represents an endless loop statement.
 
-	An endless loop has no iteration scheme; it is left with ``exit`` or ``return``.
+	The loop body is available as :data:`Statements`. The loop has no iteration scheme, so it is
+	left with an exit or return statement.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      loop
-	        exit;
-	      end loop;
+	        lbl : loop
+	      --^^^          <- optional Label
+	          exit;
+	      --  ^^^^^      <- Statements
+	        end loop;
 
 	.. seealso::
 
@@ -898,18 +916,22 @@ class EndlessLoopStatement(LoopStatement):
 @export
 class ForLoopStatement(LoopStatement):
 	"""
-	Represents a for loop statement.
+	Represents a for-loop statement.
 
-	The loop parameter is available as :data:`LoopIndex`, the discrete range it iterates over as
-	:data:`Range`.
+	The loop index is available as :data:`LoopIndex`, the iteration range as :data:`Range` and the
+	loop body as :data:`Statements`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      for k in 0 to 3 loop
-	      --  ^                  <- LoopIndex
-	      --       ^^^^^^        <- Range
+	        lbl : for k in 0 to 3 loop
+	      --^^^                          <- optional Label
+	      --          ^                  <- LoopIndex
+	      --               ^^^^^^        <- Range
+	          null;
+	      --  ^^^^^                      <- Statements
+	        end loop;
 
 	.. seealso::
 
@@ -950,16 +972,20 @@ class ForLoopStatement(LoopStatement):
 @export
 class WhileLoopStatement(LoopStatement, ConditionalMixin):
 	"""
-	Represents a while loop statement.
+	Represents a while-loop statement.
 
-	The loop repeats as long as its condition (:data:`Condition`) holds.
+	The loop condition is available as :data:`Condition`, the loop body as :data:`Statements`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      while i < 4 loop
-	      --    ^^^^^        <- Condition
+	        lbl : while i < 4 loop
+	      --^^^                      <- optional Label
+	      --            ^^^^^        <- Condition
+	          null;
+	      --  ^^^^^                  <- Statements
+	        end loop;
 
 	.. seealso::
 
@@ -1014,16 +1040,19 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 @export
 class NextStatement(LoopControlStatement):
 	"""
-	Represents a ``next`` statement.
+	Represents a next statement.
 
-	It skips to the next iteration of the enclosing loop.
+	A next statement skips to the next iteration of the named loop (:data:`LoopReference`),
+	optionally only when a condition (:data:`Condition`) holds.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      next when k = 1;
-	      --        ^^^^^    <- Condition
+	        lbl : next outer when k = 1;
+	      --^^^                            <- optional Label
+	      --           ^^^^^               <- optional LoopReference
+	      --                      ^^^^^    <- optional Condition
 	"""
 	pass
 
@@ -1031,16 +1060,19 @@ class NextStatement(LoopControlStatement):
 @export
 class ExitStatement(LoopControlStatement):
 	"""
-	Represents an ``exit`` statement.
+	Represents an exit statement.
 
-	It leaves the enclosing loop.
+	An exit statement leaves the named loop (:data:`LoopReference`), optionally only when a
+	condition (:data:`Condition`) holds.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	        exit;
-	      --^^^^    <- the statement
+	        lbl : exit outer when k = 1;
+	      --^^^                            <- optional Label
+	      --           ^^^^^               <- optional LoopReference
+	      --                      ^^^^^    <- optional Condition
 	"""
 	pass
 
@@ -1048,14 +1080,18 @@ class ExitStatement(LoopControlStatement):
 @export
 class NullStatement(SequentialStatement):
 	"""
-	Represents a ``null`` statement, which does nothing.
+	Represents a null statement.
+
+	A null statement does nothing. Like every sequential statement, it can carry an optional label
+	(:data:`Label`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	        null;
-	      --^^^^    <- the statement
+	        lbl : null;
+	      --^^^           <- optional Label
+	      --      ^^^^    <- the statement
 	"""
 	pass
 
@@ -1063,16 +1099,17 @@ class NullStatement(SequentialStatement):
 @export
 class ReturnStatement(SequentialStatement):
 	"""
-	Represents a ``return`` statement.
+	Represents a return statement.
 
-	A function returns a value (:data:`ReturnValue`); a procedure returns none.
+	The optionally returned value is available as :data:`ReturnValue`; a procedure returns nothing.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      return x;
-	      --     ^    <- ReturnValue
+	        lbl : return x;
+	      --^^^               <- optional Label
+	      --             ^    <- optional ReturnValue
 	"""
 	_returnValue: Nullable[ExpressionUnion]
 
@@ -1110,9 +1147,10 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 
 	   .. code-block:: VHDL
 
-	      wait until clock = '1' for 10 ns;
-	      --         ^^^^^^^^^^^              <- Condition (optional)
-	      --                         ^^^^^    <- Timeout (optional)
+	        lbl : wait until clock = '1' for 10 ns;
+	      --^^^                                       <- optional Label
+	      --                 ^^^^^^^^^^^              <- optional Condition
+	      --                                 ^^^^^    <- optional Timeout
 	"""
 	_sensitivityList: Nullable[List[Symbol]]
 	_timeout:         ExpressionUnion

@@ -205,13 +205,18 @@ class Instantiation(ConcurrentStatement):
 @export
 class ComponentInstantiation(Instantiation):
 	"""
-	Represents a component instantiation by referring to a component name.
+	Represents a component instantiation.
+
+	The instantiated component is available as :data:`Component`, the associations as
+	:data:`GenericAssociationItems` and :data:`PortAssociationItems`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : component Counter;
+	        inst : component Counter;
+	      --^^^^                        <- Label
+	      --                 ^^^^^^^    <- Component
 	"""
 
 	_component: ComponentInstantiationSymbol
@@ -242,13 +247,19 @@ class ComponentInstantiation(Instantiation):
 @export
 class EntityInstantiation(Instantiation):
 	"""
-	Represents an entity instantiation by referring to an entity name with optional architecture name.
+	Represents a direct entity instantiation.
+
+	The instantiated entity is available as :data:`Entity` and the optionally selected architecture
+	as :data:`Architecture`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : entity work. Counter;
+	        inst : entity work.Counter(rtl);
+	      --^^^^                               <- Label
+	      --              ^^^^^^^^^^^^         <- Entity
+	      --                           ^^^     <- optional Architecture
 	"""
 
 	_entity: EntityInstantiationSymbol
@@ -294,13 +305,17 @@ class EntityInstantiation(Instantiation):
 @export
 class ConfigurationInstantiation(Instantiation):
 	"""
-	Represents a configuration instantiation by referring to a configuration name.
+	Represents a configuration instantiation.
+
+	The instantiated configuration is available as :data:`Configuration`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : configuration Counter;
+	        inst : configuration Counter;
+	      --^^^^                            <- Label
+	      --                     ^^^^^^^    <- Configuration
 	"""
 
 	_configuration: ConfigurationInstantiationSymbol
@@ -331,17 +346,24 @@ class ConfigurationInstantiation(Instantiation):
 @export
 class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, SequentialStatementsMixin, DocumentedEntityMixin):
 	"""
-	Represents a process statement with sensitivity list, sequential declaration region and sequential statements.
+	Represents a process statement.
+
+	A process declares its own items (:data:`DeclaredItems`) and groups sequential statements
+	(:data:`Statements`). It may name a sensitivity list (:data:`SensitivityList`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      proc: process(Clock)
-	        -- sequential declarations
-	      begin
-	        -- sequential statements
-	      end process;
+	        proc : process (clock)
+	      --^^^^                     <- optional Label
+	      --                ^^^^^    <- optional SensitivityList
+	          variable v : bit;
+	      --  ^^^^^^^^^^^^^^^^^      <- DeclaredItems
+	        begin
+	          v := '1';
+	      --  ^^^^^^^^^              <- Statements
+	        end process;
 	"""
 
 	_sensitivityList: List[Name]  # TODO: implement a SignalSymbol
@@ -398,7 +420,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 	   .. code-block:: VHDL
 
 	        proc_lbl : proc(clock, open);
-	      --^^^^^^^^                        <- Label (optional)
+	      --^^^^^^^^                        <- optional Label
 	      --           ^^^^^^^^^^^^^^^^^    <- the call
 
 	.. seealso::
@@ -680,19 +702,27 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 @export
 class IfGenerateStatement(GenerateStatement):
 	"""
-	Represents an if...generate statement.
+	Represents an if-generate statement.
+
+	It has one ``if`` branch (:data:`IfBranch`), any number of ``elsif`` branches
+	(:data:`ElsifBranches`) and an optional ``else`` branch (:data:`ElseBranch`). The label is
+	mandatory and the branch conditions must be static expressions.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: if condition generate
-	        -- ...
-	      elsif condition generate
-	        -- ...
-	      else generate
-	        -- ...
-	      end generate;
+	        gen : if WIDTH > 8 generate
+	      --^^^                           <- Label
+	      --      ^^^^^^^^^^^^^^^^^^^^^   <- IfBranch
+	          q <= '0';
+	        elsif WIDTH > 4 generate
+	      --^^^^^^^^^^^^^^^^^^^^^^^^      <- ElsifBranches[0]
+	          q <= '1';
+	        else generate
+	      --^^^^^^^^^^^^^                 <- ElseBranch
+	          q <= 'Z';
+	        end generate;
 
 	.. seealso::
 
@@ -961,20 +991,23 @@ class OthersGenerateCase(ConcurrentCase):
 @export
 class CaseGenerateStatement(GenerateStatement):
 	"""
-	Represents a case...generate statement.
+	Represents a case-generate statement.
+
+	The expression being tested is available as :data:`SelectExpression`, the alternatives as
+	:data:`Cases`. The label is mandatory and the selector must be a static expression.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: case selector generate
-	        case choice1 =>
-	          -- ...
-	        case choice2 =>
-	          -- ...
-	        case others =>
-	          -- ...
-	      end generate;
+	        gen : case MODE generate
+	      --^^^                          <- Label
+	      --           ^^^^              <- SelectExpression
+	          when 0 => q <= '0';
+	      --  ^^^^^^^^^^^^^^^^^^^        <- Cases[0]
+	          when others => q <= '1';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^   <- Cases[1]
+	        end generate;
 
 	.. seealso::
 
@@ -1043,15 +1076,22 @@ class CaseGenerateStatement(GenerateStatement):
 @export
 class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
 	"""
-	Represents a for...generate statement.
+	Represents a for-generate statement.
+
+	The loop index is available as :data:`LoopIndex`, the iteration range as :data:`Range` and the
+	generated statements as :data:`Statements`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: for i in 0 to 3 generate
-	        -- ...
-	      end generate;
+	        gen : for i in 0 to 3 generate
+	      --^^^                              <- Label
+	      --          ^                      <- LoopIndex
+	      --               ^^^^^^            <- Range
+	          q(i) <= '0';
+	      --  ^^^^^^^^^^^^                   <- Statements
+	        end generate;
 
 	.. seealso::
 
@@ -1144,13 +1184,16 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 	"""
 	Represents a simple concurrent signal assignment.
 
+	The assignment's destination is available as :data:`Target`, its value as :data:`Waveform`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	        q <= '1';
-	      --^           <- Target
-	      --     ^^^    <- the waveform
+	        lbl : q <= '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Waveform
 
 	.. seealso::
 
@@ -1166,16 +1209,20 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 	"""
 	Represents a selected concurrent signal assignment.
 
-	The selector and alternatives are available as :data:`SelectExpression` and
-	:data:`SelectedWaveforms`.
+	The selector is available as :data:`Expression`, the alternatives as :data:`SelectedWaveforms`,
+	a list of :class:`~pyVHDLModel.Common.SelectedWaveform`. The model holds them in a list and has
+	no distinct field per alternative, so the markers below name list elements.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when '0', '0' when others;
-	      --   ^^^                                              <- SelectExpression
-	      --                   ^^^^^^^^^^^^                     <- first alternative
+	        lbl : with sel select q <= '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedWaveforms[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedWaveforms[1]
 
 	.. seealso::
 
@@ -1201,15 +1248,19 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 	"""
 	Represents a conditional concurrent signal assignment.
 
-	The branches are available as :data:`ConditionalWaveforms`.
+	The alternatives are available as :data:`ConditionalWaveforms`, a list of
+	:class:`~pyVHDLModel.Common.ConditionalWaveform`. The model holds them in a list and has no
+	distinct field per alternative, so the markers below name list elements.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      s <= '1' when cond1 else '0' when cond2 else 'Z';
-	      --   ^^^^^^^^^^^^^^                                 <- first branch
-	      --                                           ^^^    <- final branch
+	        lbl : q <= '1' when cond else '0';
+	      --^^^                                  <- optional Label
+	      --      ^                              <- Target
+	      --           ^^^^^^^^^^^^^             <- ConditionalWaveforms[0]
+	      --                              ^^^    <- ConditionalWaveforms[1]
 
 	.. seealso::
 
@@ -1233,14 +1284,18 @@ class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
 	"""
 	Represents a concurrent assertion statement.
 
+	The checked condition is available as :data:`Condition`, the optional report string as
+	:data:`Message` and the optional severity as :data:`Severity`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      assert W > 0 report "w" severity note;
-	      --     ^^^^^                             <- Condition
-	      --                  ^^^                  <- Message
-	      --                               ^^^^    <- Severity
+	        lbl : assert cond report "bad" severity note;
+	      --^^^                                             <- optional Label
+	      --             ^^^^                               <- Condition
+	      --                         ^^^^^                  <- optional Message
+	      --                                        ^^^^    <- optional Severity
 
 	.. seealso::
 

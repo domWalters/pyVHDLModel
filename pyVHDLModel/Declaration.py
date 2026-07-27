@@ -223,7 +223,7 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	      alias a : bit_vector(3 downto 0) is s(3 downto 0);
 	      --        ^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^
-	      --        Subtype (optional)         Name
+	      --        optional Subtype           Name
 
 	      alias b is s;
 	      --          ^
