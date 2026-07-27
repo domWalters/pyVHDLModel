@@ -509,7 +509,7 @@ PACKAGES = (
 
 
 @export
-class Std_Logic_Arith(PredefinedPackage):
+class Std_Logic_Arith_MentorGraphics(PredefinedPackage):
 	"""
 	Predefined Mentor Graphics package ``ieee.std_logic_arith``.
 	"""
@@ -518,7 +518,7 @@ class Std_Logic_Arith(PredefinedPackage):
 		"""
 		Initializes the ``std_logic_arith`` package.
 		"""
-		super().__init__()
+		super().__init__("Std_Logic_Arith")
 
 		self._AddLibraryClause(("IEEE", ))
 
@@ -527,14 +527,20 @@ class Std_Logic_Arith(PredefinedPackage):
 
 
 @export
-class Std_Logic_Arith_Body(PredefinedPackageBody):
+class Std_Logic_Arith_Body_MentorGraphics(PredefinedPackageBody):
 	"""
 	Predefined package body of Mentor Graphics package ``ieee.std_logic_arith``.
 	"""
 
+	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_arith`` package body.
+		"""
+		super().__init__("Std_Logic_Arith")
+
 
 MENTOR_GRAPHICS_PACKAGES = (
-	(Std_Logic_Arith, Std_Logic_Arith_Body),
+	(Std_Logic_Arith_MentorGraphics, Std_Logic_Arith_Body_MentorGraphics),
 )
 
 
@@ -653,7 +659,7 @@ VITAL_PACKAGES = (
 
 
 @export
-class Std_Logic_Arith(PredefinedPackage):
+class Std_Logic_Arith_Synopsys(PredefinedPackage):
 	"""
 	Predefined Synopsys package ``ieee.std_logic_arith``.
 	"""
@@ -662,7 +668,7 @@ class Std_Logic_Arith(PredefinedPackage):
 		"""
 		Initializes the ``std_logic_arith`` package.
 		"""
-		super().__init__()
+		super().__init__("Std_Logic_Arith")
 
 		self._AddLibraryClause(("IEEE", ))
 		self._AddPackageClause(("IEEE.std_logic_1164.all", ))
@@ -709,7 +715,7 @@ class Std_Logic_Signed(PredefinedPackage):
 
 
 @export
-class Std_Logic_TextIO(PredefinedPackage):
+class Std_Logic_TextIO_Synopsys(PredefinedPackage):
 	"""
 	Predefined Synopsys package ``ieee.std_logic_textio``.
 	"""
@@ -718,7 +724,7 @@ class Std_Logic_TextIO(PredefinedPackage):
 		"""
 		Initializes the ``std_logic_textio`` package.
 		"""
-		super().__init__()
+		super().__init__("Std_Logic_TextIO")
 
 		self._AddPackageClause(("STD.textio.all", ))
 
@@ -744,9 +750,9 @@ class Std_Logic_Unsigned(PredefinedPackage):
 
 
 SYNOPSYS_PACKAGES = (
-	(Std_Logic_Arith,    None),
+	(Std_Logic_Arith_Synopsys,    None),
 	(Std_Logic_Misc,     Std_Logic_Misc_Body),
 	(Std_Logic_Signed,   None),
-	(Std_Logic_TextIO,   None),
+	(Std_Logic_TextIO_Synopsys,   None),
 	(Std_Logic_Unsigned, None),
 )

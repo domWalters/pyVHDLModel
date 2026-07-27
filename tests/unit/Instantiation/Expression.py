@@ -153,7 +153,7 @@ class BitStringLiterals(TestCase):
 		self.assertIsNone(literal.BinaryValue)
 		self.assertIsNone(literal.Bits)
 		self.assertIsNone(literal.Length)
-		self.assertIsNone(literal.Signed)
+		self.assertIsNone(literal.IsSigned)
 		self.assertEqual("b\"101\"", str(literal))
 
 	def test_Octal(self) -> None:
@@ -174,16 +174,16 @@ class BitStringLiterals(TestCase):
 
 	def test_Signed(self) -> None:
 		"""``sx"F"`` - signed metadata (C.2 in the gap analysis)."""
-		literal = HexadecimalBitStringLiteral("F", signed=True)
+		literal = HexadecimalBitStringLiteral("F", isSigned=True)
 
-		self.assertTrue(literal.Signed)
+		self.assertTrue(literal.IsSigned)
 		self.assertEqual("sx\"F\"", str(literal))
 
 	def test_Unsigned(self) -> None:
 		"""``ux"F"`` - unsigned metadata (C.2 in the gap analysis)."""
-		literal = HexadecimalBitStringLiteral("F", signed=False)
+		literal = HexadecimalBitStringLiteral("F", isSigned=False)
 
-		self.assertFalse(literal.Signed)
+		self.assertFalse(literal.IsSigned)
 		self.assertEqual("ux\"F\"", str(literal))
 
 

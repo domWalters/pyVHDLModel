@@ -311,13 +311,13 @@ class Groups(TestCase):
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
-		self.assertEqual("GenericGroup generics (1) - generics: T)", str(group))
+		self.assertEqual("GenericGroup: generics (1) - generics: T", str(group))
 
 	def test_GenericGroup_Empty(self) -> None:
 		group = GenericGroup([])
 
 		self.assertEqual(0, len(group))
-		self.assertEqual("GenericGroup None (0) - generics: )", str(group))
+		self.assertEqual("GenericGroup: None (0) - generics: ", str(group))
 
 	def test_GenericGroup_MixedItemShapes(self) -> None:
 		"""``generic (type T; G : positive := 8);`` - a single generic clause legally mixes a
@@ -327,7 +327,7 @@ class Groups(TestCase):
 		constantItem = GenericConstantInterfaceItem(["G"], Mode.In, _subtype("positive"))
 		group = GenericGroup([typeItem, constantItem])
 
-		self.assertEqual("GenericGroup None (2) - generics: T, G)", str(group))
+		self.assertEqual("GenericGroup: None (2) - generics: T, G", str(group))
 
 	def test_PortGroup(self) -> None:
 		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())
@@ -335,14 +335,14 @@ class Groups(TestCase):
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
-		self.assertEqual("PortGroup: ports (1) - ports: p)", str(group))
+		self.assertEqual("PortGroup: ports (1) - ports: p", str(group))
 
 	def test_PortGroup_MultipleIdentifiersPerItem(self) -> None:
 		"""``port (p1, p2 : in bit);`` - one declaration, two port names."""
 		item = PortSimpleSignalInterfaceItem(["p1", "p2"], Mode.In, _subtype())
 		group = PortGroup([item])
 
-		self.assertEqual("PortGroup: None (1) - ports: p1, p2)", str(group))
+		self.assertEqual("PortGroup: None (1) - ports: p1, p2", str(group))
 
 	def test_ParameterGroup(self) -> None:
 		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
@@ -350,7 +350,7 @@ class Groups(TestCase):
 
 		self.assertEqual(1, len(group))
 		self.assertEqual([item], list(group))
-		self.assertEqual("ParameterGroup parameters (1) - parameters: f)", str(group))
+		self.assertEqual("ParameterGroup: parameters (1) - parameters: f", str(group))
 
 	def test_ParameterGroup_Empty(self) -> None:
 		group = ParameterGroup([])

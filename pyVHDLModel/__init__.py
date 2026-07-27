@@ -1900,7 +1900,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				entity = library._entities[component.NormalizedIdentifier]
 			except KeyError:
 				if component.AllowBlackbox:
-					component._isBlackBox = True
+					component._isBlackbox = True
 					return
 				else:
 					raise VHDLModelException(

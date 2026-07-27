@@ -1042,12 +1042,12 @@ class GenericGroup(InterfaceGroup, WithGenericsMixin):
 		"""
 		Formats the generic group.
 
-		**Format:** ``GenericGroup myGroup (2) - generics: WIDTH, DEPTH)``
+		**Format:** ``GenericGroup: myGroup (2) - generics: WIDTH, DEPTH``
 
 		:returns: Formatted generic group.
 		"""
 		names = ", ".join(name for item in self._genericItems for name in identifiersOf(item))
-		return f"GenericGroup {self._identifier} ({len(self._genericItems)}) - generics: {names})"
+		return f"GenericGroup: {self._identifier} ({len(self._genericItems)}) - generics: {names}"
 
 
 @export
@@ -1100,12 +1100,12 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 		"""
 		Formats the port group.
 
-		**Format:** ``PortGroup: myGroup (2) - ports: clock, reset)``
+		**Format:** ``PortGroup: myGroup (2) - ports: clock, reset``
 
 		:returns: Formatted port group.
 		"""
 		names = ", ".join(name for item in self._portItems for name in identifiersOf(item))
-		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {names})"
+		return f"PortGroup: {self._identifier} ({len(self._portItems)}) - ports: {names}"
 
 
 @export
@@ -1158,9 +1158,9 @@ class ParameterGroup(InterfaceGroup, WithParametersMixin):
 		"""
 		Formats the parameter group.
 
-		**Format:** ``ParameterGroup myGroup (2) - parameters: a, b)``
+		**Format:** ``ParameterGroup: myGroup (2) - parameters: a, b``
 
 		:returns: Formatted parameter group.
 		"""
 		names = ", ".join(name for item in self._parameterItems for name in identifiersOf(item))
-		return f"ParameterGroup {self._identifier} ({len(self._parameterItems)}) - parameters: {names})"
+		return f"ParameterGroup: {self._identifier} ({len(self._parameterItems)}) - parameters: {names}"
