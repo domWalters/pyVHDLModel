@@ -341,8 +341,8 @@ class Symbols(TestCase):
 
 		self.assertTrue(symbol.IsResolved)
 		self.assertIs(entity, symbol.Entity)
-		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> Entity: 'liB.enT(%)'", repr(symbol))
-		self.assertEqual("Entity: 'liB.enT(%)'", str(symbol))
+		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> Entity: 'liB.enT(?)'", repr(symbol))
+		self.assertEqual("Entity: 'liB.enT(?)'", str(symbol))
 
 	def test_ComponentInstantiationSymbol(self) -> None:
 		symbol = ComponentInstantiationSymbol(SimpleName("comp"))

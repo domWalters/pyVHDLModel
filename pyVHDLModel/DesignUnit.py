@@ -164,6 +164,9 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	"""
 	A base-class for all design units.
 
+	When a design unit is formatted, an unknown part - a library that is not set, or an entity with no
+	known architecture - is rendered as ``?``.
+
 	.. seealso::
 
 	   * :class:`Primary design units <pyVHDLModel.DesignUnit.PrimaryUnit>`
@@ -475,11 +478,11 @@ class Context(PrimaryUnit):
 		"""
 		Formats the context declaration.
 
-		**Format:** ``Context: mylib?.myContext``
+		**Format:** ``Context: mylib.myContext``
 
 		:returns: Formatted context declaration.
 		"""
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Context: {lib}.{self._identifier}"
 
@@ -594,7 +597,7 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 
 		:returns: Formatted package declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Package: '{lib}.{self._identifier}'"
 
@@ -606,7 +609,7 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 
 		:returns: String representation of the package declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}"
 
@@ -688,11 +691,11 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		"""
 		Formats the package body declaration.
 
-		**Format:** ``Package Body: mylib?.myPackage(body)``
+		**Format:** ``Package Body: mylib.myPackage(body)``
 
 		:returns: Formatted package body declaration.
 		"""
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Package Body: {lib}.{self._identifier}(body)"
 
@@ -700,11 +703,11 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		"""
 		Formats a representation of the package body declaration.
 
-		**Format:** ``mylib?.myPackage(body)``
+		**Format:** ``mylib.myPackage(body)``
 
 		:returns: String representation of the package body declaration.
 		"""
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}(body)"
 
@@ -781,12 +784,12 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 
 		**Format:** ``Entity: 'mylib.myEntity(rtl, sim)'``
 
-		The parenthesis lists the known architectures, or ``%`` if there are none.
+		The parenthesis lists the known architectures, or ``?`` if there are none.
 
 		:returns: Formatted entity declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
-		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
+		archs = ', '.join(self._architectures.keys()) if self._architectures else "?"
 
 		return f"Entity: '{lib}.{self._identifier}({archs})'"
 
@@ -798,8 +801,8 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 
 		:returns: String representation of the entity declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
-		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
+		archs = ', '.join(self._architectures.keys()) if self._architectures else "?"
 
 		return f"{lib}.{self._identifier}({archs})"
 
@@ -883,8 +886,8 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 
 		:returns: Formatted architecture declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
-		ent = self._entity._name._identifier if self._entity is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
+		ent = self._entity._name._identifier if self._entity is not None else "?"
 
 		return f"Architecture: {lib}.{ent}({self._identifier})"
 
@@ -896,8 +899,8 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 
 		:returns: String representation of the architecture declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
-		ent = self._entity._name._identifier if self._entity is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
+		ent = self._entity._name._identifier if self._entity is not None else "?"
 
 		return f"{lib}.{ent}({self._identifier})"
 
@@ -1112,7 +1115,7 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 
 		:returns: Formatted configuration declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Configuration: {lib}.{self._identifier}"
 
@@ -1124,6 +1127,6 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 
 		:returns: String representation of the configuration declaration.
 		"""
-		lib = self._parent._identifier if self._parent is not None else "%"
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}"
