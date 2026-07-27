@@ -566,7 +566,7 @@ class RecordType(CompositeType):
 @export
 class ProtectedType(FullType):
 	"""
-	Represents a protected type declaration (VHDL-2002).
+	Represents a protected type declaration.
 
 	A protected type is a named entity (:data:`Identifier`) exposing only its methods
 	(:data:`Methods`). The implementation lives in a separate :class:`ProtectedTypeBody`.
@@ -605,7 +605,7 @@ class ProtectedType(FullType):
 @export
 class ProtectedTypeBody(FullType):
 	"""
-	Represents a protected type body (VHDL-2002).
+	Represents a protected type body.
 
 	A protected type body implements the methods (:data:`Methods`) declared by the
 	:class:`ProtectedType` of the same identifier (:data:`Identifier`).

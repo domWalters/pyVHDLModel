@@ -635,7 +635,7 @@ class InverseExpression(UnaryExpression):
 @export
 class UnaryAndExpression(UnaryExpression):
 	"""
-	Represents a ``and`` reduction expression (VHDL-2008).
+	Represents a ``and`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -653,7 +653,7 @@ class UnaryAndExpression(UnaryExpression):
 @export
 class UnaryNandExpression(UnaryExpression):
 	"""
-	Represents a ``nand`` reduction expression (VHDL-2008).
+	Represents a ``nand`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -671,7 +671,7 @@ class UnaryNandExpression(UnaryExpression):
 @export
 class UnaryOrExpression(UnaryExpression):
 	"""
-	Represents a ``or`` reduction expression (VHDL-2008).
+	Represents a ``or`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -689,7 +689,7 @@ class UnaryOrExpression(UnaryExpression):
 @export
 class UnaryNorExpression(UnaryExpression):
 	"""
-	Represents a ``nor`` reduction expression (VHDL-2008).
+	Represents a ``nor`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -707,7 +707,7 @@ class UnaryNorExpression(UnaryExpression):
 @export
 class UnaryXorExpression(UnaryExpression):
 	"""
-	Represents a ``xor`` reduction expression (VHDL-2008).
+	Represents a ``xor`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -725,7 +725,7 @@ class UnaryXorExpression(UnaryExpression):
 @export
 class UnaryXnorExpression(UnaryExpression):
 	"""
-	Represents a ``xnor`` reduction expression (VHDL-2008).
+	Represents a ``xnor`` reduction expression.
 
 	A reduction operator folds all elements of an array into a single value. The operand is available as :data:`Operand`.
 
@@ -1343,7 +1343,7 @@ class LessEqualExpression(RelationalExpression):
 @export
 class MatchingRelationalExpression(RelationalExpression):
 	"""
-	Represents the base-class of all matching relational expressions (VHDL-2008).
+	Represents the base-class of all matching relational expressions.
 
 	Matching operators return a ``bit``/``std_ulogic`` rather than a ``boolean``. Both operands are available as
 	:data:`LeftOperand` and :data:`RightOperand`.
@@ -1354,7 +1354,7 @@ class MatchingRelationalExpression(RelationalExpression):
 @export
 class MatchingEqualExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching equality expression (``?=``, VHDL-2008).
+	Represents a matching equality expression (``?=``).
 
 	Unlike ``=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
 	and :data:`RightOperand`.
@@ -1374,7 +1374,7 @@ class MatchingEqualExpression(MatchingRelationalExpression):
 @export
 class MatchingUnequalExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching inequality expression (``?/=``, VHDL-2008).
+	Represents a matching inequality expression (``?/=``).
 
 	Unlike ``/=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
 	:data:`LeftOperand` and :data:`RightOperand`.
@@ -1394,7 +1394,7 @@ class MatchingUnequalExpression(MatchingRelationalExpression):
 @export
 class MatchingGreaterThanExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching greater-than expression (``?>``, VHDL-2008).
+	Represents a matching greater-than expression (``?>``).
 
 	Unlike ``>``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
 	and :data:`RightOperand`.
@@ -1414,7 +1414,7 @@ class MatchingGreaterThanExpression(MatchingRelationalExpression):
 @export
 class MatchingGreaterEqualExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching greater-or-equal expression (``?>=``, VHDL-2008).
+	Represents a matching greater-or-equal expression (``?>=``).
 
 	Unlike ``>=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
 	:data:`LeftOperand` and :data:`RightOperand`.
@@ -1434,7 +1434,7 @@ class MatchingGreaterEqualExpression(MatchingRelationalExpression):
 @export
 class MatchingLessThanExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching less-than expression (``?<``, VHDL-2008).
+	Represents a matching less-than expression (``?<``).
 
 	Unlike ``<``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as :data:`LeftOperand`
 	and :data:`RightOperand`.
@@ -1454,7 +1454,7 @@ class MatchingLessThanExpression(MatchingRelationalExpression):
 @export
 class MatchingLessEqualExpression(MatchingRelationalExpression):
 	"""
-	Represents a matching less-or-equal expression (``?<=``, VHDL-2008).
+	Represents a matching less-or-equal expression (``?<=``).
 
 	Unlike ``<=``, a matching operator returns a ``bit``/``std_ulogic``. Both operands are available as
 	:data:`LeftOperand` and :data:`RightOperand`.
@@ -1718,7 +1718,7 @@ class TernaryExpression(BaseExpression):
 @export
 class WhenElseExpression(TernaryExpression):
 	"""
-	Represents a conditional expression (VHDL-2008).
+	Represents a conditional expression.
 
 	A conditional expression selects between two values (:data:`ThenValue`, :data:`ElseValue`) based on
 	a condition (:data:`Condition`). It is usable anywhere an expression is expected - distinct from

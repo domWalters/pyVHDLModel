@@ -272,7 +272,7 @@ class ConditionalWaveform(ModelEntity, WaveformMixin, ConditionalMixin):
 @export
 class ConditionalExpression(ModelEntity, ExpressionMixin, ConditionalMixin):
 	"""
-	One branch of a conditional (variable) assignment (VHDL-2008).
+	One branch of a conditional (variable) assignment.
 
 	.. admonition:: Example
 
