@@ -185,13 +185,19 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 @export
 class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
 	"""
-	A base-class for all mixin-classes for all interface items.
+	A mixin-class marking a declaration as an interface item.
+
+	Interface items appear in generic clauses, port clauses and parameter lists.
 	"""
 
 
 @export
 class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
-	"""An ``InterfaceItemWithMode`` is a mixin-class to provide a ``Mode`` to interface items."""
+	"""
+	A mixin-class for interface items declared with a mode.
+
+	The mode is available as :data:`Mode`.
+	"""
 
 	_mode: Mode
 
@@ -210,12 +216,16 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class GenericInterfaceItemMixin(InterfaceItemMixin, mixin=True):
-	"""A ``GenericInterfaceItem`` is a mixin class for all generic interface items."""
+	"""
+	A mixin-class for all items in a generic clause.
+	"""
 
 
 @export
 class PortInterfaceItemMixin(InterfaceItemMixin, InterfaceItemWithModeMixin, mixin=True):
-	"""A ``PortInterfaceItem`` is a mixin class for all port interface items."""
+	"""
+	A mixin-class for all items in a port clause.
+	"""
 
 	def __init__(self, mode: Mode) -> None:
 		super().__init__()
@@ -224,11 +234,25 @@ class PortInterfaceItemMixin(InterfaceItemMixin, InterfaceItemWithModeMixin, mix
 
 @export
 class ParameterInterfaceItemMixin(InterfaceItemMixin, mixin=True):
-	"""A ``ParameterInterfaceItem`` is a mixin class for all parameter interface items."""
+	"""
+	A mixin-class for all items in a subprogram's parameter list.
+	"""
 
 
 @export
 class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, InterfaceItemWithModeMixin):
+	"""
+	Represents a constant in a generic clause.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      generic (W : positive := 8);
+	      --       ^                     <- Identifiers
+	      --           ^^^^^^^^          <- Subtype
+	      --                       ^     <- DefaultExpression
+	"""
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -245,6 +269,18 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 
 @export
 class GenericTypeInterfaceItem(Type, GenericInterfaceItemMixin):
+	"""
+	Represents a type in a generic clause.
+
+	A generic type introduces a type name without defining the type.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      generic (type T);
+	      --            ^     <- Identifier
+	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
@@ -252,11 +288,25 @@ class GenericTypeInterfaceItem(Type, GenericInterfaceItemMixin):
 
 @export
 class GenericSubprogramInterfaceItem(GenericInterfaceItemMixin):
+	"""
+	Represents the base-class of subprograms in a generic clause.
+	"""
 	pass
 
 
 @export
 class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
+	"""
+	Represents a procedure in a generic clause.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      generic (procedure log(msg : string));
+	      --                 ^^^                   <- Identifier
+	      --                     ^^^^^^^^^^^^      <- ParameterItems
+	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
@@ -264,6 +314,18 @@ class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
 
 @export
 class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
+	"""
+	Represents a function in a generic clause.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      generic (function cmp(a, b : integer) return boolean);
+	      --                ^^^                                    <- Identifier
+	      --                    ^^^^^^^^^^^^^^                     <- ParameterItems
+	      --                                           ^^^^^^^     <- ReturnType
+	"""
 	def __init__(
 		self,
 		identifier:    str,
@@ -277,6 +339,11 @@ class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
 
 @export
 class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
+	"""
+	Represents a package as a generic of a design unit.
+
+	An interface package parameterises a design unit with an instantiated package.
+	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
@@ -285,6 +352,11 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
+	"""
+	Represents a package in a generic clause.
+
+	A generic package parameterises a design unit with an instantiated package.
+	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
@@ -293,21 +365,28 @@ class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
 @export
 class PortSignalInterfaceItem(Signal, InterfaceItemMixin):
 	"""
-	Abstract base-class for port signal interface items - either declared with a simple mode
-	(:class:`PortSimpleSignalInterfaceItem`) or with a mode view (:class:`PortViewSignalInterfaceItem`,
-	VHDL-2019).
+	Represents the base-class of all signals in a port clause.
+
+	A port is declared either with a simple mode (:class:`PortSimpleSignalInterfaceItem`) or with a
+	mode view (:class:`PortViewSignalInterfaceItem`).
 	"""
 
 
 @export
 class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithModeMixin):
 	"""
+	Represents a port declared with a simple mode.
+
+	The port's mode is available as :data:`Mode`, its subtype as :data:`Subtype`.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      port (p : in bit);
+	    --^                    <- Identifiers
+	    --          ^^         <- Mode
+	    --             ^^^     <- Subtype
 	"""
 
 	def __init__(
@@ -326,21 +405,27 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 @export
 class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 	"""
+	Represents a port declared with a mode view (VHDL-2019).
+
+	Instead of a mode, the port names a mode view (:data:`ModeViewIndication`) that assigns a mode to
+	each element of its record type.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      port (p : view MyView);
+	    --^                         <- Identifiers
+	    --               ^^^^^^     <- ModeViewIndication
 
-	.. note::
+	. note::
 
-	   VHDL's grammar treats a mode view indication as occupying the same structural position as an
-	   ordinary subtype indication (``mode_indication ::= simple_mode_indication | mode_view_indication``).
-	   Accordingly, the mode view reference *is* this object's :attr:`Subtype` (a :class:`Symbol` is a
-	   :class:`Symbol`, whether it names a subtype or a mode view) - :attr:`ModeViewIndication` is just a
-	   more specific, aliased name for the same value, not a separate field. An object's subtype can never
-	   be ``None`` - there is no VHDL syntax that omits it.
+	  VHDL's grammar treats a mode view indication as occupying the same structural position as an
+	  ordinary subtype indication (``mode_indication ::= simple_mode_indication | mode_view_indication``).
+	  Accordingly, the mode view reference *is* this object's :attr:`Subtype` (a :class:`Symbol` is a
+	  :class:`Symbol`, whether it names a subtype or a mode view) - :attr:`ModeViewIndication` is just a
+	  more specific, aliased name for the same value, not a separate field. An object's subtype can never
+	  be ``None`` - there is no VHDL syntax that omits it.
 	"""
 
 	def __init__(
@@ -364,6 +449,18 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 
 @export
 class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, InterfaceItemWithModeMixin):
+	"""
+	Represents a constant parameter of a subprogram.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      function fun(constant c : in integer) return integer;
+	      -- ^                                                    <- Identifiers
+	      --                        ^^                            <- Mode
+	      --                           ^^^^^^^                    <- Subtype
+	"""
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -380,6 +477,18 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 
 @export
 class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, InterfaceItemWithModeMixin):
+	"""
+	Represents a variable parameter of a subprogram.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure proc(variable v : out bit);
+	      --             ^                        <- Identifiers
+	      --                          ^^^         <- Mode
+	      --                              ^^^     <- Subtype
+	"""
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -397,21 +506,34 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 @export
 class ParameterSignalInterfaceItem(Signal, ParameterInterfaceItemMixin):
 	"""
-	Abstract base-class for subprogram signal parameters - either declared with a simple mode
-	(:class:`ParameterSimpleSignalInterfaceItem`) or with a mode view
-	(:class:`ParameterViewSignalInterfaceItem`, VHDL-2019).
-	"""
-
-
-@export
-class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, InterfaceItemWithModeMixin):
-	"""
+	Represents a signal parameter of a subprogram.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      procedure proc(signal s : in bit);
+	      --             ^                     <- Identifiers
+	      --                        ^^         <- Mode
+	      --                           ^^^     <- Subtype
+	"""
+
+
+@export
+class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, InterfaceItemWithModeMixin):
+	"""
+	Represents a signal parameter declared with a simple mode.
+
+	The parameter's mode is available as :data:`Mode`, its subtype as :data:`Subtype`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure proc(signal s : in bit);
+	      --             ^                     <- Identifiers
+	      --                        ^^         <- Mode
+	      --                           ^^^     <- Subtype
 	"""
 
 	def __init__(
@@ -431,17 +553,23 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 @export
 class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 	"""
+	Represents a signal parameter declared with a mode view (VHDL-2019).
+
+	Instead of a mode, the parameter names a mode view (:data:`ModeViewIndication`) that assigns a mode
+	to each element of its record type.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      procedure proc(signal s : view MyView);
+	      --             ^                          <- Identifiers
+	      --                             ^^^^^^     <- ModeViewIndication
 
-	.. note::
+	. note::
 
-	   See :class:`PortViewSignalInterfaceItem` for why the mode view reference *is* :attr:`Subtype`
-	   (aliased as :attr:`ModeViewIndication`), rather than a separate, possibly-``None`` field.
+	  See :class:`PortViewSignalInterfaceItem` for why the mode view reference *is* :attr:`Subtype`
+	  (aliased as :attr:`ModeViewIndication`), rather than a separate, possibly-``None`` field.
 	"""
 
 	def __init__(
@@ -466,6 +594,17 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 @export
 class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
+	"""
+	Represents a file parameter of a subprogram.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      procedure proc(file f : text_file);
+	      --             ^                      <- Identifiers
+	      --                      ^^^^^^^^^     <- Subtype
+	"""
 	def __init__(
 		self,
 		identifiers: Iterable[str],
@@ -479,6 +618,9 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 
 @export
 class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a generic clause.
+	"""
 	_genericItems: List[GenericInterfaceItemMixin]
 
 	def __init__(
@@ -512,6 +654,9 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class WithPortsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a port clause.
+	"""
 	_portItems: List[PortInterfaceItemMixin]
 
 	def __init__(
@@ -545,6 +690,9 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class WithParametersMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a parameter list.
+	"""
 	_parameterItems: List[ParameterInterfaceItemMixin]
 
 	def __init__(
@@ -578,6 +726,11 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMixin):
+	"""
+	Represents a group of interface items sharing one clause.
+
+	The group may be named (:data:`Identifier`), which is optional.
+	"""
 	def __init__(
 		self,
 		name:   Nullable[str] = None,
@@ -592,6 +745,11 @@ class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMi
 
 @export
 class GenericGroup(InterfaceGroup, WithGenericsMixin):
+	"""
+	Represents the generic clause of a design unit.
+
+	The generics are available as :data:`GenericItems`.
+	"""
 	def __init__(
 		self,
 		genericItems:  Iterable[GenericInterfaceItemMixin],
@@ -615,6 +773,11 @@ class GenericGroup(InterfaceGroup, WithGenericsMixin):
 
 @export
 class PortGroup(InterfaceGroup, WithPortsMixin):
+	"""
+	Represents the port clause of a design unit.
+
+	The ports are available as :data:`PortItems`.
+	"""
 	def __init__(
 		self,
 		portItems:     Iterable[PortInterfaceItemMixin],
@@ -638,6 +801,11 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 
 @export
 class ParameterGroup(InterfaceGroup, WithParametersMixin):
+	"""
+	Represents the parameter list of a subprogram.
+
+	The parameters are available as :data:`ParameterItems`.
+	"""
 	def __init__(
 		self,
 		parameterItems: Iterable[ParameterInterfaceItemMixin],

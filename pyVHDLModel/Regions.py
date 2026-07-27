@@ -96,6 +96,13 @@ class DeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 @export
 class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	# FIXME: define list prefix type e.g. via Union
+	"""
+	A mixin-class for concurrent declaration regions.
+
+	Entities, architectures, packages, blocks and generate bodies declare items concurrently. Beside
+	the namespace, the region keeps a lookup table per kind of declared item (:data:`Types`,
+	:data:`Signals`, :data:`Constants`, ...).
+	"""
 	_declaredItems:   List                              #: List of all declared items in this concurrent declaration region.
 
 	# _attributes:     Dict[str, Attribute]

@@ -671,6 +671,19 @@ class RangeFromName(Range):
 
 @export
 class WaveformElement(ModelEntity):
+	"""
+	Represents one element of a waveform in a signal assignment.
+
+	A waveform element assigns a value (:data:`Expression`) after an optional delay (:data:`After`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= '1' after 5 ns;
+	      --   ^^^               <- Expression
+	      --             ^^^^    <- After
+	"""
 	_expression: ExpressionUnion
 	_after: ExpressionUnion
 

@@ -363,6 +363,17 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 @export
 class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
+	"""
+	Represents a concurrent procedure call.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      proc_lbl : proc(clk, open);
+	    --^^^^^^^^                      <- Label
+	    --           ^^^^^^^^^^^^^^^    <- the call
+	"""
 	def __init__(
 		self,
 		label: str,
@@ -376,6 +387,25 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 @export
 class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
+	"""
+	Represents a block statement.
+
+	A block groups concurrent statements and may declare its own items. It can also have a port
+	clause (:data:`PortItems`), which makes it a hierarchy level of its own.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      blk : block
+	    --^^^                            <- Label
+	        port (bp : in bit);
+	      --      ^^^^^^^^^^^            <- PortItems
+	        signal inner : bit := '0';
+	      --^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
+	      begin
+	      end block;
+	"""
 	_namespace: Namespace
 
 	def __init__(
@@ -574,13 +604,9 @@ class ElseGenerateBranch(GenerateBranch, ElseBranchMixin):
 @export
 class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	"""
-	A base-class for all generate statements.
+	Represents the base-class of all generate statements.
 
-	.. seealso::
-
-	   * :class:`If...generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
-	   * :class:`Case...generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
-	   * :class:`For...generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	A generate statement replicates or conditionally elaborates concurrent statements.
 	"""
 
 	def __init__(
@@ -723,6 +749,18 @@ class ConcurrentChoice(BaseChoice):
 
 @export
 class IndexedGenerateChoice(ConcurrentChoice):
+	"""
+	Represents a case-generate choice given by a single value.
+
+	The value is available as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 8 =>
+	      --   ^      <- Expression
+	"""
 	_expression: ExpressionUnion
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
@@ -746,6 +784,18 @@ class IndexedGenerateChoice(ConcurrentChoice):
 
 @export
 class RangedGenerateChoice(ConcurrentChoice):
+	"""
+	Represents a case-generate choice given by a range.
+
+	The range is available as :data:`Range`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 0 to 3 =>
+	      --   ^^^^^^      <- Range
+	"""
 	_range: 'Range'
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
@@ -769,6 +819,9 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 @export
 class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin, ChoicesMixin):
+	"""
+	Represents the base-class of all alternatives of a case-generate statement.
+	"""
 	_namespace: Namespace
 
 	def __init__(
@@ -798,6 +851,16 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 
 @export
 class GenerateCase(ConcurrentCase):
+	"""
+	Represents one alternative of a case-generate statement, selected by its choices.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 8 =>
+	      --   ^      <- Choices
+	"""
 	def __init__(
 		self,
 		choices:          Iterable[ConcurrentChoice],
@@ -815,6 +878,18 @@ class GenerateCase(ConcurrentCase):
 
 @export
 class OthersGenerateCase(ConcurrentCase):
+	"""
+	Represents the ``others`` alternative of a case-generate statement.
+
+	It covers every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when others =>
+	      --   ^^^^^^      <- the choice
+	"""
 	def __str__(self) -> str:
 		return "when others =>"
 
@@ -978,13 +1053,7 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 @export
 class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	"""
-	A base-class for concurrent signal assignments.
-
-	.. seealso::
-
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment`
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment`
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment`
+	Represents the base-class of all concurrent signal assignments.
 	"""
 	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
@@ -993,6 +1062,17 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 
 @export
 class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin):
+	"""
+	Represents a simple concurrent signal assignment.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      q <= '1';
+	    --^           <- Target
+	    --     ^^^    <- the waveform
+	"""
 	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 		WaveformMixin.__init__(self, waveform)
@@ -1001,11 +1081,18 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 @export
 class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionMixin, SelectedWaveformsMixin):
 	"""
+	Represents a selected concurrent signal assignment.
+
+	The selector and alternatives are available as :data:`SelectExpression` and
+	:data:`SelectedWaveforms`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      with sel select s <= '1' when 0, '0' when others;
+	      --   ^^^                                            <- SelectExpression
+	      --                   ^^^^^^^^^^                     <- first alternative
 	"""
 
 	def __init__(
@@ -1024,11 +1111,17 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 @export
 class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, ConditionalWaveformsMixin):
 	"""
+	Represents a conditional concurrent signal assignment.
+
+	The branches are available as :data:`ConditionalWaveforms`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	      --   ^^^^^^^^^^^^^^                                 <- first branch
+	      --                                           ^^^    <- final branch
 	"""
 
 	def __init__(
@@ -1044,6 +1137,18 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 
 @export
 class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
+	"""
+	Represents a concurrent assertion statement.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      assert W > 0 report "w" severity note;
+	      --     ^^^^^                             <- Condition
+	      --                  ^^^                  <- Message
+	      --                               ^^^^    <- Severity
+	"""
 	def __init__(
 		self,
 		condition: ExpressionUnion,

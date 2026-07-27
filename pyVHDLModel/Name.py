@@ -134,6 +134,11 @@ class SimpleName(Name):
 
 @export
 class ParenthesisName(Name):
+	"""
+	Represents a name followed by a parenthesized association list.
+
+	Used where indexing and a function call are indistinguishable before resolution.
+	"""
 	_associations: List
 
 	def __init__(self, prefix: Name, associations: Iterable, parent: Nullable[ModelEntity] = None) -> None:
@@ -159,6 +164,16 @@ class ParenthesisName(Name):
 
 @export
 class IndexedName(Name):
+	"""
+	Represents a name indexing an array by one or more values.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      s <= v(0);
+	      --   ^^^^    <- the indexed name
+	"""
 	_indices: List[ExpressionUnion]
 
 	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: Nullable[ModelEntity] = None) -> None:
@@ -184,6 +199,16 @@ class IndexedName(Name):
 
 @export
 class SlicedName(Name):
+	"""
+	Represents a name selecting a slice of an array.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      vres := v(3 downto 0);
+	      --      ^^^^^^^^^^^^^    <- the sliced name
+	"""
 	pass
 
 
@@ -206,6 +231,16 @@ class SelectedName(Name):
 
 @export
 class AttributeName(Name):
+	"""
+	Represents a name selecting an attribute of its prefix.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      for i in v'range loop
+	      --       ^^^^^^^        <- the attribute name
+	"""
 	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, prefix, parent)
 

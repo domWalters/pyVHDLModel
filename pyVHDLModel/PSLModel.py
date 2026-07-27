@@ -40,34 +40,57 @@ from pyVHDLModel.DesignUnit import PrimaryUnit
 
 @export
 class PSLEntity(ModelEntity):
+	"""
+	Represents the base-class of all PSL entities.
+
+	PSL (Property Specification Language) support is rudimentary: verification units are recognised
+	and named, but their contents are not modelled.
+	"""
 	pass
 
 
 @export
 class PSLPrimaryUnit(PrimaryUnit):
+	"""
+	Represents the base-class of all PSL primary units.
+	"""
 	pass
 
 
 @export
 class VerificationUnit(PSLPrimaryUnit):
+	"""
+	Represents a PSL verification unit (``vunit``).
+	"""
 	def __init__(self, identifier: str) -> None:
 		super().__init__(identifier, parent=None)
 
 
 @export
 class VerificationProperty(PSLPrimaryUnit):
+	"""
+	Represents a PSL verification property (``vprop``).
+	"""
 	def __init__(self, identifier: str) -> None:
 		super().__init__(identifier, parent=None)
 
 
 @export
 class VerificationMode(PSLPrimaryUnit):
+	"""
+	Represents a PSL verification mode (``vmode``).
+	"""
 	def __init__(self, identifier: str) -> None:
 		super().__init__(identifier, parent=None)
 
 
 @export
 class DefaultClock(PSLEntity, NamedEntityMixin):
+	"""
+	Represents a PSL default clock declaration.
+
+	It names the clock expression used by PSL directives that do not state one themselves.
+	"""
 	def __init__(self, identifier: str) -> None:
 		super().__init__()
 		NamedEntityMixin.__init__(self, identifier)

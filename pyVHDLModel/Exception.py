@@ -43,21 +43,33 @@ from pyVHDLModel.Symbol   import Symbol
 
 @export
 class VHDLModelWarning(Warning):
+	"""
+	Base-class for all warnings raised by pyVHDLModel.
+	"""
 	pass
 
 
 @export
 class NotImplementedWarning(VHDLModelWarning):
+	"""
+	Raised when a language construct is recognised but not yet modelled.
+	"""
 	pass
 
 
 @export
 class VHDLModelCriticalWarning(Warning):
+	"""
+	Base-class for warnings that likely indicate a defect in the model or its input.
+	"""
 	pass
 
 
 @export
 class BlackboxWarning(VHDLModelCriticalWarning):
+	"""
+	Raised when a component could not be bound and is treated as a blackbox.
+	"""
 	pass
 
 

@@ -57,6 +57,11 @@ ExpressionUnion = Union[
 
 @export
 class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language entities that may permit blackboxes.
+
+	The setting is inherited from the parent when not set locally (:data:`AllowBlackbox`).
+	"""
 	_allowBlackbox: Nullable[bool]  #: Allow blackboxes for components in language entity.
 
 	def __init__(self, allowBlackbox: Nullable[bool] = None) -> None:
@@ -103,6 +108,12 @@ class Statement(ModelEntity, LabeledEntityMixin):
 
 @export
 class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for statements calling a procedure.
+
+	The called procedure is available as :data:`Procedure`, its actual parameters as
+	:data:`ParameterAssociationItems`.
+	"""
 	_procedure:                 Symbol  # TODO: implement a ProcedureSymbol
 	_parameterAssociationItems: List[ParameterAssociationItem]
 
@@ -247,15 +258,18 @@ class ExpressionMixin(metaclass=ExtendedType, mixin=True):
 @export
 class ConditionalWaveform(ModelEntity, WaveformMixin, ConditionalMixin):
 	"""
-	One branch of a conditional (waveform) signal assignment.
+	Represents one branch of a conditional signal assignment.
+
+	Each branch pairs a waveform (:data:`Waveform`) with a condition (:data:`Condition`). The final
+	branch has no ``when``, so its condition is ``None``.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      s <= '1' when cond else '0';
-	      --   ^^^^^^^^^^^^         <- this branch: Waveform=['1'], Condition=cond
-	      --                ^^^     <- final branch (no ``when``): Waveform=['0'], Condition=None
+	      --   ^^^^^^^^^^^^^             <- this branch: Waveform=['1'], Condition=cond
+	      --                      ^^^    <- final branch (no ``when``): Waveform=['0'], Condition=None
 	"""
 
 	def __init__(
@@ -272,15 +286,18 @@ class ConditionalWaveform(ModelEntity, WaveformMixin, ConditionalMixin):
 @export
 class ConditionalExpression(ModelEntity, ExpressionMixin, ConditionalMixin):
 	"""
-	One branch of a conditional (variable) assignment.
+	Represents one branch of a conditional variable assignment.
+
+	Each branch pairs an expression (:data:`Expression`) with a condition (:data:`Condition`). The
+	final branch has no ``when``, so its condition is ``None``.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      v := '1' when cond else '0';
-	      --   ^^^^^^^^^^^^         <- this branch: Expression='1', Condition=cond
-	      --                ^^^     <- final branch (no ``when``): Expression='0', Condition=None
+	      --   ^^^^^^^^^^^^^             <- this branch: Expression='1', Condition=cond
+	      --                      ^^^    <- final branch (no ``when``): Expression='0', Condition=None
 	"""
 
 	def __init__(
@@ -322,14 +339,17 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 @export
 class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
 	"""
-	One alternative of a selected (waveform) signal assignment.
+	Represents one alternative of a selected signal assignment.
+
+	Each alternative pairs a waveform (:data:`Waveform`) with the choices selecting it
+	(:data:`Choices`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      with sel select s <= '1' when 0, '0' when others;
-	      --                    ^^^^^^^^      <- this alternative: Choices=[0], Waveform=['1']
+	      --                   ^^^^^^^^^^                     <- this alternative: Choices=[0], Waveform=['1']
 	"""
 
 	def __init__(
@@ -345,7 +365,18 @@ class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
 
 @export
 class OthersSelectedWaveform(BaseCase, WaveformMixin):
-	"""``with sel select s <= '1' when 0, '0' when others;`` - the ``others`` alternative."""
+	"""
+	Represents the ``others`` alternative of a selected signal assignment.
+
+	It supplies the waveform (:data:`Waveform`) for every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select s <= '1' when 0, '0' when others;
+	      --                               ^^^^^^^^^^^^^^^    <- the others alternative
+	"""
 
 	def __init__(self, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -355,14 +386,17 @@ class OthersSelectedWaveform(BaseCase, WaveformMixin):
 @export
 class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
 	"""
-	One alternative of a selected (variable) assignment.
+	Represents one alternative of a selected variable assignment.
+
+	Each alternative pairs an expression (:data:`Expression`) with the choices selecting it
+	(:data:`Choices`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      with sel select v := '1' when 0, '0' when others;
-	      --                   ^^^^^^^^      <- this alternative: Choices=[0], Expression='1'
+	      --                   ^^^^^^^^^^                     <- this alternative: Choices=[0], Expression='1'
 	"""
 
 	def __init__(
@@ -378,7 +412,18 @@ class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
 
 @export
 class OthersSelectedExpression(BaseCase, ExpressionMixin):
-	"""``with sel select v := '1' when 0, '0' when others;`` - the ``others`` alternative."""
+	"""
+	Represents the ``others`` alternative of a selected variable assignment.
+
+	It supplies the expression (:data:`Expression`) for every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      with sel select v := '1' when 0, '0' when others;
+	      --                               ^^^^^^^^^^^^^^^    <- the others alternative
+	"""
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)

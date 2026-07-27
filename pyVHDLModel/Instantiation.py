@@ -49,18 +49,27 @@ from pyVHDLModel.Symbol      import PackageReferenceSymbol, SubprogramReferenceS
 
 @export
 class GenericInstantiationMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for instantiations passing generic actuals.
+	"""
 	def __init__(self) -> None:
 		pass
 
 
 @export
 class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
+	"""
+	A mixin-class for instantiations of a design entity.
+	"""
 	def __init__(self) -> None:
 		pass
 
 
 @export
 class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
+	"""
+	A mixin-class for instantiations of a generic subprogram.
+	"""
 	_subprogramReference:     SubprogramReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]
 
@@ -102,11 +111,15 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 @export
 class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
 	"""
+	Represents the instantiation of a generic procedure.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      procedure p is new q generic map (...);
+	      procedure p is new gp generic map (N => 1);
+	    --^                                             <- Identifier
+	    --                   ^^                         <- GenericProcedure
 	"""
 
 	def __init__(
@@ -128,22 +141,15 @@ class ProcedureInstantiation(Procedure, SubprogramInstantiationMixin):
 @export
 class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 	"""
+	Represents the instantiation of a generic function.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      function f is new g generic map (...);
-
-	.. note::
-
-	   Unlike an ordinary :class:`~pyVHDLModel.Subprogram.Function`, ``ReturnType`` is ``Nullable`` here:
-	   the LRM grammar never lets a subprogram instantiation write its own return type - it is always and
-	   only known by resolving the referenced uninstantiated subprogram, which requires semantic analysis
-	   this project does not perform. This is deliberately different from :class:`~pyVHDLModel.Object.Obj`
-	   (where a subtype is always present in the source, so making it ``Nullable`` would be wrong): here,
-	   a return type is *never* present in the source, so ``None`` reflects a not-yet-resolved reference,
-	   the same status as any other unresolved :attr:`~pyVHDLModel.Symbol.Symbol.Reference`, rather than a
-	   workaround.
+	      function f is new gf generic map (N => 1);
+	    --^                                            <- Identifier
+	    --                  ^^                         <- GenericFunction
 	"""
 
 	def __init__(
@@ -179,6 +185,17 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 @export
 class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
+	"""
+	Represents the instantiation of a generic package.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      package p is new gp generic map (N => 1);
+	    --^                                           <- Identifier
+	    --                 ^^                         <- PackageReference
+	"""
 	_packageReference:        PackageReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]
 
