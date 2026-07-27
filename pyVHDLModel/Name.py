@@ -45,7 +45,19 @@ from pyVHDLModel.Base import ModelEntity, ExpressionUnion
 
 @export
 class Name(ModelEntity):
-	"""``Name`` is the base-class for all *names* in the VHDL language model."""
+	"""
+	``Name`` is the base-class for all *names* in the VHDL language model.
+
+	.. seealso::
+
+	   * :class:`Attribute name <pyVHDLModel.Name.AttributeName>`
+	   * :class:`Indexed name <pyVHDLModel.Name.IndexedName>`
+	   * :class:`Open name <pyVHDLModel.Name.OpenName>`
+	   * :class:`Parenthesis name <pyVHDLModel.Name.ParenthesisName>`
+	   * :class:`Selected name <pyVHDLModel.Name.SelectedName>`
+	   * :class:`Simple name <pyVHDLModel.Name.SimpleName>`
+	   * :class:`Sliced name <pyVHDLModel.Name.SlicedName>`
+	"""
 
 	_identifier: str
 	_normalizedIdentifier: str
@@ -220,6 +232,10 @@ class SelectedName(Name):
 	For example, the library and entity name in a direct entity instantiation is a selected name. Here the entity
 	identifier is a selected name. The library identifier is a :class:`simple name <SimpleName>`, which is
 	referenced by the selected name via the :attr:`~pyVHDLModel.Name.Prefix` property.
+
+	.. seealso::
+
+	   * :class:`All name <pyVHDLModel.Name.AllName>`
 	"""
 
 	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:

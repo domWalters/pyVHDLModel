@@ -51,6 +51,12 @@ from pyVHDLModel.Symbol      import PackageReferenceSymbol, SubprogramReferenceS
 class GenericInstantiationMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for instantiations passing generic actuals.
+
+	.. seealso::
+
+	   * :class:`Generic entity instantiation mixin <pyVHDLModel.Instantiation.GenericEntityInstantiationMixin>`
+	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
+	   * :class:`Subprogram instantiation mixin <pyVHDLModel.Instantiation.SubprogramInstantiationMixin>`
 	"""
 	def __init__(self) -> None:
 		pass
@@ -69,6 +75,11 @@ class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
 class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 	"""
 	A mixin-class for instantiations of a generic subprogram.
+
+	.. seealso::
+
+	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
+	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
 	"""
 	_subprogramReference:     SubprogramReferenceSymbol
 	_genericAssociationItems: List[GenericAssociationItem]

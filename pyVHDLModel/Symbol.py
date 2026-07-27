@@ -689,6 +689,12 @@ class SubtypeSymbol(Symbol):
 	Represents the base-class of all references to a type or subtype.
 
 	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. seealso::
+
+	   * :class:`Constrained composite subtype symbol <pyVHDLModel.Symbol.ConstrainedCompositeSubtypeSymbol>`
+	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
+	   * :class:`Simple subtype symbol <pyVHDLModel.Symbol.SimpleSubtypeSymbol>`
 	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Type | PossibleReference.Subtype)
@@ -728,6 +734,12 @@ class SimpleSubtypeSymbol(SubtypeSymbol):
 class Constraint(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for symbols carrying a constraint.
+
+	.. seealso::
+
+	   * :class:`Array constraint <pyVHDLModel.Symbol.ArrayConstraint>`
+	   * :class:`Record constraint <pyVHDLModel.Symbol.RecordConstraint>`
+	   * :class:`Scalar constraint <pyVHDLModel.Symbol.ScalarConstraint>`
 	"""
 	pass
 
@@ -738,6 +750,10 @@ class ScalarConstraint(Constraint, mixin=True):
 	A mixin-class for a scalar constraint: a range.
 
 	The range is available as :data:`Constraint`.
+
+	.. seealso::
+
+	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
 	"""
 	_constraint: Nullable[Range]
 
@@ -781,6 +797,10 @@ class ArrayConstraint(Constraint, mixin=True):
 	A mixin-class for an array constraint: one range per dimension.
 
 	The ranges are available as :data:`Constraints`.
+
+	.. seealso::
+
+	   * :class:`Constrained array subtype symbol <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
 	"""
 	_constraints: List[Range]
 
@@ -803,6 +823,10 @@ class RecordConstraint(Constraint, mixin=True):
 	A mixin-class for a record constraint: one constraint per element.
 
 	The constraints are available as :data:`Constraints`.
+
+	.. seealso::
+
+	   * :class:`Constrained record subtype symbol <pyVHDLModel.Symbol.ConstrainedRecordSubtypeSymbol>`
 	"""
 	_constraints: Dict[RecordElementSymbol, Range]
 
@@ -825,6 +849,11 @@ class ConstrainedCompositeSubtypeSymbol(SubtypeSymbol):
 	Represents the base-class of references to constrained composite subtypes.
 
 	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. seealso::
+
+	   * :class:`Constrained array subtype symbol <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
+	   * :class:`Constrained record subtype symbol <pyVHDLModel.Symbol.ConstrainedRecordSubtypeSymbol>`
 	"""
 	pass
 

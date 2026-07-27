@@ -57,6 +57,14 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 
 	Objects are elements in the type and object graph, thus a reference to a vertex in that graph is stored in
 	:data:`__objectVertex`.
+
+	.. seealso::
+
+	   * :class:`Base constant <pyVHDLModel.Object.BaseConstant>`
+	   * :class:`File <pyVHDLModel.Object.File>`
+	   * :class:`Shared variable <pyVHDLModel.Object.SharedVariable>`
+	   * :class:`Signal <pyVHDLModel.Object.Signal>`
+	   * :class:`Variable <pyVHDLModel.Object.Variable>`
 	"""
 
 	_subtype:      Symbol
@@ -100,6 +108,12 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	The default expression is referenced by :data:`__defaultExpression`. If no default expression is present, this field
 	is ``None``.
+
+	.. seealso::
+
+	   * :class:`Constant <pyVHDLModel.Object.Constant>`
+	   * :class:`Signal <pyVHDLModel.Object.Signal>`
+	   * :class:`Variable <pyVHDLModel.Object.Variable>`
 	"""
 
 	_defaultExpression: Nullable[ExpressionUnion]
@@ -123,6 +137,11 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 class BaseConstant(Obj):
 	"""
 	Base-class for all constants (normal and deferred constants) in VHDL.
+
+	.. seealso::
+
+	   * :class:`Constant <pyVHDLModel.Object.Constant>`
+	   * :class:`Deferred constant <pyVHDLModel.Object.DeferredConstant>`
 	"""
 
 
@@ -138,6 +157,11 @@ class Constant(BaseConstant, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      constant BITS : positive := 8;
+
+	.. seealso::
+
+	   * :class:`Generic constant interface item <pyVHDLModel.Interface.GenericConstantInterfaceItem>`
+	   * :class:`Parameter constant interface item <pyVHDLModel.Interface.ParameterConstantInterfaceItem>`
 	"""
 
 	def __init__(
@@ -204,6 +228,10 @@ class Variable(Obj, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      variable result : natural := 0;
+
+	.. seealso::
+
+	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
 	"""
 
 	def __init__(
@@ -240,6 +268,11 @@ class Signal(Obj, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      signal counter : unsigned(7 downto 0) := '0';
+
+	.. seealso::
+
+	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
+	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
 	"""
 
 	def __init__(
@@ -260,4 +293,8 @@ class File(Obj):
 	Represents a file.
 
 	.. todo:: File object not implemented.
+
+	.. seealso::
+
+	   * :class:`Parameter file interface item <pyVHDLModel.Interface.ParameterFileInterfaceItem>`
 	"""

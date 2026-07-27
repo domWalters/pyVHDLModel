@@ -68,6 +68,11 @@ class DeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 	class calls the ones it needs from its own :meth:`IndexDeclaredItems` before delegating upwards.
 	Interface items are added to the namespace only - ``GenericItems``/``PortItems``/``ParameterItems``
 	already expose them as ordered lists, so no extra lookup table is needed.
+
+	.. seealso::
+
+	   * :class:`Concurrent declaration region mixin <pyVHDLModel.Regions.ConcurrentDeclarationRegionMixin>`
+	   * :class:`Sequential declaration region mixin <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
 	"""
 
 	def _IndexGenericItems(self) -> None:
@@ -102,6 +107,19 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	Entities, architectures, packages, blocks and generate bodies declare items concurrently. Beside
 	the namespace, the region keeps a lookup table per kind of declared item (:data:`Types`,
 	:data:`Signals`, :data:`Constants`, ...).
+
+	.. seealso::
+
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	   * :class:`Generate branch <pyVHDLModel.Concurrent.GenerateBranch>`
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
+	   * :class:`Namespace <pyVHDLModel.Namespace.Namespace>`
 	"""
 	_declaredItems:   List                              #: List of all declared items in this concurrent declaration region.
 
@@ -329,6 +347,13 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	   (:class:`ConcurrentDeclarationRegionMixin`, ``block_declarative_item``), a sequential region can
 	   declare a **variable**, but no signal, shared variable, component or mode view, and none of the
 	   specifications.
+
+	.. seealso::
+
+	   * :class:`Process statement <pyVHDLModel.Concurrent.ProcessStatement>`
+	   * :class:`Subprogram <pyVHDLModel.Subprogram.Subprogram>`
+	   * :class:`Concurrent declaration region <pyVHDLModel.Regions.ConcurrentDeclarationRegionMixin>`
+	   * :class:`Namespace <pyVHDLModel.Namespace.Namespace>`
 	"""
 
 	_declaredItems: List                          #: List of all declared items in this sequential declaration region.

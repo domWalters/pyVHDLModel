@@ -45,6 +45,10 @@ class PSLEntity(ModelEntity):
 
 	PSL (Property Specification Language) support is rudimentary: verification units are recognised
 	and named, but their contents are not modelled.
+
+	.. seealso::
+
+	   * :class:`Default clock <pyVHDLModel.PSLModel.DefaultClock>`
 	"""
 	pass
 
@@ -53,6 +57,12 @@ class PSLEntity(ModelEntity):
 class PSLPrimaryUnit(PrimaryUnit):
 	"""
 	Represents the base-class of all PSL primary units.
+
+	.. seealso::
+
+	   * :class:`Verification mode <pyVHDLModel.PSLModel.VerificationMode>`
+	   * :class:`Verification property <pyVHDLModel.PSLModel.VerificationProperty>`
+	   * :class:`Verification unit <pyVHDLModel.PSLModel.VerificationUnit>`
 	"""
 	pass
 

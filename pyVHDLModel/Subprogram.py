@@ -54,6 +54,11 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 	A subprogram is a named entity (:data:`Identifier`) with an optional generic clause
 	(:data:`GenericItems`), a parameter list (:data:`ParameterItems`), its own declarative part
 	(:data:`DeclaredItems`) and a sequence of statements (:data:`Statements`).
+
+	.. seealso::
+
+	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
+	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	"""
 	_genericItems:   List['GenericInterfaceItemMixin']
 	_parameterItems: List['ParameterInterfaceItemMixin']
@@ -168,6 +173,13 @@ class Procedure(Subprogram):
 	    --                      ^^^^^^^^^^       <- ParameterItems
 	      begin
 	      end procedure;
+
+	.. seealso::
+
+	   * :class:`Generic procedure interface item <pyVHDLModel.Interface.GenericProcedureInterfaceItem>`
+	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
+	   * :class:`Procedure method <pyVHDLModel.Subprogram.ProcedureMethod>`
+	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
 	def __init__(
 		self,
@@ -200,6 +212,13 @@ class Function(Subprogram):
 	    --                             ^^^^^^^                      <- ReturnType
 	      begin
 	      end function;
+
+	.. seealso::
+
+	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
+	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
+	   * :class:`Generic function interface item <pyVHDLModel.Interface.GenericFunctionInterfaceItem>`
+	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	"""
 	_returnType: SubtypeSymbol
 
@@ -232,7 +251,14 @@ class Function(Subprogram):
 
 @export
 class MethodMixin(metaclass=ExtendedType, mixin=True):
-	"""A ``Method`` is a mixin class for all subprograms in a protected type."""
+	"""
+	A ``Method`` is a mixin class for all subprograms in a protected type.
+
+	.. seealso::
+
+	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
+	   * :class:`Procedure method <pyVHDLModel.Subprogram.ProcedureMethod>`
+	"""
 
 	_protectedType: ProtectedType
 
@@ -257,6 +283,10 @@ class ProcedureMethod(Procedure, MethodMixin):
 	Represents a procedure declared as a method of a protected type.
 
 	The protected type is available as :data:`ProtectedType`.
+
+	.. seealso::
+
+	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
 	"""
 	def __init__(
 		self,
@@ -279,6 +309,10 @@ class FunctionMethod(Function, MethodMixin):
 	Represents a function declared as a method of a protected type.
 
 	The protected type is available as :data:`ProtectedType`.
+
+	.. seealso::
+
+	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
 	"""
 	def __init__(
 		self,

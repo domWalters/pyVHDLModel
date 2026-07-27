@@ -52,6 +52,12 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	Every type is a named entity (:data:`Identifier`, :data:`NormalizedIdentifier`) and can carry
 	documentation (:data:`Documentation`).
+
+	.. seealso::
+
+	   * :class:`Full type <pyVHDLModel.Type.FullType>`
+	   * :class:`Subtype <pyVHDLModel.Type.Subtype>`
+	   * :class:`Type <pyVHDLModel.Type.Type>`
 	"""
 
 	_objectVertex: Vertex
@@ -77,6 +83,11 @@ class Type(BaseType):
 
 	Besides real type declarations, this is also the base-class of a generic type interface item, which
 	introduces a type name without defining the type itself.
+
+	.. seealso::
+
+	   * :class:`Anonymous type <pyVHDLModel.Type.AnonymousType>`
+	   * :class:`Generic type interface item <pyVHDLModel.Interface.GenericTypeInterfaceItem>`
 	"""
 	pass
 
@@ -106,6 +117,15 @@ class FullType(BaseType):
 
 	This is the distinction the declaration regions index on: a full type is registered in ``Types``, a
 	subtype in ``Subtypes``.
+
+	.. seealso::
+
+	   * :class:`Access type <pyVHDLModel.Type.AccessType>`
+	   * :class:`Composite type <pyVHDLModel.Type.CompositeType>`
+	   * :class:`File type <pyVHDLModel.Type.FileType>`
+	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
+	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
+	   * :class:`Scalar type <pyVHDLModel.Type.ScalarType>`
 	"""
 	pass
 
@@ -142,6 +162,10 @@ class Subtype(BaseType):
 
 	      subtype wired is resolved std_ulogic;
 	      --               ^^^^^^^^              <- ResolutionFunction
+
+	.. seealso::
+
+	   * :class:`Reference to a type or subtype <pyVHDLModel.Symbol.SubtypeSymbol>`
 	"""
 	_type:               Symbol
 	_baseType:           BaseType
@@ -200,6 +224,11 @@ class Subtype(BaseType):
 class ScalarType(FullType):
 	"""
 	Represents a base-class for all scalar types: enumerated, integer, real and physical types.
+
+	.. seealso::
+
+	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
+	   * :class:`Ranged scalar type <pyVHDLModel.Type.RangedScalarType>`
 	"""
 
 
@@ -210,6 +239,12 @@ class RangedScalarType(ScalarType):
 
 	Integer, real and physical types are ranged. An enumerated type is scalar but not ranged, so it
 	derives from :class:`ScalarType` directly.
+
+	.. seealso::
+
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
+	   * :class:`Real type <pyVHDLModel.Type.RealType>`
 	"""
 
 	_range: Range
@@ -240,6 +275,12 @@ class RangedScalarType(ScalarType):
 class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for all numeric types: integer, real and physical types.
+
+	.. seealso::
+
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
+	   * :class:`Real type <pyVHDLModel.Type.RealType>`
 	"""
 
 	def __init__(self) -> None:
@@ -250,6 +291,11 @@ class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for all discrete types: enumerated and integer types.
+
+	.. seealso::
+
+	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
 	"""
 
 	def __init__(self) -> None:
@@ -409,6 +455,11 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 class CompositeType(FullType):
 	"""
 	Represents a base-class for all composite types: array and record types.
+
+	.. seealso::
+
+	   * :class:`Array type <pyVHDLModel.Type.ArrayType>`
+	   * :class:`Record type <pyVHDLModel.Type.RecordType>`
 	"""
 
 
@@ -437,6 +488,10 @@ class ArrayType(CompositeType):
 
 	      type matrix is array (natural range <>, natural range <>) of bit;
 	      --                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^      <- Dimensions
+
+	.. seealso::
+
+	   * :class:`Reference to a constrained array subtype <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
 	"""
 	_dimensions:  List[Range]
 	_elementType: Symbol
@@ -498,6 +553,10 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 	      --^^^^         <- Identifiers
 	      --       ^^^   <- Subtype
 	      end record;
+
+	.. seealso::
+
+	   * :class:`Record type <pyVHDLModel.Type.RecordType>`
 	"""
 	_subtype: Symbol
 
@@ -538,6 +597,11 @@ class RecordType(CompositeType):
 	        a, b    : bit;        -- Elements
 	        payload : bit_vector(31 downto 0);
 	      end record;
+
+	.. seealso::
+
+	   * :class:`Record element <pyVHDLModel.Type.RecordTypeElement>`
+	   * :class:`Reference to a record element <pyVHDLModel.Symbol.RecordElementSymbol>`
 	"""
 	_elements: List[RecordTypeElement]
 
@@ -580,6 +644,11 @@ class ProtectedType(FullType):
 	        procedure increment;                   -- Methods
 	        impure function value return natural;
 	      end protected;
+
+	.. seealso::
+
+	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
+	   * :class:`Method of a protected type <pyVHDLModel.Subprogram.ProcedureMethod>`
 	"""
 	_methods: List[Union['Procedure', 'Function']]
 
@@ -622,6 +691,10 @@ class ProtectedTypeBody(FullType):
 	          count := count + 1;
 	        end procedure;
 	      end protected body;
+
+	.. seealso::
+
+	   * :class:`Protected type declaration <pyVHDLModel.Type.ProtectedType>`
 	"""
 	_methods: List[Union['Procedure', 'Function']]
 

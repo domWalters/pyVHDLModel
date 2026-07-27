@@ -50,6 +50,11 @@ class PredefinedLibrary(Library):
 
 	* :class:`~pyVHDLModel.STD.Std`
 	* :class:`~pyVHDLModel.IEEE.Ieee`
+
+	.. seealso::
+
+	   * :class:`Ieee <pyVHDLModel.IEEE.Ieee>`
+	   * :class:`Std <pyVHDLModel.STD.Std>`
 	"""
 
 	def __init__(self, packages) -> None:
@@ -73,6 +78,11 @@ class PredefinedLibrary(Library):
 class PredefinedPackageMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for predefined VHDL packages and package bodies.
+
+	.. seealso::
+
+	   * :class:`Predefined package <pyVHDLModel.Predefined.PredefinedPackage>`
+	   * :class:`Predefined package body <pyVHDLModel.Predefined.PredefinedPackageBody>`
 	"""
 
 	def _AddLibraryClause(self, libraries: Iterable[str]) -> None:

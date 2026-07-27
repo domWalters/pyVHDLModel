@@ -71,6 +71,11 @@ class Namespace(Generic[K, O]):
 	Namespaces nest, so a lookup that misses locally continues in the parent namespace
 	(:data:`ParentNamespace`). That is what makes an entity's ports visible inside its architecture,
 	and lets a process variable hide an outer signal.
+
+	.. seealso::
+
+	   * :class:`Concurrent declaration region <pyVHDLModel.Regions.ConcurrentDeclarationRegionMixin>`
+	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
 	"""
 	_name:            str
 	_parentNamespace: "Namespace"

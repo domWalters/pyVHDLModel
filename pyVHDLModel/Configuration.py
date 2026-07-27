@@ -58,6 +58,12 @@ class EntityAspect(ModelEntity):
 
 	      for U1 : comp use entity work.sub(behav);
 	      --                ^^^^^^^^^^^^^^^^^^^^^^
+
+	.. seealso::
+
+	   * :class:`Entity aspect configuration <pyVHDLModel.Configuration.EntityAspectConfiguration>`
+	   * :class:`Entity aspect entity <pyVHDLModel.Configuration.EntityAspectEntity>`
+	   * :class:`Entity aspect open <pyVHDLModel.Configuration.EntityAspectOpen>`
 	"""
 
 

@@ -57,6 +57,17 @@ ExpressionUnion = Union[
 class BaseExpression(ModelEntity):
 	"""
 	Represents the base-class of all expressions.
+
+	.. seealso::
+
+	   * :class:`Aggregate <pyVHDLModel.Expression.Aggregate>`
+	   * :class:`Allocation <pyVHDLModel.Expression.Allocation>`
+	   * :class:`Binary expression <pyVHDLModel.Expression.BinaryExpression>`
+	   * :class:`Function call <pyVHDLModel.Expression.FunctionCall>`
+	   * :class:`Literal <pyVHDLModel.Expression.Literal>`
+	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
+	   * :class:`Ternary expression <pyVHDLModel.Expression.TernaryExpression>`
+	   * :class:`Unary expression <pyVHDLModel.Expression.UnaryExpression>`
 	"""
 
 
@@ -66,6 +77,15 @@ class Literal(BaseExpression):
 	Represents the base-class of all literals.
 
 	A literal is an expression denoting a value written directly in the source.
+
+	.. seealso::
+
+	   * :class:`Bit string literal <pyVHDLModel.Expression.BitStringLiteral>`
+	   * :class:`Character literal <pyVHDLModel.Expression.CharacterLiteral>`
+	   * :class:`Enumeration literal <pyVHDLModel.Expression.EnumerationLiteral>`
+	   * :class:`Null literal <pyVHDLModel.Expression.NullLiteral>`
+	   * :class:`Numeric literal <pyVHDLModel.Expression.NumericLiteral>`
+	   * :class:`String literal <pyVHDLModel.Expression.StringLiteral>`
 	"""
 
 
@@ -127,6 +147,12 @@ class NumericLiteral(Literal):
 	Represents the base-class of all numeric literals.
 
 	Integer, floating-point and physical literals are numeric.
+
+	.. seealso::
+
+	   * :class:`Floating point literal <pyVHDLModel.Expression.FloatingPointLiteral>`
+	   * :class:`Integer literal <pyVHDLModel.Expression.IntegerLiteral>`
+	   * :class:`Physical literal <pyVHDLModel.Expression.PhysicalLiteral>`
 	"""
 
 
@@ -210,6 +236,11 @@ class PhysicalLiteral(NumericLiteral):
 	      t <= 10 ns;
 	      --   ^^       <- the value
 	      --      ^^    <- UnitName
+
+	.. seealso::
+
+	   * :class:`Physical floating literal <pyVHDLModel.Expression.PhysicalFloatingLiteral>`
+	   * :class:`Physical integer literal <pyVHDLModel.Expression.PhysicalIntegerLiteral>`
 	"""
 	_unitName: str
 
@@ -388,6 +419,13 @@ class BitStringLiteral(Literal):
 
 	      vres := b"10100000";
 	      --      ^^^^^^^^^^^    <- Value
+
+	.. seealso::
+
+	   * :class:`Binary bit string literal <pyVHDLModel.Expression.BinaryBitStringLiteral>`
+	   * :class:`Decimal bit string literal <pyVHDLModel.Expression.DecimalBitStringLiteral>`
+	   * :class:`Hexadecimal bit string literal <pyVHDLModel.Expression.HexadecimalBitStringLiteral>`
+	   * :class:`Octal bit string literal <pyVHDLModel.Expression.OctalBitStringLiteral>`
 	"""
 	_value:       str
 	_binaryValue: str
@@ -535,6 +573,11 @@ class ParenthesisExpression: #(Protocol):
 	Represents the base-class of expressions wrapped in parentheses.
 
 	The operand is available as :data:`Operand`.
+
+	.. seealso::
+
+	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
+	   * :class:`Sub expression <pyVHDLModel.Expression.SubExpression>`
 	"""
 	__slots__ = ()  # FIXME: use ExtendedType?
 
@@ -821,6 +864,15 @@ class BinaryExpression(BaseExpression):
 	Represents the base-class of all binary expressions.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Adding expression <pyVHDLModel.Expression.AddingExpression>`
+	   * :class:`Logical expression <pyVHDLModel.Expression.LogicalExpression>`
+	   * :class:`Multiplying expression <pyVHDLModel.Expression.MultiplyingExpression>`
+	   * :class:`Range expression <pyVHDLModel.Expression.RangeExpression>`
+	   * :class:`Relational expression <pyVHDLModel.Expression.RelationalExpression>`
+	   * :class:`Shift expression <pyVHDLModel.Expression.ShiftExpression>`
 	"""
 
 	_FORMAT: Tuple[str, str, str]
@@ -871,6 +923,11 @@ class RangeExpression(BinaryExpression):
 
 	A range has a direction (:data:`Direction`) and two bounds. Both operands are available as :data:`LeftOperand` and
 	:data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Ascending range expression <pyVHDLModel.Expression.AscendingRangeExpression>`
+	   * :class:`Descending range expression <pyVHDLModel.Expression.DescendingRangeExpression>`
 	"""
 	_direction: Direction
 
@@ -930,6 +987,12 @@ class AddingExpression(BinaryExpression):
 	Represents the base-class of all adding expressions: ``+``, ``-`` and ``&``.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Addition expression <pyVHDLModel.Expression.AdditionExpression>`
+	   * :class:`Concatenation expression <pyVHDLModel.Expression.ConcatenationExpression>`
+	   * :class:`Subtraction expression <pyVHDLModel.Expression.SubtractionExpression>`
 	"""
 
 
@@ -996,6 +1059,14 @@ class MultiplyingExpression(BinaryExpression):
 	Represents the base-class of all multiplying expressions: ``*``, ``/``, ``rem``, ``mod`` and ``**``.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Division expression <pyVHDLModel.Expression.DivisionExpression>`
+	   * :class:`Exponentiation expression <pyVHDLModel.Expression.ExponentiationExpression>`
+	   * :class:`Modulo expression <pyVHDLModel.Expression.ModuloExpression>`
+	   * :class:`Multiply expression <pyVHDLModel.Expression.MultiplyExpression>`
+	   * :class:`Remainder expression <pyVHDLModel.Expression.RemainderExpression>`
 	"""
 
 
@@ -1100,6 +1171,15 @@ class LogicalExpression(BinaryExpression):
 	Represents the base-class of all binary logical expressions.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`And expression <pyVHDLModel.Expression.AndExpression>`
+	   * :class:`Nand expression <pyVHDLModel.Expression.NandExpression>`
+	   * :class:`Nor expression <pyVHDLModel.Expression.NorExpression>`
+	   * :class:`Or expression <pyVHDLModel.Expression.OrExpression>`
+	   * :class:`Xnor expression <pyVHDLModel.Expression.XnorExpression>`
+	   * :class:`Xor expression <pyVHDLModel.Expression.XorExpression>`
 	"""
 
 
@@ -1223,6 +1303,16 @@ class RelationalExpression(BinaryExpression):
 	Represents the base-class of all relational expressions.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Equal expression <pyVHDLModel.Expression.EqualExpression>`
+	   * :class:`Greater equal expression <pyVHDLModel.Expression.GreaterEqualExpression>`
+	   * :class:`Greater than expression <pyVHDLModel.Expression.GreaterThanExpression>`
+	   * :class:`Less equal expression <pyVHDLModel.Expression.LessEqualExpression>`
+	   * :class:`Less than expression <pyVHDLModel.Expression.LessThanExpression>`
+	   * :class:`Matching relational expression <pyVHDLModel.Expression.MatchingRelationalExpression>`
+	   * :class:`Unequal expression <pyVHDLModel.Expression.UnequalExpression>`
 	"""
 
 
@@ -1347,6 +1437,15 @@ class MatchingRelationalExpression(RelationalExpression):
 
 	Matching operators return a ``bit``/``std_ulogic`` rather than a ``boolean``. Both operands are available as
 	:data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Matching equal expression <pyVHDLModel.Expression.MatchingEqualExpression>`
+	   * :class:`Matching greater equal expression <pyVHDLModel.Expression.MatchingGreaterEqualExpression>`
+	   * :class:`Matching greater than expression <pyVHDLModel.Expression.MatchingGreaterThanExpression>`
+	   * :class:`Matching less equal expression <pyVHDLModel.Expression.MatchingLessEqualExpression>`
+	   * :class:`Matching less than expression <pyVHDLModel.Expression.MatchingLessThanExpression>`
+	   * :class:`Matching unequal expression <pyVHDLModel.Expression.MatchingUnequalExpression>`
 	"""
 	pass
 
@@ -1477,6 +1576,12 @@ class ShiftExpression(BinaryExpression):
 	Represents the base-class of all shift and rotate expressions.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Rotate expression <pyVHDLModel.Expression.RotateExpression>`
+	   * :class:`Shift arithmetic expression <pyVHDLModel.Expression.ShiftArithmeticExpression>`
+	   * :class:`Shift logic expression <pyVHDLModel.Expression.ShiftLogicExpression>`
 	"""
 
 
@@ -1486,6 +1591,11 @@ class ShiftLogicExpression(ShiftExpression):
 	Represents the base-class of the logical shift expressions ``srl`` and ``sll``.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Shift left logic expression <pyVHDLModel.Expression.ShiftLeftLogicExpression>`
+	   * :class:`Shift right logic expression <pyVHDLModel.Expression.ShiftRightLogicExpression>`
 	"""
 	pass
 
@@ -1496,6 +1606,11 @@ class ShiftArithmeticExpression(ShiftExpression):
 	Represents the base-class of the arithmetic shift expressions ``sra`` and ``sla``.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Shift left arithmetic expression <pyVHDLModel.Expression.ShiftLeftArithmeticExpression>`
+	   * :class:`Shift right arithmetic expression <pyVHDLModel.Expression.ShiftRightArithmeticExpression>`
 	"""
 	pass
 
@@ -1506,6 +1621,11 @@ class RotateExpression(ShiftExpression):
 	Represents the base-class of the rotate expressions ``ror`` and ``rol``.
 
 	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Rotate left expression <pyVHDLModel.Expression.RotateLeftExpression>`
+	   * :class:`Rotate right expression <pyVHDLModel.Expression.RotateRightExpression>`
 	"""
 	pass
 
@@ -1678,6 +1798,10 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 class TernaryExpression(BaseExpression):
 	"""
 	Represents the base-class of all ternary expressions.
+
+	.. seealso::
+
+	   * :class:`When else expression <pyVHDLModel.Expression.WhenElseExpression>`
 	"""
 
 	_FORMAT: Tuple[str, str, str, str]  # FIXME: needs ClassVar[...] when pyTooling gets fixed.
@@ -1793,6 +1917,11 @@ class FunctionCall(BaseExpression):
 class Allocation(BaseExpression):
 	"""
 	Represents the base-class of all allocations via ``new``.
+
+	.. seealso::
+
+	   * :class:`Qualified expression allocation <pyVHDLModel.Expression.QualifiedExpressionAllocation>`
+	   * :class:`Subtype allocation <pyVHDLModel.Expression.SubtypeAllocation>`
 	"""
 	pass
 
@@ -1873,6 +2002,14 @@ class AggregateElement(ModelEntity):
 	Represents the base-class of all aggregate elements.
 
 	Every element carries the value assigned to it (:data:`Expression`).
+
+	.. seealso::
+
+	   * :class:`Indexed aggregate element <pyVHDLModel.Expression.IndexedAggregateElement>`
+	   * :class:`Named aggregate element <pyVHDLModel.Expression.NamedAggregateElement>`
+	   * :class:`Others aggregate element <pyVHDLModel.Expression.OthersAggregateElement>`
+	   * :class:`Ranged aggregate element <pyVHDLModel.Expression.RangedAggregateElement>`
+	   * :class:`Simple aggregate element <pyVHDLModel.Expression.SimpleAggregateElement>`
 	"""
 
 	_expression: ExpressionUnion
