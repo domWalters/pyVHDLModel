@@ -100,7 +100,7 @@ class Ieee(PredefinedLibrary):
 	     * Library :class:`~pyVHDLModel.STD.Std`
 	"""
 
-	_flavor: IEEEFlavor
+	_flavor: IEEEFlavor  #: The flavor of the ``ieee`` library this instance provides.
 
 	def __init__(self, flavor: Nullable[IEEEFlavor] = None) -> None:
 		super().__init__(PACKAGES)

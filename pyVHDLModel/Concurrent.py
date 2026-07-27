@@ -100,9 +100,10 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 	   .. todo:: concurrent declaration region
 	"""
 
-	_statements:     List[ConcurrentStatement]
+	_statements:     List[ConcurrentStatement]  #: List of all concurrent statements in this construct.
 
-	_instantiations: Dict[str, 'Instantiation']  # TODO: add another instantiation class level for entity/configuration/component inst.
+	# TODO: add another instantiation class level for entity/configuration/component inst.
+	_instantiations: Dict[str, 'Instantiation']  #: All instantiations, indexed by label.
 	_hierarchy:      Dict[str, Union['ConcurrentBlockStatement', 'GenerateStatement']]  #: All elements creating a hierarchy level (blocks and generates), in declaration order.
 
 	def __init__(self, statements: Nullable[Iterable[ConcurrentStatement]] = None) -> None:
@@ -157,8 +158,8 @@ class Instantiation(ConcurrentStatement):
 	   * :class:`Configuration instantiation <pyVHDLModel.Concurrent.ConfigurationInstantiation>`
 	"""
 
-	_genericAssociationItems: List[AssociationItem]
-	_portAssociationItems:    List[AssociationItem]
+	_genericAssociationItems: List[AssociationItem]  #: List of all generic associations in the generic map aspect.
+	_portAssociationItems:    List[AssociationItem]  #: List of all port associations in the port map aspect.
 
 	def __init__(
 		self,
@@ -219,7 +220,7 @@ class ComponentInstantiation(Instantiation):
 	      --                 ^^^^^^^    <- Component
 	"""
 
-	_component: ComponentInstantiationSymbol
+	_component: ComponentInstantiationSymbol  #: Reference to the instantiated component.
 
 	def __init__(
 		self,
@@ -262,8 +263,8 @@ class EntityInstantiation(Instantiation):
 	      --                           ^^^     <- optional Architecture
 	"""
 
-	_entity: EntityInstantiationSymbol
-	_architecture: ArchitectureSymbol
+	_entity: EntityInstantiationSymbol  #: Reference to the directly instantiated entity.
+	_architecture: ArchitectureSymbol   #: Reference to the selected architecture, if one was given.
 
 	def __init__(
 		self,
@@ -318,7 +319,7 @@ class ConfigurationInstantiation(Instantiation):
 	      --                     ^^^^^^^    <- Configuration
 	"""
 
-	_configuration: ConfigurationInstantiationSymbol
+	_configuration: ConfigurationInstantiationSymbol  #: Reference to the instantiated configuration.
 
 	def __init__(
 		self,
@@ -366,7 +367,8 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 	        end process;
 	"""
 
-	_sensitivityList: List[Name]  # TODO: implement a SignalSymbol
+	# TODO: implement a SignalSymbol
+	_sensitivityList: List[Name]  #: List of all signal names in the sensitivity list, or ``None`` if none was given.
 
 	def __init__(
 		self,
@@ -472,7 +474,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
 	"""
-	_namespace: Namespace
+	_namespace: Namespace  #: The namespace of this block's declarative region.
 
 	def __init__(
 		self,
@@ -524,10 +526,10 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 	   * :class:`Else generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
 	"""
 
-	_alternativeLabel:           Nullable[str]
-	_normalizedAlternativeLabel: Nullable[str]
+	_alternativeLabel:           Nullable[str]  #: The branch's alternative label, if one was given.
+	_normalizedAlternativeLabel: Nullable[str]  #: The normalized (lower case) alternative label.
 
-	_namespace:                  Namespace
+	_namespace:                  Namespace      #: The namespace of this branch's declarative region.
 
 	def __init__(
 		self,
@@ -734,9 +736,9 @@ class IfGenerateStatement(GenerateStatement):
 	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
-	_ifBranch:      IfGenerateBranch
-	_elsifBranches: List[ElsifGenerateBranch]
-	_elseBranch:    Nullable[ElseGenerateBranch]
+	_ifBranch:      IfGenerateBranch              #: The mandatory ``if`` branch.
+	_elsifBranches: List[ElsifGenerateBranch]     #: List of all ``elsif`` branches, in the order they were written.
+	_elseBranch:    Nullable[ElseGenerateBranch]  #: The optional ``else`` branch, or ``None`` if none was given.
 
 	def __init__(
 		self,
@@ -850,7 +852,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 	      when 8 =>
 	      --   ^      <- Expression
 	"""
-	_expression: ExpressionUnion
+	_expression: ExpressionUnion  #: The expression this choice selects on.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -885,7 +887,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 	      when 0 to 3 =>
 	      --   ^^^^^^      <- Range
 	"""
-	_range: 'Range'
+	_range: 'Range'  #: The range this choice selects on.
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -916,7 +918,7 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 	   * :class:`Generate case <pyVHDLModel.Concurrent.GenerateCase>`
 	   * :class:`Others generate case <pyVHDLModel.Concurrent.OthersGenerateCase>`
 	"""
-	_namespace: Namespace
+	_namespace: Namespace  #: The namespace of this alternative's declarative region.
 
 	def __init__(
 		self,
@@ -1015,8 +1017,8 @@ class CaseGenerateStatement(GenerateStatement):
 	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
-	_expression: ExpressionUnion
-	_cases:      List[GenerateCase]
+	_expression: ExpressionUnion     #: The expression being tested; it must be static.
+	_cases:      List[GenerateCase]  #: List of all alternatives, in the order they were written.
 
 	def __init__(
 		self,
@@ -1099,10 +1101,10 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 	   * :class:`Case-generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
 	"""
 
-	_loopIndex: str
-	_range:     Range
+	_loopIndex: str        #: The name of the generate loop's index.
+	_range:     Range      #: The range the generate loop iterates over.
 
-	_namespace: Namespace
+	_namespace: Namespace  #: The namespace of the generate loop's declarative region.
 
 	def __init__(
 		self,

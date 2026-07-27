@@ -109,7 +109,7 @@ class LibraryExistsInDesignError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' already exists in design."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -138,7 +138,7 @@ class LibraryRegisteredToForeignDesignError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' already registered in design '{library.Parent}'."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -167,7 +167,7 @@ class LibraryNotRegisteredError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' is not registered in the design."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -196,8 +196,8 @@ class EntityExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Entity '{entity._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_entity: 'Entity'
+	_library: 'Library'  #: The library involved in this error.
+	_entity: 'Entity'    #: The entity involved in this error.
 
 	def __init__(self, entity: 'Entity', library: 'Library') -> None:
 		"""
@@ -237,9 +237,9 @@ class ArchitectureExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Architecture '{architecture._identifier}' for entity '{entity._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_entity: 'Entity'
-	_architecture: 'Architecture'
+	_library: 'Library'            #: The library involved in this error.
+	_entity: 'Entity'              #: The entity involved in this error.
+	_architecture: 'Architecture'  #: The architecture involved in this error.
 
 	def __init__(self, architecture: 'Architecture', entity: 'Entity', library: 'Library') -> None:
 		"""
@@ -290,8 +290,8 @@ class PackageExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Package '{package._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_package: 'Package'
+	_library: 'Library'  #: The library involved in this error.
+	_package: 'Package'  #: The package involved in this error.
 
 	def __init__(self, package: 'Package', library: 'Library') -> None:
 		"""
@@ -331,8 +331,8 @@ class PackageBodyExistsError(VHDLModelException):
 	Message: :pycode:`f"Package body '{packageBody._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_packageBody: 'PackageBody'
+	_library: 'Library'          #: The library involved in this error.
+	_packageBody: 'PackageBody'  #: The package body involved in this error.
 
 	def __init__(self, packageBody: 'PackageBody', library: 'Library') -> None:
 		"""
@@ -372,8 +372,8 @@ class ConfigurationExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Configuration '{configuration._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_configuration: 'Configuration'
+	_library: 'Library'              #: The library involved in this error.
+	_configuration: 'Configuration'  #: The configuration involved in this error.
 
 	def __init__(self, configuration: 'Configuration', library: 'Library') -> None:
 		"""
@@ -413,8 +413,8 @@ class ContextExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Context '{context._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_context: 'Context'
+	_library: 'Library'  #: The library involved in this error.
+	_context: 'Context'  #: The context involved in this error.
 
 	def __init__(self, context: 'Context', library: 'Library') -> None:
 		"""
@@ -454,8 +454,8 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 	Message: :pycode:`f"Library '{librarySymbol.Name._identifier}' referenced by library clause of context '{context._identifier}' doesn't exist in design."`
 	"""
 
-	_librarySymbol: Symbol
-	_context: 'Context'
+	_librarySymbol: Symbol  #: The library symbol that could not be resolved.
+	_context: 'Context'     #: The context involved in this error.
 
 	def __init__(self, context: 'Context', librarySymbol: Symbol) -> None:
 		"""

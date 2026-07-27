@@ -64,7 +64,7 @@ class Reference(ModelEntity):
 	   * :class:`Context reference <pyVHDLModel.DesignUnit.ContextReference>`
 	"""
 
-	_symbols:       List[Symbol]
+	_symbols:       List[Symbol]  #: List of all symbols referenced by this clause.
 
 	def __init__(self, symbols: Iterable[Symbol], parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -194,7 +194,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	_dependencyVertex:    Vertex[None, None, str, 'DesignUnit', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the dependency graph representing the design unit. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateDependencyGraph`.
 	_hierarchyVertex:     Vertex[None, None, str, 'DesignUnit', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: The vertex in the hierarchy graph
 
-	_namespace:           'Namespace'
+	_namespace:           'Namespace'  #: The namespace of this design unit's declarative region.
 
 	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -411,7 +411,7 @@ class Context(PrimaryUnit):
 	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
 	"""
 
-	_references:        List[ContextUnion]
+	_references:        List[ContextUnion]  #: All context items, in declaration order.
 
 	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, None, documentation, parent)
@@ -488,10 +488,10 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 	   * :class:`Package body implementing it <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
-	_packageBody:       Nullable["PackageBody"]
+	_packageBody:       Nullable["PackageBody"]      #: The corresponding package body, or ``None`` if none was analyzed.
 
-	_deferredConstants: Dict[str, DeferredConstant]
-	_components:        Dict[str, 'Component']
+	_deferredConstants: Dict[str, DeferredConstant]  #: Deferred constants, indexed by name.
+	_components:        Dict[str, 'Component']       #: Components, indexed by name.
 
 	def __init__(
 		self,
@@ -607,7 +607,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	   * :class:`Package it implements <pyVHDLModel.DesignUnit.Package>`
 	"""
 
-	_package:       PackageSymbol
+	_package:       PackageSymbol  #: Reference to the package this body implements.
 
 	def __init__(
 		self,
@@ -676,7 +676,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 	   * :class:`Configuration binding it <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
-	_architectures: Dict[str, 'Architecture']
+	_architectures: Dict[str, 'Architecture']  #: Dictionary of all architectures of this entity, indexed by name.
 
 	def __init__(
 		self,
@@ -750,7 +750,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	   * :class:`Entity it implements <pyVHDLModel.DesignUnit.Entity>`
 	"""
 
-	_entity:        EntitySymbol
+	_entity:        EntitySymbol  #: Reference to the entity this architecture implements.
 
 	def __init__(
 		self,
@@ -815,10 +815,10 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 
 	_isBlackBox:        Nullable[bool]                    #: Component is a blackbox.
 
-	_genericItems:      List[GenericInterfaceItemMixin]
-	_portItems:         List[PortInterfaceItemMixin]
+	_genericItems:      List[GenericInterfaceItemMixin]  #: List of all generics of this component, in declaration order.
+	_portItems:         List[PortInterfaceItemMixin]     #: List of all ports of this component, in declaration order.
 
-	_entity:            Nullable[Entity]
+	_entity:            Nullable[Entity]                 #: Linked entity, or ``None`` if unresolved.
 
 	def __init__(
 		self,
@@ -926,8 +926,8 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 	   * :class:`Block configuration <pyVHDLModel.Configuration.BlockConfiguration>`
 	"""
 
-	_entity:            EntitySymbol
-	_blockConfiguration: BlockConfiguration
+	_entity:            EntitySymbol         #: Reference to the entity this configuration configures.
+	_blockConfiguration: BlockConfiguration  #: The configuration of the entity's architecture.
 
 	def __init__(
 		self,

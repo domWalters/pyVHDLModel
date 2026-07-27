@@ -81,7 +81,7 @@ class SimpleModeViewElement(ModeViewElement):
 	      end view;
 	"""
 
-	_mode: Mode
+	_mode: Mode  #: The element's mode.
 
 	def __init__(self, identifiers: Iterable[str], mode: Mode, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifiers, parent)
@@ -111,7 +111,7 @@ class CompositeModeViewElement(ModeViewElement):
 	      end view;
 	"""
 
-	_modeViewName: ModeViewSymbol
+	_modeViewName: ModeViewSymbol  #: Reference to the mode view applied to this element.
 
 	def __init__(self, identifiers: Iterable[str], modeViewName: ModeViewSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifiers, parent)
@@ -150,8 +150,8 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	   * :class:`Reference to a mode view <pyVHDLModel.Symbol.ModeViewSymbol>`
 	"""
 
-	_subtype:  SubtypeSymbol
-	_elements: List[ModeViewElement]
+	_subtype:  SubtypeSymbol          #: Reference to the subtype this mode view applies to.
+	_elements: List[ModeViewElement]  #: List of all mode view elements, in declaration order.
 
 	def __init__(
 		self,
@@ -226,7 +226,7 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Parameter simple signal interface item <pyVHDLModel.Interface.ParameterSimpleSignalInterfaceItem>`
 	"""
 
-	_mode: Mode
+	_mode: Mode  #: The interface item's mode.
 
 	def __init__(self, mode: Mode) -> None:
 		self._mode = mode
@@ -684,7 +684,7 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
 	   * :class:`Generic group <pyVHDLModel.Interface.GenericGroup>`
 	"""
-	_genericItems: List[GenericInterfaceItemMixin]
+	_genericItems: List[GenericInterfaceItemMixin]  #: List of all generics, in declaration order.
 
 	def __init__(
 		self,
@@ -726,7 +726,7 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
 	   * :class:`Port group <pyVHDLModel.Interface.PortGroup>`
 	"""
-	_portItems: List[PortInterfaceItemMixin]
+	_portItems: List[PortInterfaceItemMixin]  #: List of all ports, in declaration order.
 
 	def __init__(
 		self,
@@ -766,7 +766,7 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 
 	   * :class:`Parameter group <pyVHDLModel.Interface.ParameterGroup>`
 	"""
-	_parameterItems: List[ParameterInterfaceItemMixin]
+	_parameterItems: List[ParameterInterfaceItemMixin]  #: List of all parameters, in declaration order.
 
 	def __init__(
 		self,

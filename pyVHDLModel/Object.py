@@ -67,8 +67,8 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	   * :class:`File <pyVHDLModel.Object.File>`
 	"""
 
-	_subtype:      Symbol
-	_objectVertex: Nullable[Vertex]
+	_subtype:      Symbol            #: Reference to the object's subtype.
+	_objectVertex: Nullable[Vertex]  #: The vertex representing this object in the design's object graph.
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -116,7 +116,7 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Signal <pyVHDLModel.Object.Signal>`
 	"""
 
-	_defaultExpression: Nullable[ExpressionUnion]
+	_defaultExpression: Nullable[ExpressionUnion]  #: The default value, or ``None`` if none was given.
 
 	def __init__(self, defaultExpression: Nullable[ExpressionUnion] = None) -> None:
 		self._defaultExpression = defaultExpression
@@ -190,7 +190,7 @@ class DeferredConstant(BaseConstant):
 
 	      constant BITS : positive;
 	"""
-	_constantReference: Nullable[Constant]
+	_constantReference: Nullable[Constant]  #: The full declaration, or ``None`` if unlinked.
 
 	def __init__(
 		self,

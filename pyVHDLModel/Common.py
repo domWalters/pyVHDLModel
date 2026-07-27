@@ -137,8 +137,9 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Concurrent procedure call <pyVHDLModel.Concurrent.ConcurrentProcedureCall>`
 	   * :class:`Sequential procedure call <pyVHDLModel.Sequential.SequentialProcedureCall>`
 	"""
-	_procedure:                 Symbol  # TODO: implement a ProcedureSymbol
-	_parameterAssociationItems: List[ParameterAssociationItem]
+	# TODO: implement a ProcedureSymbol
+	_procedure:                 Symbol  #: Reference to the called procedure.
+	_parameterAssociationItems: List[ParameterAssociationItem]  #: List of all parameter associations of the call.
 
 	def __init__(self, procedureName: Symbol, parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:
 		self._procedure = procedureName
@@ -183,7 +184,7 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential selected variable assignment <pyVHDLModel.Sequential.SequentialSelectedVariableAssignment>`
 	"""
 
-	_target: Symbol
+	_target: Symbol  #: Reference to the assignment's destination.
 
 	def __init__(self, target: Symbol) -> None:
 		self._target = target
@@ -235,7 +236,7 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 	"""
 
 	# FIXME: move to sequential?
-	_expression: ExpressionUnion
+	_expression: ExpressionUnion  #: The assigned expression.
 
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion) -> None:
 		super().__init__(target)
@@ -277,7 +278,7 @@ class WaveformMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Waveform element <pyVHDLModel.Base.WaveformElement>`
 	"""
 
-	_waveform: List[WaveformElement]
+	_waveform: List[WaveformElement]  #: List of all waveform elements, in the order they were written.
 
 	def __init__(self, waveform: Iterable[WaveformElement]) -> None:
 		self._waveform = []
@@ -311,7 +312,7 @@ class ExpressionMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Signal force assignment <pyVHDLModel.Sequential.SignalForceAssignment>`
 	"""
 
-	_expression: ExpressionUnion
+	_expression: ExpressionUnion  #: The expression held by this construct.
 
 	def __init__(self, expression: ExpressionUnion) -> None:
 		self._expression = expression
@@ -403,7 +404,7 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`
 	   * :class:`Conditional signal assignment <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`	"""
 
-	_conditionalWaveforms: List[ConditionalWaveform]
+	_conditionalWaveforms: List[ConditionalWaveform]  #: All alternatives, in order.
 
 	def __init__(self, conditionalWaveforms: Iterable[ConditionalWaveform]) -> None:
 		self._conditionalWaveforms = []
@@ -537,7 +538,7 @@ class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential selected signal assignment <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
 	"""
 
-	_selectedWaveforms: List[Union[SelectedWaveform, OthersSelectedWaveform]]
+	_selectedWaveforms: List[Union[SelectedWaveform, OthersSelectedWaveform]]  #: All alternatives, in order.
 
 	def __init__(self, selectedWaveforms: Iterable[Union[SelectedWaveform, OthersSelectedWaveform]]) -> None:
 		self._selectedWaveforms = []
@@ -566,7 +567,7 @@ class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential selected variable assignment <pyVHDLModel.Sequential.SequentialSelectedVariableAssignment>`
 	"""
 
-	_selectedExpressions: List[Union[SelectedExpression, OthersSelectedExpression]]
+	_selectedExpressions: List[Union[SelectedExpression, OthersSelectedExpression]]  #: All alternatives, in order.
 
 	def __init__(self, selectedExpressions: Iterable[Union[SelectedExpression, OthersSelectedExpression]]) -> None:
 		self._selectedExpressions = []

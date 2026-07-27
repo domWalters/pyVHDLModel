@@ -81,8 +81,8 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
 	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
 	"""
-	_subprogramReference:     SubprogramReferenceSymbol
-	_genericAssociationItems: List[GenericAssociationItem]
+	_subprogramReference:     SubprogramReferenceSymbol     #: Reference to the instantiated generic subprogram.
+	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
 
 	def __init__(
 		self,
@@ -207,8 +207,8 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 	      --      ^                                   <- Identifier
 	      --               ^^                         <- PackageReference
 	"""
-	_packageReference:        PackageReferenceSymbol
-	_genericAssociationItems: List[GenericAssociationItem]
+	_packageReference:        PackageReferenceSymbol        #: Reference to the instantiated generic package.
+	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
 
 	def __init__(
 		self,

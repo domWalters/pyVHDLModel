@@ -81,8 +81,8 @@ class EntityAspectEntity(EntityAspect):
 	      --                     ^^^     <- Architecture
 	"""
 
-	_entity:       EntitySymbol
-	_architecture: Nullable[ArchitectureSymbol]
+	_entity:       EntitySymbol                  #: Reference to the named entity.
+	_architecture: Nullable[ArchitectureSymbol]  #: Reference to the selected architecture, or ``None`` if none was given.
 
 	def __init__(
 		self,
@@ -131,7 +131,7 @@ class EntityAspectConfiguration(EntityAspect):
 	      --                ^^^^^^^^    <- Configuration
 	"""
 
-	_configuration: ConfigurationSymbol
+	_configuration: ConfigurationSymbol  #: Reference to the named configuration.
 
 	def __init__(self, configuration: ConfigurationSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -172,9 +172,9 @@ class BindingIndication(ModelEntity):
 	(:data:`GenericAssociations`, :data:`PortAssociations`).
 	"""
 
-	_entityAspect:            Nullable[EntityAspect]
-	_genericAssociationItems: List[GenericAssociationItem]
-	_portAssociationItems:    List[PortAssociationItem]
+	_entityAspect:            Nullable[EntityAspect]        #: The bound design entity, or ``None`` if not given.
+	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
+	_portAssociationItems:    List[PortAssociationItem]     #: List of all port associations in the port map aspect.
 
 	def __init__(
 		self,
@@ -276,9 +276,9 @@ class ComponentConfiguration(ModelEntity):
 	      --  Instantiation list
 	"""
 
-	_instantiationList:  InstantiationListUnion
-	_componentName:      ComponentInstantiationSymbol
-	_bindingIndication:   Nullable[BindingIndication]
+	_instantiationList:  InstantiationListUnion        #: The instances this configuration applies to.
+	_componentName:      ComponentInstantiationSymbol  #: Reference to the component being configured.
+	_bindingIndication:   Nullable[BindingIndication]  #: The binding indication, or ``None`` if none was given.
 
 	def __init__(
 		self,
@@ -348,8 +348,8 @@ class BlockConfiguration(ModelEntity):
 	      end for;
 	"""
 
-	_blockSpecification: Symbol
-	_items:               List[Union["BlockConfiguration", ComponentConfiguration]]
+	_blockSpecification: Symbol                                                      #: The configured block.
+	_items:               List[Union["BlockConfiguration", ComponentConfiguration]]  #: Nested configurations.
 
 	def __init__(
 		self,

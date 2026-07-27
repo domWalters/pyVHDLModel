@@ -60,7 +60,7 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	   * :class:`Subtype <pyVHDLModel.Type.Subtype>`
 	"""
 
-	_objectVertex: Vertex
+	_objectVertex: Vertex  #: The vertex representing this type in the design's object graph.
 
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -172,10 +172,10 @@ class Subtype(BaseType):
 
 	   * :class:`Reference to a type or subtype <pyVHDLModel.Symbol.SubtypeSymbol>`
 	"""
-	_type:               Symbol
-	_baseType:           BaseType
-	_range:              Range
-	_resolutionFunction: 'Function'
+	_type:               Symbol      #: Reference to the type or subtype this subtype is derived from.
+	_baseType:           BaseType    #: The resolved base type of this subtype.
+	_range:              Range       #: The constraint narrowing the base type, or ``None`` if unconstrained.
+	_resolutionFunction: 'Function'  #: The resolution function, or ``None`` if the subtype is unresolved.
 
 	def __init__(self, identifier: str, symbol: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -252,7 +252,7 @@ class RangedScalarType(ScalarType):
 	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
 	"""
 
-	_range: Range
+	_range: Range  #: The range constraining this scalar type.
 
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -323,7 +323,7 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 	      --   ^^^^^                             <- Identifier
 	      --             ^^^^^^^^^^^^^^^^^^^     <- Literals
 	"""
-	_literals: List[EnumerationLiteral]
+	_literals: List[EnumerationLiteral]  #: List of all enumeration literals, in declaration order.
 
 	def __init__(self, identifier: str, literals: Iterable[EnumerationLiteral], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -417,8 +417,8 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 	      --^^^^^^^^^^^^^                             <- SecondaryUnits[1]
 	      end units;
 	"""
-	_primaryUnit:    str
-	_secondaryUnits: List[Tuple[str, PhysicalIntegerLiteral]]
+	_primaryUnit:    str                                       #: The name of the type's primary unit.
+	_secondaryUnits: List[Tuple[str, PhysicalIntegerLiteral]]  #: Secondary units as (name, value) pairs.
 
 	def __init__(
 		self,
@@ -502,8 +502,8 @@ class ArrayType(CompositeType):
 
 	   * :class:`Reference to a constrained array subtype <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
 	"""
-	_dimensions:  List[Range]
-	_elementType: Symbol
+	_dimensions:  List[Range]  #: List of all index ranges, one per dimension.
+	_elementType: Symbol       #: Reference to the subtype of the array's elements.
 
 	def __init__(
 		self,
@@ -567,7 +567,7 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 
 	   * :class:`Record type <pyVHDLModel.Type.RecordType>`
 	"""
-	_subtype: Symbol
+	_subtype: Symbol  #: Reference to the subtype shared by all identifiers of this element declaration.
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -615,7 +615,7 @@ class RecordType(CompositeType):
 	   * :class:`Record element <pyVHDLModel.Type.RecordTypeElement>`
 	   * :class:`Reference to a record element <pyVHDLModel.Symbol.RecordElementSymbol>`
 	"""
-	_elements: List[RecordTypeElement]
+	_elements: List[RecordTypeElement]  #: List of all element declarations, in declaration order.
 
 	def __init__(self, identifier: str, elements: Nullable[Iterable[RecordTypeElement]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -666,7 +666,7 @@ class ProtectedType(FullType):
 	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
 	   * :class:`Method of a protected type <pyVHDLModel.Subprogram.ProcedureMethod>`
 	"""
-	_methods: List[Union['Procedure', 'Function']]
+	_methods: List[Union['Procedure', 'Function']]  #: All methods, in declaration order.
 
 	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -719,7 +719,7 @@ class ProtectedTypeBody(FullType):
 
 	   * :class:`Protected type declaration <pyVHDLModel.Type.ProtectedType>`
 	"""
-	_methods: List[Union['Procedure', 'Function']]
+	_methods: List[Union['Procedure', 'Function']]  #: All declared items; see the class docs on the conflation.
 
 	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -757,7 +757,7 @@ class AccessType(FullType):
 	      --   ^^^                      <- Identifier
 	      --                 ^^^^^^^    <- DesignatedSubtype
 	"""
-	_designatedSubtype: Symbol
+	_designatedSubtype: Symbol  #: Reference to the subtype the access values designate.
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
@@ -794,7 +794,7 @@ class FileType(FullType):
 	      --   ^^^^^^^^^                      <- Identifier
 	      --                        ^^^^^^    <- DesignatedSubtype
 	"""
-	_designatedSubtype: Symbol
+	_designatedSubtype: Symbol  #: Reference to the subtype of the values stored in the file.
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, documentation, parent)
