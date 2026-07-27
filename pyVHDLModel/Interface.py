@@ -62,6 +62,12 @@ class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
 	"""
 
 	def __init__(self, identifiers: Iterable[str], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a mode view element.
+
+		:param identifiers: A list of identifiers.
+		:param parent:      The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 
@@ -84,6 +90,13 @@ class SimpleModeViewElement(ModeViewElement):
 	_mode: Mode  #: The element's mode.
 
 	def __init__(self, identifiers: Iterable[str], mode: Mode, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a simple mode view element.
+
+		:param identifiers: A list of identifiers.
+		:param mode:        The element's mode.
+		:param parent:      The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, parent)
 		self._mode = mode
 
@@ -114,6 +127,13 @@ class CompositeModeViewElement(ModeViewElement):
 	_modeViewName: ModeViewSymbol  #: Reference to the mode view applied to this element.
 
 	def __init__(self, identifiers: Iterable[str], modeViewName: ModeViewSymbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a composite mode view element.
+
+		:param identifiers:  A list of identifiers.
+		:param modeViewName: Reference to the mode view applied to this element.
+		:param parent:       The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, parent)
 
 		self._modeViewName = modeViewName
@@ -161,6 +181,15 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		documentation: Nullable[str] =                        None,
 		parent:        Nullable[ModelEntity] =                None
 	) -> None:
+		"""
+		Initializes a mode view declaration (VHDL-2019).
+
+		:param identifier:    The identifier of a model entity.
+		:param subtype:       Reference to the subtype this mode view applies to.
+		:param elements:      List of all mode view elements, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -229,6 +258,11 @@ class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
 	_mode: Mode  #: The interface item's mode.
 
 	def __init__(self, mode: Mode) -> None:
+		"""
+		Initializes an interface item with mode.
+
+		:param mode: The interface item's mode.
+		"""
 		self._mode = mode
 
 	@readonly
@@ -264,6 +298,11 @@ class PortInterfaceItemMixin(InterfaceItemMixin, InterfaceItemWithModeMixin, mix
 	"""
 
 	def __init__(self, mode: Mode) -> None:
+		"""
+		Initializes a port interface item.
+
+		:param mode: The interface item's mode.
+		"""
 		super().__init__()
 		InterfaceItemWithModeMixin.__init__(self, mode)
 
@@ -305,6 +344,16 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a constant in a generic clause.
+
+		:param identifiers:       A list of identifiers.
+		:param mode:              The interface item's mode.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
@@ -325,6 +374,13 @@ class GenericTypeInterfaceItem(Type, GenericInterfaceItemMixin):
 	      --            ^     <- Identifier
 	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a type in a generic clause.
+
+		:param identifier:    The identifier of a model entity.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -351,6 +407,13 @@ class GenericProcedureInterfaceItem(Procedure, GenericInterfaceItemMixin):
 	      --                     ^^^^^^^^^^^^      <- ParameterItems
 	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a procedure in a generic clause.
+
+		:param identifier:    The identifier of a model entity.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -376,6 +439,14 @@ class GenericFunctionInterfaceItem(Function, GenericInterfaceItemMixin):
 		documentation: Nullable[str] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a function in a generic clause.
+
+		:param identifier:    The identifier of a model entity.
+		:param returnType:    Reference to the subtype of the function's return value.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, returnType, documentation=documentation, parent=parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -392,6 +463,13 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	   * :class:`Generic package interface item <pyVHDLModel.Interface.GenericPackageInterfaceItem>`
 	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a package as a generic of a design unit.
+
+		:param identifier:    The identifier of a model entity.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -405,6 +483,13 @@ class GenericPackageInterfaceItem(InterfacePackage, GenericInterfaceItemMixin):
 	A generic package parameterises a design unit with an instantiated package.
 	"""
 	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a package in a generic clause.
+
+		:param identifier:    The identifier of a model entity.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 
@@ -454,6 +539,16 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a port declared with a simple mode.
+
+		:param identifiers:       A list of identifiers.
+		:param mode:              The interface item's mode.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		InterfaceItemWithModeMixin.__init__(self, mode)
 
@@ -487,6 +582,14 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a port declared with a mode view (VHDL-2019).
+
+		:param identifiers:        A list of identifiers.
+		:param modeViewIndication: Reference to the mode view applied to this port.
+		:param documentation:      The documentation comment associated with this declaration.
+		:param parent:             The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, modeViewIndication, None, documentation, parent)
 
 	@readonly
@@ -522,6 +625,16 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a constant parameter of a subprogram.
+
+		:param identifiers:       A list of identifiers.
+		:param mode:              The interface item's mode.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
@@ -550,6 +663,16 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a variable parameter of a subprogram.
+
+		:param identifiers:       A list of identifiers.
+		:param mode:              The interface item's mode.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
@@ -602,6 +725,16 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a signal parameter declared with a simple mode.
+
+		:param identifiers:       A list of identifiers.
+		:param mode:              The interface item's mode.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
@@ -636,6 +769,14 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a signal parameter declared with a mode view (VHDL-2019).
+
+		:param identifiers:        A list of identifiers.
+		:param modeViewIndication: Reference to the mode view applied to this parameter.
+		:param documentation:      The documentation comment associated with this declaration.
+		:param parent:             The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, modeViewIndication, None, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 
@@ -669,6 +810,14 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a file parameter of a subprogram.
+
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the object's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 
@@ -690,6 +839,11 @@ class WithGenericsMixin(metaclass=ExtendedType, mixin=True):
 		self,
 		genericItems: Nullable[Iterable[GenericInterfaceItemMixin]] = None,
  	) -> None:
+		"""
+		Initializes a language construct with a generic clause.
+
+		:param genericItems: List of all generics, in declaration order.
+		"""
 		self._genericItems = []
 		if genericItems is not None:
 			for item in genericItems:
@@ -732,6 +886,11 @@ class WithPortsMixin(metaclass=ExtendedType, mixin=True):
 		self,
 		portItems: Nullable[Iterable[PortInterfaceItemMixin]] = None,
 	) -> None:
+		"""
+		Initializes a language construct with a port clause.
+
+		:param portItems: List of all ports, in declaration order.
+		"""
 		self._portItems = []
 		if portItems is not None:
 			for item in portItems:
@@ -772,6 +931,11 @@ class WithParametersMixin(metaclass=ExtendedType, mixin=True):
 		self,
 		parameterItems: Nullable[Iterable[ParameterInterfaceItemMixin]] = None,
 	) -> None:
+		"""
+		Initializes a language construct with a parameter list.
+
+		:param parameterItems: List of all parameters, in declaration order.
+		"""
 		self._parameterItems = []
 		if parameterItems is not None:
 			for item in parameterItems:
@@ -816,7 +980,13 @@ class InterfaceGroup(ModelEntity, OptionallyNamedEntityMixin, DocumentedEntityMi
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
-		"""Initialize a PortGroup with a list of ports and optional name."""
+		"""
+		Initializes a group of interface items sharing one clause.
+
+		:param name:          The group's name.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		OptionallyNamedEntityMixin.__init__(self, name)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -841,6 +1011,14 @@ class GenericGroup(InterfaceGroup, WithGenericsMixin):
 		documentation: Nullable[str] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a generic group.
+
+		:param genericItems:  List of all generics, in declaration order.
+		:param name:          The group's name.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(name, documentation, parent)
 		WithGenericsMixin.__init__(self, genericItems)
 
@@ -874,6 +1052,14 @@ class PortGroup(InterfaceGroup, WithPortsMixin):
 		documentation: Nullable[str] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a port group.
+
+		:param portItems:     List of all ports, in declaration order.
+		:param name:          The group's name.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(name, documentation, parent)
 		WithPortsMixin.__init__(self, portItems)
 
@@ -907,6 +1093,14 @@ class ParameterGroup(InterfaceGroup, WithParametersMixin):
 		documentation:  Nullable[str] = None,
 		parent:         Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a parameter group.
+
+		:param parameterItems: List of all parameters, in declaration order.
+		:param name:           The group's name.
+		:param documentation:  The documentation comment associated with this declaration.
+		:param parent:         The parent model entity of this entity.
+		"""
 		super().__init__(name, documentation, parent)
 		WithParametersMixin.__init__(self, parameterItems)
 

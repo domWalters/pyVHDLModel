@@ -66,6 +66,13 @@ class Name(ModelEntity):
 	_prefix: Nullable['Name']   #: Reference to the name's prefix, or ``None`` for a simple name.
 
 	def __init__(self, identifier: str, prefix: Nullable["Name"] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a name.
+
+		:param identifier: The name's identifier.
+		:param prefix:     Reference to the name's prefix, or ``None`` for a simple name.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._identifier = identifier
@@ -155,6 +162,13 @@ class ParenthesisName(Name):
 	_associations: List  #: List of all associations in the parenthesis.
 
 	def __init__(self, prefix: Name, associations: Iterable, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a name followed by a parenthesized association list.
+
+		:param prefix:       Reference to the name's prefix, or ``None`` for a simple name.
+		:param associations: List of all associations in the parenthesis.
+		:param parent:       The parent model entity of this entity.
+		"""
 		super().__init__("", prefix, parent)
 
 		self._associations = []
@@ -190,6 +204,13 @@ class IndexedName(Name):
 	_indices: List[ExpressionUnion]  #: List of all index expressions, one per dimension.
 
 	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a name indexing an array by one or more values.
+
+		:param prefix:  Reference to the name's prefix, or ``None`` for a simple name.
+		:param indices: List of all index expressions, one per dimension.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__("", prefix, parent)
 
 		self._indices = []
@@ -240,6 +261,13 @@ class SelectedName(Name):
 	"""
 
 	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a selected name.
+
+		:param identifier: The name's identifier.
+		:param prefix:     Reference to the name's prefix, or ``None`` for a simple name.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
@@ -259,6 +287,13 @@ class AttributeName(Name):
 	      --       ^^^^^^^        <- the attribute name
 	"""
 	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a name selecting an attribute of its prefix.
+
+		:param identifier: The name's identifier.
+		:param prefix:     Reference to the name's prefix, or ``None`` for a simple name.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
@@ -273,6 +308,12 @@ class AllName(SelectedName):
 	Most likely this name is used in use-statements.
 	"""
 	def __init__(self, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an ``all`` name.
+
+		:param prefix: Reference to the name's prefix, or ``None`` for a simple name.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__("all", prefix, parent)  # TODO: the case of 'ALL' is not preserved
 
 
@@ -284,6 +325,11 @@ class OpenName(Name):
 	Most likely this name is used in port associations.
 	"""
 	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an ``open`` name.
+
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__("open", parent=parent)  # TODO: the case of 'OPEN' is not preserved
 
 	def __str__(self) -> str:

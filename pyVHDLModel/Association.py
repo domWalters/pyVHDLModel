@@ -69,6 +69,12 @@ class AssociationItem(ModelEntity):
 	_actual: ExpressionUnion   #: The actual part of this association.
 
 	def __init__(self, formal: Nullable[Symbol], actual: ExpressionUnion) -> None:
+		"""
+		Initializes an association item.
+
+		:param formal: Reference to the formal part, or ``None`` for a positional association.
+		:param actual: The actual part of this association.
+		"""
 		super().__init__()
 
 		self._formal = formal

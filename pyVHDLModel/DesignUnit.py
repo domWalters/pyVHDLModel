@@ -414,6 +414,15 @@ class Context(PrimaryUnit):
 	_references:        List[ContextUnion]  #: All context items, in declaration order.
 
 	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a context declaration.
+
+		:param identifier:           The identifier of a model entity.
+		:param references:           All context items, in declaration order.
+		:param documentation:        The documentation comment associated with this declaration.
+		:param parent:               The parent model entity of this entity.
+		:raises VHDLModelException: If a context item is neither a library clause, use clause, nor context reference.
+		"""
 		super().__init__(identifier, None, documentation, parent)
 
 		self._references = []
@@ -617,6 +626,15 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a package body declaration.
+
+		:param packageSymbol: Reference to the package this body implements.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(packageSymbol.Name.Identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -690,6 +708,19 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an entity declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param genericItems:  List of all generics, in declaration order.
+		:param portItems:     List of all ports, in declaration order.
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		WithGenericsMixin.__init__(self, genericItems)
@@ -763,6 +794,18 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an architecture declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param entity:        Reference to the entity this architecture implements.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -797,7 +840,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 @export
 class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	"""
-	Represents a configuration declaration.
+	Represents a component declaration.
 
 	.. admonition:: Example
 
@@ -829,6 +872,16 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a component declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param genericItems:  List of all generics of this component, in declaration order.
+		:param portItems:     List of all ports of this component, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -938,6 +991,16 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a configuration declaration.
+
+		:param identifier:         The identifier of a model entity.
+		:param entity:             Reference to the entity this configuration configures.
+		:param blockConfiguration: The configuration of the entity's architecture.
+		:param contextItems:       List of all context items (library, use and context clauses).
+		:param documentation:      The documentation comment associated with this declaration.
+		:param parent:             The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 

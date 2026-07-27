@@ -79,6 +79,11 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None) -> None:
 		# TODO: extract to mixin
+		"""
+		Initializes sequential statements.
+
+		:param statements: List of all sequential statements in this construct.
+		"""
 		self._statements = []
 		if statements is not None:
 			for item in statements:
@@ -121,6 +126,14 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a procedure call as a sequential statement.
+
+		:param procedureName:             Reference to the called procedure.
+		:param parameterAssociationItems: List of all parameter associations of the call.
+		:param label:                     The label of a model entity.
+		:param parent:                    The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		ProcedureCallMixin.__init__(self, procedureName, parameterAssociationItems)
 
@@ -135,6 +148,13 @@ class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
 	   * :class:`Sequential simple signal assignment <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
 	"""
 	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a sequential signal assignment.
+
+		:param target: Reference to the assignment's destination.
+		:param label:  The label of a model entity.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -160,6 +180,14 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin
 	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
 	"""
 	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a simple sequential signal assignment.
+
+		:param target:   Reference to the assignment's destination.
+		:param waveform: List of all waveform elements, in the order they were written.
+		:param label:    The label of a model entity.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(target, label, parent)
 		WaveformMixin.__init__(self, waveform)
 
@@ -181,6 +209,14 @@ class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin)
 	      --           ^^^    <- Expression
 	"""
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a simple sequential variable assignment.
+
+		:param target:     Reference to the assignment's destination.
+		:param expression: The assigned expression.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
 
@@ -218,6 +254,14 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a conditional sequential variable assignment.
+
+		:param target:                 Reference to the assignment's destination.
+		:param conditionalExpressions: List of all alternatives, in the order they were written.
+		:param label:                  The label of a model entity.
+		:param parent:                 The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		AssignmentMixin.__init__(self, target)
 
@@ -268,6 +312,14 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a conditional sequential signal assignment.
+
+		:param target:               Reference to the assignment's destination.
+		:param conditionalWaveforms: All alternatives, in order.
+		:param label:                The label of a model entity.
+		:param parent:               The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 		ConditionalWaveformsMixin.__init__(self, conditionalWaveforms)
@@ -306,6 +358,15 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin,
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a selected sequential variable assignment.
+
+		:param target:              Reference to the assignment's destination.
+		:param expression:          The selector expression.
+		:param selectedExpressions: All alternatives, in order.
+		:param label:               The label of a model entity.
+		:param parent:              The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		AssignmentMixin.__init__(self, target)
 		ExpressionMixin.__init__(self, expression)
@@ -346,6 +407,15 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a selected sequential signal assignment.
+
+		:param target:            Reference to the assignment's destination.
+		:param expression:        The selector expression.
+		:param selectedWaveforms: All alternatives, in order.
+		:param label:             The label of a model entity.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 		ExpressionMixin.__init__(self, expression)
@@ -376,6 +446,14 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, Expressi
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a signal force assignment.
+
+		:param target:     Reference to the assignment's destination.
+		:param expression: The value forced onto the signal.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 		ExpressionMixin.__init__(self, expression)
@@ -398,6 +476,13 @@ class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
 	"""
 
 	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a signal release assignment.
+
+		:param target: Reference to the assignment's destination.
+		:param label:  The label of a model entity.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
 
@@ -419,6 +504,14 @@ class SequentialReportStatement(SequentialStatement, ReportStatementMixin):
 	      --                                ^^^^    <- optional Severity
 	"""
 	def __init__(self, message: ExpressionUnion, severity: Nullable[ExpressionUnion] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a sequential report statement.
+
+		:param message:  The reported message, or ``None`` if none was given.
+		:param severity: The reported severity level, or ``None`` if none was given.
+		:param label:    The label of a model entity.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		ReportStatementMixin.__init__(self, message, severity)
 
@@ -453,6 +546,15 @@ class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a sequential assertion statement.
+
+		:param condition: The condition guarding this statement.
+		:param message:   The reported message, or ``None`` if none was given.
+		:param severity:  The reported severity level, or ``None`` if none was given.
+		:param label:     The label of a model entity.
+		:param parent:    The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		AssertStatementMixin.__init__(self, condition, message, severity)
 
@@ -485,6 +587,12 @@ class Branch(ModelEntity, SequentialStatementsMixin):
 	"""
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a branch.
+
+		:param statements: List of all sequential statements in this construct.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
 
@@ -513,6 +621,13 @@ class IfBranch(Branch, IfBranchMixin):
 	      end if;
 	"""
 	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an if branch.
+
+		:param condition:  The condition guarding this statement.
+		:param statements: List of all sequential statements in this construct.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, parent)
 		IfBranchMixin.__init__(self, condition)
 
@@ -542,6 +657,13 @@ class ElsifBranch(Branch, ElsifBranchMixin):
 	      end if;
 	"""
 	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an ``elsif`` branch of an if statement.
+
+		:param condition:  The condition guarding this statement.
+		:param statements: List of all sequential statements in this construct.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, parent)
 		ElsifBranchMixin.__init__(self, condition)
 
@@ -570,6 +692,12 @@ class ElseBranch(Branch, ElseBranchMixin):
 	      end if;
 	"""
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an else branch.
+
+		:param statements: List of all sequential statements in this construct.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, parent)
 		ElseBranchMixin.__init__(self)
 
@@ -625,6 +753,15 @@ class IfStatement(CompoundStatement):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an if statement.
+
+		:param ifBranch:      The mandatory ``if`` branch.
+		:param elsifBranches: List of all ``elsif`` branches, in the order they were written.
+		:param elseBranch:    The optional ``else`` branch, or ``None`` if none was given.
+		:param label:         The label of a model entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 
 		self._ifBranch = ifBranch
@@ -699,6 +836,12 @@ class IndexedChoice(SequentialChoice):
 	_expression: ExpressionUnion  #: The expression this choice selects on.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a case choice given by a single value.
+
+		:param expression: The expression this choice selects on.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._expression = expression
@@ -734,6 +877,12 @@ class RangedChoice(SequentialChoice):
 	_range: 'Range'  #: The range this choice selects on.
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a case choice given by a range.
+
+		:param rng:    The range this choice selects on.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._range = rng
@@ -768,6 +917,13 @@ class SequentialCase(BaseCase, SequentialStatementsMixin, ChoicesMixin):
 		choices: Nullable[Iterable[BaseChoice]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a sequential case.
+
+		:param statements: List of all sequential statements in this construct.
+		:param choices:    List of all choices selecting this alternative.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		SequentialStatementsMixin.__init__(self, statements)
 		ChoicesMixin.__init__(self, choices)
@@ -787,6 +943,13 @@ class Case(SequentialCase):
 	      --             ^^^^^^^^^   <- the statements
 	"""
 	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a case.
+
+		:param choices:    List of all choices selecting this alternative.
+		:param statements: List of all sequential statements in this construct.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, choices, parent)
 
 	def __str__(self) -> str:
@@ -840,6 +1003,14 @@ class CaseStatement(CompoundStatement):
 	_cases:      List[SequentialCase]  #: List of all alternatives, in the order they were written.
 
 	def __init__(self, expression: ExpressionUnion, cases: Iterable[SequentialCase], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a case statement.
+
+		:param expression: The expression being tested.
+		:param cases:      List of all alternatives, in the order they were written.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 
 		self._expression = expression
@@ -883,6 +1054,13 @@ class LoopStatement(CompoundStatement, SequentialStatementsMixin):
 	"""
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a loop statement.
+
+		:param statements: List of all sequential statements in this construct.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		SequentialStatementsMixin.__init__(self, statements)
 
@@ -943,6 +1121,15 @@ class ForLoopStatement(LoopStatement):
 	_range:     Range  #: The range the loop iterates over.
 
 	def __init__(self, loopIndex: str, rng: Range, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a for-loop statement.
+
+		:param loopIndex:  The name of the loop's index.
+		:param rng:        The range the loop iterates over.
+		:param statements: List of all sequential statements in this construct.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, label, parent)
 
 		self._loopIndex = loopIndex
@@ -999,6 +1186,14 @@ class WhileLoopStatement(LoopStatement, ConditionalMixin):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a while-loop statement.
+
+		:param condition:  The condition guarding this statement.
+		:param statements: List of all sequential statements in this construct.
+		:param label:      The label of a model entity.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(statements, label, parent)
 		ConditionalMixin.__init__(self, condition)
 
@@ -1019,6 +1214,13 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 	_loopReference: LoopStatement  #: Reference to the loop this statement controls.
 
 	def __init__(self, condition: Nullable[ExpressionUnion] = None, loopLabel: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:  # TODO: is this label (currently str) a Name or a Label class?
+		"""
+		Initializes a loop control statement.
+
+		:param condition: The condition guarding this statement.
+		:param loopLabel: The label of the controlled loop, or ``None`` for the innermost loop.
+		:param parent:    The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		ConditionalMixin.__init__(self, condition)
 
@@ -1119,6 +1321,13 @@ class ReturnStatement(SequentialStatement):
 		label:       Nullable[str] =             None,
 		parent:      Nullable[ModelEntity] =     None
 	) -> None:
+		"""
+		Initializes a return statement.
+
+		:param returnValue: The returned expression, or ``None`` for a procedure.
+		:param label:       The label of a model entity.
+		:param parent:      The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 
 		self._returnValue = returnValue
@@ -1163,6 +1372,15 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 		label: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a wait statement.
+
+		:param sensitivityList: List of all signal names to wait on, or ``None`` if none was given.
+		:param condition:       The condition guarding this statement.
+		:param timeout:         The timeout expression, or ``None`` if none was given.
+		:param label:           The label of a model entity.
+		:param parent:          The parent model entity of this entity.
+		"""
 		super().__init__(label, parent)
 		ConditionalMixin.__init__(self, condition)
 

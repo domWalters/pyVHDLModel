@@ -58,6 +58,13 @@ class ExtendedKeyError(KeyError):
 	searchedNamespaces: Tuple["Namespace", ...]  #: The namespaces that were searched for the key.
 
 	def __init__(self, key: str, searchedNamespaces: Tuple["Namespace", ...], message: str) -> None:
+		"""
+		Initializes an extended key error.
+
+		:param key:                The key that was not found.
+		:param searchedNamespaces: The namespaces that were searched for the key.
+		:param message:            The error message.
+		"""
 		super().__init__(message)
 
 		self.key = key
@@ -83,6 +90,12 @@ class Namespace(Generic[K, O]):
 	_elements:        Dict[K, O]              #: Dictionary of all elements declared in this namespace, indexed by name.
 
 	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None) -> None:
+		"""
+		Initializes a namespace.
+
+		:param name:            The namespace's name.
+		:param parentNamespace: Reference to the enclosing namespace, or ``None`` for the outermost one.
+		"""
 		self._name = name
 		self._parentNamespace = parentNamespace
 		self._subNamespaces = {}

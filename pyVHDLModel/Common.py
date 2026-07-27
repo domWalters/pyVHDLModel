@@ -78,6 +78,11 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 	_allowBlackbox: Nullable[bool]  #: Allow blackboxes for components in language entity.
 
 	def __init__(self, allowBlackbox: Nullable[bool] = None) -> None:
+		"""
+		Initializes a hierarchical model entity allow for blackboxes.
+
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		"""
 		self._allowBlackbox = allowBlackbox
 
 	@property
@@ -120,6 +125,12 @@ class Statement(ModelEntity, LabeledEntityMixin):
 	   * :class:`Sequential statement <pyVHDLModel.Sequential.SequentialStatement>`
 	"""
 	def __init__(self, label: Nullable[str] = None, parent=None) -> None:
+		"""
+		Initializes a statement.
+
+		:param label:  The label of a model entity.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		LabeledEntityMixin.__init__(self, label)
 
@@ -142,6 +153,12 @@ class ProcedureCallMixin(metaclass=ExtendedType, mixin=True):
 	_parameterAssociationItems: List[ParameterAssociationItem]  #: List of all parameter associations of the call.
 
 	def __init__(self, procedureName: Symbol, parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None) -> None:
+		"""
+		Initializes a procedure call.
+
+		:param procedureName:             Reference to the called procedure.
+		:param parameterAssociationItems: List of all parameter associations of the call.
+		"""
 		self._procedure = procedureName
 		procedureName.Parent = self
 
@@ -187,6 +204,11 @@ class AssignmentMixin(metaclass=ExtendedType, mixin=True):
 	_target: Symbol  #: Reference to the assignment's destination.
 
 	def __init__(self, target: Symbol) -> None:
+		"""
+		Initializes an assignment.
+
+		:param target: Reference to the assignment's destination.
+		"""
 		self._target = target
 		target.Parent = self
 
@@ -239,6 +261,12 @@ class VariableAssignmentMixin(AssignmentMixin, mixin=True):
 	_expression: ExpressionUnion  #: The assigned expression.
 
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion) -> None:
+		"""
+		Initializes a variable assignment.
+
+		:param target:     Reference to the assignment's destination.
+		:param expression: The assigned expression.
+		"""
 		super().__init__(target)
 
 		self._expression = expression
@@ -281,6 +309,11 @@ class WaveformMixin(metaclass=ExtendedType, mixin=True):
 	_waveform: List[WaveformElement]  #: List of all waveform elements, in the order they were written.
 
 	def __init__(self, waveform: Iterable[WaveformElement]) -> None:
+		"""
+		Initializes a waveform.
+
+		:param waveform: List of all waveform elements, in the order they were written.
+		"""
 		self._waveform = []
 		for waveformElement in waveform:
 			self._waveform.append(waveformElement)
@@ -315,6 +348,11 @@ class ExpressionMixin(metaclass=ExtendedType, mixin=True):
 	_expression: ExpressionUnion  #: The expression held by this construct.
 
 	def __init__(self, expression: ExpressionUnion) -> None:
+		"""
+		Initializes an expression.
+
+		:param expression: The expression held by this construct.
+		"""
 		self._expression = expression
 		expression.Parent = self
 
@@ -356,6 +394,13 @@ class ConditionalWaveform(ModelEntity, WaveformMixin, ConditionalMixin):
 		condition: Nullable[ExpressionUnion] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a conditional waveform.
+
+		:param waveform:  List of all waveform elements, in the order they were written.
+		:param condition: The condition selecting this alternative.
+		:param parent:    The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		WaveformMixin.__init__(self, waveform)
 		ConditionalMixin.__init__(self, condition)
@@ -388,6 +433,13 @@ class ConditionalExpression(ModelEntity, ExpressionMixin, ConditionalMixin):
 		condition: Nullable[ExpressionUnion] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a conditional expression.
+
+		:param expression: The value assigned when the condition holds.
+		:param condition:  The condition selecting this alternative.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		ExpressionMixin.__init__(self, expression)
 		ConditionalMixin.__init__(self, condition)
@@ -407,6 +459,11 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 	_conditionalWaveforms: List[ConditionalWaveform]  #: All alternatives, in order.
 
 	def __init__(self, conditionalWaveforms: Iterable[ConditionalWaveform]) -> None:
+		"""
+		Initializes conditional waveforms.
+
+		:param conditionalWaveforms: All alternatives, in order.
+		"""
 		self._conditionalWaveforms = []
 		for conditionalWaveform in conditionalWaveforms:
 			self._conditionalWaveforms.append(conditionalWaveform)
@@ -449,6 +506,13 @@ class SelectedWaveform(BaseCase, WaveformMixin, ChoicesMixin):
 		waveform: Iterable[WaveformElement],
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a selected waveform.
+
+		:param choices:  List of all choices selecting this alternative.
+		:param waveform: List of all waveform elements, in the order they were written.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		WaveformMixin.__init__(self, waveform)
 		ChoicesMixin.__init__(self, choices)
@@ -470,6 +534,12 @@ class OthersSelectedWaveform(BaseCase, WaveformMixin):
 	"""
 
 	def __init__(self, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an others selected waveform.
+
+		:param waveform: List of all waveform elements, in the order they were written.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		WaveformMixin.__init__(self, waveform)
 
@@ -500,6 +570,13 @@ class SelectedExpression(BaseCase, ExpressionMixin, ChoicesMixin):
 		expression: ExpressionUnion,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a selected expression.
+
+		:param choices:    List of all choices selecting this alternative.
+		:param expression: The value assigned for the matching choices.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		ExpressionMixin.__init__(self, expression)
 		ChoicesMixin.__init__(self, choices)
@@ -521,6 +598,12 @@ class OthersSelectedExpression(BaseCase, ExpressionMixin):
 	"""
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an others selected expression.
+
+		:param expression: The value assigned for every unnamed choice.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		ExpressionMixin.__init__(self, expression)
 
@@ -541,6 +624,11 @@ class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
 	_selectedWaveforms: List[Union[SelectedWaveform, OthersSelectedWaveform]]  #: All alternatives, in order.
 
 	def __init__(self, selectedWaveforms: Iterable[Union[SelectedWaveform, OthersSelectedWaveform]]) -> None:
+		"""
+		Initializes selected waveforms.
+
+		:param selectedWaveforms: All alternatives, in order.
+		"""
 		self._selectedWaveforms = []
 		for selectedWaveform in selectedWaveforms:
 			self._selectedWaveforms.append(selectedWaveform)
@@ -570,6 +658,11 @@ class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
 	_selectedExpressions: List[Union[SelectedExpression, OthersSelectedExpression]]  #: All alternatives, in order.
 
 	def __init__(self, selectedExpressions: Iterable[Union[SelectedExpression, OthersSelectedExpression]]) -> None:
+		"""
+		Initializes selected expressions.
+
+		:param selectedExpressions: All alternatives, in order.
+		"""
 		self._selectedExpressions = []
 		for selectedExpression in selectedExpressions:
 			self._selectedExpressions.append(selectedExpression)
