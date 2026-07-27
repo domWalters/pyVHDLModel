@@ -121,7 +121,7 @@ class EnumerationLiteral(Literal):
 	      st <= Idle;
 	      --    ^^^^    <- Value
 	"""
-	_value: str
+	_value: str  #: The enumeration literal's name.
 
 	def __init__(self, value: str, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -170,7 +170,7 @@ class IntegerLiteral(NumericLiteral):
 	      res := a + 42;
 	      --         ^^    <- Value
 	"""
-	_value: int
+	_value: int  #: The literal's integer value.
 
 	def __init__(self, value: int) -> None:
 		super().__init__()
@@ -203,7 +203,7 @@ class FloatingPointLiteral(NumericLiteral):
 	      r <= 3.14;
 	      --   ^^^^    <- Value
 	"""
-	_value: float
+	_value: float  #: The literal's floating-point value.
 
 	def __init__(self, value: float) -> None:
 		super().__init__()
@@ -242,7 +242,7 @@ class PhysicalLiteral(NumericLiteral):
 	   * :class:`Physical integer literal <pyVHDLModel.Expression.PhysicalIntegerLiteral>`
 	   * :class:`Physical floating literal <pyVHDLModel.Expression.PhysicalFloatingLiteral>`
 	"""
-	_unitName: str
+	_unitName: str  #: The name of the physical unit the value is given in.
 
 	def __init__(self, unitName: str) -> None:
 		super().__init__()
@@ -276,7 +276,7 @@ class PhysicalIntegerLiteral(PhysicalLiteral):
 	      --   ^^       <- Value
 	      --      ^^    <- UnitName
 	"""
-	_value: int
+	_value: int  #: The literal's integer value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: int, unitName: str) -> None:
 		super().__init__(unitName)
@@ -307,7 +307,7 @@ class PhysicalFloatingLiteral(PhysicalLiteral):
 	      --   ^^^       <- Value
 	      --       ^^    <- UnitName
 	"""
-	_value: float
+	_value: float  #: The literal's floating-point value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: float, unitName: str) -> None:
 		super().__init__(unitName)
@@ -337,7 +337,7 @@ class CharacterLiteral(Literal):
 	      ch <= 'a';
 	      --    ^^^    <- Value
 	"""
-	_value: str
+	_value: str  #: The literal's character value.
 
 	def __init__(self, value: str) -> None:
 		super().__init__()
@@ -370,7 +370,7 @@ class StringLiteral(Literal):
 	      txt <= "text";
 	      --     ^^^^^^    <- Value
 	"""
-	_value: str
+	_value: str  #: The literal's string value, without the enclosing double quotes.
 
 	def __init__(self, value: str) -> None:
 		super().__init__()
@@ -427,11 +427,11 @@ class BitStringLiteral(Literal):
 	   * :class:`Decimal bit string literal <pyVHDLModel.Expression.DecimalBitStringLiteral>`
 	   * :class:`Hexadecimal bit string literal <pyVHDLModel.Expression.HexadecimalBitStringLiteral>`
 	"""
-	_value:       str
-	_binaryValue: str
-	_bits:        int
-	_length:      Nullable[int]
-	_signed:      Nullable[bool]
+	_value:       str             #: The literal as written in the source, without the enclosing double quotes.
+	_binaryValue: str             #: The literal's value expanded to base 2, one character per bit.
+	_bits:        int             #: The number of bits the literal represents.
+	_length:      Nullable[int]   #: The explicitly given length, or ``None`` if the literal has no length specification.
+	_signed:      Nullable[bool]  #: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
 
 	def __init__(self, value: str, length: Nullable[int] = None, signed: Nullable[bool] = None) -> None:
 		super().__init__()
@@ -515,7 +515,7 @@ class BinaryBitStringLiteral(BitStringLiteral):
 	      res := b"10100000";
 	      --     ^^^^^^^^^^^    <- Value
 	"""
-	_base: ClassVar[BitStringBase] = BitStringBase.Binary
+	_base: ClassVar[BitStringBase] = BitStringBase.Binary  #: The base this literal is written in.
 
 
 @export
@@ -532,7 +532,7 @@ class OctalBitStringLiteral(BitStringLiteral):
 	      nine := o"240";
 	      --      ^^^^^^    <- Value
 	"""
-	_base: ClassVar[BitStringBase] = BitStringBase.Octal
+	_base: ClassVar[BitStringBase] = BitStringBase.Octal  #: The base this literal is written in.
 
 
 @export
@@ -547,7 +547,7 @@ class DecimalBitStringLiteral(BitStringLiteral):
 	      res := d"160";
 	      --     ^^^^^^    <- Value
 	"""
-	_base: ClassVar[BitStringBase] = BitStringBase.Decimal
+	_base: ClassVar[BitStringBase] = BitStringBase.Decimal  #: The base this literal is written in.
 
 
 @export
@@ -564,7 +564,7 @@ class HexadecimalBitStringLiteral(BitStringLiteral):
 	      res := x"A0";
 	      --     ^^^^^    <- Value
 	"""
-	_base: ClassVar[BitStringBase] = BitStringBase.Hexadecimal
+	_base: ClassVar[BitStringBase] = BitStringBase.Hexadecimal  #: The base this literal is written in.
 
 
 @export
@@ -599,8 +599,8 @@ class UnaryExpression(BaseExpression):
 	The operand is available as :data:`Operand`.
 	"""
 
-	_FORMAT:  Tuple[str, str]
-	_operand: ExpressionUnion
+	_FORMAT:  Tuple[str, str]  #: The operator's string representation as (prefix, suffix) around the operand.
+	_operand: ExpressionUnion  #: The expression the operator is applied to.
 
 	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -825,7 +825,7 @@ class TypeConversion(UnaryExpression):
 	      --             ^^^     <- Operand
 	"""
 
-	_targetSubtype: SubtypeSymbol
+	_targetSubtype: SubtypeSymbol  #: Reference to the subtype the expression is converted to.
 
 	def __init__(self, targetSubtype: SubtypeSymbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(operand, parent)
@@ -881,9 +881,9 @@ class BinaryExpression(BaseExpression):
 	   * :class:`Shift expression <pyVHDLModel.Expression.ShiftExpression>`
 	"""
 
-	_FORMAT: Tuple[str, str, str]
-	_leftOperand:  ExpressionUnion
-	_rightOperand: ExpressionUnion
+	_FORMAT: Tuple[str, str, str]   #: The operator's string representation as (prefix, infix, suffix).
+	_leftOperand:  ExpressionUnion  #: The expression left of the operator.
+	_rightOperand: ExpressionUnion  #: The expression right of the operator.
 
 	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -935,7 +935,7 @@ class RangeExpression(BinaryExpression):
 	   * :class:`Ascending range expression <pyVHDLModel.Expression.AscendingRangeExpression>`
 	   * :class:`Descending range expression <pyVHDLModel.Expression.DescendingRangeExpression>`
 	"""
-	_direction: Direction
+	_direction: Direction  #: The range's direction, either ascending (``to``) or descending (``downto``).
 
 	@readonly
 	def Direction(self) -> Direction:
@@ -1766,8 +1766,8 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 	      --     ^^^^                    <- Subtype
 	      --          ^^^^^^^^^^^^^^^    <- Operand
 	"""
-	_operand:  ExpressionUnion
-	_subtype:  Symbol
+	_operand:  ExpressionUnion  #: The expression being qualified.
+	_subtype:  Symbol           #: Reference to the subtype qualifying the expression.
 
 	def __init__(self, subtype: Symbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -1810,10 +1810,11 @@ class TernaryExpression(BaseExpression):
 	   * :class:`When else expression <pyVHDLModel.Expression.WhenElseExpression>`
 	"""
 
-	_FORMAT: Tuple[str, str, str, str]  # FIXME: needs ClassVar[...] when pyTooling gets fixed.
-	_firstOperand:  ExpressionUnion
-	_secondOperand: ExpressionUnion
-	_thirdOperand:  ExpressionUnion
+	# FIXME: needs ClassVar[...] when pyTooling gets fixed.
+	_FORMAT: Tuple[str, str, str, str]  #: The operator's string representation as four fragments.
+	_firstOperand:  ExpressionUnion  #: The operator's first operand.
+	_secondOperand: ExpressionUnion  #: The operator's second operand.
+	_thirdOperand:  ExpressionUnion  #: The operator's third operand.
 
 	def __init__(
 		self,
@@ -1946,7 +1947,7 @@ class SubtypeAllocation(Allocation):
 	      p := new integer;
 	      --       ^^^^^^^    <- Subtype
 	"""
-	_subtype: Symbol
+	_subtype: Symbol  #: Reference to the subtype being allocated.
 
 	def __init__(self, subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -1981,7 +1982,7 @@ class QualifiedExpressionAllocation(Allocation):
 	      p := new integer'(5);
 	      --       ^^^^^^^^^^^    <- QualifiedExpression
 	"""
-	_qualifiedExpression: QualifiedExpression
+	_qualifiedExpression: QualifiedExpression  #: The qualified expression the allocated object is initialized with.
 
 	def __init__(self, qualifiedExpression: QualifiedExpression, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -2018,7 +2019,7 @@ class AggregateElement(ModelEntity):
 	   * :class:`Others aggregate element <pyVHDLModel.Expression.OthersAggregateElement>`
 	"""
 
-	_expression: ExpressionUnion
+	_expression: ExpressionUnion  #: The expression this aggregate element supplies.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -2069,7 +2070,7 @@ class IndexedAggregateElement(AggregateElement):
 	      --      ^                           <- Index
 	      --           ^^^                    <- Expression
 	"""
-	_index: int
+	_index: int  #: The index selecting the element this value is assigned to.
 
 	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
@@ -2104,7 +2105,7 @@ class RangedAggregateElement(AggregateElement):
 	      --      ^^^^^^                           <- Range
 	      --                ^^^                    <- Expression
 	"""
-	_range: Range
+	_range: Range  #: The range selecting the elements this value is assigned to.
 
 	def __init__(self, rng: Range, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
@@ -2140,7 +2141,7 @@ class NamedAggregateElement(AggregateElement):
 	      --    ^                      <- Name
 	      --         ^^^               <- Expression
 	"""
-	_name: Symbol
+	_name: Symbol  #: Reference to the name selecting the element this value is assigned to.
 
 	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(expression, parent)
@@ -2200,7 +2201,7 @@ class Aggregate(BaseExpression):
 	      res := (0 => '1', 1 to 3 => '0', others => '1');
 	      --     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    <- Elements
 	"""
-	_elements: List[AggregateElement]
+	_elements: List[AggregateElement]  #: List of all elements of this aggregate, in the order they were written.
 
 	def __init__(self, elements: Iterable[AggregateElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)

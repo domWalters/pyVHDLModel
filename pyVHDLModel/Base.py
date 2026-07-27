@@ -451,7 +451,7 @@ class ConditionalMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Wait statement <pyVHDLModel.Sequential.WaitStatement>`
 	"""
 
-	_condition: ExpressionUnion
+	_condition: ExpressionUnion  #: The condition guarding this statement.
 
 	def __init__(self, condition: Nullable[ExpressionUnion] = None) -> None:
 		"""
@@ -552,8 +552,8 @@ class ReportStatementMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential report statement <pyVHDLModel.Sequential.SequentialReportStatement>`
 	"""
 
-	_message:  Nullable[ExpressionUnion]
-	_severity: Nullable[ExpressionUnion]
+	_message:  Nullable[ExpressionUnion]  #: The reported message, or ``None`` if none was given.
+	_severity: Nullable[ExpressionUnion]  #: The reported severity level, or ``None`` if none was given.
 
 	def __init__(self, message: Nullable[ExpressionUnion] = None, severity: Nullable[ExpressionUnion] = None) -> None:
 		self._message = message
@@ -653,7 +653,7 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
 	"""
 
-	_choices: List[BaseChoice]
+	_choices: List[BaseChoice]  #: List of all choices selecting this alternative.
 
 	def __init__(self, choices: Nullable[Iterable[BaseChoice]] = None) -> None:
 		self._choices = []
@@ -693,9 +693,9 @@ class SimpleRange(Range):
 	A range with both bounds given as expressions, e.g. ``0 to 7``.
 	"""
 
-	_leftBound:  ExpressionUnion
-	_rightBound: ExpressionUnion
-	_direction:  Direction
+	_leftBound:  ExpressionUnion  #: The range's left bound.
+	_rightBound: ExpressionUnion  #: The range's right bound.
+	_direction:  Direction        #: The range's direction, either ascending (``to``) or descending (``downto``).
 
 	def __init__(self, leftBound: ExpressionUnion, rightBound: ExpressionUnion, direction: Direction, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -768,7 +768,7 @@ class RangeFromName(Range):
 	   range``), so representing both as a range deviates from the rule split deliberately.
 	"""
 
-	_symbol: 'Symbol'
+	_symbol: 'Symbol'  #: Reference to the name the range's bounds are inferred from.
 
 	def __init__(self, symbol: 'Symbol', parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -816,8 +816,8 @@ class WaveformElement(ModelEntity):
 	   * :class:`Waveform of one conditional branch <pyVHDLModel.Common.ConditionalWaveform>`
 	   * :class:`Waveform of one selected alternative <pyVHDLModel.Common.SelectedWaveform>`
 	"""
-	_expression: ExpressionUnion
-	_after: ExpressionUnion
+	_expression: ExpressionUnion  #: The value this waveform element assigns.
+	_after: ExpressionUnion       #: The delay after which the value is assigned, or ``None`` if none was given.
 
 	def __init__(self, expression: ExpressionUnion, after: Nullable[ExpressionUnion] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)

@@ -54,8 +54,8 @@ class ExtendedKeyError(KeyError):
 	Raised when a name cannot be resolved. Besides the key (:data:`key`), it carries every namespace
 	visited while walking outwards (:data:`searchedNamespaces`).
 	"""
-	key: str
-	searchedNamespaces: Tuple["Namespace", ...]
+	key: str                                     #: The key that was not found.
+	searchedNamespaces: Tuple["Namespace", ...]  #: The namespaces that were searched for the key.
 
 	def __init__(self, key: str, searchedNamespaces: Tuple["Namespace", ...], message: str) -> None:
 		super().__init__(message)
@@ -77,10 +77,10 @@ class Namespace(Generic[K, O]):
 	   * :class:`Concurrent declaration region <pyVHDLModel.Regions.ConcurrentDeclarationRegionMixin>`
 	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
 	"""
-	_name:            str
-	_parentNamespace: "Namespace"
-	_subNamespaces:   Dict[str, "Namespace"]
-	_elements:        Dict[K, O]
+	_name:            str                     #: The namespace's name.
+	_parentNamespace: "Namespace"             #: Reference to the enclosing namespace, or ``None`` for the outermost one.
+	_subNamespaces:   Dict[str, "Namespace"]  #: Dictionary of all nested namespaces, indexed by name.
+	_elements:        Dict[K, O]              #: Dictionary of all elements declared in this namespace, indexed by name.
 
 	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None) -> None:
 		self._name = name

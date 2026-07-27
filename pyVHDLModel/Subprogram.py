@@ -60,10 +60,10 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
-	_genericItems:   List['GenericInterfaceItemMixin']
-	_parameterItems: List['ParameterInterfaceItemMixin']
-	_statements:     List[SequentialStatement]
-	_isPure:         bool
+	_genericItems:   List['GenericInterfaceItemMixin']    #: List of all generics, in declaration order.
+	_parameterItems: List['ParameterInterfaceItemMixin']  #: List of all parameters, in declaration order.
+	_statements:     List[SequentialStatement]            #: List of all sequential statements in the subprogram's body.
+	_isPure:         bool                                 #: ``True`` if the subprogram was declared pure.
 
 	def __init__(
 		self,
@@ -232,7 +232,7 @@ class Function(Subprogram):
 	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	"""
-	_returnType: SubtypeSymbol
+	_returnType: SubtypeSymbol  #: Reference to the subtype of the function's return value.
 
 	def __init__(
 		self,
@@ -272,7 +272,7 @@ class MethodMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	"""
 
-	_protectedType: ProtectedType
+	_protectedType: ProtectedType  #: Reference to the protected type this method belongs to.
 
 	def __init__(self, protectedType: Nullable[ProtectedType] = None) -> None:
 		self._protectedType = protectedType

@@ -75,7 +75,7 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
 	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
 	"""
-	_statements: List[SequentialStatement]
+	_statements: List[SequentialStatement]  #: List of all sequential statements in this construct.
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None) -> None:
 		# TODO: extract to mixin
@@ -209,7 +209,7 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 	   * :class:`Conditional expression <pyVHDLModel.Common.ConditionalExpression>`
 	"""
 
-	_conditionalExpressions: List[ConditionalExpression]
+	_conditionalExpressions: List[ConditionalExpression]  #: List of all alternatives, in the order they were written.
 
 	def __init__(
 		self,
@@ -613,9 +613,9 @@ class IfStatement(CompoundStatement):
 
 	   * :class:`If-generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
 	"""
-	_ifBranch: IfBranch
-	_elsifBranches: List['ElsifBranch']
-	_elseBranch: Nullable[ElseBranch]
+	_ifBranch: IfBranch                  #: The mandatory ``if`` branch.
+	_elsifBranches: List['ElsifBranch']  #: List of all ``elsif`` branches, in the order they were written.
+	_elseBranch: Nullable[ElseBranch]    #: The optional ``else`` branch, or ``None`` if none was given.
 
 	def __init__(
 		self,
@@ -696,7 +696,7 @@ class IndexedChoice(SequentialChoice):
 	      when 0      => v := '1';
 	      --   ^                     <- Expression
 	"""
-	_expression: ExpressionUnion
+	_expression: ExpressionUnion  #: The expression this choice selects on.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -731,7 +731,7 @@ class RangedChoice(SequentialChoice):
 	      when 1 to 2 => v := '0';
 	      --   ^^^^^^                <- Range
 	"""
-	_range: 'Range'
+	_range: 'Range'  #: The range this choice selects on.
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -836,8 +836,8 @@ class CaseStatement(CompoundStatement):
 
 	   * :class:`Case-generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
 	"""
-	_expression: ExpressionUnion
-	_cases:      List[SequentialCase]
+	_expression: ExpressionUnion       #: The expression being tested.
+	_cases:      List[SequentialCase]  #: List of all alternatives, in the order they were written.
 
 	def __init__(self, expression: ExpressionUnion, cases: Iterable[SequentialCase], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
@@ -939,8 +939,8 @@ class ForLoopStatement(LoopStatement):
 	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
 	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
-	_loopIndex: str
-	_range:     Range
+	_loopIndex: str    #: The name of the loop's index.
+	_range:     Range  #: The range the loop iterates over.
 
 	def __init__(self, loopIndex: str, rng: Range, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, label, parent)
@@ -1016,7 +1016,7 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 	   * :class:`Exit statement <pyVHDLModel.Sequential.ExitStatement>`
 	"""
 
-	_loopReference: LoopStatement
+	_loopReference: LoopStatement  #: Reference to the loop this statement controls.
 
 	def __init__(self, condition: Nullable[ExpressionUnion] = None, loopLabel: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:  # TODO: is this label (currently str) a Name or a Label class?
 		super().__init__(parent)
@@ -1111,7 +1111,7 @@ class ReturnStatement(SequentialStatement):
 	      --^^^               <- optional Label
 	      --             ^    <- optional ReturnValue
 	"""
-	_returnValue: Nullable[ExpressionUnion]
+	_returnValue: Nullable[ExpressionUnion]  #: The returned expression, or ``None`` for a procedure.
 
 	def __init__(
 		self,
@@ -1152,8 +1152,8 @@ class WaitStatement(SequentialStatement, ConditionalMixin):
 	      --                 ^^^^^^^^^^^              <- optional Condition
 	      --                                 ^^^^^    <- optional Timeout
 	"""
-	_sensitivityList: Nullable[List[Symbol]]
-	_timeout:         ExpressionUnion
+	_sensitivityList: Nullable[List[Symbol]]  #: List of all signal names to wait on, or ``None`` if none was given.
+	_timeout:         ExpressionUnion         #: The timeout expression, or ``None`` if none was given.
 
 	def __init__(
 		self,

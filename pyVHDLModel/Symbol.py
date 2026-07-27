@@ -764,7 +764,7 @@ class ScalarConstraint(Constraint, mixin=True):
 
 	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
 	"""
-	_constraint: Nullable[Range]
+	_constraint: Nullable[Range]  #: The range constraining the scalar subtype, or ``None`` if unconstrained.
 
 	def __init__(self, constraint: Nullable[Range]) -> None:
 		self._constraint = constraint
@@ -811,7 +811,7 @@ class ArrayConstraint(Constraint, mixin=True):
 
 	   * :class:`Constrained array subtype symbol <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
 	"""
-	_constraints: List[Range]
+	_constraints: List[Range]  #: List of all index ranges, one per dimension.
 
 	def __init__(self, constraints: Iterable[Range]) -> None:
 		self._constraints = [constraint for constraint in constraints]
@@ -837,7 +837,7 @@ class RecordConstraint(Constraint, mixin=True):
 
 	   * :class:`Constrained record subtype symbol <pyVHDLModel.Symbol.ConstrainedRecordSubtypeSymbol>`
 	"""
-	_constraints: Dict[RecordElementSymbol, Range]
+	_constraints: Dict[RecordElementSymbol, Range]  #: Dictionary of the constraint per constrained record element.
 
 	def __init__(self, constraints: Mapping[RecordElementSymbol, Range]) -> None:
 		self._constraints = {key: value for key, value in constraints.items()}
@@ -882,7 +882,7 @@ class ConstrainedArraySubtypeSymbol(ConstrainedCompositeSubtypeSymbol, ArrayCons
 	      --         ^^^^^^^^^^                <- Name
 	      --                    ^^^^^^^^^^     <- Constraints
 	"""
-	_constraints: List
+	_constraints: List  #: List of all index ranges, one per dimension.
 
 	def __init__(self, name: Name, constraints: Iterable) -> None:
 		super().__init__(name)
@@ -896,7 +896,7 @@ class ConstrainedRecordSubtypeSymbol(ConstrainedCompositeSubtypeSymbol, RecordCo
 
 	The referenced language entity is available as :data:`Reference` once resolved.
 	"""
-	_constraints: Dict[RecordElementSymbol, Any]
+	_constraints: Dict[RecordElementSymbol, Any]  #: Dictionary of the constraint per constrained record element.
 
 	def __init__(self, name: Name, constraints: Mapping) -> None:
 		super().__init__(name)

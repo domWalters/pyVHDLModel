@@ -65,8 +65,8 @@ class AssociationItem(ModelEntity):
 	   * :class:`Parameter association item <pyVHDLModel.Association.ParameterAssociationItem>`
 	"""
 
-	_formal: Nullable[Symbol]
-	_actual: ExpressionUnion
+	_formal: Nullable[Symbol]  #: Reference to the formal part, or ``None`` for a positional association.
+	_actual: ExpressionUnion   #: The actual part of this association.
 
 	def __init__(self, formal: Nullable[Symbol], actual: ExpressionUnion) -> None:
 		super().__init__()

@@ -96,7 +96,7 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	      attribute TotalBits : natural;
 	"""
 
-	_subtype: Symbol
+	_subtype: Symbol  #: Reference to the attribute's subtype.
 
 	def __init__(
 		self,
@@ -134,10 +134,10 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 	      attribute TotalBits of BusType : subtype is 32;
 	"""
 
-	_identifiers: List[Name]
-	_attribute: Name
-	_entityClass: EntityClass
-	_expression: ExpressionUnion
+	_identifiers: List[Name]      #: List of all names the attribute is specified for.
+	_attribute: Name              #: Reference to the specified attribute.
+	_entityClass: EntityClass     #: The entity class the named items belong to.
+	_expression: ExpressionUnion  #: The value assigned to the attribute.
 
 	def __init__(
 		self,
@@ -230,8 +230,8 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	      --          Name
 	"""
 
-	_name:    Symbol
-	_subtype: Nullable[SubtypeSymbol]
+	_name:    Symbol                   #: Reference to the name being aliased.
+	_subtype: Nullable[SubtypeSymbol]  #: Reference to the alias' subtype, or ``None`` if none was given.
 
 	def __init__(
 		self,

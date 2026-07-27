@@ -59,10 +59,11 @@ class Name(ModelEntity):
 	   * :class:`Open name <pyVHDLModel.Name.OpenName>`
 	"""
 
-	_identifier: str
-	_normalizedIdentifier: str
-	_root: Nullable['Name']     # TODO: seams to be unused. There is no reverse linking, or?
-	_prefix: Nullable['Name']
+	_identifier: str            #: The name's identifier.
+	_normalizedIdentifier: str  #: The normalized (lower case) identifier.
+	# TODO: seams to be unused. There is no reverse linking, or?
+	_root: Nullable['Name']  #: Reference to the root of the name chain.
+	_prefix: Nullable['Name']   #: Reference to the name's prefix, or ``None`` for a simple name.
 
 	def __init__(self, identifier: str, prefix: Nullable["Name"] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -151,7 +152,7 @@ class ParenthesisName(Name):
 
 	Used where indexing and a function call are indistinguishable before resolution.
 	"""
-	_associations: List
+	_associations: List  #: List of all associations in the parenthesis.
 
 	def __init__(self, prefix: Name, associations: Iterable, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("", prefix, parent)
@@ -186,7 +187,7 @@ class IndexedName(Name):
 	      s <= v(0);
 	      --   ^^^^    <- the indexed name
 	"""
-	_indices: List[ExpressionUnion]
+	_indices: List[ExpressionUnion]  #: List of all index expressions, one per dimension.
 
 	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__("", prefix, parent)
