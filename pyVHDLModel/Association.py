@@ -103,6 +103,13 @@ class AssociationItem(ModelEntity):
 		return self._actual
 
 	def __str__(self) -> str:
+		"""
+		Formats the association item.
+
+		**Format:** ``formal => actual``, or ``actual`` alone when positional
+
+		:returns: Formatted association item.
+		"""
 		if self._formal is None:
 			return str(self._actual)
 		else:

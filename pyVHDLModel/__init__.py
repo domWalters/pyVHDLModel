@@ -2684,7 +2684,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add an entity to the document's lists of design units.
 
 		:param item:                Entity object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Entity`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Entity`.
 		:raises VHDLModelException: If entity name already exists in document.
 		"""
 		if not isinstance(item, Entity):
@@ -2708,7 +2708,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add an architecture to the document's lists of design units.
 
 		:param item:                Architecture object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Architecture`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Architecture`.
 		:raises VHDLModelException: If architecture name already exists for the referenced entity name in document.
 		"""
 		if not isinstance(item, Architecture):
@@ -2739,7 +2739,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a package to the document's lists of design units.
 
 		:param item:                Package object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Package`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Package`.
 		:raises VHDLModelException: If package name already exists in document.
 		"""
 		if not isinstance(item, (Package, PackageInstantiation)):
@@ -2763,7 +2763,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a package body to the document's lists of design units.
 
 		:param item:                Package body object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.PackageBody`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.PackageBody`.
 		:raises VHDLModelException: If package body name already exists in document.
 		"""
 		if not isinstance(item, PackageBody):
@@ -2787,7 +2787,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a context to the document's lists of design units.
 
 		:param item:                Context object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Context`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Context`.
 		:raises VHDLModelException: If context name already exists in document.
 		"""
 		if not isinstance(item, Context):
@@ -2811,7 +2811,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a configuration to the document's lists of design units.
 
 		:param item:                Configuration object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Configuration`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Configuration`.
 		:raises VHDLModelException: If configuration name already exists in document.
 		"""
 		if not isinstance(item, Configuration):
@@ -2883,8 +2883,8 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a design unit to the document's lists of design units.
 
 		:param item:                Configuration object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.DesignUnit`.
-		:raises ValueError:         If parameter 'item' is an unknown :class:`~pyVHDLModel.DesignUnits.DesignUnit`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.DesignUnit`.
+		:raises ValueError:         If parameter 'item' is an unknown :class:`~pyVHDLModel.DesignUnit.DesignUnit`.
 		:raises VHDLModelException: If configuration name already exists in document.
 		"""
 		if not isinstance(item, DesignUnit):

@@ -243,6 +243,13 @@ class DeferredConstant(BaseConstant):
 		return self._constantReference
 
 	def __str__(self) -> str:
+		"""
+		Formats the deferred constant declaration.
+
+		**Format:** ``constant c : integer``
+
+		:returns: Formatted deferred constant declaration.
+		"""
 		return f"constant {', '.join(self._identifiers)} : {self._subtype}"
 
 

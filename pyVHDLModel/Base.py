@@ -91,9 +91,9 @@ class Mode(Enum):
 
 	def __str__(self) -> str:
 		"""
-		Formats the direction.
+		Formats the mode.
 
-		:returns: Formatted direction.
+		:returns: Formatted mode.
 		"""
 		return ("", "in", "out", "inout", "buffer", "linkage")[cast(int, self.value)]       # TODO: check performance
 
@@ -773,6 +773,13 @@ class SimpleRange(Range):
 		return self._direction
 
 	def __str__(self) -> str:
+		"""
+		Formats the simple range.
+
+		**Format:** ``0 to 7``
+
+		:returns: Formatted simple range.
+		"""
 		return f"{self._leftBound!s} {self._direction!s} {self._rightBound!s}"
 
 
@@ -821,6 +828,13 @@ class RangeFromName(Range):
 		return self._symbol
 
 	def __str__(self) -> str:
+		"""
+		Formats the range denoted by a name.
+
+		**Format:** ``v'range``
+
+		:returns: Formatted range denoted by a name.
+		"""
 		return f"{self._symbol!s}"
 
 

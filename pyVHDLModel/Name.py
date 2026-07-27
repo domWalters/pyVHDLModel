@@ -135,9 +135,23 @@ class Name(ModelEntity):
 		return self._prefix is not None
 
 	def __repr__(self) -> str:
+		"""
+		Formats a representation of the name.
+
+		**Format:** ``Name: 'sig'``
+
+		:returns: String representation of the name.
+		"""
 		return f"Name: '{self.__str__()}'"
 
 	def __str__(self) -> str:
+		"""
+		Formats the name.
+
+		**Format:** ``sig``
+
+		:returns: Formatted name.
+		"""
 		return self._identifier
 
 
@@ -186,6 +200,13 @@ class ParenthesisName(Name):
 		return self._associations
 
 	def __str__(self) -> str:
+		"""
+		Formats the parenthesis name.
+
+		**Format:** ``func(a, b)``
+
+		:returns: Formatted parenthesis name.
+		"""
 		return f"{self._prefix!s}({', '.join(str(a) for a in self._associations)})"
 
 
@@ -228,6 +249,13 @@ class IndexedName(Name):
 		return self._indices
 
 	def __str__(self) -> str:
+		"""
+		Formats the indexed name.
+
+		**Format:** ``arr(0)``
+
+		:returns: Formatted indexed name.
+		"""
 		return f"{self._prefix!s}({', '.join(str(i) for i in self._indices)})"
 
 
@@ -271,6 +299,13 @@ class SelectedName(Name):
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
+		"""
+		Formats the selected name.
+
+		**Format:** ``rec.elem``
+
+		:returns: Formatted selected name.
+		"""
 		return f"{self._prefix!s}.{self._identifier}"
 
 
@@ -297,6 +332,13 @@ class AttributeName(Name):
 		super().__init__(identifier, prefix, parent)
 
 	def __str__(self) -> str:
+		"""
+		Formats the attribute name.
+
+		**Format:** ``v'range``
+
+		:returns: Formatted attribute name.
+		"""
 		return f"{self._prefix!s}'{self._identifier}"
 
 
@@ -333,4 +375,11 @@ class OpenName(Name):
 		super().__init__("open", parent=parent)  # TODO: the case of 'OPEN' is not preserved
 
 	def __str__(self) -> str:
+		"""
+		Formats the open name.
+
+		**Format:** ``open``
+
+		:returns: Formatted open name.
+		"""
 		return "open"
