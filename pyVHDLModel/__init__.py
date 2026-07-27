@@ -2199,7 +2199,13 @@ class Design(ModelEntity, AllowBlackboxMixin):
 
 @export
 class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
-	"""A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units."""
+	"""
+	A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units.
+
+	.. seealso::
+
+	   * :class:`Predefined library <pyVHDLModel.Predefined.PredefinedLibrary>`
+	"""
 
 	_allowBlackbox:  Nullable[bool]                      #: Allow blackboxes for components in this library.
 	_contexts:       Dict[str, Context]                  #: Dictionary of all contexts defined in a library.

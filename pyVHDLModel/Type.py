@@ -47,7 +47,18 @@ from pyVHDLModel.Expression import EnumerationLiteral, PhysicalIntegerLiteral
 
 @export
 class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	"""``BaseType`` is the base-class of all type entities in this model."""
+	"""
+	Represents the base-class of all type entities: full types, subtypes and anonymous types.
+
+	Every type is a named entity (:data:`Identifier`, :data:`NormalizedIdentifier`) and can carry
+	documentation (:data:`Documentation`).
+
+	.. seealso::
+
+	   * :class:`Type <pyVHDLModel.Type.Type>`
+	   * :class:`Full type <pyVHDLModel.Type.FullType>`
+	   * :class:`Subtype <pyVHDLModel.Type.Subtype>`
+	"""
 
 	_objectVertex: Vertex
 
@@ -67,21 +78,100 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 @export
 class Type(BaseType):
+	"""
+	Represents a base-class for types introduced by a type declaration.
+
+	Besides real type declarations, this is also the base-class of a generic type interface item, which
+	introduces a type name without defining the type itself.
+
+	.. seealso::
+
+	   * :class:`Generic type interface item <pyVHDLModel.Interface.GenericTypeInterfaceItem>`
+	   * :class:`Anonymous type <pyVHDLModel.Type.AnonymousType>`
+	"""
 	pass
 
 
 @export
 class AnonymousType(Type):
+	"""
+	Represents a base-class for types without a type definition of their own.
+
+	An incomplete type is the typical case: it names a type (:data:`Identifier`) whose full
+	definition follows later in the same declarative part.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type node;
+	      --   ^^^^                  <- Identifier
+	      type ptr is access node;
+	      type node is record
+	        value    : integer;
+	        nextNode : ptr;
+	      end record;
+	"""
 	pass
 
 
 @export
 class FullType(BaseType):
+	"""
+	Represents a base-class for all full type definitions, as opposed to a :class:`Subtype`.
+
+	This is the distinction the declaration regions index on: a full type is registered in ``Types``, a
+	subtype in ``Subtypes``.
+
+	.. seealso::
+
+	   * :class:`Scalar type <pyVHDLModel.Type.ScalarType>`
+	   * :class:`Composite type <pyVHDLModel.Type.CompositeType>`
+	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
+	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
+	   * :class:`Access type <pyVHDLModel.Type.AccessType>`
+	   * :class:`File type <pyVHDLModel.Type.FileType>`
+	"""
 	pass
 
 
 @export
 class Subtype(BaseType):
+	"""
+	Represents a subtype declaration.
+
+	A subtype is a named entity (:data:`Identifier`, :data:`NormalizedIdentifier`) referencing a type
+	(:data:`Type`). Optionally, the subtype can be narrowed by a constraint (:data:`Range`) and/or
+	resolved by a resolution function (:data:`ResolutionFunction`).
+
+	.. admonition:: Example
+
+	   Without a constraint:
+
+	   .. code-block:: VHDL
+
+	      subtype byte is bit_vector;
+	      --      ^^^^                  <- Identifier
+	      --              ^^^^^^^^^^    <- Type
+
+	   With a constraint:
+
+	   .. code-block:: VHDL
+
+	      subtype nibble is bit_vector(3 downto 0);
+	      --                          ^^^^^^^^^^^^    <- Range
+
+	   With a resolution function:
+
+	   .. code-block:: VHDL
+
+	      subtype wired is resolved std_ulogic;
+	      --               ^^^^^^^^               <- ResolutionFunction
+
+	.. seealso::
+
+	   * :class:`Reference to a type or subtype <pyVHDLModel.Symbol.SubtypeSymbol>`
+	"""
 	_type:               Symbol
 	_baseType:           BaseType
 	_range:              Range
@@ -137,12 +227,30 @@ class Subtype(BaseType):
 
 @export
 class ScalarType(FullType):
-	"""A ``ScalarType`` is a base-class for all scalar types."""
+	"""
+	Represents a base-class for all scalar types: enumerated, integer, real and physical types.
+
+	.. seealso::
+
+	   * :class:`Ranged scalar type <pyVHDLModel.Type.RangedScalarType>`
+	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
+	"""
 
 
 @export
 class RangedScalarType(ScalarType):
-	"""A ``RangedScalarType`` is a base-class for all scalar types with a range."""
+	"""
+	Represents a base-class for all scalar types constrained by a range (:data:`Range`).
+
+	Integer, real and physical types are ranged. An enumerated type is scalar but not ranged, so it
+	derives from :class:`ScalarType` directly.
+
+	.. seealso::
+
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
+	   * :class:`Real type <pyVHDLModel.Type.RealType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
+	"""
 
 	_range: Range
 
@@ -170,7 +278,15 @@ class RangedScalarType(ScalarType):
 
 @export
 class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
-	"""A ``NumericType`` is a mixin class for all numeric types."""
+	"""
+	A mixin-class for all numeric types: integer, real and physical types.
+
+	.. seealso::
+
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
+	   * :class:`Real type <pyVHDLModel.Type.RealType>`
+	   * :class:`Physical type <pyVHDLModel.Type.PhysicalType>`
+	"""
 
 	def __init__(self) -> None:
 		pass
@@ -178,7 +294,14 @@ class NumericTypeMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
-	"""A ``DiscreteType`` is a mixin class for all discrete types."""
+	"""
+	A mixin-class for all discrete types: enumerated and integer types.
+
+	.. seealso::
+
+	   * :class:`Enumerated type <pyVHDLModel.Type.EnumeratedType>`
+	   * :class:`Integer type <pyVHDLModel.Type.IntegerType>`
+	"""
 
 	def __init__(self) -> None:
 		pass
@@ -186,6 +309,20 @@ class DiscreteTypeMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class EnumeratedType(ScalarType, DiscreteTypeMixin):
+	"""
+	Represents an enumerated type definition.
+
+	An enumerated type is a named entity (:data:`Identifier`) listing its enumeration literals
+	(:data:`Literals`) in declaration order.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type state is (Idle, Running, Done);
+	      --   ^^^^^                             <- Identifier
+	      --             ^^^^^^^^^^^^^^^^^^^     <- Literals
+	"""
 	_literals: List[EnumerationLiteral]
 
 	def __init__(self, identifier: str, literals: Iterable[EnumerationLiteral], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -212,6 +349,19 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 @export
 class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
+	"""
+	Represents an integer type definition.
+
+	An integer type is a named entity (:data:`Identifier`) constrained by a range (:data:`Range`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type nibble is range 0 to 15;
+	      --   ^^^^^^                     <- Identifier
+	      --                   ^^^^^^^    <- Range
+	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
@@ -221,6 +371,20 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 
 @export
 class RealType(RangedScalarType, NumericTypeMixin):
+	"""
+	Represents a floating-point type definition.
+
+	A floating-point type is a named entity (:data:`Identifier`) constrained by a range
+	(:data:`Range`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type fraction is range 0.0 to 1.0;
+	      --   ^^^^^^^^                        <- Identifier
+	      --                     ^^^^^^^^^^    <- Range
+	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(identifier, rng, documentation, parent)
 
@@ -230,6 +394,29 @@ class RealType(RangedScalarType, NumericTypeMixin):
 
 @export
 class PhysicalType(RangedScalarType, NumericTypeMixin):
+	"""
+	Represents a physical type definition.
+
+	A physical type is a named entity (:data:`Identifier`) constrained by a range (:data:`Range`), and
+	defines a primary unit (:data:`PrimaryUnit`) plus any number of secondary units
+	(:data:`SecondaryUnits`). The model holds the secondary units in a list and has no distinct field
+	per unit, so the markers below name list elements.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type distance is range 0 to 1000000 units
+	      --   ^^^^^^^^                               <- Identifier
+	      --                     ^^^^^^^^^^^^         <- Range
+	        um;
+	      --^^^                                       <- PrimaryUnit
+	        mm = 1000 um;
+	      --^^^^^^^^^^^^^                             <- SecondaryUnits[0]
+	        m  = 1000 mm;
+	      --^^^^^^^^^^^^^                             <- SecondaryUnits[1]
+	      end units;
+	"""
 	_primaryUnit:    str
 	_secondaryUnits: List[Tuple[str, PhysicalIntegerLiteral]]
 
@@ -275,11 +462,46 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 
 @export
 class CompositeType(FullType):
-	"""A ``CompositeType`` is a base-class for all composite types."""
+	"""
+	Represents a base-class for all composite types: array and record types.
+
+	.. seealso::
+
+	   * :class:`Array type <pyVHDLModel.Type.ArrayType>`
+	   * :class:`Record type <pyVHDLModel.Type.RecordType>`
+	"""
 
 
 @export
 class ArrayType(CompositeType):
+	"""
+	Represents an array type definition.
+
+	An array type is a named entity (:data:`Identifier`) defining one or more index ranges
+	(:data:`Dimensions`) and the subtype of its elements (:data:`ElementType`).
+
+	.. admonition:: Example
+
+	   One dimension:
+
+	   .. code-block:: VHDL
+
+	      type memory is array (0 to 255) of bit_vector(7 downto 0);
+	      --   ^^^^^^                                                  <- Identifier
+	      --                    ^^^^^^^^                               <- Dimensions
+	      --                                 ^^^^^^^^^^^^^^^^^^^^^^    <- ElementType
+
+	   Two dimensions, both unconstrained:
+
+	   .. code-block:: VHDL
+
+	      type matrix is array (natural range <>, natural range <>) of bit;
+	      --                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^            <- Dimensions
+
+	.. seealso::
+
+	   * :class:`Reference to a constrained array subtype <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
+	"""
 	_dimensions:  List[Range]
 	_elementType: Symbol
 
@@ -325,6 +547,26 @@ class ArrayType(CompositeType):
 
 @export
 class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
+	"""
+	Represents one element declaration inside a record type definition.
+
+	A single declaration may name several elements at once, hence :data:`Identifiers` rather than one
+	identifier. All of them share the same subtype (:data:`Subtype`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type frame is record
+	        a, b : bit;
+	      --^^^^                 <- Identifiers
+	      --       ^^^           <- Subtype
+	      end record;
+
+	.. seealso::
+
+	   * :class:`Record type <pyVHDLModel.Type.RecordType>`
+	"""
 	_subtype: Symbol
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
@@ -349,6 +591,30 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 
 @export
 class RecordType(CompositeType):
+	"""
+	Represents a record type definition.
+
+	A record type is a named entity (:data:`Identifier`) holding its element declarations
+	(:data:`Elements`) in declaration order. The model holds them in a list and has no distinct
+	field per element, so the markers below name list elements.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type frame is record
+	      --   ^^^^^                             <- Identifier
+	        a, b    : bit;
+	      --^^^^^^^^^^^^^^                       <- Elements[0]
+	        payload : bit_vector(31 downto 0);
+	      --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   <- Elements[1]
+	      end record;
+
+	.. seealso::
+
+	   * :class:`Record element <pyVHDLModel.Type.RecordTypeElement>`
+	   * :class:`Reference to a record element <pyVHDLModel.Symbol.RecordElementSymbol>`
+	"""
 	_elements: List[RecordTypeElement]
 
 	def __init__(self, identifier: str, elements: Nullable[Iterable[RecordTypeElement]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -375,6 +641,31 @@ class RecordType(CompositeType):
 
 @export
 class ProtectedType(FullType):
+	"""
+	Represents a protected type declaration.
+
+	A protected type is a named entity (:data:`Identifier`) exposing only its methods
+	(:data:`Methods`). The implementation lives in a separate :class:`ProtectedTypeBody`.
+	The model holds the methods in a list and has no distinct field per method, so the markers
+	below name list elements.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type counter is protected
+	      --   ^^^^^^^                              <- Identifier
+	        procedure increment;
+	      --^^^^^^^^^^^^^^^^^^^^                    <- Methods[0]
+	        impure function value return natural;
+	      --^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^   <- Methods[1]
+	      end protected;
+
+	.. seealso::
+
+	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
+	   * :class:`Method of a protected type <pyVHDLModel.Subprogram.ProcedureMethod>`
+	"""
 	_methods: List[Union['Procedure', 'Function']]
 
 	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -398,6 +689,36 @@ class ProtectedType(FullType):
 
 @export
 class ProtectedTypeBody(FullType):
+	"""
+	Represents a protected type body.
+
+	A protected type body implements the methods (:data:`Methods`) declared by the
+	:class:`ProtectedType` of the same identifier (:data:`Identifier`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type counter is protected body
+	      --   ^^^^^^^                       <- Identifier
+	        variable count : natural := 0;
+	        procedure increment is
+	      --^^^^^^^^^^^^^^^^^^^^^^           <- Methods[0]
+	        begin
+	          count := count + 1;
+	        end procedure;
+	      end protected body;
+
+	.. note::
+
+	   A protected type body may also declare non-subprogram items - ``variable count`` above. The
+	   model currently stores every declared item in :data:`Methods`, so such declarations are
+	   conflated with the methods and have no marker of their own.
+
+	.. seealso::
+
+	   * :class:`Protected type declaration <pyVHDLModel.Type.ProtectedType>`
+	"""
 	_methods: List[Union['Procedure', 'Function']]
 
 	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -422,6 +743,20 @@ class ProtectedTypeBody(FullType):
 
 @export
 class AccessType(FullType):
+	"""
+	Represents an access type definition.
+
+	An access type is a named entity (:data:`Identifier`) pointing at values of its designated subtype
+	(:data:`DesignatedSubtype`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type ptr is access integer;
+	      --   ^^^                      <- Identifier
+	      --                 ^^^^^^^    <- DesignatedSubtype
+	"""
 	_designatedSubtype: Symbol
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -445,6 +780,20 @@ class AccessType(FullType):
 
 @export
 class FileType(FullType):
+	"""
+	Represents a file type definition.
+
+	A file type is a named entity (:data:`Identifier`) holding values of its designated subtype
+	(:data:`DesignatedSubtype`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      type text_file is file of string;
+	      --   ^^^^^^^^^                      <- Identifier
+	      --                        ^^^^^^    <- DesignatedSubtype
+	"""
 	_designatedSubtype: Symbol
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:

@@ -218,19 +218,26 @@ class PackageReferenceSymbol(Symbol):
 @export
 class ModeViewSymbol(Symbol):
 	"""
-	Represents a reference (name) to a mode view declaration.
+	Represents a reference to a mode view (VHDL-2019).
 
-	The internal name will be a :class:`~pyVHDLModel.Name.SimpleName` (or an
-	:class:`~pyVHDLModel.Name.AttributeName` for the ``'converse`` case).
+	The referenced mode view is available as :data:`Reference` once resolved. A reference may also
+	select the converse view.
 
 	.. admonition:: Example
 
+	   Referencing a mode view:
+
 	   .. code-block:: VHDL
 
-	      port (p : view MyView);
-	      --          ^^^^^^
-	      port (p : view MyView'converse);
-	      --          ^^^^^^^^^^^^^^^^^^
+	      port (p : view MasterView);
+	      --             ^^^^^^^^^^     <- Name
+
+	   Referencing its converse:
+
+	   .. code-block:: VHDL
+
+	      port (p : view MasterView'converse);
+	      --             ^^^^^^^^^^^^^^^^^^^     <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -253,15 +260,16 @@ class ModeViewSymbol(Symbol):
 @export
 class SubprogramReferenceSymbol(Symbol):
 	"""
-	Represents a reference (name) to a subprogram (procedure or function), e.g. the uninstantiated
-	subprogram named by a subprogram instantiation.
+	Represents a reference to a subprogram.
+
+	The referenced subprogram is available as :data:`Reference` once resolved.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      function f is new g generic map (...);
-	      --                  ^
+	      function f is new gen_fun generic map (N => 1);
+	      --                ^^^^^^^                         <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -284,15 +292,16 @@ class SubprogramReferenceSymbol(Symbol):
 @export
 class ConfigurationSymbol(Symbol):
 	"""
-	Represents a reference (name) to a configuration declaration, e.g. in an entity aspect of a
-	binding indication.
+	Represents a reference to a configuration.
+
+	The referenced configuration is available as :data:`Reference` once resolved.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for U1 : comp use configuration work.cfg;
-	      --                              ^^^^^^^
+	      --                              ^^^^^^^^    <- Name
 	"""
 
 	def __init__(self, name: Name) -> None:
@@ -654,6 +663,18 @@ class PackageSymbol(Symbol):
 
 @export
 class RecordElementSymbol(Symbol):
+	"""
+	Represents a reference to a record element.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      r := (a => '1', b => '0');
+	      --    ^                      <- Name
+	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.RecordElement)
 
@@ -673,6 +694,17 @@ class RangeAttributeSymbol(Symbol):
 
 @export
 class SubtypeSymbol(Symbol):
+	"""
+	Represents the base-class of all references to a type or subtype.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. seealso::
+
+	   * :class:`Simple subtype symbol <pyVHDLModel.Symbol.SimpleSubtypeSymbol>`
+	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
+	   * :class:`Constrained composite subtype symbol <pyVHDLModel.Symbol.ConstrainedCompositeSubtypeSymbol>`
+	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Type | PossibleReference.Subtype)
 
@@ -692,16 +724,46 @@ class SubtypeSymbol(Symbol):
 
 @export
 class SimpleSubtypeSymbol(SubtypeSymbol):
+	"""
+	Represents a reference to a type or subtype by its type mark.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      signal s : bit := '0';
+	      --         ^^^           <- Name
+	"""
 	pass
 
 
 @export
 class Constraint(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for symbols carrying a constraint.
+
+	.. seealso::
+
+	   * :class:`Scalar constraint <pyVHDLModel.Symbol.ScalarConstraint>`
+	   * :class:`Array constraint <pyVHDLModel.Symbol.ArrayConstraint>`
+	   * :class:`Record constraint <pyVHDLModel.Symbol.RecordConstraint>`
+	"""
 	pass
 
 
 @export
 class ScalarConstraint(Constraint, mixin=True):
+	"""
+	A mixin-class for a scalar constraint: a range.
+
+	The range is available as :data:`Constraint`.
+
+	.. seealso::
+
+	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
+	"""
 	_constraint: Nullable[Range]
 
 	def __init__(self, constraint: Nullable[Range]) -> None:
@@ -720,12 +782,17 @@ class ScalarConstraint(Constraint, mixin=True):
 @export
 class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 	"""
+	Represents a reference to a scalar subtype narrowed by a range.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      signal s : integer range 0 to 15;
-	      --         ^^^^^^^^^^^^^^^^^^^^^^
+	      for i in integer range 0 to 3 loop
+	      --       ^^^^^^^                     <- Name
+	      --                     ^^^^^^        <- Constraint
 	"""
 
 	def __init__(self, name: Name, constraint: Nullable[Range] = None) -> None:
@@ -735,6 +802,15 @@ class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 
 @export
 class ArrayConstraint(Constraint, mixin=True):
+	"""
+	A mixin-class for an array constraint: one range per dimension.
+
+	The ranges are available as :data:`Constraints`.
+
+	.. seealso::
+
+	   * :class:`Constrained array subtype symbol <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
+	"""
 	_constraints: List[Range]
 
 	def __init__(self, constraints: Iterable[Range]) -> None:
@@ -752,6 +828,15 @@ class ArrayConstraint(Constraint, mixin=True):
 
 @export
 class RecordConstraint(Constraint, mixin=True):
+	"""
+	A mixin-class for a record constraint: one constraint per element.
+
+	The constraints are available as :data:`Constraints`.
+
+	.. seealso::
+
+	   * :class:`Constrained record subtype symbol <pyVHDLModel.Symbol.ConstrainedRecordSubtypeSymbol>`
+	"""
 	_constraints: Dict[RecordElementSymbol, Range]
 
 	def __init__(self, constraints: Mapping[RecordElementSymbol, Range]) -> None:
@@ -769,11 +854,34 @@ class RecordConstraint(Constraint, mixin=True):
 
 @export
 class ConstrainedCompositeSubtypeSymbol(SubtypeSymbol):
+	"""
+	Represents the base-class of references to constrained composite subtypes.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. seealso::
+
+	   * :class:`Constrained array subtype symbol <pyVHDLModel.Symbol.ConstrainedArraySubtypeSymbol>`
+	   * :class:`Constrained record subtype symbol <pyVHDLModel.Symbol.ConstrainedRecordSubtypeSymbol>`
+	"""
 	pass
 
 
 @export
 class ConstrainedArraySubtypeSymbol(ConstrainedCompositeSubtypeSymbol, ArrayConstraint):
+	"""
+	Represents a reference to an array subtype narrowed by index ranges.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      signal v : bit_vector(7 downto 0);
+	      --         ^^^^^^^^^^                <- Name
+	      --                    ^^^^^^^^^^     <- Constraints
+	"""
 	_constraints: List
 
 	def __init__(self, name: Name, constraints: Iterable) -> None:
@@ -783,6 +891,11 @@ class ConstrainedArraySubtypeSymbol(ConstrainedCompositeSubtypeSymbol, ArrayCons
 
 @export
 class ConstrainedRecordSubtypeSymbol(ConstrainedCompositeSubtypeSymbol, RecordConstraint):
+	"""
+	Represents a reference to a record subtype with constrained elements.
+
+	The referenced language entity is available as :data:`Reference` once resolved.
+	"""
 	_constraints: Dict[RecordElementSymbol, Any]
 
 	def __init__(self, name: Name, constraints: Mapping) -> None:
@@ -792,11 +905,23 @@ class ConstrainedRecordSubtypeSymbol(ConstrainedCompositeSubtypeSymbol, RecordCo
 
 @export
 class SimpleObjectOrFunctionCallSymbol(Symbol):
+	"""
+	Represents a reference that is either an object or a parameterless function call.
+
+	Which of the two it is cannot be decided before the name is resolved. The referenced language
+	entity is available as :data:`Reference` once resolved.
+	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.SimpleNameInExpression)
 
 
 @export
 class IndexedObjectOrFunctionCallSymbol(Symbol):
+	"""
+	Represents a reference that is either an indexed object or a function call.
+
+	An expression like ``f(0)`` may index an array or call a function; both look identical until the
+	name is resolved. The referenced language entity is available as :data:`Reference` once resolved.
+	"""
 	def __init__(self, name: Name) -> None:
 		super().__init__(name, PossibleReference.Object | PossibleReference.Function)

@@ -59,9 +59,9 @@ class Reference(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.LibraryClause`
-	   * :class:`~pyVHDLModel.DesignUnit.UseClause`
-	   * :class:`~pyVHDLModel.DesignUnit.ContextReference`
+	   * :class:`Library clause <pyVHDLModel.DesignUnit.LibraryClause>`
+	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
+	   * :class:`Context reference <pyVHDLModel.DesignUnit.ContextReference>`
 	"""
 
 	_symbols:       List[Symbol]
@@ -148,6 +148,14 @@ ContextUnion = Union[
 class DesignUnitWithContextMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for all design units with a context.
+
+	.. seealso::
+
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
 
@@ -160,15 +168,15 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	   * :class:`Primary design units <pyVHDLModel.DesignUnit.PrimaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Context`
-	     * :class:`~pyVHDLModel.DesignUnit.Entity`
-	     * :class:`~pyVHDLModel.DesignUnit.Package`
-	     * :class:`~pyVHDLModel.DesignUnit.Configuration`
+	     * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	     * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	     * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	     * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 
 	   * :class:`Secondary design units <pyVHDLModel.DesignUnit.SecondaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	     * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	     * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	     * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
 	_document: 'Document'                                  #: The VHDL library, the design unit was analyzed into.
@@ -347,10 +355,11 @@ class PrimaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Context`
-	   * :class:`~pyVHDLModel.DesignUnit.Entity`
-	   * :class:`~pyVHDLModel.DesignUnit.Package`
-	   * :class:`~pyVHDLModel.DesignUnit.Configuration`
+	   * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
+	   * :class:`PSL primary unit <pyVHDLModel.PSLModel.PSLPrimaryUnit>` (PSL is not supported)
 	"""
 
 
@@ -361,8 +370,8 @@ class SecondaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	   * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	"""
 
 
@@ -395,6 +404,11 @@ class Context(PrimaryUnit):
 	      context ctx is
 	        -- ...
 	      end context;
+
+	.. seealso::
+
+	   * :class:`Library clause <pyVHDLModel.DesignUnit.LibraryClause>`
+	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
 	"""
 
 	_references:        List[ContextUnion]
@@ -466,6 +480,12 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 	      package pkg is
 	        -- ...
 	      end package;
+
+	.. seealso::
+
+	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
+	   * :class:`Predefined package <pyVHDLModel.Predefined.PredefinedPackage>`
+	   * :class:`Package body implementing it <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
 	_packageBody:       Nullable["PackageBody"]
@@ -580,6 +600,11 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	      package body pkg is
 	        -- ...
 	      end package body;
+
+	.. seealso::
+
+	   * :class:`Predefined package body <pyVHDLModel.Predefined.PredefinedPackageBody>`
+	   * :class:`Package it implements <pyVHDLModel.DesignUnit.Package>`
 	"""
 
 	_package:       PackageSymbol
@@ -643,6 +668,12 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 	      entity ent is
 	        -- ...
 	      end entity;
+
+	.. seealso::
+
+	   * :class:`Architecture implementing it <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Component declaring the same interface <pyVHDLModel.DesignUnit.Component>`
+	   * :class:`Configuration binding it <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
 	_architectures: Dict[str, 'Architecture']
@@ -713,6 +744,10 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	      begin
 	        -- ...
 	      end architecture;
+
+	.. seealso::
+
+	   * :class:`Entity it implements <pyVHDLModel.DesignUnit.Entity>`
 	"""
 
 	_entity:        EntitySymbol
@@ -771,6 +806,11 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	      component ent is
 	        -- ...
 	      end component;
+
+	.. seealso::
+
+	   * :class:`Entity it may be bound to <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Component configuration <pyVHDLModel.Configuration.ComponentConfiguration>`
 	"""
 
 	_isBlackBox:        Nullable[bool]                    #: Component is a blackbox.
@@ -879,6 +919,11 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 	          -- ...
 	        end for;
 	      end configuration;
+
+	.. seealso::
+
+	   * :class:`Entity it configures <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Block configuration <pyVHDLModel.Configuration.BlockConfiguration>`
 	"""
 
 	_entity:            EntitySymbol

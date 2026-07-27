@@ -58,19 +58,27 @@ class EntityAspect(ModelEntity):
 
 	      for U1 : comp use entity work.sub(behav);
 	      --                ^^^^^^^^^^^^^^^^^^^^^^
+
+	.. seealso::
+
+	   * :class:`Entity aspect entity <pyVHDLModel.Configuration.EntityAspectEntity>`
+	   * :class:`Entity aspect configuration <pyVHDLModel.Configuration.EntityAspectConfiguration>`
+	   * :class:`Entity aspect open <pyVHDLModel.Configuration.EntityAspectOpen>`
 	"""
 
 
 @export
 class EntityAspectEntity(EntityAspect):
 	"""
+	Represents an entity aspect naming an entity, optionally with an architecture.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      for U1 : comp use entity work.sub(behav);
-	      --                       ^^^^^^^^  ^^^^^
-	      --                       Entity    Architecture (optional)
+	      use entity work.e_rest(rtl);
+	      --         ^^^^^^^^^^^         <- Entity
+	      --                     ^^^     <- Architecture
 	"""
 
 	_entity:       EntitySymbol
@@ -113,12 +121,14 @@ class EntityAspectEntity(EntityAspect):
 @export
 class EntityAspectConfiguration(EntityAspect):
 	"""
+	Represents an entity aspect naming a configuration.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      for U1 : comp use configuration work.cfg;
-	      --                              ^^^^^^^
+	      use configuration work.cfg;
+	      --                ^^^^^^^^    <- Configuration
 	"""
 
 	_configuration: ConfigurationSymbol
@@ -142,23 +152,24 @@ class EntityAspectConfiguration(EntityAspect):
 @export
 class EntityAspectOpen(EntityAspect):
 	"""
+	Represents an open entity aspect, leaving the binding unspecified.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      for U1 : comp use open;
+	      use open;
+	      --  ^^^^    <- the aspect
 	"""
 
 
 @export
 class BindingIndication(ModelEntity):
 	"""
-	.. admonition:: Example
+	Represents a binding indication: which design entity a component is bound to.
 
-	   .. code-block:: VHDL
-
-	      for U1 : comp use entity work.sub(behav) generic map (...) port map (...);
-	      --                ^^^^^^^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^^^^ ^^^^^^^^^^^^^^
+	The entity aspect is available as :data:`EntityAspect`, together with the generic and port maps
+	(:data:`GenericAssociations`, :data:`PortAssociations`).
 	"""
 
 	_entityAspect:            Nullable[EntityAspect]
@@ -221,28 +232,28 @@ class BindingIndication(ModelEntity):
 @export
 class AllInstantiationList(ModelEntity):
 	"""
-	Represents the reserved word ``all`` used as an instantiation list.
+	Represents an instantiation list naming ``all`` instances of a component.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for all : comp use entity work.sub(behav);
-	      --    ^^^
+	      --  ^^^                                      <- the instantiation list
 	"""
 
 
 @export
 class OthersInstantiationList(ModelEntity):
 	"""
-	Represents the reserved word ``others`` used as an instantiation list.
+	Represents an instantiation list naming all instances not configured elsewhere.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for others : comp use entity work.sub(behav);
-	      --    ^^^^^^
+	      --  ^^^^^^                                      <- the instantiation list
 	"""
 
 
@@ -324,15 +335,16 @@ class ComponentConfiguration(ModelEntity):
 @export
 class BlockConfiguration(ModelEntity):
 	"""
+	Represents the configuration of one block: an architecture, a block statement or a generate body.
+
+	Nested configurations are available as :data:`ConfigurationItems`.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	      for rtl
-	      --  ^^^ Block specification
-	        for U1 : comp
-	        -- ...
-	        end for;
+	      --  ^^^    <- Block
 	      end for;
 	"""
 

@@ -43,27 +43,62 @@ from pyVHDLModel.Symbol   import Symbol
 
 @export
 class VHDLModelWarning(Warning):
+	"""
+	Base-class for all warnings raised by pyVHDLModel.
+
+	.. seealso::
+
+	   * :class:`Not implemented warning <pyVHDLModel.Exception.NotImplementedWarning>`
+	"""
 	pass
 
 
 @export
 class NotImplementedWarning(VHDLModelWarning):
+	"""
+	Raised when a language construct is recognised but not yet modelled.
+	"""
 	pass
 
 
 @export
 class VHDLModelCriticalWarning(Warning):
+	"""
+	Base-class for critical warnings that likely indicate a defect in the model or its input.
+
+	.. seealso::
+
+	   * :class:`Blackbox warning <pyVHDLModel.Exception.BlackboxWarning>`
+	"""
 	pass
 
 
 @export
 class BlackboxWarning(VHDLModelCriticalWarning):
+	"""
+	Raised when a component could not be bound and is treated as a blackbox.
+	"""
 	pass
 
 
 @export
 class VHDLModelException(Exception):
-	"""Base-class for all exceptions (errors) raised by pyVHDLModel."""
+	"""
+	Base-class for all exceptions (errors) raised by pyVHDLModel.
+
+	.. seealso::
+
+	   * :class:`Library exists in design error <pyVHDLModel.Exception.LibraryExistsInDesignError>`
+	   * :class:`Registered to foreign design error <pyVHDLModel.Exception.LibraryRegisteredToForeignDesignError>`
+	   * :class:`Library not registered error <pyVHDLModel.Exception.LibraryNotRegisteredError>`
+	   * :class:`Entity exists in library error <pyVHDLModel.Exception.EntityExistsInLibraryError>`
+	   * :class:`Architecture exists in library error <pyVHDLModel.Exception.ArchitectureExistsInLibraryError>`
+	   * :class:`Package exists in library error <pyVHDLModel.Exception.PackageExistsInLibraryError>`
+	   * :class:`Package body exists error <pyVHDLModel.Exception.PackageBodyExistsError>`
+	   * :class:`Configuration exists in library error <pyVHDLModel.Exception.ConfigurationExistsInLibraryError>`
+	   * :class:`Context exists in library error <pyVHDLModel.Exception.ContextExistsInLibraryError>`
+	   * :class:`Referenced library not existing error <pyVHDLModel.Exception.ReferencedLibraryNotExistingError>`
+	"""
 
 
 @export

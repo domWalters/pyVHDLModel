@@ -68,7 +68,19 @@ ExpressionUnion = Union[
 
 @export
 class ConcurrentStatement(Statement):
-	"""A base-class for all concurrent statements."""
+	"""
+	A base-class for all concurrent statements.
+
+	.. seealso::
+
+	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
+	   * :class:`Process statement <pyVHDLModel.Concurrent.ProcessStatement>`
+	   * :class:`Concurrent procedure call <pyVHDLModel.Concurrent.ConcurrentProcedureCall>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
+	   * :class:`Concurrent signal assignment <pyVHDLModel.Concurrent.ConcurrentSignalAssignment>`
+	   * :class:`Concurrent assert statement <pyVHDLModel.Concurrent.ConcurrentAssertStatement>`
+	"""
 
 
 @export
@@ -77,6 +89,13 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 	A mixin-class for all language constructs supporting concurrent statements.
 
 	.. seealso::
+
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Generate branch <pyVHDLModel.Concurrent.GenerateBranch>`
+	   * :class:`Concurrent case <pyVHDLModel.Concurrent.ConcurrentCase>`
+	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 
 	   .. todo:: concurrent declaration region
 	"""
@@ -130,6 +149,12 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 class Instantiation(ConcurrentStatement):
 	"""
 	A base-class for all (component) instantiations.
+
+	.. seealso::
+
+	   * :class:`Component instantiation <pyVHDLModel.Concurrent.ComponentInstantiation>`
+	   * :class:`Entity instantiation <pyVHDLModel.Concurrent.EntityInstantiation>`
+	   * :class:`Configuration instantiation <pyVHDLModel.Concurrent.ConfigurationInstantiation>`
 	"""
 
 	_genericAssociationItems: List[AssociationItem]
@@ -180,13 +205,18 @@ class Instantiation(ConcurrentStatement):
 @export
 class ComponentInstantiation(Instantiation):
 	"""
-	Represents a component instantiation by referring to a component name.
+	Represents a component instantiation.
+
+	The instantiated component is available as :data:`Component`, the associations as
+	:data:`GenericAssociationItems` and :data:`PortAssociationItems`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : component Counter;
+	        inst : component Counter;
+	      --^^^^                        <- Label
+	      --                 ^^^^^^^    <- Component
 	"""
 
 	_component: ComponentInstantiationSymbol
@@ -217,13 +247,19 @@ class ComponentInstantiation(Instantiation):
 @export
 class EntityInstantiation(Instantiation):
 	"""
-	Represents an entity instantiation by referring to an entity name with optional architecture name.
+	Represents a direct entity instantiation.
+
+	The instantiated entity is available as :data:`Entity` and the optionally selected architecture
+	as :data:`Architecture`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : entity work. Counter;
+	        inst : entity work.Counter(rtl);
+	      --^^^^                               <- Label
+	      --              ^^^^^^^^^^^^         <- Entity
+	      --                           ^^^     <- optional Architecture
 	"""
 
 	_entity: EntityInstantiationSymbol
@@ -269,13 +305,17 @@ class EntityInstantiation(Instantiation):
 @export
 class ConfigurationInstantiation(Instantiation):
 	"""
-	Represents a configuration instantiation by referring to a configuration name.
+	Represents a configuration instantiation.
+
+	The instantiated configuration is available as :data:`Configuration`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      inst : configuration Counter;
+	        inst : configuration Counter;
+	      --^^^^                            <- Label
+	      --                     ^^^^^^^    <- Configuration
 	"""
 
 	_configuration: ConfigurationInstantiationSymbol
@@ -306,17 +346,24 @@ class ConfigurationInstantiation(Instantiation):
 @export
 class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, SequentialStatementsMixin, DocumentedEntityMixin):
 	"""
-	Represents a process statement with sensitivity list, sequential declaration region and sequential statements.
+	Represents a process statement.
+
+	A process declares its own items (:data:`DeclaredItems`) and groups sequential statements
+	(:data:`Statements`). It may name a sensitivity list (:data:`SensitivityList`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      proc: process(Clock)
-	        -- sequential declarations
-	      begin
-	        -- sequential statements
-	      end process;
+	        proc : process (clock)
+	      --^^^^                     <- optional Label
+	      --                ^^^^^    <- optional SensitivityList
+	          variable v : bit;
+	      --  ^^^^^^^^^^^^^^^^^      <- DeclaredItems
+	        begin
+	          v := '1';
+	      --  ^^^^^^^^^              <- Statements
+	        end process;
 	"""
 
 	_sensitivityList: List[Name]  # TODO: implement a SignalSymbol
@@ -363,6 +410,23 @@ class ProcessStatement(ConcurrentStatement, SequentialDeclarationRegionMixin, Se
 
 @export
 class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
+	"""
+	Represents a concurrent procedure call.
+
+	Like every concurrent statement, it can carry an optional label (:data:`Label`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        proc_lbl : proc(clock, open);
+	      --^^^^^^^^                        <- optional Label
+	      --           ^^^^^^^^^^^^^^^^^    <- the call
+
+	.. seealso::
+
+	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialProcedureCall>`
+	"""
 	def __init__(
 		self,
 		label: str,
@@ -376,6 +440,38 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 @export
 class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
+	"""
+	Represents a block statement.
+
+	A block groups concurrent statements (:data:`Statements`) and may declare its own items
+	(:data:`DeclaredItems`). It always forms a hierarchy level; independently of that, it may also
+	have a port clause (:data:`PortItems`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        blk : block
+	      --^^^                            <- Label
+	          port (bp : in bit);
+	      --        ^^^^^^^^^^^            <- PortItems
+	          port map (bp => clock);
+	          signal inner : bit := '0';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
+	        begin
+	          inner <= bp;
+	      --  ^^^^^^^^^^^^                 <- Statements
+	        end block;
+
+	.. note::
+
+	   The block's *port map aspect* (``port map (bp => clock);`` above) is not represented by the
+	   model yet - there is no field for the association items, so it has no marker.
+
+	.. seealso::
+
+	   * :class:`Generate statement <pyVHDLModel.Concurrent.GenerateStatement>`
+	"""
 	_namespace: Namespace
 
 	def __init__(
@@ -423,9 +519,9 @@ class GenerateBranch(ModelEntity, ConcurrentDeclarationRegionMixin, ConcurrentSt
 
 	.. seealso::
 
-	   * :class:`If-generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
-	   * :class:`Elsif-generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
-	   * :class:`Else-generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
+	   * :class:`If generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
+	   * :class:`Elsif generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
+	   * :class:`Else generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
 	"""
 
 	_alternativeLabel:           Nullable[str]
@@ -574,13 +670,15 @@ class ElseGenerateBranch(GenerateBranch, ElseBranchMixin):
 @export
 class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 	"""
-	A base-class for all generate statements.
+	Represents the base-class of all generate statements.
+
+	A generate statement replicates or conditionally elaborates concurrent statements.
 
 	.. seealso::
 
-	   * :class:`If...generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
-	   * :class:`Case...generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
-	   * :class:`For...generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	   * :class:`If generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
+	   * :class:`Case generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
+	   * :class:`For generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
 	def __init__(
@@ -604,19 +702,27 @@ class GenerateStatement(ConcurrentStatement, AllowBlackboxMixin):
 @export
 class IfGenerateStatement(GenerateStatement):
 	"""
-	Represents an if...generate statement.
+	Represents an if-generate statement.
+
+	It has one ``if`` branch (:data:`IfBranch`), any number of ``elsif`` branches
+	(:data:`ElsifBranches`) and an optional ``else`` branch (:data:`ElseBranch`). The label is
+	mandatory and the branch conditions must be static expressions.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: if condition generate
-	        -- ...
-	      elsif condition generate
-	        -- ...
-	      else generate
-	        -- ...
-	      end generate;
+	        gen : if WIDTH > 8 generate
+	      --^^^                           <- Label
+	      --      ^^^^^^^^^^^^^^^^^^^^^   <- IfBranch
+	          q <= '0';
+	        elsif WIDTH > 4 generate
+	      --^^^^^^^^^^^^^^^^^^^^^^^^      <- ElsifBranches[0]
+	          q <= '1';
+	        else generate
+	      --^^^^^^^^^^^^^                 <- ElseBranch
+	          q <= 'Z';
+	        end generate;
 
 	.. seealso::
 
@@ -624,6 +730,8 @@ class IfGenerateStatement(GenerateStatement):
 	   * :class:`If-generate branch <pyVHDLModel.Concurrent.IfGenerateBranch>`
 	   * :class:`Elsif-generate branch <pyVHDLModel.Concurrent.ElsifGenerateBranch>`
 	   * :class:`Else-generate branch <pyVHDLModel.Concurrent.ElseGenerateBranch>`
+	   * :class:`Case-generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
+	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
 	_ifBranch:      IfGenerateBranch
@@ -718,11 +826,30 @@ class IfGenerateStatement(GenerateStatement):
 
 @export
 class ConcurrentChoice(BaseChoice):
-	"""A base-class for all concurrent choices (in case...generate statements)."""
+	"""
+	A base-class for all concurrent choices (in case...generate statements).
+
+	.. seealso::
+
+	   * :class:`Indexed generate choice <pyVHDLModel.Concurrent.IndexedGenerateChoice>`
+	   * :class:`Ranged generate choice <pyVHDLModel.Concurrent.RangedGenerateChoice>`
+	"""
 
 
 @export
 class IndexedGenerateChoice(ConcurrentChoice):
+	"""
+	Represents a case-generate choice given by a single value.
+
+	The value is available as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 8 =>
+	      --   ^      <- Expression
+	"""
 	_expression: ExpressionUnion
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
@@ -746,6 +873,18 @@ class IndexedGenerateChoice(ConcurrentChoice):
 
 @export
 class RangedGenerateChoice(ConcurrentChoice):
+	"""
+	Represents a case-generate choice given by a range.
+
+	The range is available as :data:`Range`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 0 to 3 =>
+	      --   ^^^^^^      <- Range
+	"""
 	_range: 'Range'
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
@@ -769,6 +908,14 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 @export
 class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, AllowBlackboxMixin, ChoicesMixin):
+	"""
+	Represents the base-class of all alternatives of a case-generate statement.
+
+	.. seealso::
+
+	   * :class:`Generate case <pyVHDLModel.Concurrent.GenerateCase>`
+	   * :class:`Others generate case <pyVHDLModel.Concurrent.OthersGenerateCase>`
+	"""
 	_namespace: Namespace
 
 	def __init__(
@@ -798,6 +945,16 @@ class ConcurrentCase(BaseCase, LabeledEntityMixin, ConcurrentDeclarationRegionMi
 
 @export
 class GenerateCase(ConcurrentCase):
+	"""
+	Represents one alternative of a case-generate statement, selected by its choices.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 8 =>
+	      --   ^      <- Choices
+	"""
 	def __init__(
 		self,
 		choices:          Iterable[ConcurrentChoice],
@@ -815,6 +972,18 @@ class GenerateCase(ConcurrentCase):
 
 @export
 class OthersGenerateCase(ConcurrentCase):
+	"""
+	Represents the ``others`` alternative of a case-generate statement.
+
+	It covers every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when others =>
+	      --   ^^^^^^      <- the choice
+	"""
 	def __str__(self) -> str:
 		return "when others =>"
 
@@ -822,20 +991,28 @@ class OthersGenerateCase(ConcurrentCase):
 @export
 class CaseGenerateStatement(GenerateStatement):
 	"""
-	Represents a case...generate statement.
+	Represents a case-generate statement.
+
+	The expression being tested is available as :data:`SelectExpression`, the alternatives as
+	:data:`Cases`. The label is mandatory and the selector must be a static expression.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: case selector generate
-	        case choice1 =>
-	          -- ...
-	        case choice2 =>
-	          -- ...
-	        case others =>
-	          -- ...
-	      end generate;
+	        gen : case MODE generate
+	      --^^^                          <- Label
+	      --           ^^^^              <- SelectExpression
+	          when 0 => q <= '0';
+	      --  ^^^^^^^^^^^^^^^^^^^        <- Cases[0]
+	          when others => q <= '1';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^   <- Cases[1]
+	        end generate;
+
+	.. seealso::
+
+	   * :class:`If-generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
+	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
 	"""
 
 	_expression: ExpressionUnion
@@ -899,15 +1076,27 @@ class CaseGenerateStatement(GenerateStatement):
 @export
 class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin):
 	"""
-	Represents a for...generate statement.
+	Represents a for-generate statement.
+
+	The loop index is available as :data:`LoopIndex`, the iteration range as :data:`Range` and the
+	generated statements as :data:`Statements`. The label is mandatory.
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      gen: for i in 0 to 3 generate
-	        -- ...
-	      end generate;
+	        gen : for i in 0 to 3 generate
+	      --^^^                              <- Label
+	      --          ^                      <- LoopIndex
+	      --               ^^^^^^            <- Range
+	          q(i) <= '0';
+	      --  ^^^^^^^^^^^^                   <- Statements
+	        end generate;
+
+	.. seealso::
+
+	   * :class:`If-generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
+	   * :class:`Case-generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
 	"""
 
 	_loopIndex: str
@@ -978,14 +1167,13 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 @export
 class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	"""
-	A base-class for concurrent signal assignments.
+	Represents the base-class of all concurrent signal assignments.
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment`
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment`
-	   * :class:`~pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment`
-	"""
+	   * :class:`Concurrent simple signal assignment <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
+	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
+	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`	"""
 	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
@@ -993,6 +1181,24 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 
 @export
 class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin):
+	"""
+	Represents a simple concurrent signal assignment.
+
+	The assignment's destination is available as :data:`Target`, its value as :data:`Waveform`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : q <= '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Waveform
+
+	.. seealso::
+
+	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
+	"""
 	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, target, parent)
 		WaveformMixin.__init__(self, waveform)
@@ -1001,11 +1207,27 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 @export
 class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionMixin, SelectedWaveformsMixin):
 	"""
+	Represents a selected concurrent signal assignment.
+
+	The selector is available as :data:`Expression`, the alternatives as :data:`SelectedWaveforms`,
+	a list of :class:`~pyVHDLModel.Common.SelectedWaveform`. The model holds them in a list and has
+	no distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when 0, '0' when others;
+	        lbl : with sel select q <= '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedWaveforms[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedWaveforms[1]
+
+	.. seealso::
+
+	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialSelectedSignalAssignment>`
+	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
 	"""
 
 	def __init__(
@@ -1024,11 +1246,26 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 @export
 class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, ConditionalWaveformsMixin):
 	"""
+	Represents a conditional concurrent signal assignment.
+
+	The alternatives are available as :data:`ConditionalWaveforms`, a list of
+	:class:`~pyVHDLModel.Common.ConditionalWaveform`. The model holds them in a list and has no
+	distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	        lbl : q <= '1' when cond else '0';
+	      --^^^                                  <- optional Label
+	      --      ^                              <- Target
+	      --           ^^^^^^^^^^^^^             <- ConditionalWaveforms[0]
+	      --                              ^^^    <- ConditionalWaveforms[1]
+
+	.. seealso::
+
+	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialConditionalSignalAssignment>`
+	   * :class:`Conditional waveform <pyVHDLModel.Common.ConditionalWaveform>`
 	"""
 
 	def __init__(
@@ -1044,6 +1281,26 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 
 @export
 class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
+	"""
+	Represents a concurrent assertion statement.
+
+	The checked condition is available as :data:`Condition`, the optional report string as
+	:data:`Message` and the optional severity as :data:`Severity`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : assert cond report "bad" severity note;
+	      --^^^                                             <- optional Label
+	      --             ^^^^                               <- Condition
+	      --                         ^^^^^                  <- optional Message
+	      --                                        ^^^^    <- optional Severity
+
+	.. seealso::
+
+	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialAssertStatement>`
+	"""
 	def __init__(
 		self,
 		condition: ExpressionUnion,

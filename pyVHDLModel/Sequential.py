@@ -54,11 +54,27 @@ from pyVHDLModel.Association import ParameterAssociationItem
 
 @export
 class SequentialStatement(Statement):
-	"""A ``SequentialStatement`` is a base-class for all sequential statements."""
+	"""
+	Represents the base-class of all sequential statements.
+
+	Sequential statements appear in a process or a subprogram body.
+	"""
 
 
 @export
 class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs containing sequential statements.
+
+	The statements are available in declaration order as :data:`Statements`.
+
+	.. seealso::
+
+	   * :class:`Process statement <pyVHDLModel.Concurrent.ProcessStatement>`
+	   * :class:`Branch <pyVHDLModel.Sequential.Branch>`
+	   * :class:`Sequential case <pyVHDLModel.Sequential.SequentialCase>`
+	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
+	"""
 	_statements: List[SequentialStatement]
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None) -> None:
@@ -81,6 +97,23 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 @export
 class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
+	"""
+	Represents a procedure call as a sequential statement.
+
+	Like every sequential statement, it can carry an optional label (:data:`Label`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : log("hello");
+	      --^^^                   <- optional Label
+	      --      ^^^^^^^^^^^^    <- the call
+
+	.. seealso::
+
+	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentProcedureCall>`
+	"""
 	def __init__(
 		self,
 		procedureName: Symbol,
@@ -94,6 +127,13 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 
 @export
 class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
+	"""
+	Represents the base-class of all sequential signal assignments.
+
+	.. seealso::
+
+	   * :class:`Sequential simple signal assignment <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
+	"""
 	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		SignalAssignmentMixin.__init__(self, target)
@@ -101,6 +141,24 @@ class SequentialSignalAssignment(SequentialStatement, SignalAssignmentMixin):
 
 @export
 class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin):
+	"""
+	Represents a simple sequential signal assignment.
+
+	The assignment's destination is available as :data:`Target`, its value as :data:`Waveform`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : s <= '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Waveform
+
+	.. seealso::
+
+	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
+	"""
 	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(target, label, parent)
 		WaveformMixin.__init__(self, waveform)
@@ -108,6 +166,20 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin
 
 @export
 class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin):
+	"""
+	Represents a simple sequential variable assignment.
+
+	The assignment's destination is available as :data:`Target`, its value as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : v := '1';
+	      --^^^               <- optional Label
+	      --      ^           <- Target
+	      --           ^^^    <- Expression
+	"""
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		VariableAssignmentMixin.__init__(self, target, expression)
@@ -116,11 +188,25 @@ class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin)
 @export
 class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMixin):
 	"""
+	Represents a conditional sequential variable assignment.
+
+	The alternatives are available as :data:`ConditionalExpressions`, a list of
+	:class:`~pyVHDLModel.Common.ConditionalExpression`. The model holds them in a list and has no
+	distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      v := '1' when cond1 else '0' when cond2 else 'Z';
+	        lbl : v := '1' when sel = '0' else '0';
+	      --^^^                                       <- optional Label
+	      --      ^                                   <- Target
+	      --           ^^^^^^^^^^^^^^^^^^             <- ConditionalExpressions[0]
+	      --                                   ^^^    <- ConditionalExpressions[1]
+
+	.. seealso::
+
+	   * :class:`Conditional expression <pyVHDLModel.Common.ConditionalExpression>`
 	"""
 
 	_conditionalExpressions: List[ConditionalExpression]
@@ -153,11 +239,26 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 @export
 class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmentMixin, ConditionalWaveformsMixin):
 	"""
+	Represents a conditional sequential signal assignment.
+
+	The alternatives are available as :data:`ConditionalWaveforms`, a list of
+	:class:`~pyVHDLModel.Common.ConditionalWaveform`. The model holds them in a list and has no
+	distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      s <= '1' when cond1 else '0' when cond2 else 'Z';
+	        lbl : s <= '1' when sel = '0' else '0';
+	      --^^^                                       <- optional Label
+	      --      ^                                   <- Target
+	      --           ^^^^^^^^^^^^^^^^^^             <- ConditionalWaveforms[0]
+	      --                                   ^^^    <- ConditionalWaveforms[1]
+
+	.. seealso::
+
+	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`
+	   * :class:`Conditional waveform <pyVHDLModel.Common.ConditionalWaveform>`
 	"""
 
 	def __init__(
@@ -175,11 +276,26 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 @export
 class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin, ExpressionMixin, SelectedExpressionsMixin):
 	"""
+	Represents a selected sequential variable assignment.
+
+	The selector is available as :data:`Expression`, the alternatives as :data:`SelectedExpressions`,
+	a list of :class:`~pyVHDLModel.Common.SelectedExpression`. The model holds them in a list and has
+	no distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      with sel select v := '1' when 0, '0' when others;
+	        lbl : with sel select v := '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedExpressions[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedExpressions[1]
+
+	.. seealso::
+
+	   * :class:`Selected expression <pyVHDLModel.Common.SelectedExpression>`
 	"""
 
 	def __init__(
@@ -199,11 +315,27 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin,
 @export
 class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin, SelectedWaveformsMixin):
 	"""
+	Represents a selected sequential signal assignment.
+
+	The selector is available as :data:`Expression`, the alternatives as :data:`SelectedWaveforms`,
+	a list of :class:`~pyVHDLModel.Common.SelectedWaveform`. The model holds them in a list and has
+	no distinct field per alternative, so the markers below name list elements.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      with sel select s <= '1' when 0, '0' when others;
+	        lbl : with sel select s <= '1' when '0', '0' when others;
+	      --^^^                                                         <- optional Label
+	      --           ^^^                                              <- Expression
+	      --                      ^                                     <- Target
+	      --                           ^^^^^^^^^^^^                     <- SelectedWaveforms[0]
+	      --                                         ^^^^^^^^^^^^^^^    <- SelectedWaveforms[1]
+
+	.. seealso::
+
+	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
+	   * :class:`Selected waveform <pyVHDLModel.Common.SelectedWaveform>`
 	"""
 
 	def __init__(
@@ -223,11 +355,18 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 @export
 class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, ExpressionMixin):
 	"""
+	Represents a signal force assignment.
+
+	A force assignment overrides a signal's driver until it is released.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      s <= force '1';
+	        lbl : s <= force '1';
+	      --^^^                     <- optional Label
+	      --      ^                 <- Target
+	      --                 ^^^    <- Expression
 	"""
 
 	def __init__(
@@ -245,11 +384,17 @@ class SignalForceAssignment(SequentialStatement, SignalAssignmentMixin, Expressi
 @export
 class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
 	"""
+	Represents a signal release assignment.
+
+	A release assignment ends a previously applied force.
+
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
-	      s <= release;
+	        lbl : s <= release;
+	      --^^^                   <- optional Label
+	      --      ^               <- Target
 	"""
 
 	def __init__(self, target: SignalSymbol, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
@@ -259,6 +404,20 @@ class SignalReleaseAssignment(SequentialStatement, SignalAssignmentMixin):
 
 @export
 class SequentialReportStatement(SequentialStatement, ReportStatementMixin):
+	"""
+	Represents a sequential report statement.
+
+	The report string is available as :data:`Message`, the optional severity as :data:`Severity`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : report "message" severity note;
+	      --^^^                                     <- optional Label
+	      --             ^^^^^^^^^                  <- Message
+	      --                                ^^^^    <- optional Severity
+	"""
 	def __init__(self, message: ExpressionUnion, severity: Nullable[ExpressionUnion] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
 		ReportStatementMixin.__init__(self, message, severity)
@@ -266,6 +425,26 @@ class SequentialReportStatement(SequentialStatement, ReportStatementMixin):
 
 @export
 class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
+	"""
+	Represents a sequential assertion statement.
+
+	The checked condition is available as :data:`Condition`, the optional report string as
+	:data:`Message` and the optional severity as :data:`Severity`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : assert sel = '0' report "bad" severity error;
+	      --^^^                                                   <- optional Label
+	      --             ^^^^^^^^^                                <- Condition
+	      --                              ^^^^^                   <- optional Message
+	      --                                             ^^^^^    <- optional Severity
+
+	.. seealso::
+
+	   * :class:`Concurrent counterpart <pyVHDLModel.Concurrent.ConcurrentAssertStatement>`
+	"""
 	def __init__(
 		self,
 		condition: ExpressionUnion,
@@ -280,12 +459,30 @@ class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
 
 @export
 class CompoundStatement(SequentialStatement):
-	"""A ``CompoundStatement`` is a base-class for all compound statements."""
+	"""
+	Represents the base-class of all compound statements.
+
+	A compound statement contains further sequential statements: if, case and loop statements.
+
+	.. seealso::
+
+	   * :class:`If statement <pyVHDLModel.Sequential.IfStatement>`
+	   * :class:`Case statement <pyVHDLModel.Sequential.CaseStatement>`
+	   * :class:`Loop statement <pyVHDLModel.Sequential.LoopStatement>`
+	"""
 
 
 @export
 class Branch(ModelEntity, SequentialStatementsMixin):
-	"""A ``Branch`` is a base-class for all branches in a if statement."""
+	"""
+	Represents the base-class of all branches of an if statement.
+
+	.. seealso::
+
+	   * :class:`If branch <pyVHDLModel.Sequential.IfBranch>`
+	   * :class:`Elsif branch <pyVHDLModel.Sequential.ElsifBranch>`
+	   * :class:`Else branch <pyVHDLModel.Sequential.ElseBranch>`
+	"""
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(parent)
@@ -294,6 +491,27 @@ class Branch(ModelEntity, SequentialStatementsMixin):
 
 @export
 class IfBranch(Branch, IfBranchMixin):
+	"""
+	Represents the ``if`` branch of an if statement.
+
+	The branch's condition is available as :data:`Condition`, its body as :data:`Statements`.
+
+	.. admonition:: Example
+
+	   The whole if statement is shown; the bracket marks the part this class represents.
+
+	   .. code-block:: VHDL
+
+	      if sel = '0' then     -- ┐ IfBranch
+	      -- ^^^^^^^^^          -- │   <- Condition
+	        s <= '0';           -- │
+	      --^^^^^^^^^           -- ┘   <- Statements
+	      elsif sel = '1' then
+	        s <= '1';
+	      else
+	        s <= '0';
+	      end if;
+	"""
 	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		IfBranchMixin.__init__(self, condition)
@@ -301,6 +519,28 @@ class IfBranch(Branch, IfBranchMixin):
 
 @export
 class ElsifBranch(Branch, ElsifBranchMixin):
+	"""
+	Represents an ``elsif`` branch of an if statement.
+
+	The branch's condition is available as :data:`Condition`, its body as :data:`Statements`.
+	An if statement may have any number of them.
+
+	.. admonition:: Example
+
+	   The whole if statement is shown; the bracket marks the part this class represents.
+
+	   .. code-block:: VHDL
+
+	      if sel = '0' then
+	        s <= '0';
+	      elsif sel = '1' then  -- ┐ ElsifBranch
+	      --    ^^^^^^^^^       -- │   <- Condition
+	        s <= '1';           -- │
+	      --^^^^^^^^^           -- ┘   <- Statements
+	      else
+	        s <= '0';
+	      end if;
+	"""
 	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		ElsifBranchMixin.__init__(self, condition)
@@ -308,6 +548,27 @@ class ElsifBranch(Branch, ElsifBranchMixin):
 
 @export
 class ElseBranch(Branch, ElseBranchMixin):
+	"""
+	Represents the ``else`` branch of an if statement.
+
+	Unlike the other branches, an else branch has no condition; it only has a body
+	(:data:`Statements`). An if statement has at most one.
+
+	.. admonition:: Example
+
+	   The whole if statement is shown; the bracket marks the part this class represents.
+
+	   .. code-block:: VHDL
+
+	      if sel = '0' then
+	        s <= '0';
+	      elsif sel = '1' then
+	        s <= '1';
+	      else                  -- ┐ ElseBranch
+	        s <= '0';           -- │
+	      --^^^^^^^^^           -- ┘   <- Statements
+	      end if;
+	"""
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, parent)
 		ElseBranchMixin.__init__(self)
@@ -315,6 +576,43 @@ class ElseBranch(Branch, ElseBranchMixin):
 
 @export
 class IfStatement(CompoundStatement):
+	"""
+	Represents an if statement.
+
+	An if statement has one ``if`` branch (:data:`IfBranch`), any number of ``elsif`` branches
+	(:data:`ElsIfBranches`) and an optional ``else`` branch (:data:`ElseBranch`).
+
+	.. admonition:: Example
+
+	   Only an ``if`` branch:
+
+	   .. code-block:: VHDL
+
+	        lbl : if sel = '0' then
+	      --^^^                       <- optional Label
+	          s <= '0';
+	        end if;
+
+	   With ``elsif`` and ``else`` branches:
+
+	   .. code-block:: VHDL
+
+	        lbl : if sel = '0' then
+	      --^^^                       <- optional Label
+	      --      ^^^^^^^^^^^^^^^^^   <- IfBranch
+	          s <= '0';
+	        elsif sel = '1' then
+	      --^^^^^^^^^^^^^^^^^^^^      <- ElsIfBranches[0]
+	          s <= '1';
+	        else
+	      --^^^^                      <- ElseBranch
+	          s <= '0';
+	        end if;
+
+	.. seealso::
+
+	   * :class:`If-generate statement <pyVHDLModel.Concurrent.IfGenerateStatement>`
+	"""
 	_ifBranch: IfBranch
 	_elsifBranches: List['ElsifBranch']
 	_elseBranch: Nullable[ElseBranch]
@@ -374,11 +672,30 @@ class IfStatement(CompoundStatement):
 
 @export
 class SequentialChoice(BaseChoice):
-	"""A ``SequentialChoice`` is a base-class for all sequential choices (in case statements)."""
+	"""
+	Represents the base-class of all choices in a sequential case statement.
+
+	.. seealso::
+
+	   * :class:`Indexed choice <pyVHDLModel.Sequential.IndexedChoice>`
+	   * :class:`Ranged choice <pyVHDLModel.Sequential.RangedChoice>`
+	"""
 
 
 @export
 class IndexedChoice(SequentialChoice):
+	"""
+	Represents a case choice given by a single value.
+
+	The value is available as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 0      => v := '1';
+	      --   ^                     <- Expression
+	"""
 	_expression: ExpressionUnion
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
@@ -402,6 +719,18 @@ class IndexedChoice(SequentialChoice):
 
 @export
 class RangedChoice(SequentialChoice):
+	"""
+	Represents a case choice given by a range.
+
+	The range is available as :data:`Range`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 1 to 2 => v := '0';
+	      --   ^^^^^^                <- Range
+	"""
 	_range: 'Range'
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
@@ -425,6 +754,14 @@ class RangedChoice(SequentialChoice):
 
 @export
 class SequentialCase(BaseCase, SequentialStatementsMixin, ChoicesMixin):
+	"""
+	Represents the base-class of all alternatives of a sequential case statement.
+
+	.. seealso::
+
+	   * :class:`Case <pyVHDLModel.Sequential.Case>`
+	   * :class:`Others case <pyVHDLModel.Sequential.OthersCase>`
+	"""
 	def __init__(
 		self,
 		statements: Nullable[Iterable[SequentialStatement]] = None,
@@ -438,6 +775,17 @@ class SequentialCase(BaseCase, SequentialStatementsMixin, ChoicesMixin):
 
 @export
 class Case(SequentialCase):
+	"""
+	Represents one alternative of a case statement, selected by its choices.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when 1 to 2 => v := '0';
+	      --   ^^^^^^                <- Choices
+	      --             ^^^^^^^^^   <- the statements
+	"""
 	def __init__(self, choices: Iterable[SequentialChoice], statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(statements, choices, parent)
 
@@ -447,12 +795,47 @@ class Case(SequentialCase):
 
 @export
 class OthersCase(SequentialCase):
+	"""
+	Represents the ``others`` alternative of a case statement.
+
+	It covers every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      when others => null;
+	      --   ^^^^^^            <- the choice
+	"""
 	def __str__(self) -> str:
 		return "when others =>"
 
 
 @export
 class CaseStatement(CompoundStatement):
+	"""
+	Represents a case statement.
+
+	The expression being tested is available as :data:`SelectExpression`, the alternatives as
+	:data:`Cases`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : case sel is
+	      --^^^                          <- optional Label
+	      --           ^^^               <- SelectExpression
+	          when '0'    => s <= '1';
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^   <- Cases[0]
+	          when others => null;
+	      --  ^^^^^^^^^^^^^^^^^^^^       <- Cases[1]
+	        end case;
+
+	.. seealso::
+
+	   * :class:`Case-generate statement <pyVHDLModel.Concurrent.CaseGenerateStatement>`
+	"""
 	_expression: ExpressionUnion
 	_cases:      List[SequentialCase]
 
@@ -489,7 +872,15 @@ class CaseStatement(CompoundStatement):
 
 @export
 class LoopStatement(CompoundStatement, SequentialStatementsMixin):
-	"""A ``LoopStatement`` is a base-class for all loop statements."""
+	"""
+	Represents the base-class of all loop statements.
+
+	.. seealso::
+
+	   * :class:`Endless loop statement <pyVHDLModel.Sequential.EndlessLoopStatement>`
+	   * :class:`For loop statement <pyVHDLModel.Sequential.ForLoopStatement>`
+	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
+	"""
 
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		super().__init__(label, parent)
@@ -498,11 +889,56 @@ class LoopStatement(CompoundStatement, SequentialStatementsMixin):
 
 @export
 class EndlessLoopStatement(LoopStatement):
+	"""
+	Represents an endless loop statement.
+
+	The loop body is available as :data:`Statements`. The loop has no iteration scheme, so it is
+	left with an exit or return statement.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : loop
+	      --^^^          <- optional Label
+	          exit;
+	      --  ^^^^^      <- Statements
+	        end loop;
+
+	.. seealso::
+
+	   * :class:`For loop statement <pyVHDLModel.Sequential.ForLoopStatement>`
+	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
+	"""
 	pass
 
 
 @export
 class ForLoopStatement(LoopStatement):
+	"""
+	Represents a for-loop statement.
+
+	The loop index is available as :data:`LoopIndex`, the iteration range as :data:`Range` and the
+	loop body as :data:`Statements`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : for k in 0 to 3 loop
+	      --^^^                          <- optional Label
+	      --          ^                  <- LoopIndex
+	      --               ^^^^^^        <- Range
+	          null;
+	      --  ^^^^^                      <- Statements
+	        end loop;
+
+	.. seealso::
+
+	   * :class:`Endless loop statement <pyVHDLModel.Sequential.EndlessLoopStatement>`
+	   * :class:`While loop statement <pyVHDLModel.Sequential.WhileLoopStatement>`
+	   * :class:`For-generate statement <pyVHDLModel.Concurrent.ForGenerateStatement>`
+	"""
 	_loopIndex: str
 	_range:     Range
 
@@ -535,6 +971,27 @@ class ForLoopStatement(LoopStatement):
 
 @export
 class WhileLoopStatement(LoopStatement, ConditionalMixin):
+	"""
+	Represents a while-loop statement.
+
+	The loop condition is available as :data:`Condition`, the loop body as :data:`Statements`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : while i < 4 loop
+	      --^^^                      <- optional Label
+	      --            ^^^^^        <- Condition
+	          null;
+	      --  ^^^^^                  <- Statements
+	        end loop;
+
+	.. seealso::
+
+	   * :class:`Endless loop statement <pyVHDLModel.Sequential.EndlessLoopStatement>`
+	   * :class:`For loop statement <pyVHDLModel.Sequential.ForLoopStatement>`
+	"""
 	def __init__(
 		self,
 		condition: ExpressionUnion,
@@ -548,7 +1005,16 @@ class WhileLoopStatement(LoopStatement, ConditionalMixin):
 
 @export
 class LoopControlStatement(SequentialStatement, ConditionalMixin):
-	"""A ``LoopControlStatement`` is a base-class for all loop controlling statements."""
+	"""
+	Represents the base-class of the loop control statements ``next`` and ``exit``.
+
+	An optional loop label (:data:`LoopReference`) selects which enclosing loop is affected.
+
+	.. seealso::
+
+	   * :class:`Next statement <pyVHDLModel.Sequential.NextStatement>`
+	   * :class:`Exit statement <pyVHDLModel.Sequential.ExitStatement>`
+	"""
 
 	_loopReference: LoopStatement
 
@@ -573,21 +1039,78 @@ class LoopControlStatement(SequentialStatement, ConditionalMixin):
 
 @export
 class NextStatement(LoopControlStatement):
+	"""
+	Represents a next statement.
+
+	A next statement skips to the next iteration of the named loop (:data:`LoopReference`),
+	optionally only when a condition (:data:`Condition`) holds.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : next outer when k = 1;
+	      --^^^                            <- optional Label
+	      --           ^^^^^               <- optional LoopReference
+	      --                      ^^^^^    <- optional Condition
+	"""
 	pass
 
 
 @export
 class ExitStatement(LoopControlStatement):
+	"""
+	Represents an exit statement.
+
+	An exit statement leaves the named loop (:data:`LoopReference`), optionally only when a
+	condition (:data:`Condition`) holds.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : exit outer when k = 1;
+	      --^^^                            <- optional Label
+	      --           ^^^^^               <- optional LoopReference
+	      --                      ^^^^^    <- optional Condition
+	"""
 	pass
 
 
 @export
 class NullStatement(SequentialStatement):
+	"""
+	Represents a null statement.
+
+	A null statement does nothing. Like every sequential statement, it can carry an optional label
+	(:data:`Label`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : null;
+	      --^^^           <- optional Label
+	      --      ^^^^    <- the statement
+	"""
 	pass
 
 
 @export
 class ReturnStatement(SequentialStatement):
+	"""
+	Represents a return statement.
+
+	The optionally returned value is available as :data:`ReturnValue`; a procedure returns nothing.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : return x;
+	      --^^^               <- optional Label
+	      --             ^    <- optional ReturnValue
+	"""
 	_returnValue: Nullable[ExpressionUnion]
 
 	def __init__(
@@ -614,6 +1137,21 @@ class ReturnStatement(SequentialStatement):
 
 @export
 class WaitStatement(SequentialStatement, ConditionalMixin):
+	"""
+	Represents a wait statement.
+
+	A wait statement may name a sensitivity list (:data:`SensitivityList`), a condition
+	(:data:`Condition`) and a timeout (:data:`Timeout`); all three are optional.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	        lbl : wait until clock = '1' for 10 ns;
+	      --^^^                                       <- optional Label
+	      --                 ^^^^^^^^^^^              <- optional Condition
+	      --                                 ^^^^^    <- optional Timeout
+	"""
 	_sensitivityList: Nullable[List[Symbol]]
 	_timeout:         ExpressionUnion
 

@@ -57,6 +57,12 @@ ExpressionUnion = Union[
 class AssociationItem(ModelEntity):
 	"""
 	A base-class for all association items.
+
+	.. seealso::
+
+	   * :class:`Generic association item <pyVHDLModel.Association.GenericAssociationItem>`
+	   * :class:`Port association item <pyVHDLModel.Association.PortAssociationItem>`
+	   * :class:`Parameter association item <pyVHDLModel.Association.ParameterAssociationItem>`
 	"""
 
 	_formal: Nullable[Symbol]
