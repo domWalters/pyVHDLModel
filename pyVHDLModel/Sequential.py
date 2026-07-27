@@ -80,7 +80,7 @@ class SequentialStatementsMixin(metaclass=ExtendedType, mixin=True):
 	def __init__(self, statements: Nullable[Iterable[SequentialStatement]] = None) -> None:
 		# TODO: extract to mixin
 		"""
-		Initializes a sequential statements.
+		Initializes sequential statements.
 
 		:param statements: List of all sequential statements in this construct.
 		"""
@@ -127,7 +127,7 @@ class SequentialProcedureCall(SequentialStatement, ProcedureCallMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential procedure call.
+		Initializes a procedure call as a sequential statement.
 
 		:param procedureName:             Reference to the called procedure.
 		:param parameterAssociationItems: List of all parameter associations of the call.
@@ -181,7 +181,7 @@ class SequentialSimpleSignalAssignment(SequentialSignalAssignment, WaveformMixin
 	"""
 	def __init__(self, target: SignalSymbol, waveform: Iterable[WaveformElement], label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a sequential simple signal assignment.
+		Initializes a simple sequential signal assignment.
 
 		:param target:   Reference to the assignment's destination.
 		:param waveform: List of all waveform elements, in the order they were written.
@@ -210,7 +210,7 @@ class SequentialVariableAssignment(SequentialStatement, VariableAssignmentMixin)
 	"""
 	def __init__(self, target: VariableSymbol, expression: ExpressionUnion, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a sequential variable assignment.
+		Initializes a simple sequential variable assignment.
 
 		:param target:     Reference to the assignment's destination.
 		:param expression: The assigned expression.
@@ -255,7 +255,7 @@ class SequentialConditionalVariableAssignment(SequentialStatement, AssignmentMix
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential conditional variable assignment.
+		Initializes a conditional sequential variable assignment.
 
 		:param target:                 Reference to the assignment's destination.
 		:param conditionalExpressions: List of all alternatives, in the order they were written.
@@ -313,7 +313,7 @@ class SequentialConditionalSignalAssignment(SequentialStatement, SignalAssignmen
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential conditional signal assignment.
+		Initializes a conditional sequential signal assignment.
 
 		:param target:               Reference to the assignment's destination.
 		:param conditionalWaveforms: All alternatives, in order.
@@ -359,7 +359,7 @@ class SequentialSelectedVariableAssignment(SequentialStatement, AssignmentMixin,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential selected variable assignment.
+		Initializes a selected sequential variable assignment.
 
 		:param target:              Reference to the assignment's destination.
 		:param expression:          The selector expression.
@@ -408,7 +408,7 @@ class SequentialSelectedSignalAssignment(SequentialStatement, SignalAssignmentMi
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential selected signal assignment.
+		Initializes a selected sequential signal assignment.
 
 		:param target:            Reference to the assignment's destination.
 		:param expression:        The selector expression.
@@ -547,7 +547,7 @@ class SequentialAssertStatement(SequentialStatement, AssertStatementMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a sequential assert statement.
+		Initializes a sequential assertion statement.
 
 		:param condition: The condition guarding this statement.
 		:param message:   The reported message, or ``None`` if none was given.
@@ -658,7 +658,7 @@ class ElsifBranch(Branch, ElsifBranchMixin):
 	"""
 	def __init__(self, condition: ExpressionUnion, statements: Nullable[Iterable[SequentialStatement]] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an elsif branch.
+		Initializes an ``elsif`` branch of an if statement.
 
 		:param condition:  The condition guarding this statement.
 		:param statements: List of all sequential statements in this construct.
@@ -837,7 +837,7 @@ class IndexedChoice(SequentialChoice):
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an indexed choice.
+		Initializes a case choice given by a single value.
 
 		:param expression: The expression this choice selects on.
 		:param parent:     The parent model entity of this entity.
@@ -878,7 +878,7 @@ class RangedChoice(SequentialChoice):
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a ranged choice.
+		Initializes a case choice given by a range.
 
 		:param rng:    The range this choice selects on.
 		:param parent: The parent model entity of this entity.
@@ -1122,7 +1122,7 @@ class ForLoopStatement(LoopStatement):
 
 	def __init__(self, loopIndex: str, rng: Range, statements: Nullable[Iterable[SequentialStatement]] = None, label: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a for loop statement.
+		Initializes a for-loop statement.
 
 		:param loopIndex:  The name of the loop's index.
 		:param rng:        The range the loop iterates over.
@@ -1187,7 +1187,7 @@ class WhileLoopStatement(LoopStatement, ConditionalMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a while loop statement.
+		Initializes a while-loop statement.
 
 		:param condition:  The condition guarding this statement.
 		:param statements: List of all sequential statements in this construct.

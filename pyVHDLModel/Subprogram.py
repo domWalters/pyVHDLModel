@@ -353,7 +353,7 @@ class ProcedureMethod(Procedure, MethodMixin):
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		"""
-		Initializes a procedure method.
+		Initializes a procedure declared as a method of a protected type.
 
 		:param identifier:     The identifier of a model entity.
 		:param genericItems:   List of all generics, in declaration order.
@@ -393,7 +393,7 @@ class FunctionMethod(Function, MethodMixin):
 		parent:         Nullable[ModelEntity] =                             None
 	) -> None:
 		"""
-		Initializes a function method.
+		Initializes a function declared as a method of a protected type.
 
 		:param identifier:     The identifier of a model entity.
 		:param returnType:     Reference to the subtype of the function's return value.

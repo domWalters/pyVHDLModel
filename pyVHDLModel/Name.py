@@ -163,7 +163,7 @@ class ParenthesisName(Name):
 
 	def __init__(self, prefix: Name, associations: Iterable, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a parenthesis name.
+		Initializes a name followed by a parenthesized association list.
 
 		:param prefix:       Reference to the name's prefix, or ``None`` for a simple name.
 		:param associations: List of all associations in the parenthesis.
@@ -205,7 +205,7 @@ class IndexedName(Name):
 
 	def __init__(self, prefix: Name, indices: Iterable[ExpressionUnion], parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an indexed name.
+		Initializes a name indexing an array by one or more values.
 
 		:param prefix:  Reference to the name's prefix, or ``None`` for a simple name.
 		:param indices: List of all index expressions, one per dimension.
@@ -288,7 +288,7 @@ class AttributeName(Name):
 	"""
 	def __init__(self, identifier: str, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an attribute name.
+		Initializes a name selecting an attribute of its prefix.
 
 		:param identifier: The name's identifier.
 		:param prefix:     Reference to the name's prefix, or ``None`` for a simple name.
@@ -309,7 +309,7 @@ class AllName(SelectedName):
 	"""
 	def __init__(self, prefix: Name, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an all name.
+		Initializes an ``all`` name.
 
 		:param prefix: Reference to the name's prefix, or ``None`` for a simple name.
 		:param parent: The parent model entity of this entity.
@@ -326,7 +326,7 @@ class OpenName(Name):
 	"""
 	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an open name.
+		Initializes an ``open`` name.
 
 		:param parent: The parent model entity of this entity.
 		"""

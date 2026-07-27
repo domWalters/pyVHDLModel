@@ -681,7 +681,7 @@ class ChoicesMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, choices: Nullable[Iterable[BaseChoice]] = None) -> None:
 		"""
-		Initializes a choices.
+		Initializes choices.
 
 		:param choices: List of all choices selecting this alternative.
 		"""

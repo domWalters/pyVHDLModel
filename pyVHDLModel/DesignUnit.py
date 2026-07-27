@@ -415,7 +415,7 @@ class Context(PrimaryUnit):
 
 	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a context.
+		Initializes a context declaration.
 
 		:param identifier:           The identifier of a model entity.
 		:param references:           All context items, in declaration order.
@@ -627,7 +627,7 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a package body.
+		Initializes a package body declaration.
 
 		:param packageSymbol: Reference to the package this body implements.
 		:param contextItems:  List of all context items (library, use and context clauses).
@@ -709,7 +709,7 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an entity.
+		Initializes an entity declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param contextItems:  List of all context items (library, use and context clauses).
@@ -795,7 +795,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an architecture.
+		Initializes an architecture declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param entity:        Reference to the entity this architecture implements.
@@ -840,7 +840,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 @export
 class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	"""
-	Represents a configuration declaration.
+	Represents a component declaration.
 
 	.. admonition:: Example
 
@@ -873,7 +873,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a component.
+		Initializes a component declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param genericItems:  List of all generics of this component, in declaration order.
@@ -992,7 +992,7 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a configuration.
+		Initializes a configuration declaration.
 
 		:param identifier:         The identifier of a model entity.
 		:param entity:             Reference to the entity this configuration configures.

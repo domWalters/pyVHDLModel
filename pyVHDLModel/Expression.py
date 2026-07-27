@@ -218,7 +218,7 @@ class FloatingPointLiteral(NumericLiteral):
 
 	def __init__(self, value: float) -> None:
 		"""
-		Initializes a floating point literal.
+		Initializes a floating-point literal.
 
 		:param value: The literal's floating-point value.
 		"""
@@ -301,7 +301,7 @@ class PhysicalIntegerLiteral(PhysicalLiteral):
 
 	def __init__(self, value: int, unitName: str) -> None:
 		"""
-		Initializes a physical integer literal.
+		Initializes a physical literal with an integer value.
 
 		:param value:    The literal's integer value, in units of :attr:`_unitName`.
 		:param unitName: The name of the physical unit the value is given in.
@@ -338,7 +338,7 @@ class PhysicalFloatingLiteral(PhysicalLiteral):
 
 	def __init__(self, value: float, unitName: str) -> None:
 		"""
-		Initializes a physical floating literal.
+		Initializes a physical literal with a floating-point value.
 
 		:param value:    The literal's floating-point value, in units of :attr:`_unitName`.
 		:param unitName: The name of the physical unit the value is given in.
@@ -654,7 +654,7 @@ class UnaryExpression(BaseExpression):
 
 	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an unary expression.
+		Initializes a unary expression.
 
 		:param operand: The expression the operator is applied to.
 		:param parent:  The parent model entity of this entity.
@@ -1961,7 +1961,7 @@ class WhenElseExpression(TernaryExpression):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a when else expression.
+		Initializes a conditional expression.
 
 		:param thenValue: The value if the condition holds.
 		:param condition: The condition selecting between both values.
@@ -2044,7 +2044,7 @@ class SubtypeAllocation(Allocation):
 
 	def __init__(self, subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a subtype allocation.
+		Initializes an allocation of a subtype via ``new``.
 
 		:param subtype: Reference to the subtype being allocated.
 		:param parent:  The parent model entity of this entity.
@@ -2085,7 +2085,7 @@ class QualifiedExpressionAllocation(Allocation):
 
 	def __init__(self, qualifiedExpression: QualifiedExpression, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a qualified expression allocation.
+		Initializes an allocation initialized by a qualified expression.
 
 		:param qualifiedExpression: The qualified expression the allocated object is initialized with.
 		:param parent:              The parent model entity of this entity.
@@ -2185,7 +2185,7 @@ class IndexedAggregateElement(AggregateElement):
 
 	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an indexed aggregate element.
+		Initializes an aggregate element chosen by an index.
 
 		:param index:      The index selecting the element this value is assigned to.
 		:param expression: The expression this aggregate element supplies.
@@ -2227,7 +2227,7 @@ class RangedAggregateElement(AggregateElement):
 
 	def __init__(self, rng: Range, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a ranged aggregate element.
+		Initializes an aggregate element chosen by a range.
 
 		:param rng:        The range selecting the elements this value is assigned to.
 		:param expression: The expression this aggregate element supplies.
@@ -2270,7 +2270,7 @@ class NamedAggregateElement(AggregateElement):
 
 	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a named aggregate element.
+		Initializes an aggregate element chosen by a name.
 
 		:param name:       Reference to the name selecting the element this value is assigned to.
 		:param expression: The expression this aggregate element supplies.

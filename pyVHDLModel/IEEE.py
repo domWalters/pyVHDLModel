@@ -104,7 +104,7 @@ class Ieee(PredefinedLibrary):
 
 	def __init__(self, flavor: Nullable[IEEEFlavor] = None) -> None:
 		"""
-		Initializes an ieee.
+		Initializes the ``ieee`` library.
 
 		:param flavor:               The flavor of the ``ieee`` library this instance provides.
 		:raises VHDLModelException: If the given IEEE library flavor is unknown.
@@ -176,7 +176,7 @@ class Math_Complex(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a math complex.
+		Initializes the ``math_complex`` package.
 		"""
 		super().__init__()
 
@@ -191,7 +191,7 @@ class Math_Complex_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a math complex body.
+		Initializes the ``math_complex`` package body.
 		"""
 		super().__init__()
 
@@ -211,7 +211,7 @@ class Std_Logic_1164(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic 1164.
+		Initializes the ``std_logic_1164`` package.
 		"""
 		super().__init__()
 
@@ -261,7 +261,7 @@ class Std_Logic_TextIO(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic text IO.
+		Initializes the ``std_logic_textio`` package.
 		"""
 		super().__init__()
 
@@ -278,7 +278,7 @@ class Numeric_Bit(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a numeric bit.
+		Initializes the ``numeric_bit`` package.
 		"""
 		super().__init__()
 
@@ -307,7 +307,7 @@ class Numeric_Bit_Unsigned_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a numeric bit unsigned body.
+		Initializes the ``numeric_bit_unsigned`` package body.
 		"""
 		super().__init__()
 
@@ -328,7 +328,7 @@ class Numeric_Std(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a numeric std.
+		Initializes the ``numeric_std`` package.
 		"""
 		super().__init__()
 
@@ -370,7 +370,7 @@ class Numeric_Std_Unsigned(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a numeric std unsigned.
+		Initializes the ``numeric_std_unsigned`` package.
 		"""
 		super().__init__()
 
@@ -386,7 +386,7 @@ class Numeric_Std_Unsigned_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a numeric std unsigned body.
+		Initializes the ``numeric_std_unsigned`` package body.
 		"""
 		super().__init__()
 
@@ -409,7 +409,7 @@ class Fixed_Generic_Pkg(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a fixed generic pkg.
+		Initializes the ``fixed_generic_pkg`` package.
 		"""
 		super().__init__()
 
@@ -428,7 +428,7 @@ class Fixed_Generic_Pkg_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a fixed generic pkg body.
+		Initializes the ``fixed_generic_pkg`` package body.
 		"""
 		super().__init__()
 
@@ -443,7 +443,7 @@ class Fixed_Pkg(PredefinedPackage):
 	"""
 	def __init__(self) -> None:
 		"""
-		Initializes a fixed pkg.
+		Initializes the ``fixed_pkg`` package.
 		"""
 		super().__init__()
 
@@ -458,7 +458,7 @@ class Float_Generic_Pkg(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a float generic pkg.
+		Initializes the ``float_generic_pkg`` package.
 		"""
 		super().__init__()
 
@@ -484,7 +484,7 @@ class Float_Pkg(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a float pkg.
+		Initializes the ``float_pkg`` package.
 		"""
 		super().__init__()
 
@@ -516,7 +516,7 @@ class Std_Logic_Arith(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic arith.
+		Initializes the ``std_logic_arith`` package.
 		"""
 		super().__init__()
 
@@ -546,7 +546,7 @@ class VITAL_Timing(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL timing.
+		Initializes the ``VITAL_Timing`` package.
 		"""
 		super().__init__()
 
@@ -562,7 +562,7 @@ class VITAL_Timing_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL timing body.
+		Initializes the ``VITAL_Timing`` package body.
 		"""
 		super().__init__()
 
@@ -578,7 +578,7 @@ class VITAL_Primitives(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL primitives.
+		Initializes the ``VITAL_Primitives`` package.
 		"""
 		super().__init__()
 
@@ -595,7 +595,7 @@ class VITAL_Primitives_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL primitives body.
+		Initializes the ``VITAL_Primitives`` package body.
 		"""
 		super().__init__()
 
@@ -611,7 +611,7 @@ class VITAL_Memory(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL memory.
+		Initializes the ``VITAL_Memory`` package.
 		"""
 		super().__init__()
 
@@ -632,7 +632,7 @@ class VITAL_Memory_Body(PredefinedPackageBody):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a VITAL memory body.
+		Initializes the ``VITAL_Memory`` package body.
 		"""
 		super().__init__()
 
@@ -660,7 +660,7 @@ class Std_Logic_Arith(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic arith.
+		Initializes the ``std_logic_arith`` package.
 		"""
 		super().__init__()
 
@@ -676,7 +676,7 @@ class Std_Logic_Misc(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic misc.
+		Initializes the ``std_logic_misc`` package.
 		"""
 		super().__init__()
 
@@ -699,7 +699,7 @@ class Std_Logic_Signed(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic signed.
+		Initializes the ``std_logic_signed`` package.
 		"""
 		super().__init__()
 
@@ -716,7 +716,7 @@ class Std_Logic_TextIO(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic text IO.
+		Initializes the ``std_logic_textio`` package.
 		"""
 		super().__init__()
 
@@ -734,7 +734,7 @@ class Std_Logic_Unsigned(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std logic unsigned.
+		Initializes the ``std_logic_unsigned`` package.
 		"""
 		super().__init__()
 

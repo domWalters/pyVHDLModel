@@ -2625,7 +2625,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 class Document(ModelEntity, DocumentedEntityMixin):
 	"""A ``Document`` represents a sourcefile. It contains *primary* and *secondary* design units."""
 
-	_path:                   Path                                #: path to the document. ``None`` if virtual document.
+	_path:                   Path                                #: Path to the document. ``None`` if in-memory document.
 	_vhdlVersion:            VHDLVersion                         #: VHDL version used for analyzing this source file.
 	_library:                Library                             #: VHDL library used for analyzing the source file's content into.
 	_designUnits:            List[DesignUnit]                    #: List of all design units defined in a document.
@@ -2651,9 +2651,9 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a document.
+		Initializes a VHDL document.
 
-		:param path:          path to the document. ``None`` if virtual document.
+		:param path:          Path to the document. ``None`` if in-memory document.
 		:param documentation: The documentation comment associated with this declaration.
 		:param vhdlVersion:   VHDL version used for analyzing this source file.
 		:param library:       VHDL library used for analyzing the source file's content into.

@@ -79,7 +79,7 @@ class AllowBlackboxMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, allowBlackbox: Nullable[bool] = None) -> None:
 		"""
-		Initializes an allow blackbox.
+		Initializes a hierarchical model entity allow for blackboxes.
 
 		:param allowBlackbox: Allow blackboxes for components in language entity.
 		"""
@@ -460,7 +460,7 @@ class ConditionalWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, conditionalWaveforms: Iterable[ConditionalWaveform]) -> None:
 		"""
-		Initializes a conditional waveforms.
+		Initializes conditional waveforms.
 
 		:param conditionalWaveforms: All alternatives, in order.
 		"""
@@ -625,7 +625,7 @@ class SelectedWaveformsMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, selectedWaveforms: Iterable[Union[SelectedWaveform, OthersSelectedWaveform]]) -> None:
 		"""
-		Initializes a selected waveforms.
+		Initializes selected waveforms.
 
 		:param selectedWaveforms: All alternatives, in order.
 		"""
@@ -659,7 +659,7 @@ class SelectedExpressionsMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, selectedExpressions: Iterable[Union[SelectedExpression, OthersSelectedExpression]]) -> None:
 		"""
-		Initializes a selected expressions.
+		Initializes selected expressions.
 
 		:param selectedExpressions: All alternatives, in order.
 		"""

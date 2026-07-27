@@ -91,7 +91,7 @@ class EntityAspectEntity(EntityAspect):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an entity aspect entity.
+		Initializes an entity aspect naming an entity, optionally with an architecture.
 
 		:param entity:       Reference to the named entity.
 		:param architecture: Reference to the selected architecture, or ``None`` if none was given.
@@ -142,7 +142,7 @@ class EntityAspectConfiguration(EntityAspect):
 
 	def __init__(self, configuration: ConfigurationSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an entity aspect configuration.
+		Initializes an entity aspect naming a configuration.
 
 		:param configuration: Reference to the named configuration.
 		:param parent:        The parent model entity of this entity.

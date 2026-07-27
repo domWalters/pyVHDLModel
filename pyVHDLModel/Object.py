@@ -72,7 +72,7 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an obj.
+		Initializes an object.
 
 		:param identifiers:   A list of identifiers.
 		:param subtype:       Reference to the object's subtype.
@@ -128,7 +128,7 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, defaultExpression: Nullable[ExpressionUnion] = None) -> None:
 		"""
-		Initializes a with default expression.
+		Initializes an object with a default expression.
 
 		:param defaultExpression: The default value, or ``None`` if none was given.
 		"""

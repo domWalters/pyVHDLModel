@@ -60,7 +60,7 @@ class Std(PredefinedLibrary):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a std.
+		Initializes the ``std`` library.
 		"""
 		super().__init__(PACKAGES)
 
@@ -88,7 +88,7 @@ class Standard(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes a standard.
+		Initializes the ``standard`` package.
 		"""
 		super().__init__()
 
@@ -244,7 +244,7 @@ class Env(PredefinedPackage):
 
 	def __init__(self) -> None:
 		"""
-		Initializes an env.
+		Initializes the ``env`` package.
 		"""
 		super().__init__()
 

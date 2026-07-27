@@ -106,7 +106,7 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an attribute.
+		Initializes an attribute declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param subtype:       Reference to the attribute's subtype.
@@ -260,7 +260,7 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		parent:        Nullable[ModelEntity] =    None
 	) -> None:
 		"""
-		Initializes an alias.
+		Initializes an alias declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param name:          Reference to the name being aliased.

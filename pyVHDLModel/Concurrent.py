@@ -108,7 +108,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 	def __init__(self, statements: Nullable[Iterable[ConcurrentStatement]] = None) -> None:
 		"""
-		Initializes a concurrent statements.
+		Initializes concurrent statements.
 
 		:param statements: List of all concurrent statements in this construct.
 		"""
@@ -298,7 +298,7 @@ class EntityInstantiation(Instantiation):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an entity instantiation.
+		Initializes a direct entity instantiation.
 
 		:param label:                   The label of a model entity.
 		:param entitySymbol:            Reference to the directly instantiated entity.
@@ -546,7 +546,7 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a concurrent block statement.
+		Initializes a block statement.
 
 		:param label:         The label of a model entity.
 		:param portItems:     List of all ports, in declaration order.
@@ -865,7 +865,7 @@ class IfGenerateStatement(GenerateStatement):
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an if generate statement.
+		Initializes an if-generate statement.
 
 		:param label:         The label of a model entity.
 		:param ifBranch:      The mandatory ``if`` branch.
@@ -981,7 +981,7 @@ class IndexedGenerateChoice(ConcurrentChoice):
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an indexed generate choice.
+		Initializes a case-generate choice given by a single value.
 
 		:param expression: The expression this choice selects on.
 		:param parent:     The parent model entity of this entity.
@@ -1022,7 +1022,7 @@ class RangedGenerateChoice(ConcurrentChoice):
 
 	def __init__(self, rng: 'Range', parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a ranged generate choice.
+		Initializes a case-generate choice given by a range.
 
 		:param rng:    The range this choice selects on.
 		:param parent: The parent model entity of this entity.
@@ -1186,7 +1186,7 @@ class CaseGenerateStatement(GenerateStatement):
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a case generate statement.
+		Initializes a case-generate statement.
 
 		:param label:         The label of a model entity.
 		:param expression:    The expression being tested; it must be static.
@@ -1283,7 +1283,7 @@ class ForGenerateStatement(GenerateStatement, ConcurrentDeclarationRegionMixin, 
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a for generate statement.
+		Initializes a for-generate statement.
 
 		:param label:         The label of a model entity.
 		:param loopIndex:     The name of the generate loop's index.
@@ -1387,7 +1387,7 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 	"""
 	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a concurrent simple signal assignment.
+		Initializes a simple concurrent signal assignment.
 
 		:param label:    The label of a model entity.
 		:param target:   Reference to the assignment's destination.
@@ -1433,7 +1433,7 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a concurrent selected signal assignment.
+		Initializes a selected concurrent signal assignment.
 
 		:param label:             The label of a model entity.
 		:param target:            Reference to the assignment's destination.
@@ -1479,7 +1479,7 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a concurrent conditional signal assignment.
+		Initializes a conditional concurrent signal assignment.
 
 		:param label:                The label of a model entity.
 		:param target:               Reference to the assignment's destination.
@@ -1521,7 +1521,7 @@ class ConcurrentAssertStatement(ConcurrentStatement, AssertStatementMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a concurrent assert statement.
+		Initializes a concurrent assertion statement.
 
 		:param condition: The condition guarding this statement.
 		:param message:   The reported message, or ``None`` if none was given.

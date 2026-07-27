@@ -74,7 +74,7 @@ class VerificationUnit(PSLPrimaryUnit):
 	"""
 	def __init__(self, identifier: str) -> None:
 		"""
-		Initializes a verification unit.
+		Initializes a PSL verification unit (``vunit``).
 
 		:param identifier: The identifier of a model entity.
 		"""
@@ -88,7 +88,7 @@ class VerificationProperty(PSLPrimaryUnit):
 	"""
 	def __init__(self, identifier: str) -> None:
 		"""
-		Initializes a verification property.
+		Initializes a PSL verification property (``vprop``).
 
 		:param identifier: The identifier of a model entity.
 		"""
@@ -102,7 +102,7 @@ class VerificationMode(PSLPrimaryUnit):
 	"""
 	def __init__(self, identifier: str) -> None:
 		"""
-		Initializes a verification mode.
+		Initializes a PSL verification mode (``vmode``).
 
 		:param identifier: The identifier of a model entity.
 		"""
@@ -118,7 +118,7 @@ class DefaultClock(PSLEntity, NamedEntityMixin):
 	"""
 	def __init__(self, identifier: str) -> None:
 		"""
-		Initializes a default clock.
+		Initializes a PSL default clock declaration.
 
 		:param identifier: The identifier of a model entity.
 		"""

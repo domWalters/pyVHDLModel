@@ -180,7 +180,7 @@ class Subtype(BaseType):
 
 	def __init__(self, identifier: str, symbol: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a subtype.
+		Initializes a subtype declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param symbol:        Reference to the type or subtype this subtype is derived from.
@@ -342,7 +342,7 @@ class EnumeratedType(ScalarType, DiscreteTypeMixin):
 
 	def __init__(self, identifier: str, literals: Iterable[EnumerationLiteral], documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an enumerated type.
+		Initializes an enumerated type definition.
 
 		:param identifier:    The identifier of a model entity.
 		:param literals:      List of all enumeration literals, in declaration order.
@@ -387,7 +387,7 @@ class IntegerType(RangedScalarType, NumericTypeMixin, DiscreteTypeMixin):
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an integer type.
+		Initializes an integer type definition.
 
 		:param identifier:    The identifier of a model entity.
 		:param rng:           The range constraining this scalar type.
@@ -418,7 +418,7 @@ class RealType(RangedScalarType, NumericTypeMixin):
 	"""
 	def __init__(self, identifier: str, rng: Range, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a real type.
+		Initializes a floating-point type definition.
 
 		:param identifier:    The identifier of a model entity.
 		:param rng:           The range constraining this scalar type.
@@ -469,7 +469,7 @@ class PhysicalType(RangedScalarType, NumericTypeMixin):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes a physical type.
+		Initializes a physical type definition.
 
 		:param identifier:    The identifier of a model entity.
 		:param rng:           The range constraining this scalar type.
@@ -563,7 +563,7 @@ class ArrayType(CompositeType):
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
-		Initializes an array type.
+		Initializes an array type definition.
 
 		:param identifier:     The identifier of a model entity.
 		:param indices:        List of all index ranges, one per dimension.
@@ -684,7 +684,7 @@ class RecordType(CompositeType):
 
 	def __init__(self, identifier: str, elements: Nullable[Iterable[RecordTypeElement]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a record type.
+		Initializes a record type definition.
 
 		:param identifier:    The identifier of a model entity.
 		:param elements:      List of all element declarations, in declaration order.
@@ -743,7 +743,7 @@ class ProtectedType(FullType):
 
 	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a protected type.
+		Initializes a protected type declaration.
 
 		:param identifier:    The identifier of a model entity.
 		:param methods:       All methods, in declaration order.
@@ -850,7 +850,7 @@ class AccessType(FullType):
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes an access type.
+		Initializes an access type definition.
 
 		:param identifier:        The identifier of a model entity.
 		:param designatedSubtype: Reference to the subtype the access values designate.
@@ -895,7 +895,7 @@ class FileType(FullType):
 
 	def __init__(self, identifier: str, designatedSubtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
-		Initializes a file type.
+		Initializes a file type definition.
 
 		:param identifier:        The identifier of a model entity.
 		:param designatedSubtype: Reference to the subtype of the values stored in the file.
