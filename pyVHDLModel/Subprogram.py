@@ -34,12 +34,12 @@ This module contains parts of an abstract document language model for VHDL.
 
 Subprograms are procedures, functions and methods.
 """
-from typing                 import List, Iterable, Optional as Nullable
+from typing                 import ClassVar, List, Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
 
-from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
+from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin, identifiersOf
 from pyVHDLModel.Symbol     import SubtypeSymbol
 from pyVHDLModel.Type       import ProtectedType
 from pyVHDLModel.Regions    import ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin
@@ -61,6 +61,8 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
+	_subprogramKeyword: ClassVar[str] = "subprogram"  #: The VHDL keyword introducing this subprogram kind.
+
 	_genericItems:   List['GenericInterfaceItemMixin']    #: List of all generics, in declaration order.
 	_parameterItems: List['ParameterInterfaceItemMixin']  #: List of all parameters, in declaration order.
 	_statements:     List[SequentialStatement]            #: List of all sequential statements in the subprogram's body.
@@ -170,6 +172,17 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 		super().IndexDeclaredItems()
 
+	def __str__(self) -> str:
+		"""
+		Formats the subprogram declaration.
+
+		**Format:** ``procedure myProcedure(a, b)``
+
+		:returns: Formatted subprogram declaration.
+		"""
+		parameters = ", ".join(name for item in self._parameterItems for name in identifiersOf(item))
+		return f"{self._subprogramKeyword} {self._identifier}({parameters})"
+
 
 @export
 class Procedure(Subprogram):
@@ -201,6 +214,8 @@ class Procedure(Subprogram):
 	   * :class:`Procedure method <pyVHDLModel.Subprogram.ProcedureMethod>`
 	   * :class:`Function <pyVHDLModel.Subprogram.Function>`
 	"""
+
+	_subprogramKeyword: ClassVar[str] = "procedure"
 	def __init__(
 		self,
 		identifier:     str,
@@ -257,6 +272,8 @@ class Function(Subprogram):
 	   * :class:`Function method <pyVHDLModel.Subprogram.FunctionMethod>`
 	   * :class:`Procedure <pyVHDLModel.Subprogram.Procedure>`
 	"""
+
+	_subprogramKeyword: ClassVar[str] = "function"
 	_returnType: SubtypeSymbol  #: Reference to the subtype of the function's return value.
 
 	def __init__(

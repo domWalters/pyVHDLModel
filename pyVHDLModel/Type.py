@@ -77,6 +77,16 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 		self._objectVertex = None
 
+	def __str__(self) -> str:
+		"""
+		Formats the type declaration.
+
+		**Format:** ``type myType``
+
+		:returns: Formatted type declaration.
+		"""
+		return f"type {self._identifier}"
+
 
 @export
 class Type(BaseType):
