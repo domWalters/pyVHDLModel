@@ -87,13 +87,18 @@ class Namespace(Generic[K, O]):
 	   * :class:`Concurrent declaration region <pyVHDLModel.Regions.ConcurrentDeclarationRegionMixin>`
 	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
 	"""
-	_name:            str                     #: The namespace's name.
-	_parentNamespace: "Namespace"             #: Reference to the enclosing namespace, or ``None`` for the outermost one.
-	_subNamespaces:   Dict[str, "Namespace"]  #: Dictionary of all nested namespaces, indexed by name.
-	_elements:        Dict[K, O]              #: Dictionary of all elements declared in this namespace, indexed by name.
-	_sharesRegion:    bool                    #: ``True`` if the parent namespace is the same VHDL declarative region.
+	_name:                   str                     #: The namespace's name.
+	_parentNamespace:        "Namespace"             #: Reference to the enclosing namespace, ``None`` if outermost.
+	_subNamespaces:          Dict[str, "Namespace"]  #: Dictionary of all nested namespaces, indexed by name.
+	_elements:               Dict[K, O]              #: All elements declared in this namespace, indexed by name.
+	_sharesRegionWithParent: bool                    #: ``True`` if the parent namespace is the same declarative region.
 
-	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None, sharesRegion: bool = False) -> None:
+	def __init__(
+		self,
+		name: str,
+		parentNamespace: Nullable["Namespace"] = None,
+		sharesRegionWithParent: bool = False
+	) -> None:
 		"""
 		Initializes a namespace.
 
@@ -104,7 +109,7 @@ class Namespace(Generic[K, O]):
 		self._parentNamespace = parentNamespace
 		self._subNamespaces = {}
 		self._elements = {}
-		self._sharesRegion = sharesRegion
+		self._sharesRegionWithParent = sharesRegionWithParent
 
 	@readonly
 	def Name(self) -> str:
@@ -130,18 +135,20 @@ class Namespace(Generic[K, O]):
 		value._subNamespaces[self._name] = self
 
 	@readonly
-	def SharesRegion(self) -> bool:
+	def SharesRegionWithParent(self) -> bool:
 		"""
 		Read-only property to access whether this namespace continues its parent's declarative region
-		(:attr:`_sharesRegion`).
+		(:attr:`_sharesRegionWithParent`).
 
-		An entity and its architecture form one VHDL declarative region, as do a package and its body,
-		even though each owns a namespace. A duplicate declaration is reported across such a link, while a
-		genuinely nested region - a process, a block - hides instead.
+		.. hint::
+
+		   An entity and its architecture form one VHDL declarative region, as do a package and its body,
+		   even though each owns a namespace. A duplicate declaration is reported across such a link, while
+		   a genuinely nested region - a process, a block - hides instead.
 
 		:returns: ``True`` if the parent namespace is the same declarative region.
 		"""
-		return self._sharesRegion
+		return self._sharesRegionWithParent
 
 	@readonly
 	def SubNamespaces(self) -> Dict[str, 'Namespace']:
@@ -182,7 +189,7 @@ class Namespace(Generic[K, O]):
 				))
 				break
 
-			namespace = namespace._parentNamespace if namespace._sharesRegion else None
+			namespace = namespace._parentNamespace if namespace._sharesRegionWithParent else None
 
 		self._elements[normalizedIdentifier] = element
 

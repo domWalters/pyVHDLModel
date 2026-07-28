@@ -48,7 +48,7 @@ if __name__ == "__main__":  # pragma: no cover
 class Architectures(TestCase):
 	def test_IndexDeclaredItems_AlsoPopulatesNamespace(self) -> None:
 		constant = Constant(["C"], SimpleSubtypeSymbol(SimpleName("natural")))
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[constant])
+		architecture = Architecture("rtl", _entitySymbol("e"), declaredItems=[constant])
 		architecture.IndexDeclaredItems()
 
 		# Keyed by the normalized identifier, which is what the Find* methods look up.

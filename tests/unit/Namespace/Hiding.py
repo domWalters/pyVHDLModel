@@ -85,12 +85,12 @@ class EntityAndArchitecture(TestCase):
 		design.AddLibrary(library)
 		document = Document(Path("virtual.vhdl"))
 
-		self._entitySignal = _signal("x")
-		self._entityOnlySignal = _signal("entityOnly")
+		self._entitySignal = _signal("x", "natural")
+		self._entityOnlySignal = _signal("entityOnly", "natural")
 		self._entity = Entity("ent", declaredItems=[self._entitySignal, self._entityOnlySignal])
 		document._AddDesignUnit(self._entity)
 
-		self._architectureSignal = _signal("x")
+		self._architectureSignal = _signal("x", "natural")
 		self._architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[self._architectureSignal])
 		document._AddDesignUnit(self._architecture)
 
@@ -114,7 +114,7 @@ class EntityAndArchitecture(TestCase):
 		The namespaces stay nested - that is what makes the entity's declarations visible below - but the
 		link is marked as sharing its region, so the duplicate is reported.
 		"""
-		self.assertTrue(self._architecture._namespace.SharesRegion)
+		self.assertTrue(self._architecture._namespace.SharesRegionWithParent)
 
 		with WarningCollector() as collector:
 			self._architecture.IndexDeclaredItems()
@@ -145,8 +145,8 @@ class BlocksInsideArchitecture(TestCase):
 	"""A block's declarative region nests inside the enclosing architecture's."""
 
 	def setUp(self) -> None:
-		self._architectureSignal = _signal("x")
-		self._architectureOnlySignal = _signal("architectureOnly")
+		self._architectureSignal = _signal("x", "natural")
+		self._architectureOnlySignal = _signal("architectureOnly", "natural")
 		self._architecture = Architecture(
 			"rtl",
 			EntitySymbol(SimpleName("ent")),
@@ -154,7 +154,7 @@ class BlocksInsideArchitecture(TestCase):
 		)
 		self._architecture.IndexDeclaredItems()
 
-		self._blockSignal = _signal("x")
+		self._blockSignal = _signal("x", "natural")
 		self._block = ConcurrentBlockStatement("blk", declaredItems=[self._blockSignal])
 		self._block.Parent = self._architecture
 		self._block.IndexDeclaredItems()
@@ -180,16 +180,16 @@ class NestedBlocks(TestCase):
 	"""Three levels of nesting: the innermost declaration wins, and each level keeps its own."""
 
 	def setUp(self) -> None:
-		self._outerSignal = _signal("x")
+		self._outerSignal = _signal("x", "natural")
 		self._outer = ConcurrentBlockStatement("outer", declaredItems=[self._outerSignal])
 		self._outer.IndexDeclaredItems()
 
-		self._middleSignal = _signal("x")
+		self._middleSignal = _signal("x", "natural")
 		self._middle = ConcurrentBlockStatement("middle", declaredItems=[self._middleSignal])
 		self._middle.Parent = self._outer
 		self._middle.IndexDeclaredItems()
 
-		self._innerSignal = _signal("x")
+		self._innerSignal = _signal("x", "natural")
 		self._inner = ConcurrentBlockStatement("inner", declaredItems=[self._innerSignal])
 		self._inner.Parent = self._middle
 		self._inner.IndexDeclaredItems()
@@ -203,7 +203,7 @@ class NestedBlocks(TestCase):
 
 	def test_UndeclaredNameWalksTheWholeChain(self) -> None:
 		"""A name declared only at the outermost level is still reachable from the innermost scope."""
-		onlyOutside = _signal("onlyOutside")
+		onlyOutside = _signal("onlyOutside", "natural")
 		self._outer._namespace._elements["onlyoutside"] = onlyOutside
 
 		self.assertIs(onlyOutside, self._inner._namespace.FindObject(SignalSymbol(SimpleName("onlyOutside"))))
@@ -213,7 +213,7 @@ class GeneratesInsideArchitecture(TestCase):
 	"""A for-generate's declarative region nests inside the enclosing architecture's."""
 
 	def setUp(self) -> None:
-		self._architectureSignal = _signal("x")
+		self._architectureSignal = _signal("x", "natural")
 		self._architecture = Architecture(
 			"rtl",
 			EntitySymbol(SimpleName("ent")),
@@ -221,7 +221,7 @@ class GeneratesInsideArchitecture(TestCase):
 		)
 		self._architecture.IndexDeclaredItems()
 
-		self._generateSignal = _signal("x")
+		self._generateSignal = _signal("x", "natural")
 		self._generate = ForGenerateStatement(
 			"gen",
 			"i",

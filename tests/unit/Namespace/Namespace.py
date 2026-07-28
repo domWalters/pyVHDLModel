@@ -165,7 +165,7 @@ class FindSubtype(TestCase):
 
 	def test_FoundSubtype(self) -> None:
 		namespace = Namespace("package")
-		subtype = Subtype("byte", _subtypeSymbol())
+		subtype = Subtype("byte", _subtypeSymbol("natural"))
 		namespace._elements["byte"] = subtype
 
 		symbol = Symbol(SimpleName("byte"), PossibleReference.Subtype)
@@ -183,7 +183,7 @@ class FindSubtype(TestCase):
 
 	def test_FoundSubtypeButNotExpected_RaisesTypeError(self) -> None:
 		namespace = Namespace("package")
-		namespace._elements["byte"] = Subtype("byte", _subtypeSymbol())
+		namespace._elements["byte"] = Subtype("byte", _subtypeSymbol("natural"))
 
 		symbol = Symbol(SimpleName("byte"), PossibleReference.Signal)
 
@@ -208,7 +208,7 @@ class FindSubtype(TestCase):
 
 	def test_FoundButWrongKind_RaisesTypeError(self) -> None:
 		namespace = Namespace("package")
-		namespace._elements["sig"] = Signal(("sig", ), _subtypeSymbol())
+		namespace._elements["sig"] = Signal(("sig", ), _subtypeSymbol("natural"))
 
 		symbol = Symbol(SimpleName("sig"), PossibleReference.Subtype)
 
@@ -233,7 +233,7 @@ class FindSubtype(TestCase):
 	def test_NotFoundLocally_FoundInParent(self) -> None:
 		parent = Namespace("package")
 		namespace = Namespace("architecture", parent)
-		subtype = Subtype("byte", _subtypeSymbol())
+		subtype = Subtype("byte", _subtypeSymbol("natural"))
 		parent._elements["byte"] = subtype
 
 		symbol = Symbol(SimpleName("byte"), PossibleReference.Subtype)
@@ -261,14 +261,14 @@ class FindObject(TestCase):
 
 	def test_FoundSignal(self) -> None:
 		namespace = Namespace("architecture")
-		signal = Signal(("clk", ), _subtypeSymbol())
+		signal = Signal(("clk", ), _subtypeSymbol("natural"))
 		namespace._elements["clk"] = signal
 
 		self.assertIs(signal, namespace.FindObject(SignalSymbol(SimpleName("clk"))))
 
 	def test_FoundSignalViaSignalAttribute(self) -> None:
 		namespace = Namespace("architecture")
-		signal = Signal(("clk", ), _subtypeSymbol())
+		signal = Signal(("clk", ), _subtypeSymbol("natural"))
 		namespace._elements["clk"] = signal
 
 		# A signal attribute (e.g. `clk'event`) resolves to the signal itself.
@@ -278,7 +278,7 @@ class FindObject(TestCase):
 
 	def test_FoundConstant(self) -> None:
 		namespace = Namespace("architecture")
-		constant = Constant(("width", ), _subtypeSymbol())
+		constant = Constant(("width", ), _subtypeSymbol("natural"))
 		namespace._elements["width"] = constant
 
 		symbol = Symbol(SimpleName("width"), PossibleReference.Constant)
@@ -287,14 +287,14 @@ class FindObject(TestCase):
 
 	def test_FoundVariable(self) -> None:
 		namespace = Namespace("process")
-		variable = Variable(("index", ), _subtypeSymbol())
+		variable = Variable(("index", ), _subtypeSymbol("natural"))
 		namespace._elements["index"] = variable
 
 		self.assertIs(variable, namespace.FindObject(VariableSymbol(SimpleName("index"))))
 
 	def test_FoundButNotExpected_RaisesTypeError(self) -> None:
 		namespace = Namespace("architecture")
-		namespace._elements["clk"] = Signal(("clk", ), _subtypeSymbol())
+		namespace._elements["clk"] = Signal(("clk", ), _subtypeSymbol("natural"))
 
 		symbol = Symbol(SimpleName("clk"), PossibleReference.Constant)
 
@@ -305,7 +305,7 @@ class FindObject(TestCase):
 
 	def test_FoundButWrongKind_RaisesTypeError(self) -> None:
 		namespace = Namespace("architecture")
-		namespace._elements["byte"] = Subtype("byte", _subtypeSymbol())
+		namespace._elements["byte"] = Subtype("byte", _subtypeSymbol("natural"))
 
 		with self.assertRaises(TypeError) as context:
 			namespace.FindObject(SignalSymbol(SimpleName("byte")))
@@ -329,7 +329,7 @@ class FindObject(TestCase):
 	def test_NotFoundLocally_FoundInParent(self) -> None:
 		parent = Namespace("entity")
 		namespace = Namespace("architecture", parent)
-		signal = Signal(("clk", ), _subtypeSymbol())
+		signal = Signal(("clk", ), _subtypeSymbol("natural"))
 		parent._elements["clk"] = signal
 
 		self.assertIs(signal, namespace.FindObject(SignalSymbol(SimpleName("clk"))))

@@ -80,7 +80,7 @@ class IfGenerateStatements(TestCase):
 		``namespace._name == ""``, but an unlabelled ``GenerateBranch`` always constructs its
 		namespace with ``_normalizedAlternativeLabel``, which defaults to ``None`` - not ``""`` - so
 		the fallback never actually fired. Fixed to compare against ``None``."""
-		architecture = Architecture("rtl", _entitySymbol())
+		architecture = Architecture("rtl", _entitySymbol("e"))
 		ifBranch = IfGenerateBranch(IntegerLiteral(1))
 		elsifBranch = ElsifGenerateBranch(IntegerLiteral(2))
 		elseBranch = ElseGenerateBranch()
@@ -96,7 +96,7 @@ class IfGenerateStatements(TestCase):
 
 class CaseGenerateStatements(TestCase):
 	def test_CaseConnectsToTheArchitecture(self) -> None:
-		architecture = Architecture("rtl", _entitySymbol())
+		architecture = Architecture("rtl", _entitySymbol("e"))
 		case = GenerateCase([IndexedGenerateChoice(IntegerLiteral(0))])
 		statement = CaseGenerateStatement("gen", IntegerLiteral(0), [case])
 
@@ -107,7 +107,7 @@ class CaseGenerateStatements(TestCase):
 
 class ForGenerateStatements(TestCase):
 	def test_ConnectsToTheArchitecture(self) -> None:
-		architecture = Architecture("rtl", _entitySymbol())
+		architecture = Architecture("rtl", _entitySymbol("e"))
 		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
 		statement = ForGenerateStatement("gen", "i", rng)
 

@@ -49,7 +49,7 @@ from pyVHDLModel.Sequential  import (
 )
 from pyVHDLModel.Base        import WaveformElement
 
-from tests.unit             import _signalSymbol
+from tests.unit              import _signalSymbol
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -82,7 +82,7 @@ class SequentialProcedureCalls(TestCase):
 
 class SequentialSignalAssignments(TestCase):
 	def test_Construction(self) -> None:
-		target = _signalSymbol()
+		target = _signalSymbol("s")
 		assignment = SequentialSignalAssignment(target, label="lbl")
 
 		self.assertIs(target, assignment.Target)
@@ -93,7 +93,7 @@ class SequentialSignalAssignments(TestCase):
 class SequentialSimpleSignalAssignments(TestCase):
 	def test_Construction(self) -> None:
 		"""``s <= '1';``"""
-		target = _signalSymbol()
+		target = _signalSymbol("s")
 		waveformElement = WaveformElement(CharacterLiteral("'1'"))
 		assignment = SequentialSimpleSignalAssignment(target, [waveformElement])
 

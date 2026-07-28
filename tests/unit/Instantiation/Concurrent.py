@@ -54,7 +54,7 @@ from pyVHDLModel.Concurrent  import (
 	ForGenerateStatement, ConcurrentSimpleSignalAssignment, ConcurrentAssertStatement,
 )
 
-from tests.unit             import _entitySymbol
+from tests.unit              import _entitySymbol
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -321,7 +321,7 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 	def test_IndexStatements_BucketsByKind(self) -> None:
 		"""Blocks and generates both land in the single, unified ``_hierarchy`` dict (in source/
 		declaration order), not separate per-kind dicts."""
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("e")
 		instance = ComponentInstantiation("inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk")
 		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
@@ -336,7 +336,7 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 		self.assertEqual(["blk", "gen"], list(architecture._hierarchy.keys()))
 
 	def test_IterateInstantiations_RecursesIntoBlocksAndGenerates(self) -> None:
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("e")
 		nestedInstance = ComponentInstantiation("nested_inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk", statements=[nestedInstance])
 

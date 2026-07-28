@@ -46,9 +46,9 @@ from unittest import TestCase
 from pyTooling.Warning import WarningCollector
 
 from pyVHDLModel            import Design, Document, Library
+from pyVHDLModel.Base       import Mode
 from pyVHDLModel.DesignUnit import Architecture, Entity, Package, PackageBody
 from pyVHDLModel.Exception  import DuplicateDeclarationWarning
-from pyVHDLModel.Base       import Mode
 from pyVHDLModel.Interface  import PortSimpleSignalInterfaceItem
 from pyVHDLModel.Name       import SimpleName
 from pyVHDLModel.Object     import Constant, Signal
@@ -69,7 +69,8 @@ class OneDeclarativePart(TestCase):
 	"""Two declarations in the same declarative part."""
 
 	def test_TwoSignalsWithTheSameName(self) -> None:
-		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("s"), _signal("s")])
+		items = [_signal("s", "natural"), _signal("s", "natural")]
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
@@ -78,7 +79,7 @@ class OneDeclarativePart(TestCase):
 
 	def test_SignalAndConstantWithTheSameName(self) -> None:
 		"""Different kinds still collide - VHDL keys on the identifier, not the kind."""
-		items = [_signal("s"), Constant(["s"], _subtypeSymbol("bit"))]
+		items = [_signal("s", "natural"), Constant(["s"], _subtypeSymbol("bit"))]
 		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
@@ -87,7 +88,8 @@ class OneDeclarativePart(TestCase):
 		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_DistinctNamesAreAccepted(self) -> None:
-		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("a"), _signal("b")])
+		items = [_signal("a", "natural"), _signal("b", "natural")]
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
@@ -96,7 +98,7 @@ class OneDeclarativePart(TestCase):
 
 	def test_ReIndexingIsNotADuplicate(self) -> None:
 		"""Indexing is not idempotent by construction, so re-inserting the *same* item must not report."""
-		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("s")])
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("s", "natural")])
 
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
@@ -126,7 +128,7 @@ class OverloadableDeclarations(TestCase):
 
 	def test_SubprogramCollidesWithASignal(self) -> None:
 		"""A subprogram is overloadable, but not against a non-overloadable declaration."""
-		items = [_signal("foo"), Procedure("foo")]
+		items = [_signal("foo", "natural"), Procedure("foo")]
 		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
@@ -156,7 +158,7 @@ class RegionsSpanningTwoNamespaces(TestCase):
 		return design
 
 	def test_ArchitectureDeclarationDuplicatesEntityDeclaration(self) -> None:
-		design = self._design([_signal("x")], [_signal("x")], [], [])
+		design = self._design([_signal("x", "natural")], [_signal("x", "natural")], [], [])
 
 		with WarningCollector() as collector:
 			design.IndexEntities()
@@ -171,7 +173,8 @@ class RegionsSpanningTwoNamespaces(TestCase):
 		design.AddLibrary(library)
 		document = Document(Path("virtual.vhdl"))
 		document._AddDesignUnit(Entity("ent", portItems=ports))
-		document._AddDesignUnit(Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("p")]))
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("p", "natural")])
+		document._AddDesignUnit(architecture)
 		design.AddDocument(document, library)
 		design.CreateDependencyGraph()
 		design.LinkArchitectures()
@@ -192,7 +195,7 @@ class RegionsSpanningTwoNamespaces(TestCase):
 		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_DistinctNamesAcrossTheRegionAreAccepted(self) -> None:
-		design = self._design([_signal("a")], [_signal("b")], [], [])
+		design = self._design([_signal("a", "natural")], [_signal("b", "natural")], [], [])
 
 		with WarningCollector() as collector:
 			design.IndexEntities()

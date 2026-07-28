@@ -33,8 +33,8 @@
 """Shared construction helpers for the unit tests.
 
 Building a model object needs a symbol, a subtype and often a name, which every test module was
-re-declaring. The defaults below are the ones most modules used; a module wanting a different name
-passes it explicitly.
+re-declaring. Names are always passed explicitly - a helper that defaults one hides what a test
+actually builds.
 """
 from typing import List, Type, TypeVar
 
@@ -46,32 +46,32 @@ from pyVHDLModel.Symbol import EntitySymbol, SignalSymbol, SimpleSubtypeSymbol, 
 _Warning = TypeVar("_Warning", bound=BaseException)
 
 
-def _subtypeSymbol(name: str = "natural") -> SimpleSubtypeSymbol:
+def _subtypeSymbol(name: str) -> SimpleSubtypeSymbol:
 	"""Reference to a subtype, for anything needing a subtype indication."""
 	return SimpleSubtypeSymbol(SimpleName(name))
 
 
-def _entitySymbol(name: str = "e") -> EntitySymbol:
+def _entitySymbol(name: str) -> EntitySymbol:
 	"""Reference to an entity, e.g. for an architecture."""
 	return EntitySymbol(SimpleName(name))
 
 
-def _signalSymbol(name: str = "s") -> SignalSymbol:
+def _signalSymbol(name: str) -> SignalSymbol:
 	"""Reference to a signal, e.g. as an assignment target."""
 	return SignalSymbol(SimpleName(name))
 
 
-def _variableSymbol(name: str = "v") -> VariableSymbol:
+def _variableSymbol(name: str) -> VariableSymbol:
 	"""Reference to a variable, e.g. as an assignment target."""
 	return VariableSymbol(SimpleName(name))
 
 
-def _signal(identifier: str, subtypeName: str = "natural") -> Signal:
+def _signal(identifier: str, subtypeName: str) -> Signal:
 	"""A signal declaration."""
 	return Signal((identifier, ), _subtypeSymbol(subtypeName))
 
 
-def _variable(identifier: str, subtypeName: str = "natural") -> Variable:
+def _variable(identifier: str, subtypeName: str) -> Variable:
 	"""A variable declaration."""
 	return Variable((identifier, ), _subtypeSymbol(subtypeName))
 

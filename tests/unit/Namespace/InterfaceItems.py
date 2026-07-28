@@ -63,11 +63,11 @@ if __name__ == "__main__":  # pragma: no cover
 
 
 def _port(*identifiers: str) -> PortSimpleSignalInterfaceItem:
-	return PortSimpleSignalInterfaceItem(identifiers, Mode.In, _subtypeSymbol())
+	return PortSimpleSignalInterfaceItem(identifiers, Mode.In, _subtypeSymbol("natural"))
 
 
 def _generic(*identifiers: str) -> GenericConstantInterfaceItem:
-	return GenericConstantInterfaceItem(identifiers, Mode.In, _subtypeSymbol())
+	return GenericConstantInterfaceItem(identifiers, Mode.In, _subtypeSymbol("natural"))
 
 
 class EntityInterfaceItems(TestCase):
@@ -116,7 +116,7 @@ class EntityInterfaceItems(TestCase):
 	def test_GenericsPortsAndDeclarationsShareOneNamespace(self) -> None:
 		generic = _generic("width")
 		port = _port("clk")
-		signal = Signal(("internal", ), _subtypeSymbol())
+		signal = Signal(("internal", ), _subtypeSymbol("natural"))
 		entity = Entity("ent", genericItems=[generic], portItems=[port], declaredItems=[signal])
 		entity.IndexDeclaredItems()
 
@@ -178,7 +178,7 @@ class SubprogramInterfaceItems(TestCase):
 	"""
 
 	def test_ParameterIsIndexed(self) -> None:
-		parameter = ParameterVariableInterfaceItem(("p", ), Mode.In, _subtypeSymbol())
+		parameter = ParameterVariableInterfaceItem(("p", ), Mode.In, _subtypeSymbol("natural"))
 		procedure = Procedure("helper", parameterItems=[parameter])
 		procedure.IndexDeclaredItems()
 
@@ -186,7 +186,7 @@ class SubprogramInterfaceItems(TestCase):
 		self.assertIs(parameter, procedure.Namespace.FindObject(VariableSymbol(SimpleName("p"))))
 
 	def test_EveryIdentifierOfAMultiIdentifierParameterIsIndexed(self) -> None:
-		parameter = ParameterVariableInterfaceItem(("p", "q"), Mode.In, _subtypeSymbol())
+		parameter = ParameterVariableInterfaceItem(("p", "q"), Mode.In, _subtypeSymbol("natural"))
 		procedure = Procedure("helper", parameterItems=[parameter])
 		procedure.IndexDeclaredItems()
 
@@ -195,7 +195,7 @@ class SubprogramInterfaceItems(TestCase):
 
 	def test_GenericAndParameterShareTheNamespace(self) -> None:
 		generic = _generic("g")
-		parameter = ParameterVariableInterfaceItem(("p", ), Mode.In, _subtypeSymbol())
+		parameter = ParameterVariableInterfaceItem(("p", ), Mode.In, _subtypeSymbol("natural"))
 		procedure = Procedure("helper", genericItems=[generic], parameterItems=[parameter])
 		procedure.IndexDeclaredItems()
 

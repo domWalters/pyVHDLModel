@@ -182,7 +182,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	     * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
-	_continuesParentRegion: ClassVar[bool] = False  #: ``True`` if it continues its parent's declarative region.
+	_continuesParentRegion: ClassVar[bool] = False         #: ``True`` if it continues its parent's declarative region.
 
 	_document: 'Document'                                  #: The VHDL library, the design unit was analyzed into.
 
@@ -238,7 +238,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		self._dependencyVertex = None
 		self._hierarchyVertex = None
 
-		self._namespace = Namespace(self._normalizedIdentifier, sharesRegion=self._continuesParentRegion)
+		self._namespace = Namespace(self._normalizedIdentifier, sharesRegionWithParent=self._continuesParentRegion)
 
 	@property
 	def Document(self) -> 'Document':
@@ -652,9 +652,9 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	   * :class:`Package it implements <pyVHDLModel.DesignUnit.Package>`
 	"""
 
-	_continuesParentRegion: ClassVar[bool] = True
+	_continuesParentRegion: ClassVar[bool] = True   #: A package body continues its package's declarative region.
 
-	_package:       PackageSymbol  #: Reference to the package this body implements.
+	_package:               PackageSymbol           #: Reference to the package this body implements.
 
 	def __init__(
 		self,
@@ -849,9 +849,9 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	   * :class:`Entity it implements <pyVHDLModel.DesignUnit.Entity>`
 	"""
 
-	_continuesParentRegion: ClassVar[bool] = True
+	_continuesParentRegion: ClassVar[bool] = True  #: An architecture continues its entity's declarative region.
 
-	_entity:        EntitySymbol  #: Reference to the entity this architecture implements.
+	_entity:                EntitySymbol           #: Reference to the entity this architecture implements.
 
 	def __init__(
 		self,

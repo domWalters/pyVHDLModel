@@ -51,7 +51,7 @@ class ObjBaseBehaviour(TestCase):
 	``Signal`` - any ``Obj`` subclass would do equally well, since none of this is overridden."""
 
 	def test_SingleIdentifier(self) -> None:
-		subtype = _subtypeSymbol()
+		subtype = _subtypeSymbol("natural")
 		signal = Signal(["s"], subtype)
 
 		self.assertEqual(("s",), signal.Identifiers)
@@ -69,17 +69,17 @@ class ObjBaseBehaviour(TestCase):
 	def test_ObjectVertexDefaultsToNone(self) -> None:
 		"""``ObjectVertex`` is only populated once an object graph is built elsewhere; a freshly
 		constructed object was never inserted into one."""
-		signal = Signal(["s"], _subtypeSymbol())
+		signal = Signal(["s"], _subtypeSymbol("natural"))
 
 		self.assertIsNone(signal.ObjectVertex)
 
 	def test_Documentation(self) -> None:
-		signal = Signal(["s"], _subtypeSymbol(), documentation="a signal")
+		signal = Signal(["s"], _subtypeSymbol("natural"), documentation="a signal")
 
 		self.assertEqual("a signal", signal.Documentation)
 
 	def test_NoDocumentation(self) -> None:
-		signal = Signal(["s"], _subtypeSymbol())
+		signal = Signal(["s"], _subtypeSymbol("natural"))
 
 		self.assertIsNone(signal.Documentation)
 
@@ -91,13 +91,13 @@ class WithDefaultExpression(TestCase):
 
 	def test_WithDefaultExpression(self) -> None:
 		default = IntegerLiteral(0)
-		signal = Signal(["s"], _subtypeSymbol(), defaultExpression=default)
+		signal = Signal(["s"], _subtypeSymbol("natural"), defaultExpression=default)
 
 		self.assertIs(default, signal.DefaultExpression)
 		self.assertIs(signal, default.Parent)
 
 	def test_WithoutDefaultExpression(self) -> None:
-		signal = Signal(["s"], _subtypeSymbol())
+		signal = Signal(["s"], _subtypeSymbol("natural"))
 
 		self.assertIsNone(signal.DefaultExpression)
 
