@@ -30,7 +30,7 @@
 # ==================================================================================================================== #
 #
 """This module contains base-classes for predefined library and package declarations."""
-from typing                 import Iterable
+from typing                 import Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export
 from pyTooling.MetaClasses  import ExtendedType
@@ -119,11 +119,16 @@ class PredefinedPackage(Package, PredefinedPackageMixin):
 	A base-class for predefined VHDL packages.
 	"""
 
-	def __init__(self) -> None:
+	def __init__(self, identifier: Nullable[str] = None) -> None:
 		"""
 		Initializes a predefined package.
+
+		By default the VHDL package name is the Python class name. Pass ``identifier`` when the two must
+		differ - e.g. when two vendor flavors of the same VHDL package need distinct Python classes.
+
+		:param identifier: The VHDL package name, or ``None`` to use the class name.
 		"""
-		super().__init__(self.__class__.__name__, parent=None)
+		super().__init__(self.__class__.__name__ if identifier is None else identifier)
 
 
 @export
@@ -132,9 +137,16 @@ class PredefinedPackageBody(PackageBody, PredefinedPackageMixin):
 	A base-class for predefined VHDL package bodies.
 	"""
 
-	def __init__(self) -> None:
+	def __init__(self, packageIdentifier: Nullable[str] = None) -> None:
 		"""
 		Initializes a predefined package body.
+
+		By default the VHDL package name is the Python class name with the trailing ``_Body`` removed.
+		Pass ``packageIdentifier`` when the two must differ.
+
+		:param packageIdentifier: The VHDL name of the package this body implements, or ``None`` to derive
+		                          it from the class name.
 		"""
-		packageSymbol = PackageSymbol(SimpleName(self.__class__.__name__[:-5]))
-		super().__init__(packageSymbol, parent=None)
+		identifier = self.__class__.__name__[:-5] if packageIdentifier is None else packageIdentifier
+		packageSymbol = PackageSymbol(SimpleName(identifier))
+		super().__init__(packageSymbol)

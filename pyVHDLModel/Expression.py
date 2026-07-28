@@ -497,13 +497,12 @@ class BitStringBase(Flag):
 
 @export
 class BitStringLiteral(Literal):
-	# _base:  ClassVar[BitStringBase]
 	"""
 	Represents the base-class of all bit string literals.
 
 	Besides the literal as written (:data:`Value`), the bits are available in binary form
 	(:data:`BinaryValue`, :data:`Bits`), together with the literal's length (:data:`Length`) and
-	whether it is signed (:data:`Signed`).
+	whether it is signed (:data:`IsSigned`).
 
 	.. admonition:: Example
 
@@ -519,24 +518,26 @@ class BitStringLiteral(Literal):
 	   * :class:`Decimal bit string literal <pyVHDLModel.Expression.DecimalBitStringLiteral>`
 	   * :class:`Hexadecimal bit string literal <pyVHDLModel.Expression.HexadecimalBitStringLiteral>`
 	"""
+	_base:        ClassVar[BitStringBase] = BitStringBase.NoBase  #: The base this literal is written in.
+
 	_value:       str             #: The literal as written in the source, without the enclosing double quotes.
 	_binaryValue: str             #: The literal's value expanded to base 2, one character per bit.
 	_bits:        int             #: The number of bits the literal represents.
 	_length:      Nullable[int]   #: The explicitly given length, or ``None`` if the literal has no length specification.
-	_signed:      Nullable[bool]  #: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
+	_isSigned:    Nullable[bool]  #: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
 
-	def __init__(self, value: str, length: Nullable[int] = None, signed: Nullable[bool] = None) -> None:
+	def __init__(self, value: str, length: Nullable[int] = None, isSigned: Nullable[bool] = None) -> None:
 		"""
 		Initializes a bit string literal.
 
-		:param value:  The literal as written in the source, without the enclosing double quotes.
-		:param length: The explicitly given length, or ``None`` if the literal has no length specification.
-		:param signed: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
+		:param value:    The literal as written in the source, without the enclosing double quotes.
+		:param length:   The explicitly given length, or ``None`` if the literal has no length specification.
+		:param isSigned: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
 		"""
 		super().__init__()
 		self._value = value
 		self._length = length
-		self._signed = signed
+		self._isSigned = isSigned
 
 		self._binaryValue = None
 		self._bits = None
@@ -578,13 +579,13 @@ class BitStringLiteral(Literal):
 		return self._length
 
 	@readonly
-	def Signed(self) -> Nullable[bool]:
+	def IsSigned(self) -> Nullable[bool]:
 		"""
-		Check if the bit string literal is signed (:attr:`_signed`).
+		Check if the bit string literal is signed (:attr:`_isSigned`).
 
 		:returns: ``True``, if the literal is signed; ``None``, if unspecified.
 		"""
-		return self._signed
+		return self._isSigned
 
 	def __str__(self) -> str:
 		"""
@@ -596,7 +597,7 @@ class BitStringLiteral(Literal):
 
 		:returns: Formatted bit string literal.
 		"""
-		signed = "" if self._signed is None else "s" if self._signed is True else "u"
+		signed = "" if self._isSigned is None else "s" if self._isSigned is True else "u"
 		if self._base is BitStringBase.NoBase:
 			base = ""
 		elif self._base is BitStringBase.Binary:

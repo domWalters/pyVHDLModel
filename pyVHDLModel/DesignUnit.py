@@ -924,7 +924,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	   * :class:`Component configuration <pyVHDLModel.Configuration.ComponentConfiguration>`
 	"""
 
-	_isBlackBox:        Nullable[bool]                    #: Component is a blackbox.
+	_isBlackbox:        Nullable[bool]                    #: Component is a blackbox.
 
 	_genericItems:      List[GenericInterfaceItemMixin]  #: List of all generics of this component, in declaration order.
 	_portItems:         List[PortInterfaceItemMixin]     #: List of all ports of this component, in declaration order.
@@ -955,7 +955,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-		self._isBlackBox = None
+		self._isBlackbox = None
 		self._entity = None
 
 		# TODO: extract to mixin
@@ -975,14 +975,14 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	@readonly
 	def IsBlackbox(self) -> Nullable[bool]:
 		"""
-		Check if the component is a blackbox (:attr:`_isBlackBox`).
+		Check if the component is a blackbox (:attr:`_isBlackbox`).
 
 		If components were not linked to matching entities, this property returns ``None``.
 
 		:returns: ``True``, if the component is a blackbox; ``False``, if it is not; ``None``, if components
 		          were not linked to entities yet.
 		"""
-		return self._isBlackBox
+		return self._isBlackbox
 
 	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
@@ -1014,7 +1014,7 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	@Entity.setter
 	def Entity(self, value: Entity) -> None:
 		self._entity = value
-		self._isBlackBox = False
+		self._isBlackbox = False
 
 	def __str__(self) -> str:
 		"""
