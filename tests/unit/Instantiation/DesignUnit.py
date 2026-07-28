@@ -84,12 +84,29 @@ class References(TestCase):
 		self.assertIsInstance(reference, Reference)
 
 
+class _ConcreteDesignUnit(DesignUnit):
+	"""``DesignUnit`` is abstract - it requires ``__str__`` - so its own plumbing is exercised through a
+	stand-in that adds nothing but the required rendering. Using a real unit like ``Context`` instead
+	would drag in that unit's extra state."""
+
+	def __str__(self) -> str:
+		return self._identifier
+
+
+class _ConcretePrimaryUnit(PrimaryUnit):
+	def __str__(self) -> str:
+		return self._identifier
+
+
+class _ConcreteSecondaryUnit(SecondaryUnit):
+	def __str__(self) -> str:
+		return self._identifier
+
+
 class DesignUnits(TestCase):
-	"""``DesignUnit`` itself has no public non-abstract-in-spirit subclass without extra state, so
-	it's tested directly via its own class rather than through e.g. ``Context``."""
 
 	def test_NoContextItems(self) -> None:
-		unit = DesignUnit("u")
+		unit = _ConcreteDesignUnit("u")
 
 		self.assertEqual("u", unit.Identifier)
 		self.assertEqual(0, len(unit.ContextItems))
@@ -104,7 +121,7 @@ class DesignUnits(TestCase):
 		library = LibraryClause([LibraryReferenceSymbol(SimpleName("ieee"))])
 		use = UseClause([])
 		context = ContextReference([])
-		unit = DesignUnit("u", [library, use, context])
+		unit = _ConcreteDesignUnit("u", [library, use, context])
 
 		self.assertEqual(3, len(unit.ContextItems))
 		self.assertEqual([library], unit.LibraryReferences)
@@ -112,7 +129,7 @@ class DesignUnits(TestCase):
 		self.assertEqual([context], unit.ContextReferences)
 
 	def test_DocumentSetter(self) -> None:
-		unit = DesignUnit("u")
+		unit = _ConcreteDesignUnit("u")
 		document = object()
 		unit.Document = document
 
@@ -121,7 +138,7 @@ class DesignUnits(TestCase):
 	def test_LibrarySetter(self) -> None:
 		"""``Library`` is just a renamed view onto the same ``_parent`` field every ``ModelEntity``
 		has."""
-		unit = DesignUnit("u")
+		unit = _ConcreteDesignUnit("u")
 		library = ModelEntity()
 		unit.Library = library
 
@@ -131,12 +148,12 @@ class DesignUnits(TestCase):
 
 class MarkerSubclasses(TestCase):
 	def test_PrimaryUnit(self) -> None:
-		unit = PrimaryUnit("u")
+		unit = _ConcretePrimaryUnit("u")
 
 		self.assertEqual("u", unit.Identifier)
 
 	def test_SecondaryUnit(self) -> None:
-		unit = SecondaryUnit("u")
+		unit = _ConcreteSecondaryUnit("u")
 
 		self.assertEqual("u", unit.Identifier)
 

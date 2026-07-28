@@ -37,7 +37,7 @@ Design units are contexts, entities, architectures, packages and their bodies as
 from typing import List, Dict, Union, Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export, readonly
-from pyTooling.MetaClasses  import ExtendedType
+from pyTooling.MetaClasses  import ExtendedType, abstractmethod
 from pyTooling.Graph        import Vertex
 
 from pyVHDLModel.Common     import AllowBlackboxMixin
@@ -350,15 +350,15 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._hierarchyVertex
 
+	@abstractmethod
 	def __str__(self) -> str:
 		"""
-		Formats the design unit as its identifier.
+		Formats the design unit.
 
-		**Format:** ``myEntity``
+		Every concrete design unit renders itself, so this base-class provides no implementation.
 
-		:returns: The design unit's identifier.
+		:returns: Formatted design unit.
 		"""
-		return self._identifier
 
 
 @export
