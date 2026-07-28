@@ -204,13 +204,12 @@ class BindingIndication(ModelEntity, GenericMapAspectMixin, PortMapAspectMixin):
 		:param parent:                  The parent model entity of this entity.
 		"""
 		super().__init__(parent)
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
+		PortMapAspectMixin.__init__(self, portAssociationItems)
 
 		self._entityAspect = entityAspect
 		if entityAspect is not None:
 			entityAspect.Parent = self
-
-		GenericMapAspectMixin.__init__(self, genericAssociationItems)
-		PortMapAspectMixin.__init__(self, portAssociationItems)
 
 	@readonly
 	def EntityAspect(self) -> Nullable[EntityAspect]:

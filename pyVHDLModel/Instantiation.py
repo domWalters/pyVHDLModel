@@ -101,7 +101,6 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, GenericMapAspectMi
 		:param genericAssociationItems: List of all generic associations in the generic map aspect.
 		"""
 		super().__init__()
-
 		GenericMapAspectMixin.__init__(self, genericAssociationItems)
 
 		self._subprogramReference = subprogramReference
@@ -257,7 +256,6 @@ class PackageInstantiation(Package, GenericInstantiationMixin, GenericMapAspectM
 		"""
 		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
-
 		GenericMapAspectMixin.__init__(self, genericAssociationItems)
 
 		self._packageReference = genericPackage
