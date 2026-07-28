@@ -128,7 +128,7 @@ class PredefinedPackage(Package, PredefinedPackageMixin):
 
 		:param identifier: The VHDL package name, or ``None`` to use the class name.
 		"""
-		super().__init__(self.__class__.__name__ if identifier is None else identifier, parent=None)
+		super().__init__(self.__class__.__name__ if identifier is None else identifier)
 
 
 @export
@@ -149,4 +149,4 @@ class PredefinedPackageBody(PackageBody, PredefinedPackageMixin):
 		"""
 		identifier = self.__class__.__name__[:-5] if packageIdentifier is None else packageIdentifier
 		packageSymbol = PackageSymbol(SimpleName(identifier))
-		super().__init__(packageSymbol, parent=None)
+		super().__init__(packageSymbol)
