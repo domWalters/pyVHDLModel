@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 tbd.
 """
-from typing                 import List, Dict, Iterable, Optional as Nullable, Any
+from typing                 import TYPE_CHECKING, List, Dict, Iterable, Optional as Nullable, Any
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType
@@ -44,7 +44,8 @@ from pyVHDLModel.Base       import normalizedIdentifiersOf
 from pyVHDLModel.Exception  import NotImplementedWarning
 from pyVHDLModel.Namespace  import Namespace
 from pyVHDLModel.Object     import Constant, SharedVariable, File, Variable, Signal
-from pyVHDLModel.Type       import Subtype, FullType
+if TYPE_CHECKING:
+	from pyVHDLModel.Type     import Subtype, FullType
 
 # `pyVHDLModel.Subprogram` imports this module (Subprogram is a sequential declaration region), so
 # `Function`/`Procedure` are quoted in annotations and imported lazily where they're needed at runtime.
@@ -125,8 +126,8 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	# _attributes:     Dict[str, Attribute]
 	# _aliases:        Dict[str, Alias]
-	_types:           Dict[str, FullType]               #: Dictionary of all types declared in this concurrent declaration region.
-	_subtypes:        Dict[str, Subtype]                #: Dictionary of all subtypes declared in this concurrent declaration region.
+	_types:           Dict[str, 'FullType']             #: Dictionary of all types declared in this concurrent declaration region.
+	_subtypes:        Dict[str, 'Subtype']              #: Dictionary of all subtypes declared in this concurrent declaration region.
 	# _objects:        Dict[str, Union[Constant, Variable, Signal]]
 	_constants:       Dict[str, Constant]               #: Dictionary of all constants declared in this concurrent declaration region.
 	_signals:         Dict[str, Signal]                 #: Dictionary of all signals declared in this concurrent declaration region.
@@ -173,7 +174,7 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		return self._declaredItems
 
 	@readonly
-	def Types(self) -> Dict[str, FullType]:
+	def Types(self) -> Dict[str, 'FullType']:
 		"""
 		Read-only property to access the types (:attr:`_types`).
 
@@ -182,7 +183,7 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		return self._types
 
 	@readonly
-	def Subtypes(self) -> Dict[str, Subtype]:
+	def Subtypes(self) -> Dict[str, 'Subtype']:
 		"""
 		Read-only property to access the subtypes (:attr:`_subtypes`).
 
@@ -293,6 +294,7 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		"""
 		from pyVHDLModel.DesignUnit import Component
 		from pyVHDLModel.Subprogram import Function, Procedure
+		from pyVHDLModel.Type       import Subtype, FullType
 
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
@@ -364,8 +366,8 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_declaredItems: List                          #: List of all declared items in this sequential declaration region.
 	_namespace:     Namespace                     #: The namespace of this sequential declaration region.
 
-	_types:         Dict[str, FullType]           #: Dictionary of all types declared in this sequential declaration region.
-	_subtypes:      Dict[str, Subtype]            #: Dictionary of all subtypes declared in this sequential declaration region.
+	_types:         Dict[str, 'FullType']         #: Dictionary of all types declared in this sequential declaration region.
+	_subtypes:      Dict[str, 'Subtype']          #: Dictionary of all subtypes declared in this sequential declaration region.
 	_constants:     Dict[str, Constant]           #: Dictionary of all constants declared in this sequential declaration region.
 	_variables:     Dict[str, Variable]           #: Dictionary of all variables declared in this sequential declaration region.
 	_files:         Dict[str, File]               #: Dictionary of all files declared in this sequential declaration region.
@@ -415,7 +417,7 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		return self._namespace
 
 	@readonly
-	def Types(self) -> Dict[str, FullType]:
+	def Types(self) -> Dict[str, 'FullType']:
 		"""
 		Read-only property to access the declared types (:attr:`_types`).
 
@@ -424,7 +426,7 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		return self._types
 
 	@readonly
-	def Subtypes(self) -> Dict[str, Subtype]:
+	def Subtypes(self) -> Dict[str, 'Subtype']:
 		"""
 		Read-only property to access the declared subtypes (:attr:`_subtypes`).
 
@@ -490,6 +492,7 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		     The same algorithm for a concurrent declaration region.
 		"""
 		from pyVHDLModel.Subprogram import Function, Procedure
+		from pyVHDLModel.Type       import Subtype, FullType
 
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
@@ -520,5 +523,104 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._files[normalizedIdentifier] = item
 					self._namespace._elements[normalizedIdentifier] = item
+			else:
+				self._IndexOtherDeclaredItem(item)
+
+
+@export
+class ProtectedTypeDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
+	"""
+	A mixin-class for the declarative region of a protected type declaration.
+
+	VHDL's ``protected_type_declarative_item`` rule admits subprogram declarations only, making this the
+	narrowest declarative region in the language. A protected type *body* differs: its declarative part
+	matches a subprogram's, so it uses :class:`SequentialDeclarationRegionMixin`.
+
+	.. seealso::
+
+	   * :class:`Protected type <pyVHDLModel.Type.ProtectedType>`
+	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
+	   * :class:`Sequential declaration region <pyVHDLModel.Regions.SequentialDeclarationRegionMixin>`
+	   * :class:`Namespace <pyVHDLModel.Namespace.Namespace>`
+	"""
+
+	_declaredItems: List                          #: List of all declared items in this protected type declaration.
+	_namespace:     Namespace                     #: The namespace of this protected type declaration.
+
+	# FIXME: overloads are only collected into a list, not matched/resolved by signature.
+	_functions:     Dict[str, List['Function']]   #: All declared functions, indexed by name; each is a list of overloads.
+	_procedures:    Dict[str, List['Procedure']]  #: All declared procedures by name; each is a list of overloads.
+
+	def __init__(self, namespaceName: Nullable[str] = None, declaredItems: Nullable[Iterable] = None) -> None:
+		"""
+		Initialize a protected type declaration region.
+
+		:param namespaceName: Name of this region's namespace, usually the protected type's identifier.
+		:param declaredItems: The items declared in this region.
+		"""
+		self._namespace = Namespace(namespaceName)
+
+		self._declaredItems = []  # TODO: convert to dict
+		if declaredItems is not None:
+			for item in declaredItems:
+				self._declaredItems.append(item)
+				item.Parent = self
+
+		self._functions =  {}
+		self._procedures = {}
+
+	@readonly
+	def DeclaredItems(self) -> List:
+		"""
+		Read-only property to access the declared items (:attr:`_declaredItems`).
+
+		:returns: List of all declared items.
+		"""
+		return self._declaredItems
+
+	@readonly
+	def Functions(self) -> Dict[str, List['Function']]:
+		"""
+		Read-only property to access the declared functions (:attr:`_functions`).
+
+		:returns: Dictionary of all functions, indexed by name; each entry is a list of overloads.
+		"""
+		return self._functions
+
+	@readonly
+	def Procedures(self) -> Dict[str, List['Procedure']]:
+		"""
+		Read-only property to access the declared procedures (:attr:`_procedures`).
+
+		:returns: Dictionary of all procedures, indexed by name; each entry is a list of overloads.
+		"""
+		return self._procedures
+
+	def IndexDeclaredItems(self) -> None:
+		"""
+		Index declared items listed in the protected type declaration.
+
+		Only subprogram declarations are legal here, so anything else is passed to
+		:meth:`_IndexOtherDeclaredItem`.
+
+		.. seealso::
+
+		   :meth:`SequentialDeclarationRegionMixin.IndexDeclaredItems`
+		     The same algorithm for the protected type's body.
+		"""
+		from pyVHDLModel.Subprogram import Function, Procedure
+		from pyVHDLModel.Type       import Subtype, FullType
+
+		for item in self._declaredItems:
+			if isinstance(item, Function):
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
+				self._namespace._elements[item._normalizedIdentifier] = item
+			elif isinstance(item, Procedure):
+				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
+				#        real overload resolution yet).
+				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
+				self._namespace._elements[item._normalizedIdentifier] = item
 			else:
 				self._IndexOtherDeclaredItem(item)

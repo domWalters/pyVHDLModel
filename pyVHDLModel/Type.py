@@ -43,6 +43,7 @@ from pyTooling.Graph        import Vertex
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, MultipleNamedEntityMixin, DocumentedEntityMixin, ExpressionUnion, Range
 from pyVHDLModel.Symbol     import Symbol
 from pyVHDLModel.Expression import EnumerationLiteral, PhysicalIntegerLiteral
+from pyVHDLModel.Regions    import ProtectedTypeDeclarationRegionMixin, SequentialDeclarationRegionMixin
 
 
 @export
@@ -771,14 +772,17 @@ class RecordType(CompositeType):
 
 
 @export
-class ProtectedType(FullType):
+class ProtectedType(FullType, ProtectedTypeDeclarationRegionMixin):
 	"""
 	Represents a protected type declaration.
 
 	A protected type is a named entity (:data:`Identifier`) exposing only its methods
 	(:data:`Methods`). The implementation lives in a separate :class:`ProtectedTypeBody`.
-	The model holds the methods in a list and has no distinct field per method, so the markers
-	below name list elements.
+
+	It is a declarative region and owns a namespace. VHDL's ``protected_type_declarative_item`` admits
+	subprogram declarations and nothing else - the narrowest declarative region in the language - so
+	:data:`DeclaredItems` and :data:`Methods` hold the same items. The markers below name list elements,
+	because the model has no distinct field per method.
 
 	.. admonition:: Example
 
@@ -797,42 +801,45 @@ class ProtectedType(FullType):
 	   * :class:`Protected type body <pyVHDLModel.Type.ProtectedTypeBody>`
 	   * :class:`Method of a protected type <pyVHDLModel.Subprogram.ProcedureMethod>`
 	"""
-	_methods: List[Union['Procedure', 'Function']]  #: All methods, in declaration order.
-
-	def __init__(self, identifier: str, methods: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a protected type declaration.
 
 		:param identifier:    The identifier of a model entity.
-		:param methods:       All methods, in declaration order.
+		:param declaredItems: All items declared by this protected type; only subprograms are legal.
 		:param documentation: The documentation comment associated with this declaration.
 		:param parent:        The parent model entity of this entity.
 		"""
 		super().__init__(identifier, documentation, parent)
-
-		self._methods = []
-		if methods is not None:
-			for method in methods:
-				self._methods.append(method)
-				method.Parent = self
+		ProtectedTypeDeclarationRegionMixin.__init__(self, self._normalizedIdentifier, declaredItems)
 
 	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
 		"""
-		Read-only property to access the methods (:attr:`_methods`).
+		Read-only property to access the declared methods, in declaration order.
 
-		:returns: List of methods.
+		A protected type declares nothing but subprograms, so this is every declared item
+		(:attr:`_declaredItems`). It is kept as a named view because "method" is the VHDL term for a
+		protected type's subprograms.
+
+		:returns: List of methods, in declaration order.
 		"""
-		return self._methods
+		from pyVHDLModel.Subprogram import Function, Procedure
+
+		return [item for item in self._declaredItems if isinstance(item, (Function, Procedure))]
 
 
 @export
-class ProtectedTypeBody(FullType):
+class ProtectedTypeBody(FullType, SequentialDeclarationRegionMixin):
 	"""
 	Represents a protected type body.
 
 	A protected type body implements the methods (:data:`Methods`) declared by the
 	:class:`ProtectedType` of the same identifier (:data:`Identifier`).
+
+	It is a declarative region and owns a namespace. Its declarative part matches a subprogram's, so it
+	shares :class:`~pyVHDLModel.Regions.SequentialDeclarationRegionMixin` with subprogram bodies.
+	Everything declared is available as :data:`DeclaredItems`; :data:`Methods` is its subprogram subset.
 
 	.. admonition:: Example
 
@@ -848,18 +855,10 @@ class ProtectedTypeBody(FullType):
 	        end procedure;
 	      end protected body;
 
-	.. note::
-
-	   A protected type body may also declare non-subprogram items - ``variable count`` above. The
-	   model currently stores every declared item in :data:`Methods`, so such declarations are
-	   conflated with the methods and have no marker of their own.
-
 	.. seealso::
 
 	   * :class:`Protected type declaration <pyVHDLModel.Type.ProtectedType>`
 	"""
-	_methods: List[Union['Procedure', 'Function']]  #: All declared items; see the class docs on the conflation.
-
 	def __init__(self, identifier: str, declaredItems: Union[List, Iterator] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a protected type body.
@@ -870,22 +869,22 @@ class ProtectedTypeBody(FullType):
 		:param parent:        The parent model entity of this entity.
 		"""
 		super().__init__(identifier, documentation, parent)
-
-		self._methods = []
-		if declaredItems is not None:
-			for method in declaredItems:
-				self._methods.append(method)
-				method.Parent = self
+		SequentialDeclarationRegionMixin.__init__(self, self._normalizedIdentifier, declaredItems)
 
 	# FIXME: needs to be declared items or so
 	@readonly
 	def Methods(self) -> List[Union['Procedure', 'Function']]:
 		"""
-		Read-only property to access the methods (:attr:`_methods`).
+		Read-only property to access the implemented methods, in declaration order.
 
-		:returns: List of methods.
+		A protected type body may also declare variables, types, subtypes, aliases and files, so this is
+		the subprogram subset of :attr:`_declaredItems` rather than all of them.
+
+		:returns: List of methods, in declaration order.
 		"""
-		return self._methods
+		from pyVHDLModel.Subprogram import Function, Procedure
+
+		return [item for item in self._declaredItems if isinstance(item, (Function, Procedure))]
 
 
 @export

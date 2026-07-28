@@ -35,6 +35,8 @@ from pyVHDLModel.Base       import ModelEntity, Direction, RangeFromName, Simple
 from pyVHDLModel.Name       import SimpleName, AttributeName
 from pyVHDLModel.Symbol     import RangeAttributeSymbol, SimpleSubtypeSymbol
 from pyVHDLModel.Expression import IntegerLiteral, EnumerationLiteral, PhysicalIntegerLiteral
+from pyVHDLModel.Object     import Variable
+from pyVHDLModel.Subprogram import Procedure
 from pyVHDLModel.Type       import (
 	Subtype, RangedScalarType,
 	EnumeratedType, IntegerType, RealType, PhysicalType,
@@ -257,34 +259,65 @@ class RecordTypes(TestCase):
 
 
 class ProtectedTypes(TestCase):
-	"""``methods`` accepts any pre-built ``ModelEntity`` for its parent-wiring; a plain ``ModelEntity``
-	stand-in keeps this test independent from Subprogram.py, which gets its own dedicated slice."""
+	"""A protected type declaration admits subprogram declarations only, so ``DeclaredItems`` and
+	``Methods`` hold the same items. Real ``Procedure`` instances are needed because ``Methods`` is
+	defined by type, not by position."""
 
 	def test_WithMethods(self) -> None:
-		method = ModelEntity()
+		method = Procedure("increment")
 		protectedType = ProtectedType("my_protected", [method])
 
+		self.assertEqual(1, len(protectedType.DeclaredItems))
 		self.assertEqual(1, len(protectedType.Methods))
+		self.assertIs(method, protectedType.Methods[0])
 		self.assertIs(protectedType, method.Parent)
 
 	def test_NoMethods(self) -> None:
 		protectedType = ProtectedType("my_protected")
 
+		self.assertEqual(0, len(protectedType.DeclaredItems))
 		self.assertEqual(0, len(protectedType.Methods))
+
+	def test_IndexDeclaredItems(self) -> None:
+		method = Procedure("increment")
+		protectedType = ProtectedType("my_protected", [method])
+		protectedType.IndexDeclaredItems()
+
+		self.assertIn("increment", protectedType.Procedures)
+		self.assertIn("increment", protectedType._namespace._elements)
 
 
 class ProtectedTypeBodies(TestCase):
-	def test_WithDeclaredItems(self) -> None:
-		method = ModelEntity()
-		body = ProtectedTypeBody("my_protected", [method])
+	"""A protected type body's declarative part matches a subprogram's, so it may declare more than
+	methods. ``Methods`` is the subprogram subset of ``DeclaredItems``, not all of them."""
 
+	def test_WithDeclaredItems(self) -> None:
+		variable = Variable(["count"], _subtypeSymbol("natural"))
+		method = Procedure("increment")
+		body = ProtectedTypeBody("my_protected", [variable, method])
+
+		self.assertEqual(2, len(body.DeclaredItems))
 		self.assertEqual(1, len(body.Methods))
+		self.assertIs(method, body.Methods[0])
+		self.assertIs(body, variable.Parent)
 		self.assertIs(body, method.Parent)
 
 	def test_NoDeclaredItems(self) -> None:
 		body = ProtectedTypeBody("my_protected")
 
+		self.assertEqual(0, len(body.DeclaredItems))
 		self.assertEqual(0, len(body.Methods))
+
+	def test_IndexDeclaredItems(self) -> None:
+		variable = Variable(["count"], _subtypeSymbol("natural"))
+		method = Procedure("increment")
+		body = ProtectedTypeBody("my_protected", [variable, method])
+		body.IndexDeclaredItems()
+
+		self.assertIn("count", body.Variables)
+		self.assertIn("increment", body.Procedures)
+		self.assertIn("count", body._namespace._elements)
+		self.assertIn("increment", body._namespace._elements)
 
 
 class AccessTypes(TestCase):

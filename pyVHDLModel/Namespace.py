@@ -34,14 +34,15 @@ This module contains parts of an abstract document language model for VHDL.
 
 A helper class to implement namespaces and scopes.
 """
-from typing import TypeVar, Generic, Dict, Optional as Nullable, Any, Tuple
+from typing import TYPE_CHECKING, TypeVar, Generic, Dict, Optional as Nullable, Any, Tuple
 
 from pyTooling.Common     import getFullyQualifiedName
 from pyTooling.Decorators import readonly
 
 from pyVHDLModel.Object   import Obj, Signal, Constant, Variable
 from pyVHDLModel.Symbol   import ComponentInstantiationSymbol, Symbol, PossibleReference
-from pyVHDLModel.Type     import Subtype, FullType, BaseType
+if TYPE_CHECKING:
+	from pyVHDLModel.Type   import Subtype, FullType, BaseType
 
 K = TypeVar("K")
 O = TypeVar("O")
@@ -159,7 +160,9 @@ class Namespace(Generic[K, O]):
 				searchedNamespaces = (self, *ex.searchedNamespaces)
 				raise ExtendedKeyError(key, searchedNamespaces, f"Component '{key}' not found in: {', '.join(ns._name for ns in searchedNamespaces)}.") from ex
 
-	def FindSubtype(self, subtypeSymbol: Symbol) -> BaseType:
+	def FindSubtype(self, subtypeSymbol: Symbol) -> 'BaseType':
+		from pyVHDLModel.Type import Subtype, FullType
+
 		try:
 			element = self._elements[subtypeSymbol._name._normalizedIdentifier]
 			if isinstance(element, Subtype):
