@@ -108,6 +108,16 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._objectVertex
 
+	def __str__(self) -> str:
+		"""
+		Formats the object declaration.
+
+		**Format:** ``s1, s2 : bit``
+
+		:returns: Formatted object declaration.
+		"""
+		return f"{', '.join(self._identifiers)} : {self._subtype}"
+
 
 @export
 class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):

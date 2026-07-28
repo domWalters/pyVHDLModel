@@ -168,6 +168,16 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 
 		super().IndexDeclaredItems()
 
+	def __str__(self) -> str:
+		"""
+		Formats the subprogram as its identifier.
+
+		**Format:** ``myProcedure``
+
+		:returns: The subprogram's identifier.
+		"""
+		return self._identifier
+
 
 @export
 class Procedure(Subprogram):

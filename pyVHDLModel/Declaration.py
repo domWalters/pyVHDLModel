@@ -129,6 +129,16 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._subtype
 
+	def __str__(self) -> str:
+		"""
+		Formats the attribute as its identifier.
+
+		**Format:** ``myAttribute``
+
+		:returns: The attribute's identifier.
+		"""
+		return self._identifier
+
 
 @export
 class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
@@ -296,3 +306,13 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		:returns: The subtype, or ``None`` if not set.
 		"""
 		return self._subtype
+
+	def __str__(self) -> str:
+		"""
+		Formats the alias as its identifier.
+
+		**Format:** ``myAlias``
+
+		:returns: The alias' identifier.
+		"""
+		return self._identifier

@@ -124,3 +124,13 @@ class DefaultClock(PSLEntity, NamedEntityMixin):
 		"""
 		super().__init__()
 		NamedEntityMixin.__init__(self, identifier)
+
+	def __str__(self) -> str:
+		"""
+		Formats the default clock as its identifier.
+
+		**Format:** ``myClock``
+
+		:returns: The default clock's identifier.
+		"""
+		return self._identifier

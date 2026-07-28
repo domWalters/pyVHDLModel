@@ -350,6 +350,16 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._hierarchyVertex
 
+	def __str__(self) -> str:
+		"""
+		Formats the design unit as its identifier.
+
+		**Format:** ``myEntity``
+
+		:returns: The design unit's identifier.
+		"""
+		return self._identifier
+
 
 @export
 class PrimaryUnit(DesignUnit):

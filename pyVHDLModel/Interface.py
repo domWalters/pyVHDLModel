@@ -71,6 +71,16 @@ class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 
+	def __str__(self) -> str:
+		"""
+		Formats the mode view element as its identifiers.
+
+		**Format:** ``a, b``
+
+		:returns: The element's identifiers, comma-separated.
+		"""
+		return ", ".join(self._identifiers)
+
 
 @export
 class SimpleModeViewElement(ModeViewElement):
@@ -220,6 +230,16 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		:returns: List of elements.
 		"""
 		return self._elements
+
+	def __str__(self) -> str:
+		"""
+		Formats the mode view declaration as its identifier.
+
+		**Format:** ``myView``
+
+		:returns: The mode view's identifier.
+		"""
+		return self._identifier
 
 
 @export
@@ -473,6 +493,16 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+
+	def __str__(self) -> str:
+		"""
+		Formats the interface package as its identifier.
+
+		**Format:** ``myPackage``
+
+		:returns: The interface package's identifier.
+		"""
+		return self._identifier
 
 
 @export
