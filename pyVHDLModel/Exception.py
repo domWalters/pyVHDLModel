@@ -74,6 +74,17 @@ class VHDLModelCriticalWarning(Warning):
 
 
 @export
+class DuplicateDeclarationWarning(VHDLModelCriticalWarning):
+	"""
+	Raised when two declarations in one declarative region share an identifier.
+
+	VHDL rejects this as *identifier already used for a declaration*. Overloadable declarations -
+	subprograms differing in signature - are not reported.
+	"""
+	pass
+
+
+@export
 class BlackboxWarning(VHDLModelCriticalWarning):
 	"""
 	Raised when a component could not be bound and is treated as a blackbox.

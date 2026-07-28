@@ -38,9 +38,11 @@ from typing import TYPE_CHECKING, TypeVar, Generic, Dict, Optional as Nullable, 
 
 from pyTooling.Common     import getFullyQualifiedName
 from pyTooling.Decorators import readonly
+from pyTooling.Warning    import WarningCollector
 
 from pyVHDLModel.Object   import Obj, Signal, Constant, Variable
 from pyVHDLModel.Symbol   import ComponentInstantiationSymbol, Symbol, PossibleReference
+from pyVHDLModel.Exception import DuplicateDeclarationWarning
 if TYPE_CHECKING:
 	from pyVHDLModel.Type   import Subtype, FullType, BaseType
 
@@ -89,6 +91,7 @@ class Namespace(Generic[K, O]):
 	_parentNamespace: "Namespace"             #: Reference to the enclosing namespace, or ``None`` for the outermost one.
 	_subNamespaces:   Dict[str, "Namespace"]  #: Dictionary of all nested namespaces, indexed by name.
 	_elements:        Dict[K, O]              #: Dictionary of all elements declared in this namespace, indexed by name.
+	_sharesRegionWithParent: bool             #: ``True`` if the parent namespace is the same VHDL declarative region.
 
 	def __init__(self, name: str, parentNamespace: Nullable["Namespace"] = None) -> None:
 		"""
@@ -101,6 +104,7 @@ class Namespace(Generic[K, O]):
 		self._parentNamespace = parentNamespace
 		self._subNamespaces = {}
 		self._elements = {}
+		self._sharesRegionWithParent = False
 
 	@readonly
 	def Name(self) -> str:
@@ -133,6 +137,40 @@ class Namespace(Generic[K, O]):
 		:returns: Dictionary of sub namespaces.
 		"""
 		return self._subNamespaces
+
+	def AddElement(self, normalizedIdentifier: K, element: O, overloadable: bool = False) -> None:
+		"""
+		Add a declared item to this namespace, reporting a duplicate declaration.
+
+		VHDL rejects two declarations sharing an identifier in one declarative region. A region can span
+		more than one namespace - an entity and its architecture form one, as do a package and its body -
+		so enclosing namespaces are searched too, but only while they share this one's region.
+
+		Overloadable declarations are exempt: several subprograms may share a name as long as their
+		signatures differ. Signatures are not compared yet, so two subprograms sharing a name are always
+		accepted (see the overload-resolution finding).
+
+		:param normalizedIdentifier: The normalized (lower case) identifier being declared.
+		:param element:              The declared item.
+		:param overloadable:         ``True`` if this declaration may legally share its name.
+		"""
+		from pyVHDLModel.Subprogram import Function, Procedure
+
+		namespace = self
+		while namespace is not None:
+			existing = namespace._elements.get(normalizedIdentifier)
+			# `existing is element` means the region is being re-indexed, not that the name is declared twice.
+			isReindex = existing is element
+			isOverload = overloadable and isinstance(existing, (Function, Procedure))
+			if existing is not None and not isReindex and not isOverload:
+				WarningCollector.Raise(DuplicateDeclarationWarning(
+					f"Identifier '{normalizedIdentifier}' is already used for a declaration in '{namespace._name}'."
+				))
+				break
+
+			namespace = namespace._parentNamespace if namespace._sharesRegionWithParent else None
+
+		self._elements[normalizedIdentifier] = element
 
 	def Elements(self) -> Dict[K, O]:
 		return self._elements

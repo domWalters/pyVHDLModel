@@ -1,0 +1,209 @@
+# ==================================================================================================================== #
+#             __     ___   _ ____  _     __  __           _      _                                                     #
+#   _ __  _   \ \   / / | | |  _ \| |   |  \/  | ___   __| | ___| |                                                    #
+#  | '_ \| | | \ \ / /| |_| | | | | |   | |\/| |/ _ \ / _` |/ _ \ |                                                    #
+#  | |_) | |_| |\ V / |  _  | |_| | |___| |  | | (_) | (_| |  __/ |                                                    #
+#  | .__/ \__, | \_/  |_| |_|____/|_____|_|  |_|\___/ \__,_|\___|_|                                                    #
+#  |_|    |___/                                                                                                        #
+# ==================================================================================================================== #
+# Authors:                                                                                                             #
+#   Patrick Lehmann                                                                                                    #
+#                                                                                                                      #
+# License:                                                                                                             #
+# ==================================================================================================================== #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
+#                                                                                                                      #
+# Licensed under the Apache License, Version 2.0 (the "License");                                                      #
+# you may not use this file except in compliance with the License.                                                     #
+# You may obtain a copy of the License at                                                                              #
+#                                                                                                                      #
+#   http://www.apache.org/licenses/LICENSE-2.0                                                                         #
+#                                                                                                                      #
+# Unless required by applicable law or agreed to in writing, software                                                  #
+# distributed under the License is distributed on an "AS IS" BASIS,                                                    #
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.                                             #
+# See the License for the specific language governing permissions and                                                  #
+# limitations under the License.                                                                                       #
+#                                                                                                                      #
+# SPDX-License-Identifier: Apache-2.0                                                                                  #
+# ==================================================================================================================== #
+#
+"""
+Duplicate declarations: the same identifier declared **twice in one declarative region**.
+
+This is not hiding. VHDL rejects it as *identifier already used for a declaration*, and a declarative
+region can span more than one namespace in this model - an entity and its architecture are one region,
+as are a package and its body - so the check follows those links.
+
+Overloadable declarations are exempt: several subprograms may share a name. Signatures are not compared
+yet, so any two subprograms sharing a name are accepted.
+
+The expectations below were established with the GHDL analyzer (``ghdl -a --std=08``).
+"""
+from pathlib import Path
+from unittest import TestCase
+
+from pyTooling.Warning import WarningCollector
+
+from pyVHDLModel            import Design, Document, Library
+from pyVHDLModel.DesignUnit import Architecture, Entity, Package, PackageBody
+from pyVHDLModel.Exception  import DuplicateDeclarationWarning
+from pyVHDLModel.Base       import Mode
+from pyVHDLModel.Interface  import PortSimpleSignalInterfaceItem
+from pyVHDLModel.Name       import SimpleName
+from pyVHDLModel.Object     import Constant, Signal
+from pyVHDLModel.Subprogram import Function, Procedure
+from pyVHDLModel.Symbol     import EntitySymbol, PackageSymbol, SimpleSubtypeSymbol
+
+
+if __name__ == "__main__":
+	print("ERROR: you called a testcase declaration file as an executable module.")
+	print("Use: 'python -m unitest <testcase module>'")
+	exit(1)
+
+
+def _subtype() -> SimpleSubtypeSymbol:
+	return SimpleSubtypeSymbol(SimpleName("bit"))
+
+
+def _signal(identifier: str) -> Signal:
+	return Signal([identifier], _subtype())
+
+
+def _duplicates(collector) -> list:
+	return [warning for warning in collector if isinstance(warning, DuplicateDeclarationWarning)]
+
+
+class OneDeclarativePart(TestCase):
+	"""Two declarations in the same declarative part."""
+
+	def test_TwoSignalsWithTheSameName(self) -> None:
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("s"), _signal("s")])
+
+		with WarningCollector() as collector:
+			architecture.IndexDeclaredItems()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+	def test_SignalAndConstantWithTheSameName(self) -> None:
+		"""Different kinds still collide - VHDL keys on the identifier, not the kind."""
+		items = [_signal("s"), Constant(["s"], _subtype())]
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
+
+		with WarningCollector() as collector:
+			architecture.IndexDeclaredItems()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+	def test_DistinctNamesAreAccepted(self) -> None:
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("a"), _signal("b")])
+
+		with WarningCollector() as collector:
+			architecture.IndexDeclaredItems()
+
+		self.assertEqual(0, len(_duplicates(collector)))
+
+	def test_ReIndexingIsNotADuplicate(self) -> None:
+		"""Indexing is not idempotent by construction, so re-inserting the *same* item must not report."""
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("s")])
+
+		with WarningCollector() as collector:
+			architecture.IndexDeclaredItems()
+			architecture.IndexDeclaredItems()
+
+		self.assertEqual(0, len(_duplicates(collector)))
+
+
+class OverloadableDeclarations(TestCase):
+	"""Subprograms may share a name; GHDL accepts them as long as the signatures differ."""
+
+	def test_TwoProceduresSharingAName(self) -> None:
+		package = Package("pk", declaredItems=[Procedure("foo"), Procedure("foo")])
+
+		with WarningCollector() as collector:
+			package.IndexDeclaredItems()
+
+		self.assertEqual(0, len(_duplicates(collector)))
+
+	def test_FunctionAndProcedureSharingAName(self) -> None:
+		package = Package("pk", declaredItems=[Procedure("foo"), Function("foo", _subtype())])
+
+		with WarningCollector() as collector:
+			package.IndexDeclaredItems()
+
+		self.assertEqual(0, len(_duplicates(collector)))
+
+	def test_SubprogramCollidesWithASignal(self) -> None:
+		"""A subprogram is overloadable, but not against a non-overloadable declaration."""
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("foo"), Procedure("foo")])
+
+		with WarningCollector() as collector:
+			architecture.IndexDeclaredItems()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+
+class RegionsSpanningTwoNamespaces(TestCase):
+	"""An entity and its architecture, and a package and its body, are each one declarative region."""
+
+	def _design(self, entityItems, architectureItems, packageItems, bodyItems) -> Design:
+		design = Design()
+		library = Library("work")
+		design.AddLibrary(library)
+		document = Document(Path("virtual.vhdl"))
+
+		document._AddDesignUnit(Entity("ent", declaredItems=entityItems))
+		document._AddDesignUnit(Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=architectureItems))
+		document._AddDesignUnit(Package("pk", declaredItems=packageItems))
+		document._AddDesignUnit(PackageBody(PackageSymbol(SimpleName("pk")), declaredItems=bodyItems))
+
+		design.AddDocument(document, library)
+		design.CreateDependencyGraph()
+		design.LinkArchitectures()
+		design.LinkPackageBodies()
+		return design
+
+	def test_ArchitectureDeclarationDuplicatesEntityDeclaration(self) -> None:
+		design = self._design([_signal("x")], [_signal("x")], [], [])
+
+		with WarningCollector() as collector:
+			design.IndexEntities()
+			design.IndexArchitectures()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+	def test_ArchitectureDeclarationDuplicatesEntityPort(self) -> None:
+		ports = [PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())]
+		design = Design()
+		library = Library("work")
+		design.AddLibrary(library)
+		document = Document(Path("virtual.vhdl"))
+		document._AddDesignUnit(Entity("ent", portItems=ports))
+		document._AddDesignUnit(Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("p")]))
+		design.AddDocument(document, library)
+		design.CreateDependencyGraph()
+		design.LinkArchitectures()
+
+		with WarningCollector() as collector:
+			design.IndexEntities()
+			design.IndexArchitectures()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+	def test_PackageBodyDeclarationDuplicatesPackageDeclaration(self) -> None:
+		design = self._design([], [], [Constant(["c"], _subtype())], [Constant(["c"], _subtype())])
+
+		with WarningCollector() as collector:
+			design.IndexPackages()
+			design.IndexPackageBodies()
+
+		self.assertEqual(1, len(_duplicates(collector)))
+
+	def test_DistinctNamesAcrossTheRegionAreAccepted(self) -> None:
+		design = self._design([_signal("a")], [_signal("b")], [], [])
+
+		with WarningCollector() as collector:
+			design.IndexEntities()
+			design.IndexArchitectures()
+
+		self.assertEqual(0, len(_duplicates(collector)))
