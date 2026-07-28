@@ -837,11 +837,9 @@ class ProtectedTypeBody(FullType, SequentialDeclarationRegionMixin):
 	A protected type body implements the methods (:data:`Methods`) declared by the
 	:class:`ProtectedType` of the same identifier (:data:`Identifier`).
 
-	It is a declarative region and owns a namespace. Its declarative part is identical to a subprogram's
-	- variables, constants, types, subtypes, aliases, files and nested subprogram bodies are legal,
-	signals and shared variables are not - so it shares
-	:class:`~pyVHDLModel.Regions.SequentialDeclarationRegionMixin` with subprogram bodies. Everything
-	declared is available as :data:`DeclaredItems`; :data:`Methods` is its subprogram subset.
+	It is a declarative region and owns a namespace. Its declarative part matches a subprogram's, so it
+	shares :class:`~pyVHDLModel.Regions.SequentialDeclarationRegionMixin` with subprogram bodies.
+	Everything declared is available as :data:`DeclaredItems`; :data:`Methods` is its subprogram subset.
 
 	.. admonition:: Example
 

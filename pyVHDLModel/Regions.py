@@ -126,8 +126,8 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 
 	# _attributes:     Dict[str, Attribute]
 	# _aliases:        Dict[str, Alias]
-	_types:           Dict[str, 'FullType']               #: Dictionary of all types declared in this concurrent declaration region.
-	_subtypes:        Dict[str, 'Subtype']                #: Dictionary of all subtypes declared in this concurrent declaration region.
+	_types:           Dict[str, 'FullType']             #: Dictionary of all types declared in this concurrent declaration region.
+	_subtypes:        Dict[str, 'Subtype']              #: Dictionary of all subtypes declared in this concurrent declaration region.
 	# _objects:        Dict[str, Union[Constant, Variable, Signal]]
 	_constants:       Dict[str, Constant]               #: Dictionary of all constants declared in this concurrent declaration region.
 	_signals:         Dict[str, Signal]                 #: Dictionary of all signals declared in this concurrent declaration region.
@@ -366,8 +366,8 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	_declaredItems: List                          #: List of all declared items in this sequential declaration region.
 	_namespace:     Namespace                     #: The namespace of this sequential declaration region.
 
-	_types:         Dict[str, 'FullType']           #: Dictionary of all types declared in this sequential declaration region.
-	_subtypes:      Dict[str, 'Subtype']            #: Dictionary of all subtypes declared in this sequential declaration region.
+	_types:         Dict[str, 'FullType']         #: Dictionary of all types declared in this sequential declaration region.
+	_subtypes:      Dict[str, 'Subtype']          #: Dictionary of all subtypes declared in this sequential declaration region.
 	_constants:     Dict[str, Constant]           #: Dictionary of all constants declared in this sequential declaration region.
 	_variables:     Dict[str, Variable]           #: Dictionary of all variables declared in this sequential declaration region.
 	_files:         Dict[str, File]               #: Dictionary of all files declared in this sequential declaration region.
@@ -532,14 +532,9 @@ class ProtectedTypeDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 	"""
 	A mixin-class for the declarative region of a protected type declaration.
 
-	.. note::
-
-	   VHDL's ``protected_type_declarative_item`` rule admits **subprogram declarations only** - it is the
-	   narrowest declarative region in the language. Verified with the analyzer: a protected type
-	   declaration rejects variables, constants, signals, shared variables, types, subtypes, aliases,
-	   files, attributes, use clauses and even a subprogram *body*, while a subprogram *declaration* is
-	   accepted. That is the exact complement of a protected type **body**, which shares the sequential
-	   region (:class:`SequentialDeclarationRegionMixin`) with subprogram bodies.
+	VHDL's ``protected_type_declarative_item`` rule admits subprogram declarations only, making this the
+	narrowest declarative region in the language. A protected type *body* differs: its declarative part
+	matches a subprogram's, so it uses :class:`SequentialDeclarationRegionMixin`.
 
 	.. seealso::
 
