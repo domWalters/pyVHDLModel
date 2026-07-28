@@ -2409,7 +2409,6 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 				entity._architectures[architecture._normalizedIdentifier] = architecture
 				architecture._entity.Entity = entity
 				architecture._namespace._parentNamespace = entity._namespace
-				architecture._namespace._sharesRegionWithParent = True   # one declarative region (LRM 12.1)
 
 				# add "architecture -> entity" relation in dependency graph
 				dependency = architecture._dependencyVertex.EdgeToVertex(entity._dependencyVertex)
@@ -2446,7 +2445,6 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 			package._packageBody = packageBody    # TODO: add warning if package had already a body, which is now replaced
 			packageBody._package.Package = package
 			packageBody._namespace._parentNamespace = package._namespace
-			packageBody._namespace._sharesRegionWithParent = True   # one declarative region (LRM 12.1)
 
 			# add "package body -> package" relation in dependency graph
 			dependency = packageBody._dependencyVertex.EdgeToVertex(package._dependencyVertex)

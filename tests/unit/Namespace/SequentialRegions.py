@@ -53,23 +53,13 @@ from pyVHDLModel.Symbol     import (
 )
 from pyVHDLModel.Type       import IntegerType
 
+from tests.unit             import _signal, _subtypeSymbol, _variable
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _subtypeSymbol() -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName("natural"))
-
-
-def _variable(identifier: str) -> Variable:
-	return Variable((identifier, ), _subtypeSymbol())
-
-
-def _signal(identifier: str) -> Signal:
-	return Signal((identifier, ), _subtypeSymbol())
 
 
 def _architecture(*declaredItems) -> Architecture:

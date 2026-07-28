@@ -55,23 +55,14 @@ from pyVHDLModel.Object     import Constant, Signal
 from pyVHDLModel.Subprogram import Function, Procedure
 from pyVHDLModel.Symbol     import EntitySymbol, PackageSymbol, SimpleSubtypeSymbol
 
+from tests.unit             import _signal, _subtypeSymbol, _warningsOfType
+
 
 if __name__ == "__main__":
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
 
-
-def _subtype() -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName("bit"))
-
-
-def _signal(identifier: str) -> Signal:
-	return Signal([identifier], _subtype())
-
-
-def _duplicates(collector) -> list:
-	return [warning for warning in collector if isinstance(warning, DuplicateDeclarationWarning)]
 
 
 class OneDeclarativePart(TestCase):
@@ -83,17 +74,17 @@ class OneDeclarativePart(TestCase):
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_SignalAndConstantWithTheSameName(self) -> None:
 		"""Different kinds still collide - VHDL keys on the identifier, not the kind."""
-		items = [_signal("s"), Constant(["s"], _subtype())]
+		items = [_signal("s"), Constant(["s"], _subtypeSymbol("bit"))]
 		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_DistinctNamesAreAccepted(self) -> None:
 		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("a"), _signal("b")])
@@ -101,7 +92,7 @@ class OneDeclarativePart(TestCase):
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
 
-		self.assertEqual(0, len(_duplicates(collector)))
+		self.assertEqual(0, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_ReIndexingIsNotADuplicate(self) -> None:
 		"""Indexing is not idempotent by construction, so re-inserting the *same* item must not report."""
@@ -111,7 +102,7 @@ class OneDeclarativePart(TestCase):
 			architecture.IndexDeclaredItems()
 			architecture.IndexDeclaredItems()
 
-		self.assertEqual(0, len(_duplicates(collector)))
+		self.assertEqual(0, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 
 class OverloadableDeclarations(TestCase):
@@ -123,24 +114,25 @@ class OverloadableDeclarations(TestCase):
 		with WarningCollector() as collector:
 			package.IndexDeclaredItems()
 
-		self.assertEqual(0, len(_duplicates(collector)))
+		self.assertEqual(0, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_FunctionAndProcedureSharingAName(self) -> None:
-		package = Package("pk", declaredItems=[Procedure("foo"), Function("foo", _subtype())])
+		package = Package("pk", declaredItems=[Procedure("foo"), Function("foo", _subtypeSymbol("bit"))])
 
 		with WarningCollector() as collector:
 			package.IndexDeclaredItems()
 
-		self.assertEqual(0, len(_duplicates(collector)))
+		self.assertEqual(0, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_SubprogramCollidesWithASignal(self) -> None:
 		"""A subprogram is overloadable, but not against a non-overloadable declaration."""
-		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=[_signal("foo"), Procedure("foo")])
+		items = [_signal("foo"), Procedure("foo")]
+		architecture = Architecture("rtl", EntitySymbol(SimpleName("ent")), declaredItems=items)
 
 		with WarningCollector() as collector:
 			architecture.IndexDeclaredItems()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 
 class RegionsSpanningTwoNamespaces(TestCase):
@@ -170,10 +162,10 @@ class RegionsSpanningTwoNamespaces(TestCase):
 			design.IndexEntities()
 			design.IndexArchitectures()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_ArchitectureDeclarationDuplicatesEntityPort(self) -> None:
-		ports = [PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())]
+		ports = [PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtypeSymbol("bit"))]
 		design = Design()
 		library = Library("work")
 		design.AddLibrary(library)
@@ -188,16 +180,16 @@ class RegionsSpanningTwoNamespaces(TestCase):
 			design.IndexEntities()
 			design.IndexArchitectures()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_PackageBodyDeclarationDuplicatesPackageDeclaration(self) -> None:
-		design = self._design([], [], [Constant(["c"], _subtype())], [Constant(["c"], _subtype())])
+		design = self._design([], [], [Constant(["c"], _subtypeSymbol("bit"))], [Constant(["c"], _subtypeSymbol("bit"))])
 
 		with WarningCollector() as collector:
 			design.IndexPackages()
 			design.IndexPackageBodies()
 
-		self.assertEqual(1, len(_duplicates(collector)))
+		self.assertEqual(1, len(_warningsOfType(collector, DuplicateDeclarationWarning)))
 
 	def test_DistinctNamesAcrossTheRegionAreAccepted(self) -> None:
 		design = self._design([_signal("a")], [_signal("b")], [], [])
@@ -206,4 +198,4 @@ class RegionsSpanningTwoNamespaces(TestCase):
 			design.IndexEntities()
 			design.IndexArchitectures()
 
-		self.assertEqual(0, len(_duplicates(collector)))
+		self.assertEqual(0, len(_warningsOfType(collector, DuplicateDeclarationWarning)))

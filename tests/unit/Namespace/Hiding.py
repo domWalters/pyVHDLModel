@@ -57,15 +57,13 @@ from pyVHDLModel.Name       import SimpleName
 from pyVHDLModel.Object     import Signal
 from pyVHDLModel.Symbol     import EntitySymbol, SignalSymbol, SimpleSubtypeSymbol
 
+from tests.unit             import _signal, _warningsOfType
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest %s'" % __file__)
 	exit(1)
-
-
-def _signal(identifier: str) -> Signal:
-	return Signal((identifier, ), SimpleSubtypeSymbol(SimpleName("natural")))
 
 
 class EntityAndArchitecture(TestCase):
@@ -116,12 +114,12 @@ class EntityAndArchitecture(TestCase):
 		The namespaces stay nested - that is what makes the entity's declarations visible below - but the
 		link is marked as sharing its region, so the duplicate is reported.
 		"""
-		self.assertTrue(self._architecture._namespace._sharesRegionWithParent)
+		self.assertTrue(self._architecture._namespace.SharesRegion)
 
 		with WarningCollector() as collector:
 			self._architecture.IndexDeclaredItems()
 
-		duplicates = [w for w in collector if isinstance(w, DuplicateDeclarationWarning)]
+		duplicates = _warningsOfType(collector, DuplicateDeclarationWarning)
 		self.assertEqual(1, len(duplicates))
 		self.assertIn("x", str(duplicates[0]))
 

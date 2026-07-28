@@ -44,15 +44,13 @@ from pyVHDLModel.Type       import (
 	AccessType, FileType,
 )
 
+from tests.unit             import _subtypeSymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _subtypeSymbol(name: str = "natural") -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName(name))
 
 
 def _range(left: int = 0, right: int = 15, direction: Direction = Direction.To) -> SimpleRange:

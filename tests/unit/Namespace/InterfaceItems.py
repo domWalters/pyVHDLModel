@@ -53,15 +53,13 @@ from pyVHDLModel.Object     import Signal
 from pyVHDLModel.Subprogram import Procedure
 from pyVHDLModel.Symbol     import EntitySymbol, SignalSymbol, SimpleSubtypeSymbol, VariableSymbol
 
+from tests.unit             import _subtypeSymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _subtypeSymbol() -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName("natural"))
 
 
 def _port(*identifiers: str) -> PortSimpleSignalInterfaceItem:

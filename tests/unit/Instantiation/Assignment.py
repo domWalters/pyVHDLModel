@@ -49,19 +49,13 @@ from pyVHDLModel.Sequential  import (
 	SignalForceAssignment, SignalReleaseAssignment,
 )
 
+from tests.unit             import _signalSymbol, _variableSymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _signalTarget() -> SignalSymbol:
-	return SignalSymbol(SimpleName("s"))
-
-
-def _variableTarget() -> VariableSymbol:
-	return VariableSymbol(SimpleName("v"))
 
 
 class ConditionalAndSelectedBuildingBlocks(TestCase):
@@ -124,7 +118,7 @@ class ConcurrentAssignments(TestCase):
 		cw1 = ConditionalWaveform([WaveformElement(CharacterLiteral("'1'"))], IntegerLiteral(1))
 		cw2 = ConditionalWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = ConcurrentConditionalSignalAssignment("lbl", _signalTarget(), [cw1, cw2])
+		assignment = ConcurrentConditionalSignalAssignment("lbl", _signalSymbol(), [cw1, cw2])
 
 		self.assertEqual(2, len(assignment.ConditionalWaveforms))
 		self.assertIsNone(assignment.ConditionalWaveforms[-1].Condition)
@@ -134,7 +128,7 @@ class ConcurrentAssignments(TestCase):
 		sw = SelectedWaveform([IndexedChoice(IntegerLiteral(0))], [WaveformElement(CharacterLiteral("'1'"))])
 		osw = OthersSelectedWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = ConcurrentSelectedSignalAssignment("lbl", _signalTarget(), IntegerLiteral(0), [sw, osw])
+		assignment = ConcurrentSelectedSignalAssignment("lbl", _signalSymbol(), IntegerLiteral(0), [sw, osw])
 
 		self.assertEqual(2, len(assignment.SelectedWaveforms))
 
@@ -142,7 +136,7 @@ class ConcurrentAssignments(TestCase):
 class SequentialAssignments(TestCase):
 	def test_SimpleVariableAssignment(self) -> None:
 		"""``v := '1';``"""
-		assignment = SequentialVariableAssignment(_variableTarget(), CharacterLiteral("'1'"))
+		assignment = SequentialVariableAssignment(_variableSymbol(), CharacterLiteral("'1'"))
 
 		self.assertEqual("'1'", str(assignment.Expression))
 
@@ -151,7 +145,7 @@ class SequentialAssignments(TestCase):
 		ce1 = ConditionalExpression(CharacterLiteral("'1'"), IntegerLiteral(1))
 		ce2 = ConditionalExpression(CharacterLiteral("'0'"))
 
-		assignment = SequentialConditionalVariableAssignment(_variableTarget(), [ce1, ce2])
+		assignment = SequentialConditionalVariableAssignment(_variableSymbol(), [ce1, ce2])
 
 		self.assertEqual(2, len(assignment.ConditionalExpressions))
 		self.assertIsNotNone(assignment.Target)
@@ -161,7 +155,7 @@ class SequentialAssignments(TestCase):
 		cw1 = ConditionalWaveform([WaveformElement(CharacterLiteral("'1'"))], IntegerLiteral(1))
 		cw2 = ConditionalWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = SequentialConditionalSignalAssignment(_signalTarget(), [cw1, cw2])
+		assignment = SequentialConditionalSignalAssignment(_signalSymbol(), [cw1, cw2])
 
 		self.assertEqual(2, len(assignment.ConditionalWaveforms))
 
@@ -170,7 +164,7 @@ class SequentialAssignments(TestCase):
 		se = SelectedExpression([IndexedChoice(IntegerLiteral(0))], CharacterLiteral("'1'"))
 		ose = OthersSelectedExpression(CharacterLiteral("'0'"))
 
-		assignment = SequentialSelectedVariableAssignment(_variableTarget(), IntegerLiteral(0), [se, ose])
+		assignment = SequentialSelectedVariableAssignment(_variableSymbol(), IntegerLiteral(0), [se, ose])
 
 		self.assertEqual(2, len(assignment.SelectedExpressions))
 
@@ -179,18 +173,18 @@ class SequentialAssignments(TestCase):
 		sw = SelectedWaveform([IndexedChoice(IntegerLiteral(0))], [WaveformElement(CharacterLiteral("'1'"))])
 		osw = OthersSelectedWaveform([WaveformElement(CharacterLiteral("'0'"))])
 
-		assignment = SequentialSelectedSignalAssignment(_signalTarget(), IntegerLiteral(0), [sw, osw])
+		assignment = SequentialSelectedSignalAssignment(_signalSymbol(), IntegerLiteral(0), [sw, osw])
 
 		self.assertEqual(2, len(assignment.SelectedWaveforms))
 
 	def test_SignalForceAssignment(self) -> None:
 		"""``s <= force '1';`` (VHDL-2008)"""
-		assignment = SignalForceAssignment(_signalTarget(), CharacterLiteral("'1'"))
+		assignment = SignalForceAssignment(_signalSymbol(), CharacterLiteral("'1'"))
 
 		self.assertEqual("'1'", str(assignment.Expression))
 
 	def test_SignalReleaseAssignment(self) -> None:
 		"""``s <= release;`` (VHDL-2008) - no expression at all."""
-		assignment = SignalReleaseAssignment(_signalTarget())
+		assignment = SignalReleaseAssignment(_signalSymbol())
 
 		self.assertIsNotNone(assignment.Target)
