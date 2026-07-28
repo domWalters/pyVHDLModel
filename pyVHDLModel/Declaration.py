@@ -131,13 +131,13 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the attribute as its identifier.
+		Formats the attribute declaration.
 
-		**Format:** ``myAttribute``
+		**Format:** ``attribute myAttribute: bit``
 
-		:returns: The attribute's identifier.
+		:returns: Formatted attribute declaration.
 		"""
-		return self._identifier
+		return f"attribute {self._identifier}: {self._subtype}"
 
 
 @export
@@ -309,10 +309,11 @@ class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the alias as its identifier.
+		Formats the alias declaration.
 
-		**Format:** ``myAlias``
+		**Format:** ``alias myAlias : bit is target``, or without the subtype when none was given
 
-		:returns: The alias' identifier.
+		:returns: Formatted alias declaration.
 		"""
-		return self._identifier
+		subtype = f" : {self._subtype}" if self._subtype is not None else ""
+		return f"alias {self._identifier}{subtype} is {self._name}"

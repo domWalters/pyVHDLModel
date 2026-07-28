@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 Objects are constants, variables, signals and files.
 """
-from typing                import Iterable, Optional as Nullable
+from typing                import ClassVar, Iterable, Optional as Nullable
 
 from pyTooling.Decorators  import export, readonly
 from pyTooling.MetaClasses import ExtendedType
@@ -66,6 +66,8 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	   * :class:`Signal <pyVHDLModel.Object.Signal>`
 	   * :class:`File <pyVHDLModel.Object.File>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "object"  #: The VHDL keyword introducing this object class.
 
 	_subtype:      Symbol            #: Reference to the object's subtype.
 	_objectVertex: Nullable[Vertex]  #: The vertex representing this object in the design's object graph.
@@ -112,11 +114,11 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 		"""
 		Formats the object declaration.
 
-		**Format:** ``s1, s2 : bit``
+		**Format:** ``signal s1, s2 : bit``
 
 		:returns: Formatted object declaration.
 		"""
-		return f"{', '.join(self._identifiers)} : {self._subtype}"
+		return f"{self._objectKeyword} {', '.join(self._identifiers)} : {self._subtype}"
 
 
 @export
@@ -166,6 +168,8 @@ class BaseConstant(Obj):
 	   * :class:`Constant <pyVHDLModel.Object.Constant>`
 	   * :class:`Deferred constant <pyVHDLModel.Object.DeferredConstant>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "constant"
 
 
 @export
@@ -252,16 +256,6 @@ class DeferredConstant(BaseConstant):
 		"""
 		return self._constantReference
 
-	def __str__(self) -> str:
-		"""
-		Formats the deferred constant declaration.
-
-		**Format:** ``constant c : integer``
-
-		:returns: Formatted deferred constant declaration.
-		"""
-		return f"constant {', '.join(self._identifiers)} : {self._subtype}"
-
 
 @export
 class Variable(Obj, WithDefaultExpressionMixin):
@@ -280,6 +274,8 @@ class Variable(Obj, WithDefaultExpressionMixin):
 
 	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "variable"
 
 	def __init__(
 		self,
@@ -310,6 +306,8 @@ class SharedVariable(Obj):
 	.. todo:: Shared variable object not implemented.
 	"""
 
+	_objectKeyword: ClassVar[str] = "shared variable"
+
 
 
 @export
@@ -330,6 +328,8 @@ class Signal(Obj, WithDefaultExpressionMixin):
 	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
 	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "signal"
 
 	def __init__(
 		self,
@@ -363,3 +363,5 @@ class File(Obj):
 
 	   * :class:`Parameter file interface item <pyVHDLModel.Interface.ParameterFileInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "file"

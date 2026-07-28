@@ -78,13 +78,13 @@ class BaseType(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the type as its identifier.
+		Formats the type declaration.
 
-		**Format:** ``myType``
+		**Format:** ``type myType``
 
-		:returns: The type's identifier.
+		:returns: Formatted type declaration.
 		"""
-		return self._identifier
+		return f"type {self._identifier}"
 
 
 @export

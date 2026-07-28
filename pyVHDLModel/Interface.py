@@ -233,13 +233,14 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the mode view declaration as its identifier.
+		Formats the mode view declaration.
 
-		**Format:** ``myView``
+		**Format:** ``view myView of myRecord: a, b``
 
-		:returns: The mode view's identifier.
+		:returns: Formatted mode view declaration.
 		"""
-		return self._identifier
+		elements = ", ".join(str(element) for element in self._elements)
+		return f"view {self._identifier} of {self._subtype}: {elements}"
 
 
 @export
@@ -496,13 +497,13 @@ class InterfacePackage(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the interface package as its identifier.
+		Formats the interface package.
 
-		**Format:** ``myPackage``
+		**Format:** ``package myPackage``
 
-		:returns: The interface package's identifier.
+		:returns: Formatted interface package.
 		"""
-		return self._identifier
+		return f"package {self._identifier}"
 
 
 @export

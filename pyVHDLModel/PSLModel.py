@@ -80,6 +80,16 @@ class VerificationUnit(PSLPrimaryUnit):
 		"""
 		super().__init__(identifier, parent=None)
 
+	def __str__(self) -> str:
+		"""
+		Formats the verification unit declaration.
+
+		**Format:** ``vunit myUnit``
+
+		:returns: Formatted verification unit declaration.
+		"""
+		return f"vunit {self._identifier}"
+
 
 @export
 class VerificationProperty(PSLPrimaryUnit):
@@ -94,6 +104,16 @@ class VerificationProperty(PSLPrimaryUnit):
 		"""
 		super().__init__(identifier, parent=None)
 
+	def __str__(self) -> str:
+		"""
+		Formats the verification property declaration.
+
+		**Format:** ``vprop myUnit``
+
+		:returns: Formatted verification property declaration.
+		"""
+		return f"vprop {self._identifier}"
+
 
 @export
 class VerificationMode(PSLPrimaryUnit):
@@ -107,6 +127,16 @@ class VerificationMode(PSLPrimaryUnit):
 		:param identifier: The identifier of a model entity.
 		"""
 		super().__init__(identifier, parent=None)
+
+	def __str__(self) -> str:
+		"""
+		Formats the verification mode declaration.
+
+		**Format:** ``vmode myUnit``
+
+		:returns: Formatted verification mode declaration.
+		"""
+		return f"vmode {self._identifier}"
 
 
 @export
@@ -127,10 +157,10 @@ class DefaultClock(PSLEntity, NamedEntityMixin):
 
 	def __str__(self) -> str:
 		"""
-		Formats the default clock as its identifier.
+		Formats the default clock declaration.
 
-		**Format:** ``myClock``
+		**Format:** ``default clock myClock``
 
-		:returns: The default clock's identifier.
+		:returns: Formatted default clock declaration.
 		"""
-		return self._identifier
+		return f"default clock {self._identifier}"
