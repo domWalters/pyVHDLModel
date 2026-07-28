@@ -48,7 +48,10 @@ from pyVHDLModel.Symbol      import ComponentInstantiationSymbol, EntityInstanti
 from pyVHDLModel.Symbol      import SignalSymbol
 from pyVHDLModel.Expression  import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Association import AssociationItem, ParameterAssociationItem
+from pyVHDLModel.Association import GenericAssociationItem, PortAssociationItem
+from pyVHDLModel.Association import GenericMapAspectMixin, PortMapAspectMixin
 from pyVHDLModel.Interface   import PortInterfaceItemMixin, WithPortsMixin
+from pyVHDLModel.Interface   import GenericInterfaceItemMixin, WithGenericsMixin
 from pyVHDLModel.Common      import Statement, ProcedureCallMixin, SignalAssignmentMixin, AllowBlackboxMixin
 from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, OthersSelectedWaveform
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
@@ -152,7 +155,7 @@ class ConcurrentStatementsMixin(metaclass=ExtendedType, mixin=True):
 
 
 @export
-class Instantiation(ConcurrentStatement):
+class Instantiation(ConcurrentStatement, GenericMapAspectMixin, PortMapAspectMixin):
 	"""
 	A base-class for all (component) instantiations.
 
@@ -163,14 +166,11 @@ class Instantiation(ConcurrentStatement):
 	   * :class:`Configuration instantiation <pyVHDLModel.Concurrent.ConfigurationInstantiation>`
 	"""
 
-	_genericAssociationItems: List[AssociationItem]  #: List of all generic associations in the generic map aspect.
-	_portAssociationItems:    List[AssociationItem]  #: List of all port associations in the port map aspect.
-
 	def __init__(
 		self,
 		label: str,
-		genericAssociationItems: Nullable[Iterable[AssociationItem]] = None,
-		portAssociationItems:    Nullable[Iterable[AssociationItem]] = None,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
+		portAssociationItems:    Nullable[Iterable[PortAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
 		"""
@@ -182,38 +182,10 @@ class Instantiation(ConcurrentStatement):
 		:param parent:                  The parent model entity of this entity.
 		"""
 		super().__init__(label, parent)
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
+		PortMapAspectMixin.__init__(self, portAssociationItems)
 
-		# TODO: extract to mixin
-		self._genericAssociationItems = []
-		if genericAssociationItems is not None:
-			for association in genericAssociationItems:
-				self._genericAssociationItems.append(association)
-				association.Parent = self
 
-		# TODO: extract to mixin
-		self._portAssociationItems = []
-		if portAssociationItems is not None:
-			for association in portAssociationItems:
-				self._portAssociationItems.append(association)
-				association.Parent = self
-
-	@readonly
-	def GenericAssociationItems(self) -> List[AssociationItem]:
-		"""
-		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
-
-		:returns: List of generic association items.
-		"""
-		return self._genericAssociationItems
-
-	@readonly
-	def PortAssociationItems(self) -> List[AssociationItem]:
-		"""
-		Read-only property to access the port association items (:attr:`_portAssociationItems`).
-
-		:returns: List of port association items.
-		"""
-		return self._portAssociationItems
 
 
 @export
@@ -500,34 +472,48 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 
 
 @export
-class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, LabeledEntityMixin, WithPortsMixin, ConcurrentDeclarationRegionMixin, ConcurrentStatementsMixin, DocumentedEntityMixin, AllowBlackboxMixin):
+class ConcurrentBlockStatement(
+	ConcurrentStatement,
+	BlockStatementMixin,
+	LabeledEntityMixin,
+	WithGenericsMixin,
+	WithPortsMixin,
+	GenericMapAspectMixin,
+	PortMapAspectMixin,
+	ConcurrentDeclarationRegionMixin,
+	ConcurrentStatementsMixin,
+	DocumentedEntityMixin,
+	AllowBlackboxMixin
+):
 	"""
 	Represents a block statement.
 
 	A block groups concurrent statements (:data:`Statements`) and may declare its own items
-	(:data:`DeclaredItems`). It always forms a hierarchy level; independently of that, it may also
-	have a port clause (:data:`PortItems`).
+	(:data:`DeclaredItems`). It always forms a hierarchy level; independently of that, it may also have
+	a block header: a generic clause (:data:`GenericItems`) with its generic map aspect
+	(:data:`GenericAssociationItems`), and a port clause (:data:`PortItems`) with its port map aspect
+	(:data:`PortAssociationItems`).
 
 	.. admonition:: Example
 
 	   .. code-block:: VHDL
 
 	        blk : block
-	      --^^^                            <- Label
+	      --^^^                              <- Label
+	          generic (G : positive := 1);
+	      --          ^^^^^^^^^^^^^^^^^^     <- GenericItems
+	          generic map (G => 2);
+	      --              ^^^^^^^^           <- GenericAssociationItems
 	          port (bp : in bit);
-	      --        ^^^^^^^^^^^            <- PortItems
+	      --        ^^^^^^^^^^^              <- PortItems
 	          port map (bp => clock);
+	      --           ^^^^^^^^^^^^          <- PortAssociationItems
 	          signal inner : bit := '0';
-	      --  ^^^^^^^^^^^^^^^^^^^^^^^^^^   <- DeclaredItems
+	      --  ^^^^^^^^^^^^^^^^^^^^^^^^^^     <- DeclaredItems
 	        begin
 	          inner <= bp;
-	      --  ^^^^^^^^^^^^                 <- Statements
+	      --  ^^^^^^^^^^^^                   <- Statements
 	        end block;
-
-	.. note::
-
-	   The block's *port map aspect* (``port map (bp => clock);`` above) is not represented by the
-	   model yet - there is no field for the association items, so it has no marker.
 
 	.. seealso::
 
@@ -537,24 +523,30 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 	def __init__(
 		self,
-		label:         str,
-		portItems:     Nullable[Iterable[PortInterfaceItemMixin]] = None,
-		declaredItems: Nullable[Iterable] = None,
-		statements:    Iterable['ConcurrentStatement'] = None,
-		documentation: Nullable[str] = None,
-		allowBlackbox: Nullable[bool] = None,
-		parent:        Nullable[ModelEntity] = None
+		label:                   str,
+		genericItems:            Nullable[Iterable[GenericInterfaceItemMixin]] = None,
+		genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None,
+		portItems:               Nullable[Iterable[PortInterfaceItemMixin]] = None,
+		portAssociationItems:    Nullable[Iterable[PortAssociationItem]] = None,
+		declaredItems:           Nullable[Iterable] = None,
+		statements:              Iterable['ConcurrentStatement'] = None,
+		documentation:           Nullable[str] = None,
+		allowBlackbox:           Nullable[bool] = None,
+		parent:                  Nullable[ModelEntity] = None
 	) -> None:
 		"""
 		Initializes a block statement.
 
-		:param label:         The label of a model entity.
-		:param portItems:     List of all ports, in declaration order.
-		:param declaredItems: List of all declared items in this concurrent declaration region.
-		:param statements:    List of all concurrent statements in this construct.
-		:param documentation: The documentation comment associated with this declaration.
-		:param allowBlackbox: Allow blackboxes for components in language entity.
-		:param parent:        The parent model entity of this entity.
+		:param label:                   The label of a model entity.
+		:param genericItems:            List of all generics, in declaration order.
+		:param genericAssociationItems: List of all generic associations in the generic map aspect.
+		:param portItems:               List of all ports, in declaration order.
+		:param portAssociationItems:    List of all port associations in the port map aspect.
+		:param declaredItems:           List of all declared items in this concurrent declaration region.
+		:param statements:              List of all concurrent statements in this construct.
+		:param documentation:           The documentation comment associated with this declaration.
+		:param allowBlackbox:           Allow blackboxes for components in language entity.
+		:param parent:                  The parent model entity of this entity.
 		"""
 		super().__init__(label, parent)
 
@@ -564,7 +556,10 @@ class ConcurrentBlockStatement(ConcurrentStatement, BlockStatementMixin, Labeled
 
 		BlockStatementMixin.__init__(self)
 		LabeledEntityMixin.__init__(self, label)
+		WithGenericsMixin.__init__(self, genericItems)
 		WithPortsMixin.__init__(self, portItems)
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
+		PortMapAspectMixin.__init__(self, portAssociationItems)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
 		ConcurrentStatementsMixin.__init__(self, statements)
 		DocumentedEntityMixin.__init__(self, documentation)
