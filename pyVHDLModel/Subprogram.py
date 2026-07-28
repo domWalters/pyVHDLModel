@@ -43,6 +43,7 @@ from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEnti
 from pyVHDLModel.Symbol     import SubtypeSymbol
 from pyVHDLModel.Type       import ProtectedType
 from pyVHDLModel.Regions    import ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin
+from pyVHDLModel.Regions    import ProtectedTypeDeclarationRegionMixin
 from pyVHDLModel.Sequential import SequentialStatement
 
 
@@ -118,10 +119,11 @@ class Subprogram(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, Sequentia
 		ModelEntity.Parent.fset(self, parent)
 
 		# Connect the subprogram's namespace to the enclosing declaration region's namespace, so a
-		# declaration inside the subprogram hides a same-named one from the scope around it. A subprogram
-		# can also be a protected type's method, and a protected type is no declaration region, hence the
-		# check.
-		if isinstance(parent, (ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin)):
+		# declaration inside the subprogram hides a same-named one from the scope around it. Protected
+		# types and their bodies are declaration regions too, so a method chains like any other
+		# subprogram; the check remains because a parent need not be a region at all.
+		regions = (ConcurrentDeclarationRegionMixin, SequentialDeclarationRegionMixin, ProtectedTypeDeclarationRegionMixin)
+		if isinstance(parent, regions):
 			self._namespace.ParentNamespace = parent._namespace
 
 	@readonly
