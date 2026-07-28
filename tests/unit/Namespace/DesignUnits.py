@@ -36,6 +36,8 @@ from pyVHDLModel.Name       import SimpleName
 from pyVHDLModel.Object     import Constant
 from pyVHDLModel.Symbol     import EntitySymbol, SimpleSubtypeSymbol
 
+from tests.unit             import _entitySymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
@@ -43,14 +45,10 @@ if __name__ == "__main__":  # pragma: no cover
 	exit(1)
 
 
-def _entitySymbol(name: str = "e") -> EntitySymbol:
-	return EntitySymbol(SimpleName(name))
-
-
 class Architectures(TestCase):
 	def test_IndexDeclaredItems_AlsoPopulatesNamespace(self) -> None:
 		constant = Constant(["C"], SimpleSubtypeSymbol(SimpleName("natural")))
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[constant])
+		architecture = Architecture("rtl", _entitySymbol("e"), declaredItems=[constant])
 		architecture.IndexDeclaredItems()
 
 		# Keyed by the normalized identifier, which is what the Find* methods look up.

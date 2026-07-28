@@ -44,15 +44,13 @@ from pyVHDLModel.Type       import (
 	AccessType, FileType,
 )
 
+from tests.unit             import _subtypeSymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _subtypeSymbol(name: str = "natural") -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName(name))
 
 
 def _range(left: int = 0, right: int = 15, direction: Direction = Direction.To) -> SimpleRange:
@@ -88,17 +86,17 @@ class ParentAndDocumentationWiringAcrossAllLeafTypes(TestCase):
 	def test_AllLeafTypes(self) -> None:
 		parent = ModelEntity()
 		builders = (
-			("Subtype", lambda: Subtype("t", _subtypeSymbol(), "doc", parent)),
+			("Subtype", lambda: Subtype("t", _subtypeSymbol("natural"), "doc", parent)),
 			("EnumeratedType", lambda: EnumeratedType("t", [], "doc", parent)),
 			("IntegerType", lambda: IntegerType("t", _range(), "doc", parent)),
 			("RealType", lambda: RealType("t", _range(), "doc", parent)),
 			("PhysicalType", lambda: PhysicalType("t", _range(), "ps", [], "doc", parent)),
-			("ArrayType", lambda: ArrayType("t", [], _subtypeSymbol(), "doc", parent)),
+			("ArrayType", lambda: ArrayType("t", [], _subtypeSymbol("natural"), "doc", parent)),
 			("RecordType", lambda: RecordType("t", None, "doc", parent)),
 			("ProtectedType", lambda: ProtectedType("t", None, "doc", parent)),
 			("ProtectedTypeBody", lambda: ProtectedTypeBody("t", None, "doc", parent)),
-			("AccessType", lambda: AccessType("t", _subtypeSymbol(), "doc", parent)),
-			("FileType", lambda: FileType("t", _subtypeSymbol(), "doc", parent)),
+			("AccessType", lambda: AccessType("t", _subtypeSymbol("natural"), "doc", parent)),
+			("FileType", lambda: FileType("t", _subtypeSymbol("natural"), "doc", parent)),
 		)
 		for name, build in builders:
 			with self.subTest(type=name):

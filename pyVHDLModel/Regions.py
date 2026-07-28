@@ -80,19 +80,19 @@ class DeclarationRegionMixin(metaclass=ExtendedType, mixin=True):
 		"""Add this region's generics to its namespace."""
 		for item in self._genericItems:
 			for normalizedIdentifier in normalizedIdentifiersOf(item):
-				self._namespace._elements[normalizedIdentifier] = item
+				self._namespace.AddElement(normalizedIdentifier, item)
 
 	def _IndexPortItems(self) -> None:
 		"""Add this region's ports to its namespace."""
 		for item in self._portItems:
 			for normalizedIdentifier in normalizedIdentifiersOf(item):
-				self._namespace._elements[normalizedIdentifier] = item
+				self._namespace.AddElement(normalizedIdentifier, item)
 
 	def _IndexParameterItems(self) -> None:
 		"""Add this region's parameters to its namespace."""
 		for item in self._parameterItems:
 			for normalizedIdentifier in normalizedIdentifiersOf(item):
-				self._namespace._elements[normalizedIdentifier] = item
+				self._namespace.AddElement(normalizedIdentifier, item)
 
 	def _IndexOtherDeclaredItem(self, item) -> None:
 		"""Hook for declared items the region doesn't handle itself. Derived classes may override it."""
@@ -299,29 +299,29 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
 				self._types[item._normalizedIdentifier] = item
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item)
 			elif isinstance(item, Subtype):
 				self._subtypes[item._normalizedIdentifier] = item
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item)
 			elif isinstance(item, Function):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			elif isinstance(item, Procedure):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			elif isinstance(item, Constant):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._constants[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 					# self._objects[normalizedIdentifier] = item
 			elif isinstance(item, Signal):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._signals[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			elif isinstance(item, Variable):
 				# TODO: variables declared in a concurrent declaration region (e.g. shared variables outside a
 				#       protected type) are not yet indexed into a dedicated namespace/lookup table.
@@ -330,14 +330,14 @@ class ConcurrentDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 			elif isinstance(item, SharedVariable):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._sharedVariables[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			elif isinstance(item, File):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._files[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			elif isinstance(item, Component):
 				self._components[item._normalizedIdentifier] = item
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item)
 			else:
 				self._IndexOtherDeclaredItem(item)
 
@@ -497,32 +497,32 @@ class SequentialDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 		for item in self._declaredItems:
 			if isinstance(item, FullType):
 				self._types[item._normalizedIdentifier] = item
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item)
 			elif isinstance(item, Subtype):
 				self._subtypes[item._normalizedIdentifier] = item
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item)
 			elif isinstance(item, Function):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			elif isinstance(item, Procedure):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			elif isinstance(item, Constant):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._constants[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			elif isinstance(item, Variable):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._variables[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			elif isinstance(item, File):
 				for normalizedIdentifier in item._normalizedIdentifiers:
 					self._files[normalizedIdentifier] = item
-					self._namespace._elements[normalizedIdentifier] = item
+					self._namespace.AddElement(normalizedIdentifier, item)
 			else:
 				self._IndexOtherDeclaredItem(item)
 
@@ -616,11 +616,11 @@ class ProtectedTypeDeclarationRegionMixin(DeclarationRegionMixin, mixin=True):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._functions.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			elif isinstance(item, Procedure):
 				# FIXME: overloads are only appended to a list, not matched/resolved by signature (no
 				#        real overload resolution yet).
 				self._procedures.setdefault(item._normalizedIdentifier, []).append(item)
-				self._namespace._elements[item._normalizedIdentifier] = item
+				self._namespace.AddElement(item._normalizedIdentifier, item, overloadable=True)
 			else:
 				self._IndexOtherDeclaredItem(item)

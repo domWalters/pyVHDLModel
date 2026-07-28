@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 Design units are contexts, entities, architectures, packages and their bodies as well as configurations.
 """
-from typing import List, Dict, Union, Iterable, Optional as Nullable
+from typing import ClassVar, List, Dict, Union, Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export, readonly
 from pyTooling.MetaClasses  import ExtendedType, abstractmethod
@@ -182,6 +182,8 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	     * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
+	_continuesParentRegion: ClassVar[bool] = False         #: ``True`` if it continues its parent's declarative region.
+
 	_document: 'Document'                                  #: The VHDL library, the design unit was analyzed into.
 
 	# Either written as statements before (e.g. entity, architecture, package, ...), or as statements inside (context)
@@ -236,7 +238,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		self._dependencyVertex = None
 		self._hierarchyVertex = None
 
-		self._namespace = Namespace(self._normalizedIdentifier)
+		self._namespace = Namespace(self._normalizedIdentifier, sharesRegionWithParent=self._continuesParentRegion)
 
 	@property
 	def Document(self) -> 'Document':
@@ -650,7 +652,9 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	   * :class:`Package it implements <pyVHDLModel.DesignUnit.Package>`
 	"""
 
-	_package:       PackageSymbol  #: Reference to the package this body implements.
+	_continuesParentRegion: ClassVar[bool] = True   #: A package body continues its package's declarative region.
+
+	_package:               PackageSymbol           #: Reference to the package this body implements.
 
 	def __init__(
 		self,
@@ -845,7 +849,9 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	   * :class:`Entity it implements <pyVHDLModel.DesignUnit.Entity>`
 	"""
 
-	_entity:        EntitySymbol  #: Reference to the entity this architecture implements.
+	_continuesParentRegion: ClassVar[bool] = True  #: An architecture continues its entity's declarative region.
+
+	_entity:                EntitySymbol           #: Reference to the entity this architecture implements.
 
 	def __init__(
 		self,

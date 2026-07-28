@@ -48,9 +48,7 @@ from pyVHDLModel.Interface  import (
 	InterfaceGroup, GenericGroup, PortGroup, ParameterGroup,
 )
 
-
-def _subtype(name: str = "bit") -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName(name))
+from tests.unit             import _subtypeSymbol
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -162,7 +160,7 @@ class GenericInterfaceItems(TestCase):
 	def test_GenericConstantInterfaceItem(self) -> None:
 		"""``generic (G : positive := 8);``"""
 		default = IntegerLiteral(8)
-		item = GenericConstantInterfaceItem(["G"], Mode.In, _subtype("positive"), defaultExpression=default)
+		item = GenericConstantInterfaceItem(["G"], Mode.In, _subtypeSymbol("positive"), defaultExpression=default)
 
 		self.assertEqual(("G",), item.Identifiers)
 		self.assertIs(Mode.In, item.Mode)
@@ -201,7 +199,7 @@ class GenericInterfaceItems(TestCase):
 		anything but a real ``Symbol`` (including the plain, no-docs case, since ``None`` has no
 		``Parent`` either). Fixed by adding a real ``returnType`` parameter and forwarding
 		``documentation``/``parent`` as keyword arguments."""
-		returnType = _subtype("boolean")
+		returnType = _subtypeSymbol("boolean")
 		item = GenericFunctionInterfaceItem("func", returnType)
 
 		self.assertEqual("func", item.Identifier)
@@ -219,19 +217,19 @@ class GenericInterfaceItems(TestCase):
 class ParameterInterfaceItems(TestCase):
 	def test_ParameterConstantInterfaceItem(self) -> None:
 		"""``procedure proc(constant c : in natural);``"""
-		item = ParameterConstantInterfaceItem(["c"], Mode.In, _subtype("natural"))
+		item = ParameterConstantInterfaceItem(["c"], Mode.In, _subtypeSymbol("natural"))
 
 		self.assertIs(Mode.In, item.Mode)
 
 	def test_ParameterVariableInterfaceItem(self) -> None:
 		"""``procedure proc(variable v : inout natural);``"""
-		item = ParameterVariableInterfaceItem(["v"], Mode.InOut, _subtype("natural"))
+		item = ParameterVariableInterfaceItem(["v"], Mode.InOut, _subtypeSymbol("natural"))
 
 		self.assertIs(Mode.InOut, item.Mode)
 
 	def test_ParameterFileInterfaceItem(self) -> None:
 		"""``procedure proc(file f : text);``"""
-		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
+		item = ParameterFileInterfaceItem(["f"], _subtypeSymbol("text"))
 
 		self.assertEqual(("f",), item.Identifiers)
 
@@ -246,7 +244,7 @@ class ParameterInterfaceItems(TestCase):
 		call: every concrete interface item is already a documentable entity via its primary base
 		(constant, signal, variable, file, type, subprogram, or package), so the mixin never needed to
 		carry documentation of its own."""
-		item = ParameterConstantInterfaceItem(["c"], Mode.In, _subtype("natural"), documentation="some documentation")
+		item = ParameterConstantInterfaceItem(["c"], Mode.In, _subtypeSymbol("natural"), documentation="some documentation")
 
 		self.assertEqual("some documentation", item.Documentation)
 
@@ -271,7 +269,7 @@ class WithGenericsPortsParametersMixins(TestCase):
 		class _Host(WithPortsMixin):
 			pass
 
-		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())
+		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtypeSymbol("bit"))
 		host = _Host([item])
 
 		self.assertEqual(1, host.PortCount)
@@ -280,7 +278,7 @@ class WithGenericsPortsParametersMixins(TestCase):
 		class _Host(WithParametersMixin):
 			pass
 
-		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
+		item = ParameterFileInterfaceItem(["f"], _subtypeSymbol("text"))
 		host = _Host([item])
 
 		self.assertEqual(1, host.ParameterCount)
@@ -324,13 +322,13 @@ class Groups(TestCase):
 		``NamedEntityMixin``-based item (``GenericTypeInterfaceItem``) with a
 		``MultipleNamedEntityMixin``-based one (``GenericConstantInterfaceItem``)."""
 		typeItem = GenericTypeInterfaceItem("T")
-		constantItem = GenericConstantInterfaceItem(["G"], Mode.In, _subtype("positive"))
+		constantItem = GenericConstantInterfaceItem(["G"], Mode.In, _subtypeSymbol("positive"))
 		group = GenericGroup([typeItem, constantItem])
 
 		self.assertEqual("GenericGroup: None (2): T, G", str(group))
 
 	def test_PortGroup(self) -> None:
-		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtype())
+		item = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtypeSymbol("bit"))
 		group = PortGroup([item], name="ports")
 
 		self.assertEqual(1, len(group))
@@ -339,13 +337,13 @@ class Groups(TestCase):
 
 	def test_PortGroup_MultipleIdentifiersPerItem(self) -> None:
 		"""``port (p1, p2 : in bit);`` - one declaration, two port names."""
-		item = PortSimpleSignalInterfaceItem(["p1", "p2"], Mode.In, _subtype())
+		item = PortSimpleSignalInterfaceItem(["p1", "p2"], Mode.In, _subtypeSymbol("bit"))
 		group = PortGroup([item])
 
 		self.assertEqual("PortGroup: None (1): p1, p2", str(group))
 
 	def test_ParameterGroup(self) -> None:
-		item = ParameterFileInterfaceItem(["f"], _subtype("text"))
+		item = ParameterFileInterfaceItem(["f"], _subtypeSymbol("text"))
 		group = ParameterGroup([item], name="parameters")
 
 		self.assertEqual(1, len(group))

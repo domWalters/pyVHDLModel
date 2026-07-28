@@ -49,15 +49,13 @@ from pyVHDLModel.Sequential  import (
 )
 from pyVHDLModel.Base        import WaveformElement
 
+from tests.unit              import _signalSymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _signalTarget(name: str = "s") -> SignalSymbol:
-	return SignalSymbol(SimpleName(name))
 
 
 class SequentialProcedureCalls(TestCase):
@@ -84,7 +82,7 @@ class SequentialProcedureCalls(TestCase):
 
 class SequentialSignalAssignments(TestCase):
 	def test_Construction(self) -> None:
-		target = _signalTarget()
+		target = _signalSymbol("s")
 		assignment = SequentialSignalAssignment(target, label="lbl")
 
 		self.assertIs(target, assignment.Target)
@@ -95,7 +93,7 @@ class SequentialSignalAssignments(TestCase):
 class SequentialSimpleSignalAssignments(TestCase):
 	def test_Construction(self) -> None:
 		"""``s <= '1';``"""
-		target = _signalTarget()
+		target = _signalSymbol("s")
 		waveformElement = WaveformElement(CharacterLiteral("'1'"))
 		assignment = SequentialSimpleSignalAssignment(target, [waveformElement])
 
@@ -261,7 +259,7 @@ class WaitStatements(TestCase):
 
 	def test_Full(self) -> None:
 		"""``wait on clock until condition for 10 ns;``"""
-		sensitivitySignal = _signalTarget("clock")
+		sensitivitySignal = _signalSymbol("clock")
 		condition = IntegerLiteral(1)
 		timeout = PhysicalIntegerLiteral(10, "ns")
 		statement = WaitStatement([sensitivitySignal], condition, timeout)

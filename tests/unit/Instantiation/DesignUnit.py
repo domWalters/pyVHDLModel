@@ -52,15 +52,13 @@ from pyVHDLModel.DesignUnit import (
 	Package, PackageBody, Entity, Architecture, Component, Configuration,
 )
 
+from tests.unit             import _entitySymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _entitySymbol(name: str = "ent") -> EntitySymbol:
-	return EntitySymbol(SimpleName(name))
 
 
 class References(TestCase):
@@ -241,7 +239,7 @@ class Entities(TestCase):
 
 class Architectures(TestCase):
 	def test_Minimal(self) -> None:
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("ent")
 		architecture = Architecture("rtl", entitySymbol)
 
 		self.assertIs(entitySymbol, architecture.Entity)
@@ -250,7 +248,7 @@ class Architectures(TestCase):
 		self.assertEqual(0, len(architecture.Statements))
 
 	def test_RegionStartsEmpty(self) -> None:
-		architecture = Architecture("rtl", _entitySymbol())
+		architecture = Architecture("rtl", _entitySymbol("ent"))
 
 		self.assertEqual(0, len(architecture.Types))
 		self.assertEqual(0, len(architecture.Subtypes))
@@ -273,7 +271,7 @@ class Architectures(TestCase):
 		procedure = Procedure("p_proc")
 
 		architecture = Architecture(
-			"rtl", _entitySymbol(),
+			"rtl", _entitySymbol("ent"),
 			declaredItems=[fullType, subtype, constant, signal, sharedVariable, file, function, procedure],
 		)
 		architecture.IndexDeclaredItems()
@@ -294,7 +292,7 @@ class Architectures(TestCase):
 		concurrent declaration region raise a warning instead of being indexed anywhere - locked in as
 		current behaviour, not a regression."""
 		variable = Variable(["v"], SimpleSubtypeSymbol(SimpleName("natural")))
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[variable])
+		architecture = Architecture("rtl", _entitySymbol("ent"), declaredItems=[variable])
 
 		architecture.IndexDeclaredItems()  # must not raise, only warn
 
@@ -311,7 +309,7 @@ class Architectures(TestCase):
 		overload found under a given name, unresolved."""
 		overload1 = Function("f", SimpleSubtypeSymbol(SimpleName("integer")))
 		overload2 = Function("f", SimpleSubtypeSymbol(SimpleName("boolean")))
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[overload1, overload2])
+		architecture = Architecture("rtl", _entitySymbol("ent"), declaredItems=[overload1, overload2])
 		architecture.IndexDeclaredItems()
 
 		self.assertEqual(1, len(architecture.Functions))
@@ -321,7 +319,7 @@ class Architectures(TestCase):
 		"""Same as above, but for procedures."""
 		overload1 = Procedure("p")
 		overload2 = Procedure("p")
-		architecture = Architecture("rtl", _entitySymbol(), declaredItems=[overload1, overload2])
+		architecture = Architecture("rtl", _entitySymbol("ent"), declaredItems=[overload1, overload2])
 		architecture.IndexDeclaredItems()
 
 		self.assertEqual(1, len(architecture.Procedures))
@@ -372,7 +370,7 @@ class Configurations(TestCase):
 		from pyVHDLModel.Configuration import BlockConfiguration
 		from pyVHDLModel.Symbol import Symbol, PossibleReference
 
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("ent")
 		blockSpec = Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)
 		blockConfiguration = BlockConfiguration(blockSpec)
 		configuration = Configuration("cfg", entitySymbol, blockConfiguration)

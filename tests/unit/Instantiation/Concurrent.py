@@ -54,15 +54,13 @@ from pyVHDLModel.Concurrent  import (
 	ForGenerateStatement, ConcurrentSimpleSignalAssignment, ConcurrentAssertStatement,
 )
 
+from tests.unit              import _entitySymbol
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _entitySymbol(name: str = "e") -> EntitySymbol:
-	return EntitySymbol(SimpleName(name))
 
 
 class Instantiations(TestCase):
@@ -323,7 +321,7 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 	def test_IndexStatements_BucketsByKind(self) -> None:
 		"""Blocks and generates both land in the single, unified ``_hierarchy`` dict (in source/
 		declaration order), not separate per-kind dicts."""
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("e")
 		instance = ComponentInstantiation("inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk")
 		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(3), Direction.To)
@@ -338,7 +336,7 @@ class ConcurrentStatementsMixinIndexing(TestCase):
 		self.assertEqual(["blk", "gen"], list(architecture._hierarchy.keys()))
 
 	def test_IterateInstantiations_RecursesIntoBlocksAndGenerates(self) -> None:
-		entitySymbol = _entitySymbol()
+		entitySymbol = _entitySymbol("e")
 		nestedInstance = ComponentInstantiation("nested_inst", ComponentInstantiationSymbol(SimpleName("comp")))
 		block = ConcurrentBlockStatement("blk", statements=[nestedInstance])
 

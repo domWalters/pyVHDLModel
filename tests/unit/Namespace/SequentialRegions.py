@@ -53,23 +53,13 @@ from pyVHDLModel.Symbol     import (
 )
 from pyVHDLModel.Type       import IntegerType
 
+from tests.unit             import _signal, _subtypeSymbol, _variable
+
 
 if __name__ == "__main__":  # pragma: no cover
 	print("ERROR: you called a testcase declaration file as an executable module.")
 	print("Use: 'python -m unitest <testcase module>'")
 	exit(1)
-
-
-def _subtypeSymbol() -> SimpleSubtypeSymbol:
-	return SimpleSubtypeSymbol(SimpleName("natural"))
-
-
-def _variable(identifier: str) -> Variable:
-	return Variable((identifier, ), _subtypeSymbol())
-
-
-def _signal(identifier: str) -> Signal:
-	return Signal((identifier, ), _subtypeSymbol())
 
 
 def _architecture(*declaredItems) -> Architecture:
@@ -92,7 +82,7 @@ class ProcessNamespaces(TestCase):
 
 	def test_IndexDeclaredItemsPopulatesVariables(self) -> None:
 		"""A variable is exactly what a concurrent region can *not* declare."""
-		variable = _variable("counter")
+		variable = _variable("counter", "natural")
 		process = ProcessStatement("proc", declaredItems=[variable])
 		process.IndexDeclaredItems()
 
@@ -101,8 +91,8 @@ class ProcessNamespaces(TestCase):
 
 	def test_IndexDeclaredItemsPopulatesEveryKind(self) -> None:
 		integerType = IntegerType("nibble", None)
-		constant = Constant(("width", ), _subtypeSymbol())
-		variable = _variable("index")
+		constant = Constant(("width", ), _subtypeSymbol("natural"))
+		variable = _variable("index", "natural")
 		nestedProcedure = Procedure("helper")
 
 		process = ProcessStatement("proc", declaredItems=[integerType, constant, variable, nestedProcedure])
@@ -122,10 +112,10 @@ class ProcessNamespaces(TestCase):
 		self.assertIs(architecture._namespace, process.Namespace.ParentNamespace)
 
 	def test_ProcessVariableHidesArchitectureSignal(self) -> None:
-		architectureSignal = _signal("x")
+		architectureSignal = _signal("x", "natural")
 		architecture = _architecture(architectureSignal)
 
-		processVariable = _variable("x")
+		processVariable = _variable("x", "natural")
 		process = ProcessStatement("proc", declaredItems=[processVariable])
 		process.Parent = architecture
 		process.IndexDeclaredItems()
@@ -135,7 +125,7 @@ class ProcessNamespaces(TestCase):
 		self.assertIs(architectureSignal, architecture._namespace.FindObject(SignalSymbol(SimpleName("x"))))
 
 	def test_ProcessInheritsArchitectureDeclaration(self) -> None:
-		architectureSignal = _signal("clk")
+		architectureSignal = _signal("clk", "natural")
 		architecture = _architecture(architectureSignal)
 
 		process = ProcessStatement("proc")
@@ -162,8 +152,8 @@ class SubprogramNamespaces(TestCase):
 		self.assertEqual("doit", procedure.Namespace.Name)
 
 	def test_IndexDeclaredItemsPopulatesVariables(self) -> None:
-		variable = _variable("temp")
-		function = Function("compute", _subtypeSymbol(), declaredItems=[variable])
+		variable = _variable("temp", "natural")
+		function = Function("compute", _subtypeSymbol("natural"), declaredItems=[variable])
 		function.IndexDeclaredItems()
 
 		self.assertIs(variable, function.Variables["temp"])
@@ -177,10 +167,10 @@ class SubprogramNamespaces(TestCase):
 		self.assertIs(architecture._namespace, procedure.Namespace.ParentNamespace)
 
 	def test_SubprogramVariableHidesArchitectureSignal(self) -> None:
-		architectureSignal = _signal("x")
+		architectureSignal = _signal("x", "natural")
 		architecture = _architecture(architectureSignal)
 
-		subprogramVariable = _variable("x")
+		subprogramVariable = _variable("x", "natural")
 		procedure = Procedure("helper", declaredItems=[subprogramVariable])
 		procedure.Parent = architecture
 		procedure.IndexDeclaredItems()
@@ -189,7 +179,7 @@ class SubprogramNamespaces(TestCase):
 		self.assertIs(architectureSignal, architecture._namespace.FindObject(SignalSymbol(SimpleName("x"))))
 
 	def test_SubprogramInheritsArchitectureDeclaration(self) -> None:
-		constant = Constant(("width", ), _subtypeSymbol())
+		constant = Constant(("width", ), _subtypeSymbol("natural"))
 		architecture = _architecture(constant)
 
 		procedure = Procedure("helper")
@@ -201,7 +191,7 @@ class SubprogramNamespaces(TestCase):
 
 	def test_NestedSubprogramNestsInsideTheOuterSubprogram(self) -> None:
 		"""A subprogram is itself a sequential declaration region, so subprograms nest."""
-		outerVariable = _variable("outer")
+		outerVariable = _variable("outer", "natural")
 		inner = Procedure("inner")
 		outer = Procedure("outer", declaredItems=[outerVariable, inner])
 		outer.IndexDeclaredItems()
@@ -210,8 +200,8 @@ class SubprogramNamespaces(TestCase):
 		self.assertIs(outerVariable, inner.Namespace.FindObject(VariableSymbol(SimpleName("outer"))))
 
 	def test_NestedSubprogramVariableHidesTheOuterOne(self) -> None:
-		outerVariable = _variable("x")
-		innerVariable = _variable("x")
+		outerVariable = _variable("x", "natural")
+		innerVariable = _variable("x", "natural")
 		inner = Procedure("inner", declaredItems=[innerVariable])
 		outer = Procedure("outer", declaredItems=[outerVariable, inner])
 		outer.IndexDeclaredItems()
