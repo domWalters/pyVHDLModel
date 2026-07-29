@@ -258,6 +258,24 @@ class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
 	"""
 
+	def _FormatInterfaceItem(self, mode: Nullable[Mode] = None, isModeView: bool = False) -> str:
+		"""
+		Format this interface item as a single-line declaration.
+
+		Interface items are objects, so they render like one (``signal p : bit``), but an object's own
+		rendering cannot show the interface *mode* - a mode is not part of an object declaration. This
+		adds it, for the derived class's :meth:`__str__` to return.
+
+		:param mode:       This item's mode, or ``None`` when it declares none.
+		:param isModeView: ``True`` if the subtype position holds a mode view (VHDL-2019), not a subtype.
+		:returns:          Formatted interface item.
+		"""
+		prefix = "" if mode is None or mode is Mode.Default else f"{mode!s} "
+		if isModeView:
+			prefix = "view "
+
+		return f"{self._objectKeyword} {', '.join(self._identifiers)} : {prefix}{self._subtype}"
+
 
 @export
 class InterfaceItemWithModeMixin(metaclass=ExtendedType, mixin=True):
@@ -378,6 +396,16 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		GenericInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
+
+	def __str__(self) -> str:
+		"""
+		Formats the generic constant.
+
+		**Format:** ``constant G : in positive``
+
+		:returns: Formatted generic constant.
+		"""
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -583,6 +611,16 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		InterfaceItemWithModeMixin.__init__(self, mode)
 
+	def __str__(self) -> str:
+		"""
+		Formats the port.
+
+		**Format:** ``signal p : in bit``
+
+		:returns: Formatted port.
+		"""
+		return self._FormatInterfaceItem(self._mode)
+
 
 @export
 class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
@@ -632,6 +670,16 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 		"""
 		return self._subtype
 
+	def __str__(self) -> str:
+		"""
+		Formats the port declared with a mode view.
+
+		**Format:** ``signal p : view myView``
+
+		:returns: Formatted port declared with a mode view.
+		"""
+		return self._FormatInterfaceItem(isModeView=True)
+
 
 @export
 class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, InterfaceItemWithModeMixin):
@@ -670,6 +718,16 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
 
+	def __str__(self) -> str:
+		"""
+		Formats the constant parameter.
+
+		**Format:** ``constant a : in integer``
+
+		:returns: Formatted constant parameter.
+		"""
+		return self._FormatInterfaceItem(self._mode)
+
 
 @export
 class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, InterfaceItemWithModeMixin):
@@ -707,6 +765,16 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 		super().__init__(identifiers, subtype, defaultExpression, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
+
+	def __str__(self) -> str:
+		"""
+		Formats the variable parameter.
+
+		**Format:** ``variable v : inout integer``
+
+		:returns: Formatted variable parameter.
+		"""
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -770,6 +838,16 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 		ParameterInterfaceItemMixin.__init__(self)
 		InterfaceItemWithModeMixin.__init__(self, mode)
 
+	def __str__(self) -> str:
+		"""
+		Formats the signal parameter.
+
+		**Format:** ``signal s : in bit``
+
+		:returns: Formatted signal parameter.
+		"""
+		return self._FormatInterfaceItem(self._mode)
+
 
 @export
 class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
@@ -820,6 +898,16 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 		"""
 		return self._subtype
 
+	def __str__(self) -> str:
+		"""
+		Formats the signal parameter declared with a mode view.
+
+		**Format:** ``signal s : view myView``
+
+		:returns: Formatted signal parameter declared with a mode view.
+		"""
+		return self._FormatInterfaceItem(isModeView=True)
+
 
 @export
 class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
@@ -851,6 +939,16 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		ParameterInterfaceItemMixin.__init__(self)
+
+	def __str__(self) -> str:
+		"""
+		Formats the file parameter.
+
+		**Format:** ``file f : text``
+
+		:returns: Formatted file parameter.
+		"""
+		return self._FormatInterfaceItem()
 
 
 @export
