@@ -163,9 +163,15 @@ class NoPropertyReferenceSymbols(TestCase):
 		self.assertIs(PossibleReference.SimpleNameInExpression, symbol._possibleReferences)
 
 	def test_IndexedObjectOrFunctionCallSymbol(self) -> None:
+		"""``arr(0)``, ``f(0)`` and ``integer(0)`` are written identically, so all three possibilities
+		are carried until the name resolves."""
 		symbol = IndexedObjectOrFunctionCallSymbol(SimpleName("x"))
 
-		self.assertIs(PossibleReference.Object | PossibleReference.Function, symbol._possibleReferences)
+		expected = (
+			PossibleReference.Object | PossibleReference.Function |
+			PossibleReference.Type | PossibleReference.Subtype
+		)
+		self.assertIs(expected, symbol._possibleReferences)
 
 
 class SubtypeSymbols(TestCase):
