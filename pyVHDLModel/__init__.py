@@ -2254,7 +2254,7 @@ class Library(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackbo
 		.. hint::
 
 		   Unlike every other documented entity, a library's documentation cannot come from VHDL source:
-		   the language has no library declaration to hang a comment on. It is therefore settable, so a
+		   the language has no library declaration to attach a comment to. It is therefore settable, so a
 		   caller can supply one from elsewhere - a compile-order file, a project description, ...
 
 		:returns: Associated documentation of this VHDL library.
