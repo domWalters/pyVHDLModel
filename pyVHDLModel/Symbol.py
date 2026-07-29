@@ -1071,11 +1071,14 @@ class SimpleObjectOrFunctionCallSymbol(Symbol):
 @export
 class IndexedObjectOrFunctionCallSymbol(Symbol):
 	"""
-	Represents a reference that is an indexed object, a function call or a type conversion.
+	Represents a reference that is either an indexed object, a function call or a type conversion.
 
-	All three are written the same way - ``arr(0)``, ``f(0)`` and ``integer(0)`` are indistinguishable
-	as syntax, so a parser produces one shape for them and only name resolution tells them apart. The
-	referenced language entity is available as :data:`Reference` once resolved.
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. attention::
+
+	   All three are written the same way - ``arr(0)``, ``f(0)`` and ``integer(0)`` are indistinguishable
+	   as syntax, so a parser produces one shape for them and only name resolution tells them apart.
 
 	.. seealso::
 
@@ -1084,7 +1087,7 @@ class IndexedObjectOrFunctionCallSymbol(Symbol):
 	"""
 	def __init__(self, name: Name) -> None:
 		"""
-		Initializes a reference that is an indexed object, a function call or a type conversion.
+		Initializes a reference that is either an indexed object, a function call or a type conversion.
 
 		:param name: The name to reference the language entity.
 		"""
