@@ -284,6 +284,50 @@ class WithGenericsPortsParametersMixins(TestCase):
 		self.assertEqual(1, host.ParameterCount)
 
 
+class InterfaceItemRendering(TestCase):
+	"""An interface item renders as an object declaration plus its interface mode - an object's own
+	rendering cannot show the mode, since it is not part of an object declaration.
+
+	The trailing ``?`` on each subtype is ``Symbol.__str__``'s unresolved marker: these items are
+	built standalone, so their subtype symbols are never linked."""
+
+	def test_PortShowsItsMode(self) -> None:
+		port = PortSimpleSignalInterfaceItem(["p1", "p2"], Mode.In, _subtypeSymbol("bit"))
+
+		self.assertEqual("signal p1, p2 : in bit?", str(port))
+
+	def test_GenericShowsItsMode(self) -> None:
+		generic = GenericConstantInterfaceItem(["G"], Mode.In, _subtypeSymbol("positive"))
+
+		self.assertEqual("constant G : in positive?", str(generic))
+
+	def test_ParametersShowTheirMode(self) -> None:
+		constant = ParameterConstantInterfaceItem(["a"], Mode.In, _subtypeSymbol("integer"))
+		variable = ParameterVariableInterfaceItem(["v"], Mode.InOut, _subtypeSymbol("integer"))
+		signal = ParameterSimpleSignalInterfaceItem(["s"], Mode.Out, _subtypeSymbol("bit"))
+
+		self.assertEqual("constant a : in integer?", str(constant))
+		self.assertEqual("variable v : inout integer?", str(variable))
+		self.assertEqual("signal s : out bit?", str(signal))
+
+	def test_DefaultModeIsOmitted(self) -> None:
+		"""``Mode.Default`` means the mode is context dependent, so there is nothing to render."""
+		generic = GenericConstantInterfaceItem(["G"], Mode.Default, _subtypeSymbol("positive"))
+
+		self.assertEqual("constant G : positive?", str(generic))
+
+	def test_ItemWithoutAModeRendersAsAnObject(self) -> None:
+		parameter = ParameterFileInterfaceItem(["f"], _subtypeSymbol("text"))
+
+		self.assertEqual("file f : text?", str(parameter))
+
+	def test_ModeViewIsRenderedAsAView(self) -> None:
+		"""VHDL-2019 mode views sit in the subtype position, so they are marked as a view."""
+		port = PortViewSignalInterfaceItem(["p"], ModeViewSymbol(SimpleName("myView")))
+
+		self.assertEqual("signal p : view myView?", str(port))
+
+
 class Groups(TestCase):
 	"""Regression test (missing base class): ``GenericGroup``/``ParameterGroup`` didn't list
 	``WithGenericsMixin``/``WithParametersMixin`` as base classes at all (unlike ``PortGroup``, which
