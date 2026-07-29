@@ -123,6 +123,23 @@ class ModeViewDeclarations(TestCase):
 		self.assertIs(innerViewSymbol, b.ModeViewName)
 
 
+	def test_SimpleModeViewElementWithDocumentation(self) -> None:
+		"""A mode view element is a declaration, so it carries its own comment."""
+		element = SimpleModeViewElement(["a"], Mode.Out, "--! An output element.")
+
+		self.assertEqual("--! An output element.", element.Documentation)
+
+	def test_CompositeModeViewElementWithDocumentation(self) -> None:
+		element = CompositeModeViewElement(["b"], ModeViewSymbol(SimpleName("inner")), "--! A composite element.")
+
+		self.assertEqual("--! A composite element.", element.Documentation)
+
+	def test_ModeViewElementWithoutDocumentation(self) -> None:
+		element = SimpleModeViewElement(["c"], Mode.In)
+
+		self.assertIsNone(element.Documentation)
+
+
 class PortSignalInterfaceItems(TestCase):
 	def test_SimpleMode(self) -> None:
 		port = PortSimpleSignalInterfaceItem(["p"], Mode.In, SimpleSubtypeSymbol(SimpleName("bit")))
