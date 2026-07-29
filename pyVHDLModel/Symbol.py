@@ -1071,15 +1071,27 @@ class SimpleObjectOrFunctionCallSymbol(Symbol):
 @export
 class IndexedObjectOrFunctionCallSymbol(Symbol):
 	"""
-	Represents a reference that is either an indexed object or a function call.
+	Represents a reference that is either an indexed object, a function call or a type conversion.
 
-	An expression like ``f(0)`` may index an array or call a function; both look identical until the
-	name is resolved. The referenced language entity is available as :data:`Reference` once resolved.
+	The referenced language entity is available as :data:`Reference` once resolved.
+
+	.. attention::
+
+	   All three are written the same way - ``arr(0)``, ``f(0)`` and ``integer(0)`` are indistinguishable
+	   as syntax, so a parser produces one shape for them and only name resolution tells them apart.
+
+	.. seealso::
+
+	   * :class:`Type conversion <pyVHDLModel.Expression.TypeConversion>`
+	   * :class:`Simple object or function call <pyVHDLModel.Symbol.SimpleObjectOrFunctionCallSymbol>`
 	"""
 	def __init__(self, name: Name) -> None:
 		"""
-		Initializes a reference that is either an indexed object or a function call.
+		Initializes a reference that is either an indexed object, a function call or a type conversion.
 
 		:param name: The name to reference the language entity.
 		"""
-		super().__init__(name, PossibleReference.Object | PossibleReference.Function)
+		super().__init__(
+			name,
+			PossibleReference.Object | PossibleReference.Function | PossibleReference.Type | PossibleReference.Subtype
+		)
