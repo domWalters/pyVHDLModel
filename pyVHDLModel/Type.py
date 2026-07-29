@@ -659,7 +659,7 @@ class ArrayType(CompositeType):
 
 
 @export
-class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
+class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	"""
 	Represents one element declaration inside a record type definition.
 
@@ -671,9 +671,11 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 	   .. code-block:: VHDL
 
 	      type frame is record
+	        --! The first fields.
+	      --^^^^^^^^^^^^^^^^^^^^^   <- Documentation
 	        a, b : bit;
-	      --^^^^                 <- Identifiers
-	      --       ^^^           <- Subtype
+	      --^^^^                    <- Identifiers
+	      --       ^^^              <- Subtype
 	      end record;
 
 	.. seealso::
@@ -682,16 +684,24 @@ class RecordTypeElement(ModelEntity, MultipleNamedEntityMixin):
 	"""
 	_subtype: Symbol  #: Reference to the subtype shared by all identifiers of this element declaration.
 
-	def __init__(self, identifiers: Iterable[str], subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		subtype: Symbol,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		"""
 		Initializes a record type element.
 
-		:param identifiers: A list of identifiers.
-		:param subtype:     Reference to the subtype shared by all identifiers of this element declaration.
-		:param parent:      The parent model entity of this entity.
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the subtype shared by all identifiers of this element declaration.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
 		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
+		DocumentedEntityMixin.__init__(self, documentation)
 
 		self._subtype = subtype
 		subtype.Parent = self

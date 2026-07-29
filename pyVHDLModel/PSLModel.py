@@ -34,7 +34,9 @@ This module contains an abstract document language model for PSL in VHDL.
 """
 from pyTooling.Decorators import export
 
-from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin
+from typing import Optional as Nullable
+
+from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.DesignUnit import PrimaryUnit
 
 
@@ -140,20 +142,22 @@ class VerificationMode(PSLPrimaryUnit):
 
 
 @export
-class DefaultClock(PSLEntity, NamedEntityMixin):
+class DefaultClock(PSLEntity, NamedEntityMixin, DocumentedEntityMixin):
 	"""
 	Represents a PSL default clock declaration.
 
 	It names the clock expression used by PSL directives that do not state one themselves.
 	"""
-	def __init__(self, identifier: str) -> None:
+	def __init__(self, identifier: str, documentation: Nullable[str] = None) -> None:
 		"""
 		Initializes a PSL default clock declaration.
 
-		:param identifier: The identifier of a model entity.
+		:param identifier:    The identifier of a model entity.
+		:param documentation: The documentation comment associated with this declaration.
 		"""
 		super().__init__()
 		NamedEntityMixin.__init__(self, identifier)
+		DocumentedEntityMixin.__init__(self, documentation)
 
 	def __str__(self) -> str:
 		"""

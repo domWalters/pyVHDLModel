@@ -52,6 +52,7 @@ from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Arc
 from pyVHDLModel.DesignUnit    import LibraryClause
 from pyVHDLModel.Association   import GenericAssociationItem
 from pyVHDLModel.Instantiation import PackageInstantiation, FunctionInstantiation, ProcedureInstantiation
+from pyVHDLModel.PSLModel   import DefaultClock
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -366,6 +367,22 @@ class Symbols(TestCase):
 		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
 
 		self.assertIsNone(symbol.Constraint)
+
+
+class PSLEntities(TestCase):
+	"""PSL is not otherwise modelled, but its declarations are still model entities."""
+
+	def test_DefaultClockWithDocumentation(self) -> None:
+		clock = DefaultClock("clk", "--! The default clock.")
+
+		self.assertEqual("clk", clock.Identifier)
+		self.assertEqual("--! The default clock.", clock.Documentation)
+		self.assertEqual("default clock clk", str(clock))
+
+	def test_DefaultClockWithoutDocumentation(self) -> None:
+		clock = DefaultClock("clk")
+
+		self.assertIsNone(clock.Documentation)
 
 
 class SimpleInstance(TestCase):

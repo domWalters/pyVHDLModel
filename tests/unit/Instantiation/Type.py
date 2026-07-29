@@ -238,6 +238,13 @@ class RecordTypeElements(TestCase):
 		self.assertIs(subtype, element.Subtype)
 		self.assertIs(element, subtype.Parent)
 		self.assertEqual("a, b : natural?", str(element))
+		self.assertIsNone(element.Documentation)
+
+	def test_WithDocumentation(self) -> None:
+		"""A record element may carry a doc comment, like every other declaration."""
+		element = RecordTypeElement(["a"], _subtypeSymbol("natural"), "--! The first field.")
+
+		self.assertEqual("--! The first field.", element.Documentation)
 
 
 class RecordTypes(TestCase):

@@ -49,7 +49,7 @@ from pyVHDLModel.Type       import Type
 
 
 @export
-class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
+class ModeViewElement(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 	"""
 	Base-class for one element definition inside a mode view declaration (VHDL-2019). An element may name
 	several fields sharing the same specification (e.g. ``a, b : out;``), hence
@@ -61,15 +61,22 @@ class ModeViewElement(ModelEntity, MultipleNamedEntityMixin):
 	   * :class:`Composite mode view element <pyVHDLModel.Interface.CompositeModeViewElement>`
 	"""
 
-	def __init__(self, identifiers: Iterable[str], parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		"""
 		Initializes a mode view element.
 
-		:param identifiers: A list of identifiers.
-		:param parent:      The parent model entity of this entity.
+		:param identifiers:   A list of identifiers.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
 		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
+		DocumentedEntityMixin.__init__(self, documentation)
 
 	def __str__(self) -> str:
 		"""
@@ -99,15 +106,22 @@ class SimpleModeViewElement(ModeViewElement):
 
 	_mode: Mode  #: The element's mode.
 
-	def __init__(self, identifiers: Iterable[str], mode: Mode, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		mode: Mode,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		"""
 		Initializes a simple mode view element.
 
-		:param identifiers: A list of identifiers.
-		:param mode:        The element's mode.
-		:param parent:      The parent model entity of this entity.
+		:param identifiers:   A list of identifiers.
+		:param mode:          The element's mode.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
 		"""
-		super().__init__(identifiers, parent)
+		super().__init__(identifiers, documentation, parent)
 		self._mode = mode
 
 	@readonly
@@ -136,15 +150,22 @@ class CompositeModeViewElement(ModeViewElement):
 
 	_modeViewName: ModeViewSymbol  #: Reference to the mode view applied to this element.
 
-	def __init__(self, identifiers: Iterable[str], modeViewName: ModeViewSymbol, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(
+		self,
+		identifiers: Iterable[str],
+		modeViewName: ModeViewSymbol,
+		documentation: Nullable[str] = None,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
 		"""
 		Initializes a composite mode view element.
 
-		:param identifiers:  A list of identifiers.
-		:param modeViewName: Reference to the mode view applied to this element.
-		:param parent:       The parent model entity of this entity.
+		:param identifiers:   A list of identifiers.
+		:param modeViewName:  Reference to the mode view applied to this element.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
 		"""
-		super().__init__(identifiers, parent)
+		super().__init__(identifiers, documentation, parent)
 
 		self._modeViewName = modeViewName
 		modeViewName.Parent = self
