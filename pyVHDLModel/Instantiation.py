@@ -42,7 +42,7 @@ from pyTooling.MetaClasses   import ExtendedType
 from pyVHDLModel             import VHDLModelException
 from pyVHDLModel.Base        import ModelEntity
 from pyVHDLModel.DesignUnit  import Package, ContextUnion
-from pyVHDLModel.Association import GenericAssociationItem
+from pyVHDLModel.Association import GenericAssociationItem, GenericMapAspectMixin
 from pyVHDLModel.Subprogram  import Procedure, Function, Subprogram
 from pyVHDLModel.Symbol      import PackageReferenceSymbol, SubprogramReferenceSymbol, SubtypeSymbol
 
@@ -78,7 +78,7 @@ class GenericEntityInstantiationMixin(GenericInstantiationMixin, mixin=True):
 
 
 @export
-class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
+class SubprogramInstantiationMixin(GenericInstantiationMixin, GenericMapAspectMixin, mixin=True):
 	"""
 	A mixin-class for instantiations of a generic subprogram.
 
@@ -87,8 +87,7 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 	   * :class:`Procedure instantiation <pyVHDLModel.Instantiation.ProcedureInstantiation>`
 	   * :class:`Function instantiation <pyVHDLModel.Instantiation.FunctionInstantiation>`
 	"""
-	_subprogramReference:     SubprogramReferenceSymbol     #: Reference to the instantiated generic subprogram.
-	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
+	_subprogramReference: SubprogramReferenceSymbol  #: Reference to the instantiated generic subprogram.
 
 	def __init__(
 		self,
@@ -102,15 +101,10 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 		:param genericAssociationItems: List of all generic associations in the generic map aspect.
 		"""
 		super().__init__()
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
 
 		self._subprogramReference = subprogramReference
 		subprogramReference.Parent = self
-
-		self._genericAssociationItems = []
-		if genericAssociationItems is not None:
-			for association in genericAssociationItems:
-				self._genericAssociationItems.append(association)
-				association.Parent = self
 
 	@readonly
 	def SubprogramReference(self) -> SubprogramReferenceSymbol:
@@ -121,14 +115,6 @@ class SubprogramInstantiationMixin(GenericInstantiationMixin, mixin=True):
 		"""
 		return self._subprogramReference
 
-	@readonly
-	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""
-		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
-
-		:returns: List of generic association items.
-		"""
-		return self._genericAssociationItems
 
 
 @export
@@ -234,7 +220,8 @@ class FunctionInstantiation(Function, SubprogramInstantiationMixin):
 
 
 @export
-class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a PackageBase class is needed to share members.
+# TODO: maybe a PackageBase class is needed to share members.
+class PackageInstantiation(Package, GenericInstantiationMixin, GenericMapAspectMixin):
 	"""
 	Represents the instantiation of a generic package.
 
@@ -246,8 +233,7 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 	      --      ^                                   <- Identifier
 	      --               ^^                         <- PackageReference
 	"""
-	_packageReference:        PackageReferenceSymbol        #: Reference to the instantiated generic package.
-	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
+	_packageReference: PackageReferenceSymbol  #: Reference to the instantiated generic package.
 
 	def __init__(
 		self,
@@ -270,16 +256,10 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		"""
 		super().__init__(identifier, contextItems, documentation=documentation, parent=parent)
 		GenericEntityInstantiationMixin.__init__(self)
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
 
 		self._packageReference = genericPackage
 		self._packageReference.Parent = self
-
-		# TODO: extract to mixin
-		self._genericAssociationItems = []
-		if genericAssociationItems is not None:
-			for association in genericAssociationItems:
-				self._genericAssociationItems.append(association)
-				association.Parent = self
 
 	@readonly
 	def PackageReference(self) -> PackageReferenceSymbol:
@@ -290,14 +270,6 @@ class PackageInstantiation(Package, GenericInstantiationMixin):  # TODO: maybe a
 		"""
 		return self._packageReference
 
-	@readonly
-	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""
-		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
-
-		:returns: List of generic association items.
-		"""
-		return self._genericAssociationItems
 
 	def Instantiate(self) -> None:
 		genericPackage: Package = self._packageReference.Package

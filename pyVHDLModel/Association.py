@@ -34,9 +34,10 @@ This module contains parts of an abstract document language model for VHDL.
 
 Associations are used in generic maps, port maps and parameter maps.
 """
-from typing               import Optional as Nullable, Union
+from typing               import Iterable, List, Optional as Nullable, Union
 
 from pyTooling.Decorators import export, readonly
+from pyTooling.MetaClasses import ExtendedType
 
 from pyVHDLModel.Base       import ModelEntity
 from pyVHDLModel.Symbol     import Symbol
@@ -135,3 +136,77 @@ class ParameterAssociationItem(AssociationItem):
 	"""
 	A base-class for all parameter association items used in parameter map aspects.
 	"""
+
+
+@export
+class GenericMapAspectMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a generic map aspect.
+
+	.. seealso::
+
+	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Binding indication <pyVHDLModel.Configuration.BindingIndication>`
+	   * :class:`Port map aspect <pyVHDLModel.Association.PortMapAspectMixin>`
+	"""
+
+	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations.
+
+	def __init__(self, genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None) -> None:
+		"""
+		Initializes a generic map aspect.
+
+		:param genericAssociationItems: List of all generic associations.
+		"""
+		self._genericAssociationItems = []
+		if genericAssociationItems is not None:
+			for association in genericAssociationItems:
+				self._genericAssociationItems.append(association)
+				association.Parent = self
+
+	@readonly
+	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		"""
+		Read-only property to access the generic associations (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
+		return self._genericAssociationItems
+
+
+@export
+class PortMapAspectMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a port map aspect.
+
+	.. seealso::
+
+	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Binding indication <pyVHDLModel.Configuration.BindingIndication>`
+	   * :class:`Generic map aspect <pyVHDLModel.Association.GenericMapAspectMixin>`
+	"""
+
+	_portAssociationItems: List[PortAssociationItem]  #: List of all port associations.
+
+	def __init__(self, portAssociationItems: Nullable[Iterable[PortAssociationItem]] = None) -> None:
+		"""
+		Initializes a port map aspect.
+
+		:param portAssociationItems: List of all port associations.
+		"""
+		self._portAssociationItems = []
+		if portAssociationItems is not None:
+			for association in portAssociationItems:
+				self._portAssociationItems.append(association)
+				association.Parent = self
+
+	@readonly
+	def PortAssociationItems(self) -> List[PortAssociationItem]:
+		"""
+		Read-only property to access the port associations (:attr:`_portAssociationItems`).
+
+		:returns: List of port association items.
+		"""
+		return self._portAssociationItems

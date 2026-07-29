@@ -44,6 +44,7 @@ from pyVHDLModel.Name        import Name
 from pyVHDLModel.Symbol      import Symbol, EntitySymbol, ArchitectureSymbol, ConfigurationSymbol
 from pyVHDLModel.Symbol      import ComponentInstantiationSymbol
 from pyVHDLModel.Association import GenericAssociationItem, PortAssociationItem
+from pyVHDLModel.Association import GenericMapAspectMixin, PortMapAspectMixin
 
 
 @export
@@ -177,7 +178,7 @@ class EntityAspectOpen(EntityAspect):
 
 
 @export
-class BindingIndication(ModelEntity):
+class BindingIndication(ModelEntity, GenericMapAspectMixin, PortMapAspectMixin):
 	"""
 	Represents a binding indication: which design entity a component is bound to.
 
@@ -185,9 +186,7 @@ class BindingIndication(ModelEntity):
 	(:data:`GenericAssociations`, :data:`PortAssociations`).
 	"""
 
-	_entityAspect:            Nullable[EntityAspect]        #: The bound design entity, or ``None`` if not given.
-	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations in the generic map aspect.
-	_portAssociationItems:    List[PortAssociationItem]     #: List of all port associations in the port map aspect.
+	_entityAspect: Nullable[EntityAspect]  #: The bound design entity, or ``None`` if not given.
 
 	def __init__(
 		self,
@@ -205,22 +204,12 @@ class BindingIndication(ModelEntity):
 		:param parent:                  The parent model entity of this entity.
 		"""
 		super().__init__(parent)
+		GenericMapAspectMixin.__init__(self, genericAssociationItems)
+		PortMapAspectMixin.__init__(self, portAssociationItems)
 
 		self._entityAspect = entityAspect
 		if entityAspect is not None:
 			entityAspect.Parent = self
-
-		self._genericAssociationItems = []
-		if genericAssociationItems is not None:
-			for association in genericAssociationItems:
-				self._genericAssociationItems.append(association)
-				association.Parent = self
-
-		self._portAssociationItems = []
-		if portAssociationItems is not None:
-			for association in portAssociationItems:
-				self._portAssociationItems.append(association)
-				association.Parent = self
 
 	@readonly
 	def EntityAspect(self) -> Nullable[EntityAspect]:
@@ -231,23 +220,7 @@ class BindingIndication(ModelEntity):
 		"""
 		return self._entityAspect
 
-	@readonly
-	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
-		"""
-		Read-only property to access the generic association items (:attr:`_genericAssociationItems`).
 
-		:returns: List of generic association items.
-		"""
-		return self._genericAssociationItems
-
-	@readonly
-	def PortAssociationItems(self) -> List[PortAssociationItem]:
-		"""
-		Read-only property to access the port association items (:attr:`_portAssociationItems`).
-
-		:returns: List of port association items.
-		"""
-		return self._portAssociationItems
 
 
 @export

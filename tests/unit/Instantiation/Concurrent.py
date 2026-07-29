@@ -35,7 +35,7 @@ tests/unit/Assignment.py (conditional/selected signal assignments) or tests/unit
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base        import Direction, SimpleRange
+from pyVHDLModel.Base        import Direction, Mode, SimpleRange
 from pyVHDLModel.Name        import SimpleName
 from pyVHDLModel.Symbol      import (
 	ComponentInstantiationSymbol, EntityInstantiationSymbol, ArchitectureSymbol,
@@ -45,6 +45,7 @@ from pyVHDLModel.Expression  import IntegerLiteral, CharacterLiteral
 from pyVHDLModel.Association import GenericAssociationItem, PortAssociationItem
 from pyVHDLModel.Base        import WaveformElement
 from pyVHDLModel.DesignUnit  import Architecture
+from pyVHDLModel.Interface   import GenericConstantInterfaceItem, PortSimpleSignalInterfaceItem
 from pyVHDLModel.Concurrent  import (
 	ComponentInstantiation, EntityInstantiation, ConfigurationInstantiation,
 	ProcessStatement, ConcurrentProcedureCall, ConcurrentBlockStatement,
@@ -54,7 +55,7 @@ from pyVHDLModel.Concurrent  import (
 	ForGenerateStatement, ConcurrentSimpleSignalAssignment, ConcurrentAssertStatement,
 )
 
-from tests.unit              import _entitySymbol
+from tests.unit              import _entitySymbol, _subtypeSymbol
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -129,16 +130,51 @@ class ConcurrentProcedureCalls(TestCase):
 
 class ConcurrentBlockStatements(TestCase):
 	"""``BlockStatementMixin``/``LabeledEntityMixin`` wiring is already covered in tests/unit/Base.py;
-	this covers the block-specific state (port items, declared items/statements via
-	``ConcurrentDeclarationRegionMixin``/``ConcurrentStatementsMixin``) instead."""
+	this covers the block-specific state: the block header (generic and port clauses with their map
+	aspects) and the declared items/statements via
+	``ConcurrentDeclarationRegionMixin``/``ConcurrentStatementsMixin``."""
 
 	def test_WithPortItems(self) -> None:
-		portItem = PortAssociationItem(SimpleName("p"), SimpleName("s"))
+		portItem = PortSimpleSignalInterfaceItem(["p"], Mode.In, _subtypeSymbol("bit"))
 		block = ConcurrentBlockStatement("blk", portItems=[portItem])
 
 		self.assertEqual(1, len(block.PortItems))
 		self.assertIs(portItem, block.PortItems[0])
 		self.assertIs(block, portItem.Parent)
+
+	def test_WithGenericItems(self) -> None:
+		genericItem = GenericConstantInterfaceItem(["G"], Mode.In, _subtypeSymbol("positive"))
+		block = ConcurrentBlockStatement("blk", genericItems=[genericItem])
+
+		self.assertEqual(1, len(block.GenericItems))
+		self.assertIs(genericItem, block.GenericItems[0])
+		self.assertIs(block, genericItem.Parent)
+
+	def test_WithGenericMapAspect(self) -> None:
+		association = GenericAssociationItem(SimpleName("G"), IntegerLiteral(2))
+		block = ConcurrentBlockStatement("blk", genericAssociationItems=[association])
+
+		self.assertEqual(1, len(block.GenericAssociationItems))
+		self.assertIs(association, block.GenericAssociationItems[0])
+		self.assertIs(block, association.Parent)
+
+	def test_WithPortMapAspect(self) -> None:
+		association = PortAssociationItem(SimpleName("p"), SimpleName("s"))
+		block = ConcurrentBlockStatement("blk", portAssociationItems=[association])
+
+		self.assertEqual(1, len(block.PortAssociationItems))
+		self.assertIs(association, block.PortAssociationItems[0])
+		self.assertIs(block, association.Parent)
+
+	def test_WithoutBlockHeader(self) -> None:
+		"""A block header is optional; all four lists stay empty."""
+		block = ConcurrentBlockStatement("blk")
+
+		self.assertEqual(0, len(block.GenericItems))
+		self.assertEqual(0, len(block.GenericAssociationItems))
+		self.assertEqual(0, len(block.PortItems))
+		self.assertEqual(0, len(block.PortAssociationItems))
+
 
 class GenerateBranches(TestCase):
 	def test_IfGenerateBranch(self) -> None:
