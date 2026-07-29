@@ -244,26 +244,6 @@ class ModeViewDeclaration(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 
 @export
-def formatInterfaceItem(item, mode: Nullable[Mode] = None, isModeView: bool = False) -> str:
-	"""
-	Format an interface item as a single-line declaration.
-
-	Interface items are objects, so they render like one (``signal p : bit``), but an object's rendering
-	cannot show the interface *mode* - it is not part of an object declaration. This adds it.
-
-	:param item:        The interface item to format.
-	:param mode:        The item's mode, or ``None`` when it declares none.
-	:param isModeView:  ``True`` if the subtype position holds a mode view (VHDL-2019) rather than a subtype.
-	:returns:           Formatted interface item.
-	"""
-	prefix = "" if mode is None or mode is Mode.Default else f"{mode!s} "
-	if isModeView:
-		prefix = "view "
-
-	return f"{item._objectKeyword} {', '.join(item._identifiers)} : {prefix}{item._subtype}"
-
-
-@export
 class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class marking a declaration as an interface item.
@@ -277,6 +257,24 @@ class InterfaceItemMixin(metaclass=ExtendedType, mixin=True):
 	   * :class:`Parameter interface item mixin <pyVHDLModel.Interface.ParameterInterfaceItemMixin>`
 	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
 	"""
+
+	def _FormatInterfaceItem(self, mode: Nullable[Mode] = None, isModeView: bool = False) -> str:
+		"""
+		Format this interface item as a single-line declaration.
+
+		Interface items are objects, so they render like one (``signal p : bit``), but an object's own
+		rendering cannot show the interface *mode* - a mode is not part of an object declaration. This
+		adds it, for the derived class's :meth:`__str__` to return.
+
+		:param mode:       This item's mode, or ``None`` when it declares none.
+		:param isModeView: ``True`` if the subtype position holds a mode view (VHDL-2019), not a subtype.
+		:returns:          Formatted interface item.
+		"""
+		prefix = "" if mode is None or mode is Mode.Default else f"{mode!s} "
+		if isModeView:
+			prefix = "view "
+
+		return f"{self._objectKeyword} {', '.join(self._identifiers)} : {prefix}{self._subtype}"
 
 
 @export
@@ -407,7 +405,7 @@ class GenericConstantInterfaceItem(Constant, GenericInterfaceItemMixin, Interfac
 
 		:returns: Formatted generic constant.
 		"""
-		return formatInterfaceItem(self, self._mode)
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -621,7 +619,7 @@ class PortSimpleSignalInterfaceItem(PortSignalInterfaceItem, InterfaceItemWithMo
 
 		:returns: Formatted port.
 		"""
-		return formatInterfaceItem(self, self._mode)
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -680,7 +678,7 @@ class PortViewSignalInterfaceItem(PortSignalInterfaceItem):
 
 		:returns: Formatted port declared with a mode view.
 		"""
-		return formatInterfaceItem(self, isModeView=True)
+		return self._FormatInterfaceItem(isModeView=True)
 
 
 @export
@@ -728,7 +726,7 @@ class ParameterConstantInterfaceItem(Constant, ParameterInterfaceItemMixin, Inte
 
 		:returns: Formatted constant parameter.
 		"""
-		return formatInterfaceItem(self, self._mode)
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -776,7 +774,7 @@ class ParameterVariableInterfaceItem(Variable, ParameterInterfaceItemMixin, Inte
 
 		:returns: Formatted variable parameter.
 		"""
-		return formatInterfaceItem(self, self._mode)
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -848,7 +846,7 @@ class ParameterSimpleSignalInterfaceItem(ParameterSignalInterfaceItem, Interface
 
 		:returns: Formatted signal parameter.
 		"""
-		return formatInterfaceItem(self, self._mode)
+		return self._FormatInterfaceItem(self._mode)
 
 
 @export
@@ -908,7 +906,7 @@ class ParameterViewSignalInterfaceItem(ParameterSignalInterfaceItem):
 
 		:returns: Formatted signal parameter declared with a mode view.
 		"""
-		return formatInterfaceItem(self, isModeView=True)
+		return self._FormatInterfaceItem(isModeView=True)
 
 
 @export
@@ -950,7 +948,7 @@ class ParameterFileInterfaceItem(File, ParameterInterfaceItemMixin):
 
 		:returns: Formatted file parameter.
 		"""
-		return formatInterfaceItem(self)
+		return self._FormatInterfaceItem()
 
 
 @export
