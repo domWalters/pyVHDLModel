@@ -52,7 +52,8 @@ from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Arc
 from pyVHDLModel.DesignUnit    import LibraryClause
 from pyVHDLModel.Association   import GenericAssociationItem
 from pyVHDLModel.Instantiation import PackageInstantiation, FunctionInstantiation, ProcedureInstantiation
-from pyVHDLModel.PSLModel   import DefaultClock
+from pyVHDLModel.PSLModel      import DefaultClock
+from pyVHDLModel.STD           import Std
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -149,7 +150,7 @@ class Symbols(TestCase):
 		self.assertEqual("LibraryReferenceSymbol: 'Lib' -> unresolved", repr(symbol))
 		self.assertEqual("Lib?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		symbol.Library = library
 
 		self.assertTrue(symbol.IsResolved)
@@ -168,7 +169,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageReferenceSymbol: 'Lib.Pack' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		symbol.Package = package
@@ -189,7 +190,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageMemberReferenceSymbol: 'Lib.Pack.Obj' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack.Obj?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		constant = Constant(("obJ", ), SimpleSubtypeSymbol(SimpleName("Bool")))
@@ -215,7 +216,7 @@ class Symbols(TestCase):
 		self.assertEqual("AllPackageMembersReferenceSymbol: 'Lib.Pack.all' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack.all?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		constant = Constant(("obJ", ), SimpleSubtypeSymbol(SimpleName("Bool")))
@@ -245,7 +246,7 @@ class Symbols(TestCase):
 		self.assertEqual("ContextReferenceSymbol: 'Lib.Ctx' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Ctx?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		context = Context("ctX", parent=None)
 		context.Library = library
 		symbol.Context = context
@@ -266,7 +267,7 @@ class Symbols(TestCase):
 		self.assertEqual("EntitySymbol: 'Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
@@ -287,7 +288,7 @@ class Symbols(TestCase):
 		self.assertEqual("EntitySymbol: 'Work.Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Work.Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
@@ -314,7 +315,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageSymbol: 'Pack' -> unresolved", repr(symbol))
 		self.assertEqual("Pack?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		symbol.Package = package
@@ -335,7 +336,7 @@ class Symbols(TestCase):
 		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
@@ -401,7 +402,7 @@ class SimpleInstance(TestCase):
 		self.assertEqual(0, design.CompileOrderGraph.VertexCount)
 
 	def test_Library(self) -> None:
-		library = Library("lib_1", None)
+		library = Library("lib_1")
 
 		self.assertIsNotNone(library)
 		self.assertEqual("lib_1", library.Identifier)
@@ -669,20 +670,44 @@ class VHDLDocument(TestCase):
 
 
 class VHDLLibrary(TestCase):
+	def test_DocumentationFromInitializer(self) -> None:
+		"""VHDL has no library declaration to hang a comment on, so a caller supplies one."""
+		library = Library("lib_1", "--! From a compile-order file.")
+
+		self.assertEqual("--! From a compile-order file.", library.Documentation)
+
+	def test_DocumentationIsSettable(self) -> None:
+		"""Unlike every other documented entity, a library's documentation can be set after construction."""
+		library = Library("lib_1")
+
+		self.assertIsNone(library.Documentation)
+
+		library.Documentation = "--! Supplied later."
+		self.assertEqual("--! Supplied later.", library.Documentation)
+
+	def test_PredefinedLibrariesHaveNoDocumentation(self) -> None:
+		"""VHDL defines none for `std`/`ieee`, but a caller may still supply one."""
+		std = Std()
+
+		self.assertIsNone(std.Documentation)
+
+		std.Documentation = "--! Supplied by the caller."
+		self.assertEqual("--! Supplied by the caller.", std.Documentation)
+
 	def test_AddLibrary(self) -> None:
 		design = Design()
 
-		library1 = Library("lib_1", None)
+		library1 = Library("lib_1")
 		design.AddLibrary(library1)
 
 		self.assertEqual(1, len(design.Libraries))
 		self.assertEqual(design, library1.Parent)
 
 		with self.assertRaises(Exception):
-			design.AddLibrary(Library("lib_1", None))
+			design.AddLibrary(Library("lib_1"))
 
 		with self.assertRaises(Exception):
-			library2 = Library("lib_2", None)
+			library2 = Library("lib_2")
 			library2._parent = True
 			design.AddLibrary(library2)
 

@@ -57,13 +57,15 @@ class PredefinedLibrary(Library):
 	   * :class:`Std <pyVHDLModel.STD.Std>`
 	"""
 
-	def __init__(self, packages) -> None:
+	def __init__(self, packages, documentation: Nullable[str] = None) -> None:
 		"""
 		Initializes a predefined library.
 
-		:param packages: Dictionary of all packages defined in a library.
+		:param packages:      Dictionary of all packages defined in a library.
+		:param documentation: Documentation of this library, if the caller has one to supply. VHDL defines
+		                      none for a predefined library, so it is empty unless supplied from outside.
 		"""
-		super().__init__(self.__class__.__name__, None)
+		super().__init__(self.__class__.__name__, documentation)
 
 		self.AddPackages(packages)
 

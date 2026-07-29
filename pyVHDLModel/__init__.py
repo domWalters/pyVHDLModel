@@ -2198,7 +2198,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 
 
 @export
-class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
+class Library(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	"""
 	A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units.
 
@@ -2220,6 +2220,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 	def __init__(
 		self,
 		identifier:    str,
+		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
@@ -2227,11 +2228,13 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		Initialize a VHDL library.
 
 		:param identifier:    Name of the VHDL library.
+		:param documentation: Documentation of this VHDL library, if the caller has one to supply.
 		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		:param parent:        The parent model entity (design) of this VHDL library.
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
+		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._contexts =        {}
@@ -2242,6 +2245,25 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		self._packageBodies =   {}
 
 		self._dependencyVertex = None
+
+	@property
+	def Documentation(self) -> Nullable[str]:
+		"""
+		Property to access the library's documentation (:attr:`_documentation`).
+
+		.. hint::
+
+		   Unlike every other documented entity, a library's documentation cannot come from VHDL source:
+		   the language has no library declaration to attach a comment to. It is therefore settable, so a
+		   caller can supply one from elsewhere - a compile-order file, a project description, ...
+
+		:returns: Associated documentation of this VHDL library.
+		"""
+		return self._documentation
+
+	@Documentation.setter
+	def Documentation(self, documentation: Nullable[str]) -> None:
+		self._documentation = documentation
 
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:
