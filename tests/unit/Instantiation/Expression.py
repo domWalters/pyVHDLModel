@@ -37,6 +37,7 @@ construction/parent-wiring behaviour is tested once via the immediate base class
 (``UnaryExpression``/``BinaryExpression``), then every leaf subclass's ``_FORMAT`` is checked
 table-driven in one ``str()``-formatting test rather than one hand-written test per class.
 """
+from pickle   import dumps, loads
 from unittest import TestCase
 
 from pyVHDLModel.Base       import Direction, SimpleRange
@@ -456,3 +457,47 @@ class Aggregates(TestCase):
 		self.assertIs(aggregate, element1.Parent)
 		self.assertIs(aggregate, element2.Parent)
 		self.assertEqual("(1, 2)", str(aggregate))
+
+
+class ClassVariables(TestCase):
+	"""
+	``_FORMAT`` and ``_direction`` are constants of the concrete expression class, not object fields.
+
+	They used to be declared as bare annotations, so ``ExtendedType`` made them slots and the concrete
+	subclasses' class-level assignment shadowed the slot descriptor. Reading worked, but assigning on an
+	instance raised, and that made **every** model containing an expression unpicklable - ``pickle``'s
+	default ``__setstate__`` writes each slot back and hit the same error.
+	"""
+
+	def test_NotASlot(self) -> None:
+		"""A class constant must not appear in any ``__slots__`` along the hierarchy."""
+		for expressionClass in (
+			UnaryExpression, NegationExpression,
+			BinaryExpression, AdditionExpression,
+			AscendingRangeExpression, DescendingRangeExpression,
+			TernaryExpression, WhenElseExpression,
+		):
+			with self.subTest(expressionClass=expressionClass.__name__):
+				slots = set()
+				for cls in expressionClass.__mro__:
+					slots.update(getattr(cls, "__slots__", ()))
+
+				self.assertNotIn("_FORMAT", slots)
+				self.assertNotIn("_direction", slots)
+
+	def test_Picklable(self) -> None:
+		"""An expression of every arity round-trips through :mod:`pickle`."""
+		for expression in (
+			NegationExpression(IntegerLiteral(1)),
+			AdditionExpression(IntegerLiteral(1), IntegerLiteral(2)),
+			AscendingRangeExpression(IntegerLiteral(0), IntegerLiteral(3)),
+			DescendingRangeExpression(IntegerLiteral(3), IntegerLiteral(0)),
+			WhenElseExpression(IntegerLiteral(1), IntegerLiteral(0), IntegerLiteral(2)),
+		):
+			with self.subTest(expression=type(expression).__name__):
+				self.assertEqual(str(expression), str(loads(dumps(expression))))
+
+	def test_DirectionIsPerClass(self) -> None:
+		"""The two range expressions carry their direction as a class constant, readable without an instance."""
+		self.assertIs(Direction.To, AscendingRangeExpression._direction)
+		self.assertIs(Direction.DownTo, DescendingRangeExpression._direction)

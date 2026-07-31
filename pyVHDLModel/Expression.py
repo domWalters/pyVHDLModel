@@ -708,8 +708,8 @@ class UnaryExpression(BaseExpression):
 	The operand is available as :data:`Operand`.
 	"""
 
-	_FORMAT:  Tuple[str, str]  #: The operator's string representation as (prefix, suffix) around the operand.
-	_operand: ExpressionUnion  #: The expression the operator is applied to.
+	_FORMAT:  ClassVar[Tuple[str, str]]  #: The operator's string representation as (prefix, suffix) around the operand.
+	_operand: ExpressionUnion            #: The expression the operator is applied to.
 
 	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -758,7 +758,7 @@ class NegationExpression(UnaryExpression):
 	      --     ^^^^^^^^^    <- the expression
 	      --       ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("-", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("-", "")
 
 
 @export
@@ -776,7 +776,7 @@ class IdentityExpression(UnaryExpression):
 	      --     ^^^^^^^^^    <- the expression
 	      --       ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("+", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("+", "")
 
 
 @export
@@ -794,7 +794,7 @@ class InverseExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^    <- the expression
 	      --         ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("not ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("not ", "")
 
 
 @export
@@ -813,7 +813,7 @@ class UnaryAndExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^    <- the expression
 	      --         ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("and ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("and ", "")
 
 
 @export
@@ -832,7 +832,7 @@ class UnaryNandExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^^    <- the expression
 	      --          ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("nand ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("nand ", "")
 
 
 @export
@@ -851,7 +851,7 @@ class UnaryOrExpression(UnaryExpression):
 	      --     ^^^^^^^^^^    <- the expression
 	      --        ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("or ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("or ", "")
 
 
 @export
@@ -870,7 +870,7 @@ class UnaryNorExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^    <- the expression
 	      --         ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("nor ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("nor ", "")
 
 
 @export
@@ -889,7 +889,7 @@ class UnaryXorExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^    <- the expression
 	      --         ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("xor ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("xor ", "")
 
 
 @export
@@ -908,7 +908,7 @@ class UnaryXnorExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^^    <- the expression
 	      --          ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("xnor ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("xnor ", "")
 
 
 @export
@@ -926,7 +926,7 @@ class AbsoluteExpression(UnaryExpression):
 	      --     ^^^^^^^^^^^    <- the expression
 	      --         ^^^^^^^    <- Operand
 	"""
-	_FORMAT = ("abs ", "")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("abs ", "")
 
 
 @export
@@ -997,7 +997,7 @@ class SubExpression(UnaryExpression, ParenthesisExpression):
 	      --     ^^^^^^^^^^^    <- the sub-expression
 	      --      ^^^^^^^^^     <- Operand
 	"""
-	_FORMAT = ("(", ")")
+	_FORMAT: ClassVar[Tuple[str, str]] = ("(", ")")
 
 
 @export
@@ -1017,9 +1017,9 @@ class BinaryExpression(BaseExpression):
 	   * :class:`Shift expression <pyVHDLModel.Expression.ShiftExpression>`
 	"""
 
-	_FORMAT: Tuple[str, str, str]   #: The operator's string representation as (prefix, infix, suffix).
-	_leftOperand:  ExpressionUnion  #: The expression left of the operator.
-	_rightOperand: ExpressionUnion  #: The expression right of the operator.
+	_FORMAT:       ClassVar[Tuple[str, str, str]]  #: The operator's string representation as (prefix, infix, suffix).
+	_leftOperand:  ExpressionUnion                 #: The expression left of the operator.
+	_rightOperand: ExpressionUnion                 #: The expression right of the operator.
 
 	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -1085,7 +1085,7 @@ class RangeExpression(BinaryExpression):
 	   * :class:`Ascending range expression <pyVHDLModel.Expression.AscendingRangeExpression>`
 	   * :class:`Descending range expression <pyVHDLModel.Expression.DescendingRangeExpression>`
 	"""
-	_direction: Direction  #: The range's direction, either ascending (``to``) or descending (``downto``).
+	_direction: ClassVar[Direction]  #: The range's direction, either ascending (``to``) or descending (``downto``).
 
 	@readonly
 	def Direction(self) -> Direction:
@@ -1113,8 +1113,8 @@ class AscendingRangeExpression(RangeExpression):
 	      --       ^          <- LeftOperand
 	      --            ^     <- RightOperand
 	"""
-	_direction = Direction.To
-	_FORMAT = ("", " to ", "")
+	_direction: ClassVar[Direction] = Direction.To
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " to ", "")
 
 
 @export
@@ -1133,8 +1133,8 @@ class DescendingRangeExpression(RangeExpression):
 	      --       ^              <- LeftOperand
 	      --                ^     <- RightOperand
 	"""
-	_direction = Direction.DownTo
-	_FORMAT = ("", " downto ", "")
+	_direction: ClassVar[Direction] = Direction.DownTo
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " downto ", "")
 
 
 @export
@@ -1168,7 +1168,7 @@ class AdditionExpression(AddingExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " + ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " + ", "")
 
 
 @export
@@ -1187,7 +1187,7 @@ class SubtractionExpression(AddingExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " - ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " - ", "")
 
 
 @export
@@ -1206,7 +1206,7 @@ class ConcatenationExpression(AddingExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " & ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " & ", "")
 
 
 @export
@@ -1242,7 +1242,7 @@ class MultiplyExpression(MultiplyingExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " * ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " * ", "")
 
 
 @export
@@ -1261,7 +1261,7 @@ class DivisionExpression(MultiplyingExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " / ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " / ", "")
 
 
 @export
@@ -1280,7 +1280,7 @@ class RemainderExpression(MultiplyingExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " rem ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " rem ", "")
 
 
 @export
@@ -1299,7 +1299,7 @@ class ModuloExpression(MultiplyingExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " mod ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " mod ", "")
 
 
 @export
@@ -1318,7 +1318,7 @@ class ExponentiationExpression(MultiplyingExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", "**", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", "**", "")
 
 
 @export
@@ -1355,7 +1355,7 @@ class AndExpression(LogicalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " and ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " and ", "")
 
 
 @export
@@ -1374,7 +1374,7 @@ class NandExpression(LogicalExpression):
 	      --     ^^^             <- LeftOperand
 	      --              ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " nand ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " nand ", "")
 
 
 @export
@@ -1393,7 +1393,7 @@ class OrExpression(LogicalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " or ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " or ", "")
 
 
 @export
@@ -1412,7 +1412,7 @@ class NorExpression(LogicalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " nor ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " nor ", "")
 
 
 @export
@@ -1431,7 +1431,7 @@ class XorExpression(LogicalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " xor ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " xor ", "")
 
 
 @export
@@ -1450,7 +1450,7 @@ class XnorExpression(LogicalExpression):
 	      --     ^^^             <- LeftOperand
 	      --              ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " xnor ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " xnor ", "")
 
 
 @export
@@ -1488,7 +1488,7 @@ class EqualExpression(RelationalExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " = ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " = ", "")
 
 
 @export
@@ -1507,7 +1507,7 @@ class UnequalExpression(RelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " /= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " /= ", "")
 
 
 @export
@@ -1526,7 +1526,7 @@ class GreaterThanExpression(RelationalExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " > ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " > ", "")
 
 
 @export
@@ -1545,7 +1545,7 @@ class GreaterEqualExpression(RelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " >= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " >= ", "")
 
 
 @export
@@ -1564,7 +1564,7 @@ class LessThanExpression(RelationalExpression):
 	      --     ^^^          <- LeftOperand
 	      --           ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " < ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " < ", "")
 
 
 @export
@@ -1583,7 +1583,7 @@ class LessEqualExpression(RelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " <= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " <= ", "")
 
 
 @export
@@ -1623,7 +1623,7 @@ class MatchingEqualExpression(MatchingRelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?= ", "")
 
 
 @export
@@ -1643,7 +1643,7 @@ class MatchingUnequalExpression(MatchingRelationalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?/= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?/= ", "")
 
 
 @export
@@ -1663,7 +1663,7 @@ class MatchingGreaterThanExpression(MatchingRelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?> ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?> ", "")
 
 
 @export
@@ -1683,7 +1683,7 @@ class MatchingGreaterEqualExpression(MatchingRelationalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?>= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?>= ", "")
 
 
 @export
@@ -1703,7 +1703,7 @@ class MatchingLessThanExpression(MatchingRelationalExpression):
 	      --     ^^^           <- LeftOperand
 	      --            ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?< ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?< ", "")
 
 
 @export
@@ -1723,7 +1723,7 @@ class MatchingLessEqualExpression(MatchingRelationalExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ?<= ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?<= ", "")
 
 
 @export
@@ -1802,7 +1802,7 @@ class ShiftRightLogicExpression(ShiftLogicExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " srl ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " srl ", "")
 
 
 @export
@@ -1821,7 +1821,7 @@ class ShiftLeftLogicExpression(ShiftLogicExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " sll ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sll ", "")
 
 
 @export
@@ -1840,7 +1840,7 @@ class ShiftRightArithmeticExpression(ShiftArithmeticExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " sra ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sra ", "")
 
 
 @export
@@ -1859,7 +1859,7 @@ class ShiftLeftArithmeticExpression(ShiftArithmeticExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " sla ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sla ", "")
 
 
 @export
@@ -1878,7 +1878,7 @@ class RotateRightExpression(RotateExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " ror ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ror ", "")
 
 
 @export
@@ -1897,7 +1897,7 @@ class RotateLeftExpression(RotateExpression):
 	      --     ^^^            <- LeftOperand
 	      --             ^^^    <- RightOperand
 	"""
-	_FORMAT = ("", " rol ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " rol ", "")
 
 
 @export
@@ -1974,11 +1974,10 @@ class TernaryExpression(BaseExpression):
 	   * :class:`When else expression <pyVHDLModel.Expression.WhenElseExpression>`
 	"""
 
-	# FIXME: needs ClassVar[...] when pyTooling gets fixed.
-	_FORMAT: Tuple[str, str, str, str]  #: The operator's string representation as four fragments.
-	_firstOperand:  ExpressionUnion  #: The operator's first operand.
-	_secondOperand: ExpressionUnion  #: The operator's second operand.
-	_thirdOperand:  ExpressionUnion  #: The operator's third operand.
+	_FORMAT:        ClassVar[Tuple[str, str, str, str]]  #: The operator's string representation as four fragments.
+	_firstOperand:  ExpressionUnion                      #: The operator's first operand.
+	_secondOperand: ExpressionUnion                      #: The operator's second operand.
+	_thirdOperand:  ExpressionUnion                      #: The operator's third operand.
 
 	def __init__(
 		self,
@@ -2045,7 +2044,7 @@ class WhenElseExpression(TernaryExpression):
 	      --                   ^    <- ElseValue
 	"""
 
-	_FORMAT = ("", " when ", " else ", "")
+	_FORMAT: ClassVar[Tuple[str, str, str, str]] = ("", " when ", " else ", "")
 
 	def __init__(
 		self,
