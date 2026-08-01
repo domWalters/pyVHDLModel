@@ -11,8 +11,7 @@
 #                                                                                                                      #
 # License:                                                                                                             #
 # ==================================================================================================================== #
-# Copyright 2017-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
-# Copyright 2016-2017 Patrick Lehmann - Dresden, Germany                                                               #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
 #                                                                                                                      #
 # Licensed under the Apache License, Version 2.0 (the "License");                                                      #
 # you may not use this file except in compliance with the License.                                                     #
@@ -29,53 +28,28 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
+"""Namespaces owned by design units, and how ``IndexDeclaredItems`` populates them."""
+from unittest import TestCase
 
-"""Shared construction helpers for the unit tests.
+from pyVHDLModel.DesignUnit import Architecture
+from pyVHDLModel.Name       import SimpleName
+from pyVHDLModel.Object     import Constant
+from pyVHDLModel.Symbol     import EntitySymbol, SimpleSubtypeSymbol
 
-Building a model object needs a symbol, a subtype and often a name, which every test module was
-re-declaring. Names are always passed explicitly - a helper that defaults one hides what a test
-actually builds.
-"""
-from typing import List, Type, TypeVar
-
-from pyVHDLModel.Name   import SimpleName
-from pyVHDLModel.Object import Signal, Variable
-from pyVHDLModel.Symbol import EntitySymbol, SignalSymbol, SimpleSubtypeSymbol, VariableSymbol
+from tests.unit             import _entitySymbol
 
 
-_Warning = TypeVar("_Warning", bound=BaseException)
+if __name__ == "__main__":  # pragma: no cover
+	print("ERROR: you called a testcase declaration file as an executable module.")
+	print("Use: 'python -m unitest <testcase module>'")
+	exit(1)
 
 
-def _subtypeSymbol(name: str) -> SimpleSubtypeSymbol:
-	"""Reference to a subtype, for anything needing a subtype indication."""
-	return SimpleSubtypeSymbol(SimpleName(name))
+class Architectures(TestCase):
+	def test_IndexDeclaredItems_AlsoPopulatesNamespace(self) -> None:
+		constant = Constant(["C"], SimpleSubtypeSymbol(SimpleName("natural")))
+		architecture = Architecture("rtl", _entitySymbol("e"), declaredItems=[constant])
+		architecture.IndexDeclaredItems()
 
-
-def _entitySymbol(name: str) -> EntitySymbol:
-	"""Reference to an entity, e.g. for an architecture."""
-	return EntitySymbol(SimpleName(name))
-
-
-def _signalSymbol(name: str) -> SignalSymbol:
-	"""Reference to a signal, e.g. as an assignment target."""
-	return SignalSymbol(SimpleName(name))
-
-
-def _variableSymbol(name: str) -> VariableSymbol:
-	"""Reference to a variable, e.g. as an assignment target."""
-	return VariableSymbol(SimpleName(name))
-
-
-def _signal(identifier: str, subtypeName: str) -> Signal:
-	"""A signal declaration."""
-	return Signal((identifier, ), _subtypeSymbol(subtypeName))
-
-
-def _variable(identifier: str, subtypeName: str) -> Variable:
-	"""A variable declaration."""
-	return Variable((identifier, ), _subtypeSymbol(subtypeName))
-
-
-def _warningsOfType(collector, warningType: Type[_Warning]) -> List[_Warning]:
-	"""The warnings of one type collected by a :class:`~pyTooling.Warning.WarningCollector`."""
-	return [warning for warning in collector if isinstance(warning, warningType)]
+		# Keyed by the normalized identifier, which is what the Find* methods look up.
+		self.assertIs(constant, architecture._namespace.Elements()["c"])

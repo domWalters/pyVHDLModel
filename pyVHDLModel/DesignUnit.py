@@ -34,10 +34,10 @@ This module contains parts of an abstract document language model for VHDL.
 
 Design units are contexts, entities, architectures, packages and their bodies as well as configurations.
 """
-from typing import List, Dict, Union, Iterable, Optional as Nullable
+from typing import ClassVar, List, Dict, Union, Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export, readonly
-from pyTooling.MetaClasses  import ExtendedType
+from pyTooling.MetaClasses  import ExtendedType, abstractmethod
 from pyTooling.Graph        import Vertex
 
 from pyVHDLModel.Common     import AllowBlackboxMixin
@@ -49,6 +49,7 @@ from pyVHDLModel.Symbol     import Symbol, PackageSymbol, EntitySymbol, LibraryR
 from pyVHDLModel.Interface  import GenericInterfaceItemMixin, PortInterfaceItemMixin, WithGenericsMixin, WithPortsMixin
 from pyVHDLModel.Object     import DeferredConstant
 from pyVHDLModel.Concurrent import ConcurrentStatement, ConcurrentStatementsMixin
+from pyVHDLModel.Configuration import BlockConfiguration
 
 
 @export
@@ -58,12 +59,12 @@ class Reference(ModelEntity):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.LibraryClause`
-	   * :class:`~pyVHDLModel.DesignUnit.UseClause`
-	   * :class:`~pyVHDLModel.DesignUnit.ContextReference`
+	   * :class:`Library clause <pyVHDLModel.DesignUnit.LibraryClause>`
+	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
+	   * :class:`Context reference <pyVHDLModel.DesignUnit.ContextReference>`
 	"""
 
-	_symbols:       List[Symbol]
+	_symbols:       List[Symbol]  #: List of all symbols referenced by this clause.
 
 	def __init__(self, symbols: Iterable[Symbol], parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -147,6 +148,14 @@ ContextUnion = Union[
 class DesignUnitWithContextMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for all design units with a context.
+
+	.. seealso::
+
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
 
@@ -155,20 +164,25 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	"""
 	A base-class for all design units.
 
+	When a design unit is formatted, an unknown part - a library that is not set, or an entity with no
+	known architecture - is rendered as ``?``.
+
 	.. seealso::
 
 	   * :class:`Primary design units <pyVHDLModel.DesignUnit.PrimaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Context`
-	     * :class:`~pyVHDLModel.DesignUnit.Entity`
-	     * :class:`~pyVHDLModel.DesignUnit.Package`
-	     * :class:`~pyVHDLModel.DesignUnit.Configuration`
+	     * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	     * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	     * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	     * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
 
 	   * :class:`Secondary design units <pyVHDLModel.DesignUnit.SecondaryUnit>`
 
-	     * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	     * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	     * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
+	     * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
+
+	_continuesParentRegion: ClassVar[bool] = False         #: ``True`` if it continues its parent's declarative region.
 
 	_document: 'Document'                                  #: The VHDL library, the design unit was analyzed into.
 
@@ -185,7 +199,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	_dependencyVertex:    Vertex[None, None, str, 'DesignUnit', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: Reference to the vertex in the dependency graph representing the design unit. |br| This reference is set by :meth:`~pyVHDLModel.Design.CreateDependencyGraph`.
 	_hierarchyVertex:     Vertex[None, None, str, 'DesignUnit', None, None, None, None, None, None, None, None, None, None, None, None, None]  #: The vertex in the hierarchy graph
 
-	_namespace:           'Namespace'
+	_namespace:           'Namespace'  #: The namespace of this design unit's declarative region.
 
 	def __init__(self, identifier: str, contextItems: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
 		"""
@@ -224,10 +238,15 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		self._dependencyVertex = None
 		self._hierarchyVertex = None
 
-		self._namespace = Namespace(self._normalizedIdentifier)
+		self._namespace = Namespace(self._normalizedIdentifier, sharesRegionWithParent=self._continuesParentRegion)
 
-	@readonly
+	@property
 	def Document(self) -> 'Document':
+		"""
+		Property to access the document (:attr:`_document`).
+
+		:returns: The document.
+		"""
 		return self._document
 
 	@Document.setter
@@ -236,13 +255,18 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@property
 	def Library(self) -> 'Library':
+		"""
+		Property to access the library (:attr:`_parent`).
+
+		:returns: The library.
+		"""
 		return self._parent
 
 	@Library.setter
 	def Library(self, library: 'Library') -> None:
 		self._parent = library
 
-	@property
+	@readonly
 	def ContextItems(self) -> List['ContextUnion']:
 		"""
 		Read-only property to access the sequence of all context items comprising library, use and context clauses
@@ -252,7 +276,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._contextItems
 
-	@property
+	@readonly
 	def ContextReferences(self) -> List['ContextReference']:
 		"""
 		Read-only property to access the sequence of context clauses (:attr:`_contextReferences`).
@@ -261,7 +285,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._contextReferences
 
-	@property
+	@readonly
 	def LibraryReferences(self) -> List['LibraryClause']:
 		"""
 		Read-only property to access the sequence of library clauses (:attr:`_libraryReferences`).
@@ -270,7 +294,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._libraryReferences
 
-	@property
+	@readonly
 	def PackageReferences(self) -> List['UseClause']:
 		"""
 		Read-only property to access the sequence of use clauses (:attr:`_packageReferences`).
@@ -279,19 +303,34 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._packageReferences
 
-	@property
+	@readonly
 	def ReferencedLibraries(self) -> Dict[str, 'Library']:
+		"""
+		Read-only property to access the referenced libraries (:attr:`_referencedLibraries`).
+
+		:returns: Dictionary of referenced libraries, indexed by normalized identifier.
+		"""
 		return self._referencedLibraries
 
-	@property
+	@readonly
 	def ReferencedPackages(self) -> Dict[str, 'Package']:
+		"""
+		Read-only property to access the referenced packages (:attr:`_referencedPackages`).
+
+		:returns: Dictionary of referenced packages, indexed by normalized identifier.
+		"""
 		return self._referencedPackages
 
-	@property
+	@readonly
 	def ReferencedContexts(self) -> Dict[str, 'Context']:
+		"""
+		Read-only property to access the referenced contexts (:attr:`_referencedContexts`).
+
+		:returns: Dictionary of referenced contexts, indexed by normalized identifier.
+		"""
 		return self._referencedContexts
 
-	@property
+	@readonly
 	def DependencyVertex(self) -> Vertex:
 		"""
 		Read-only property to access the corresponding dependency vertex (:attr:`_dependencyVertex`).
@@ -302,7 +341,7 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._dependencyVertex
 
-	@property
+	@readonly
 	def HierarchyVertex(self) -> Vertex:
 		"""
 		Read-only property to access the corresponding hierarchy vertex (:attr:`_hierarchyVertex`).
@@ -313,6 +352,16 @@ class DesignUnit(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._hierarchyVertex
 
+	@abstractmethod
+	def __str__(self) -> str:
+		"""
+		Formats the design unit.
+
+		Every concrete design unit renders itself, so this base-class provides no implementation.
+
+		:returns: Formatted design unit.
+		"""
+
 
 @export
 class PrimaryUnit(DesignUnit):
@@ -321,10 +370,11 @@ class PrimaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Context`
-	   * :class:`~pyVHDLModel.DesignUnit.Entity`
-	   * :class:`~pyVHDLModel.DesignUnit.Package`
-	   * :class:`~pyVHDLModel.DesignUnit.Configuration`
+	   * :class:`Context <pyVHDLModel.DesignUnit.Context>`
+	   * :class:`Package <pyVHDLModel.DesignUnit.Package>`
+	   * :class:`Entity <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Configuration <pyVHDLModel.DesignUnit.Configuration>`
+	   * :class:`PSL primary unit <pyVHDLModel.PSLModel.PSLPrimaryUnit>` (PSL is not supported)
 	"""
 
 
@@ -335,8 +385,8 @@ class SecondaryUnit(DesignUnit):
 
 	.. seealso::
 
-	   * :class:`~pyVHDLModel.DesignUnit.Architecture`
-	   * :class:`~pyVHDLModel.DesignUnit.PackageBody`
+	   * :class:`Package body <pyVHDLModel.DesignUnit.PackageBody>`
+	   * :class:`Architecture <pyVHDLModel.DesignUnit.Architecture>`
 	"""
 
 
@@ -369,11 +419,25 @@ class Context(PrimaryUnit):
 	      context ctx is
 	        -- ...
 	      end context;
+
+	.. seealso::
+
+	   * :class:`Library clause <pyVHDLModel.DesignUnit.LibraryClause>`
+	   * :class:`Use clause <pyVHDLModel.DesignUnit.UseClause>`
 	"""
 
-	_references:        List[ContextUnion]
+	_references:        List[ContextUnion]  #: All context items, in declaration order.
 
 	def __init__(self, identifier: str, references: Nullable[Iterable[ContextUnion]] = None, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a context declaration.
+
+		:param identifier:           The identifier of a model entity.
+		:param references:           All context items, in declaration order.
+		:param documentation:        The documentation comment associated with this declaration.
+		:param parent:               The parent model entity of this entity.
+		:raises VHDLModelException: If a context item is neither a library clause, use clause, nor context reference.
+		"""
 		super().__init__(identifier, None, documentation, parent)
 
 		self._references = []
@@ -393,22 +457,44 @@ class Context(PrimaryUnit):
 				elif isinstance(reference, ContextReference):
 					self._contextReferences.append(reference)
 				else:
-					raise VHDLModelException()  # FIXME: needs exception message
+					raise VHDLModelException(f"Reference '{reference!r}' is neither a library clause, use clause, nor context reference.")
 
-	@property
+	@readonly
 	def LibraryReferences(self) -> List[LibraryClause]:
+		"""
+		Read-only property to access the library references (:attr:`_libraryReferences`).
+
+		:returns: List of library references.
+		"""
 		return self._libraryReferences
 
-	@property
+	@readonly
 	def PackageReferences(self) -> List[UseClause]:
+		"""
+		Read-only property to access the package references (:attr:`_packageReferences`).
+
+		:returns: List of package references.
+		"""
 		return self._packageReferences
 
-	@property
+	@readonly
 	def ContextReferences(self) -> List[ContextReference]:
+		"""
+		Read-only property to access the context references (:attr:`_contextReferences`).
+
+		:returns: List of context references.
+		"""
 		return self._contextReferences
 
 	def __str__(self) -> str:
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		"""
+		Formats the context declaration.
+
+		**Format:** ``Context: mylib.myContext``
+
+		:returns: Formatted context declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Context: {lib}.{self._identifier}"
 
@@ -425,12 +511,18 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 	      package pkg is
 	        -- ...
 	      end package;
+
+	.. seealso::
+
+	   * :class:`Package instantiation <pyVHDLModel.Instantiation.PackageInstantiation>`
+	   * :class:`Predefined package <pyVHDLModel.Predefined.PredefinedPackage>`
+	   * :class:`Package body implementing it <pyVHDLModel.DesignUnit.PackageBody>`
 	"""
 
-	_packageBody:       Nullable["PackageBody"]
+	_packageBody:       Nullable["PackageBody"]      #: The corresponding package body, or ``None`` if none was analyzed.
 
-	_deferredConstants: Dict[str, DeferredConstant]
-	_components:        Dict[str, 'Component']
+	_deferredConstants: Dict[str, DeferredConstant]  #: Deferred constants, indexed by name.
+	_components:        Dict[str, 'Component']       #: Components, indexed by name.
 
 	def __init__(
 		self,
@@ -464,23 +556,43 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 		self._deferredConstants = {}
 		self._components = {}
 
-	@property
+	@readonly
 	def PackageBody(self) -> Nullable["PackageBody"]:
+		"""
+		Read-only property to access the package body (:attr:`_packageBody`).
+
+		:returns: The package body, or ``None`` if not set.
+		"""
 		return self._packageBody
 
-	@property
+	@readonly
 	def DeclaredItems(self) -> List:
+		"""
+		Read-only property to access the declared items (:attr:`_declaredItems`).
+
+		:returns: List of declared items.
+		"""
 		return self._declaredItems
 
-	@property
-	def DeferredConstants(self):
+	@readonly
+	def DeferredConstants(self) -> Dict[str, DeferredConstant]:
+		"""
+		Read-only property to access the deferred constants (:attr:`_deferredConstants`).
+
+		:returns: Dictionary of deferred constants, indexed by normalized identifier.
+		"""
 		return self._deferredConstants
 
-	@property
-	def Components(self):
+	@readonly
+	def Components(self) -> Dict[str, 'Component']:
+		"""
+		Read-only property to access the components (:attr:`_components`).
+
+		:returns: Dictionary of components, indexed by normalized identifier.
+		"""
 		return self._components
 
-	def _IndexOtherDeclaredItem(self, item):
+	def _IndexOtherDeclaredItem(self, item) -> None:
 		if isinstance(item, DeferredConstant):
 			for normalizedIdentifier in item.NormalizedIdentifiers:
 				self._deferredConstants[normalizedIdentifier] = item
@@ -490,14 +602,35 @@ class Package(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, Concur
 			super()._IndexOtherDeclaredItem(item)
 
 	def __str__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
+		"""
+		Formats the package declaration.
+
+		**Format:** ``Package: 'mylib.myPackage'``
+
+		:returns: Formatted package declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Package: '{lib}.{self._identifier}'"
 
 	def __repr__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
+		"""
+		Formats a representation of the package declaration.
+
+		**Format:** ``mylib.myPackage``
+
+		:returns: String representation of the package declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}"
+
+
+	def IndexDeclaredItems(self) -> None:
+		"""A generic package's generics share the declarative region of its declarative part."""
+		self._IndexGenericItems()
+
+		super().IndexDeclaredItems()
 
 
 @export
@@ -512,9 +645,16 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 	      package body pkg is
 	        -- ...
 	      end package body;
+
+	.. seealso::
+
+	   * :class:`Predefined package body <pyVHDLModel.Predefined.PredefinedPackageBody>`
+	   * :class:`Package it implements <pyVHDLModel.DesignUnit.Package>`
 	"""
 
-	_package:       PackageSymbol
+	_continuesParentRegion: ClassVar[bool] = True   #: A package body continues its package's declarative region.
+
+	_package:               PackageSymbol           #: Reference to the package this body implements.
 
 	def __init__(
 		self,
@@ -524,6 +664,15 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a package body declaration.
+
+		:param packageSymbol: Reference to the package this body implements.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(packageSymbol.Name.Identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -531,24 +680,48 @@ class PackageBody(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarati
 		self._package = packageSymbol
 		packageSymbol.Parent = self
 
-	@property
+	@readonly
 	def Package(self) -> PackageSymbol:
+		"""
+		Read-only property to access the package (:attr:`_package`).
+
+		:returns: The package.
+		"""
 		return self._package
 
-	@property
+	@readonly
 	def DeclaredItems(self) -> List:
+		"""
+		Read-only property to access the declared items (:attr:`_declaredItems`).
+
+		:returns: List of declared items.
+		"""
 		return self._declaredItems
 
 	def LinkDeclaredItemsToPackage(self) -> None:
 		pass
 
 	def __str__(self) -> str:
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		"""
+		Formats the package body declaration.
+
+		**Format:** ``Package Body: mylib.myPackage(body)``
+
+		:returns: Formatted package body declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Package Body: {lib}.{self._identifier}(body)"
 
 	def __repr__(self) -> str:
-		lib = self._parent._identifier + "?" if self._parent is not None else ""
+		"""
+		Formats a representation of the package body declaration.
+
+		**Format:** ``mylib.myPackage(body)``
+
+		:returns: String representation of the package body declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}(body)"
 
@@ -565,9 +738,15 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 	      entity ent is
 	        -- ...
 	      end entity;
+
+	.. seealso::
+
+	   * :class:`Architecture implementing it <pyVHDLModel.DesignUnit.Architecture>`
+	   * :class:`Component declaring the same interface <pyVHDLModel.DesignUnit.Component>`
+	   * :class:`Configuration binding it <pyVHDLModel.DesignUnit.Configuration>`
 	"""
 
-	_architectures: Dict[str, 'Architecture']
+	_architectures: Dict[str, 'Architecture']  #: Dictionary of all architectures of this entity, indexed by name.
 
 	def __init__(
 		self,
@@ -581,6 +760,19 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an entity declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param genericItems:  List of all generics, in declaration order.
+		:param portItems:     List of all ports, in declaration order.
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		WithGenericsMixin.__init__(self, genericItems)
@@ -591,21 +783,50 @@ class Entity(PrimaryUnit, DesignUnitWithContextMixin, WithGenericsMixin, WithPor
 
 		self._architectures = {}
 
-	@property
+	@readonly
 	def Architectures(self) -> Dict[str, 'Architecture']:
+		"""
+		Read-only property to access the architectures (:attr:`_architectures`).
+
+		:returns: Dictionary of architectures, indexed by normalized identifier.
+		"""
 		return self._architectures
 
 	def __str__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
-		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
+		"""
+		Formats the entity declaration.
+
+		**Format:** ``Entity: 'mylib.myEntity(rtl, sim)'``
+
+		The parenthesis lists the known architectures, or ``?`` if there are none.
+
+		:returns: Formatted entity declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
+		archs = ', '.join(self._architectures.keys()) if self._architectures else "?"
 
 		return f"Entity: '{lib}.{self._identifier}({archs})'"
 
 	def __repr__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
-		archs = ', '.join(self._architectures.keys()) if self._architectures else "%"
+		"""
+		Formats a representation of the entity declaration.
+
+		**Format:** ``mylib.myEntity(rtl, sim)``
+
+		:returns: String representation of the entity declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
+		archs = ', '.join(self._architectures.keys()) if self._architectures else "?"
 
 		return f"{lib}.{self._identifier}({archs})"
+
+
+	def IndexDeclaredItems(self) -> None:
+		"""An entity's generics and ports share the declarative region of its declarative part."""
+		self._IndexGenericItems()
+		self._IndexPortItems()
+
+		super().IndexDeclaredItems()
 
 
 @export
@@ -622,9 +843,15 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 	      begin
 	        -- ...
 	      end architecture;
+
+	.. seealso::
+
+	   * :class:`Entity it implements <pyVHDLModel.DesignUnit.Entity>`
 	"""
 
-	_entity:        EntitySymbol
+	_continuesParentRegion: ClassVar[bool] = True  #: An architecture continues its entity's declarative region.
+
+	_entity:                EntitySymbol           #: Reference to the entity this architecture implements.
 
 	def __init__(
 		self,
@@ -637,6 +864,18 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an architecture declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param entity:        Reference to the entity this architecture implements.
+		:param contextItems:  List of all context items (library, use and context clauses).
+		:param declaredItems: List of all declared items in this concurrent declaration region.
+		:param statements:    List of all concurrent statements in this construct.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 		ConcurrentDeclarationRegionMixin.__init__(self, declaredItems)
@@ -646,19 +885,38 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 		self._entity = entity
 		entity.Parent = self
 
-	@property
+	@readonly
 	def Entity(self) -> EntitySymbol:  # FIXME: change to entitySymbol, offer entity directly, but raise exception if not resolved.
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 	def __str__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
-		ent = self._entity._name._identifier if self._entity is not None else "%"
+		"""
+		Formats the architecture declaration.
+
+		**Format:** ``Architecture: mylib.myEntity(rtl)``
+
+		:returns: Formatted architecture declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
+		ent = self._entity._name._identifier if self._entity is not None else "?"
 
 		return f"Architecture: {lib}.{ent}({self._identifier})"
 
 	def __repr__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
-		ent = self._entity._name._identifier if self._entity is not None else "%"
+		"""
+		Formats a representation of the architecture declaration.
+
+		**Format:** ``mylib.myEntity(rtl)``
+
+		:returns: String representation of the architecture declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
+		ent = self._entity._name._identifier if self._entity is not None else "?"
 
 		return f"{lib}.{ent}({self._identifier})"
 
@@ -666,7 +924,7 @@ class Architecture(SecondaryUnit, DesignUnitWithContextMixin, ConcurrentDeclarat
 @export
 class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
 	"""
-	Represents a configuration declaration.
+	Represents a component declaration.
 
 	.. admonition:: Example
 
@@ -675,14 +933,19 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 	      component ent is
 	        -- ...
 	      end component;
+
+	.. seealso::
+
+	   * :class:`Entity it may be bound to <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Component configuration <pyVHDLModel.Configuration.ComponentConfiguration>`
 	"""
 
-	_isBlackBox:        Nullable[bool]                    #: Component is a blackbox.
+	_isBlackbox:        Nullable[bool]                    #: Component is a blackbox.
 
-	_genericItems:      List[GenericInterfaceItemMixin]
-	_portItems:         List[PortInterfaceItemMixin]
+	_genericItems:      List[GenericInterfaceItemMixin]  #: List of all generics of this component, in declaration order.
+	_portItems:         List[PortInterfaceItemMixin]     #: List of all ports of this component, in declaration order.
 
-	_entity:            Nullable[Entity]
+	_entity:            Nullable[Entity]                 #: Linked entity, or ``None`` if unresolved.
 
 	def __init__(
 		self,
@@ -693,12 +956,22 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a component declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param genericItems:  List of all generics of this component, in declaration order.
+		:param portItems:     List of all ports of this component, in declaration order.
+		:param documentation: The documentation comment associated with this declaration.
+		:param allowBlackbox: Allow blackboxes for components in language entity.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
-		self._isBlackBox = None
+		self._isBlackbox = None
 		self._entity = None
 
 		# TODO: extract to mixin
@@ -715,42 +988,69 @@ class Component(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlack
 				self._portItems.append(item)
 				item.Parent = self
 
-	@property
+	@readonly
 	def IsBlackbox(self) -> Nullable[bool]:
 		"""
-		Read-only property returning true, if this component is a blackbox (:attr:`_isBlackbox`).
+		Check if the component is a blackbox (:attr:`_isBlackbox`).
 
-		If components were not linked to matching entities, this property returns None.
+		If components were not linked to matching entities, this property returns ``None``.
 
-		:returns: If this component is a blackbox.
+		:returns: ``True``, if the component is a blackbox; ``False``, if it is not; ``None``, if components
+		          were not linked to entities yet.
 		"""
-		return self._isBlackBox
+		return self._isBlackbox
 
-	@property
+	@readonly
 	def GenericItems(self) -> List[GenericInterfaceItemMixin]:
+		"""
+		Read-only property to access the generic items (:attr:`_genericItems`).
+
+		:returns: List of generic items.
+		"""
 		return self._genericItems
 
-	@property
+	@readonly
 	def PortItems(self) -> List[PortInterfaceItemMixin]:
+		"""
+		Read-only property to access the port items (:attr:`_portItems`).
+
+		:returns: List of port items.
+		"""
 		return self._portItems
 
 	@property
 	def Entity(self) -> Nullable[Entity]:
+		"""
+		Property to access the entity (:attr:`_entity`).
+
+		:returns: The entity, or ``None`` if not set.
+		"""
 		return self._entity
 
 	@Entity.setter
 	def Entity(self, value: Entity) -> None:
 		self._entity = value
-		self._isBlackBox = False
+		self._isBlackbox = False
 
 	def __str__(self) -> str:
+		"""
+		Formats the component declaration.
+
+		**Format:** ``Component: myComponent``
+
+		:returns: Formatted component declaration.
+		"""
 		return f"Component: {self._identifier}"
 
 	def __repr__(self) -> str:
-		if isinstance(self._parent, Package):
-			return f"{self._parent!r}:{self._identifier}"
-		elif isinstance(self._parent, Architecture):
-			return f"{self._parent!r}:{self._identifier}"
+		"""
+		Formats a representation of the component declaration.
+
+		**Format:** ``mylib.myPackage:myComponent``
+
+		:returns: String representation of the component declaration.
+		"""
+		return f"{self._parent!r}:{self._identifier}"
 
 
 @export
@@ -767,24 +1067,82 @@ class Configuration(PrimaryUnit, DesignUnitWithContextMixin):
 	          -- ...
 	        end for;
 	      end configuration;
+
+	.. seealso::
+
+	   * :class:`Entity it configures <pyVHDLModel.DesignUnit.Entity>`
+	   * :class:`Block configuration <pyVHDLModel.Configuration.BlockConfiguration>`
 	"""
+
+	_entity:            EntitySymbol         #: Reference to the entity this configuration configures.
+	_blockConfiguration: BlockConfiguration  #: The configuration of the entity's architecture.
 
 	def __init__(
 		self,
 		identifier: str,
+		entity: EntitySymbol,
+		blockConfiguration: BlockConfiguration,
 		contextItems: Nullable[Iterable[Context]] = None,
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a configuration declaration.
+
+		:param identifier:         The identifier of a model entity.
+		:param entity:             Reference to the entity this configuration configures.
+		:param blockConfiguration: The configuration of the entity's architecture.
+		:param contextItems:       List of all context items (library, use and context clauses).
+		:param documentation:      The documentation comment associated with this declaration.
+		:param parent:             The parent model entity of this entity.
+		"""
 		super().__init__(identifier, contextItems, documentation, parent)
 		DesignUnitWithContextMixin.__init__(self)
 
+		self._entity = entity
+		entity.Parent = self
+
+		self._blockConfiguration = blockConfiguration
+		blockConfiguration.Parent = self
+
+	@readonly
+	def Entity(self) -> EntitySymbol:
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
+		return self._entity
+
+	@readonly
+	def BlockConfiguration(self) -> BlockConfiguration:
+		"""
+		Read-only property to access the block configuration (:attr:`_blockConfiguration`).
+
+		:returns: The block configuration.
+		"""
+		return self._blockConfiguration
+
 	def __str__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
+		"""
+		Formats the configuration declaration.
+
+		**Format:** ``Configuration: mylib.myConfiguration``
+
+		:returns: Formatted configuration declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"Configuration: {lib}.{self._identifier}"
 
 	def __repr__(self) -> str:
-		lib = self._parent._identifier if self._parent is not None else "%"
+		"""
+		Formats a representation of the configuration declaration.
+
+		**Format:** ``mylib.myConfiguration``
+
+		:returns: String representation of the configuration declaration.
+		"""
+		lib = self._parent._identifier if self._parent is not None else "?"
 
 		return f"{lib}.{self._identifier}"

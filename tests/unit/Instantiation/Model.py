@@ -29,23 +29,31 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
-"""Instantiation tests for the language model."""
+"""Instantiation tests for the model's top-level composition: names, symbols, design, library and document."""
 from pathlib  import Path
 from unittest import TestCase
 
 from pyTooling.Graph import Graph
 
 from pyVHDLModel import Design, Library, Document, IEEEFlavor, LibraryExistsInDesignError
-from pyVHDLModel.Base import Direction, Range
+from pyVHDLModel.Base import Direction, SimpleRange
 from pyVHDLModel.Name import SelectedName, SimpleName, AllName, AttributeName
 from pyVHDLModel.Object import Constant, Signal
 from pyVHDLModel.Symbol import LibraryReferenceSymbol, PackageReferenceSymbol, PackageMemberReferenceSymbol, SimpleSubtypeSymbol
 from pyVHDLModel.Symbol import AllPackageMembersReferenceSymbol, ContextReferenceSymbol, EntitySymbol
 from pyVHDLModel.Symbol import ArchitectureSymbol, PackageSymbol, EntityInstantiationSymbol
 from pyVHDLModel.Symbol import ComponentInstantiationSymbol, ConfigurationInstantiationSymbol
+from pyVHDLModel.Symbol import SubprogramReferenceSymbol, ConstrainedScalarSubtypeSymbol
+from pyVHDLModel.Symbol import Symbol, PossibleReference
+from pyVHDLModel.Configuration import BlockConfiguration
 from pyVHDLModel.Expression import IntegerLiteral, FloatingPointLiteral
-from pyVHDLModel.Type import Subtype, IntegerType, RealType, ArrayType, RecordType
-from pyVHDLModel.DesignUnit import Package, PackageBody, Context, Entity, Architecture, Configuration
+from pyVHDLModel.Type          import Subtype, IntegerType, RealType, ArrayType, RecordType
+from pyVHDLModel.DesignUnit    import Package, PackageBody, Context, Entity, Architecture, Configuration
+from pyVHDLModel.DesignUnit    import LibraryClause
+from pyVHDLModel.Association   import GenericAssociationItem
+from pyVHDLModel.Instantiation import PackageInstantiation, FunctionInstantiation, ProcedureInstantiation
+from pyVHDLModel.PSLModel      import DefaultClock
+from pyVHDLModel.STD           import Std
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -142,7 +150,7 @@ class Symbols(TestCase):
 		self.assertEqual("LibraryReferenceSymbol: 'Lib' -> unresolved", repr(symbol))
 		self.assertEqual("Lib?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		symbol.Library = library
 
 		self.assertTrue(symbol.IsResolved)
@@ -161,7 +169,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageReferenceSymbol: 'Lib.Pack' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		symbol.Package = package
@@ -182,7 +190,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageMemberReferenceSymbol: 'Lib.Pack.Obj' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack.Obj?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		constant = Constant(("obJ", ), SimpleSubtypeSymbol(SimpleName("Bool")))
@@ -208,7 +216,7 @@ class Symbols(TestCase):
 		self.assertEqual("AllPackageMembersReferenceSymbol: 'Lib.Pack.all' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Pack.all?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		constant = Constant(("obJ", ), SimpleSubtypeSymbol(SimpleName("Bool")))
@@ -238,7 +246,7 @@ class Symbols(TestCase):
 		self.assertEqual("ContextReferenceSymbol: 'Lib.Ctx' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Ctx?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		context = Context("ctX", parent=None)
 		context.Library = library
 		symbol.Context = context
@@ -259,7 +267,7 @@ class Symbols(TestCase):
 		self.assertEqual("EntitySymbol: 'Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
@@ -280,7 +288,7 @@ class Symbols(TestCase):
 		self.assertEqual("EntitySymbol: 'Work.Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Work.Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
@@ -307,7 +315,7 @@ class Symbols(TestCase):
 		self.assertEqual("PackageSymbol: 'Pack' -> unresolved", repr(symbol))
 		self.assertEqual("Pack?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		package = Package("pacK", parent=None)
 		package.Library = library
 		symbol.Package = package
@@ -328,15 +336,15 @@ class Symbols(TestCase):
 		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> unresolved", repr(symbol))
 		self.assertEqual("Lib.Ent?", str(symbol))
 
-		library = Library("liB", None)
+		library = Library("liB")
 		entity = Entity("enT", parent=None)
 		entity.Library = library
 		symbol.Entity = entity
 
 		self.assertTrue(symbol.IsResolved)
 		self.assertIs(entity, symbol.Entity)
-		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> Entity: 'liB.enT(%)'", repr(symbol))
-		self.assertEqual("Entity: 'liB.enT(%)'", str(symbol))
+		self.assertEqual("EntityInstantiationSymbol: 'Lib.Ent' -> Entity: 'liB.enT(?)'", repr(symbol))
+		self.assertEqual("Entity: 'liB.enT(?)'", str(symbol))
 
 	def test_ComponentInstantiationSymbol(self) -> None:
 		symbol = ComponentInstantiationSymbol(SimpleName("comp"))
@@ -347,6 +355,35 @@ class Symbols(TestCase):
 		symbol = ConfigurationInstantiationSymbol(SimpleName("cfg"))
 
 		self.assertEqual("cfg", symbol.Name.NormalizedIdentifier)
+
+	def test_ConstrainedScalarSubtypeSymbol(self) -> None:
+		"""``signal s : integer range 0 to 15;`` - previously the range constraint was read by
+		pyGHDL.dom but had nowhere to go, since this class was a bare stub."""
+		rng = SimpleRange(IntegerLiteral(0), IntegerLiteral(15), Direction.To)
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"), rng)
+
+		self.assertIs(rng, symbol.Constraint)
+
+	def test_ConstrainedScalarSubtypeSymbol_withoutConstraint(self) -> None:
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
+
+		self.assertIsNone(symbol.Constraint)
+
+
+class PSLEntities(TestCase):
+	"""PSL is not otherwise modelled, but its declarations are still model entities."""
+
+	def test_DefaultClockWithDocumentation(self) -> None:
+		clock = DefaultClock("clk", "--! The default clock.")
+
+		self.assertEqual("clk", clock.Identifier)
+		self.assertEqual("--! The default clock.", clock.Documentation)
+		self.assertEqual("default clock clk", str(clock))
+
+	def test_DefaultClockWithoutDocumentation(self) -> None:
+		clock = DefaultClock("clk")
+
+		self.assertIsNone(clock.Documentation)
 
 
 class SimpleInstance(TestCase):
@@ -365,7 +402,7 @@ class SimpleInstance(TestCase):
 		self.assertEqual(0, design.CompileOrderGraph.VertexCount)
 
 	def test_Library(self) -> None:
-		library = Library("lib_1", None)
+		library = Library("lib_1")
 
 		self.assertIsNotNone(library)
 		self.assertEqual("lib_1", library.Identifier)
@@ -421,6 +458,57 @@ class SimpleInstance(TestCase):
 		self.assertEqual("pack_1", packageBody.Identifier)
 		self.assertEqual(0, len(packageBody.DeclaredItems))
 
+	def test_PackageInstantiation(self) -> None:
+		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
+		contextItems = [
+			LibraryClause([
+				LibraryReferenceSymbol(SimpleName("ieee")),
+			]),
+		]
+		genericAssociationItems = [
+			GenericAssociationItem(SimpleName("WIDTH"), IntegerLiteral(16)),
+		]
+		packageInstantiation = PackageInstantiation(
+			"pack_inst_1", packageReference, contextItems, genericAssociationItems, parent=None
+		)
+
+		self.assertIsNotNone(packageInstantiation)
+		self.assertEqual("pack_inst_1", packageInstantiation.Identifier)
+		self.assertIs(packageReference, packageInstantiation.PackageReference)
+		self.assertEqual(1, len(packageInstantiation.ContextItems))
+		self.assertEqual(1, len(packageInstantiation.GenericAssociationItems))
+		self.assertEqual("WIDTH", packageInstantiation.GenericAssociationItems[0].Formal.Identifier)
+		self.assertEqual(16, packageInstantiation.GenericAssociationItems[0].Actual.Value)
+
+	def test_PackageInstantiation_withoutContextItemsOrGenerics(self) -> None:
+		packageReference = PackageReferenceSymbol(SimpleName("generic_pack"))
+		packageInstantiation = PackageInstantiation("pack_inst_1", packageReference, parent=None)
+
+		self.assertIsNotNone(packageInstantiation)
+		self.assertEqual(0, len(packageInstantiation.ContextItems))
+		self.assertEqual(0, len(packageInstantiation.GenericAssociationItems))
+
+	def test_FunctionInstantiation(self) -> None:
+		subprogramReference = SubprogramReferenceSymbol(SimpleName("generic_add"))
+		genericAssociationItems = [
+			GenericAssociationItem(SimpleName("T"), SimpleSubtypeSymbol(SimpleName("integer"))),
+		]
+		functionInstantiation = FunctionInstantiation("add_int", subprogramReference, True, genericAssociationItems)
+
+		self.assertEqual("add_int", functionInstantiation.Identifier)
+		self.assertIs(subprogramReference, functionInstantiation.SubprogramReference)
+		self.assertEqual(1, len(functionInstantiation.GenericAssociationItems))
+		self.assertTrue(functionInstantiation.IsPure)
+		self.assertIsNone(functionInstantiation.ReturnType)
+
+	def test_ProcedureInstantiation(self) -> None:
+		subprogramReference = SubprogramReferenceSymbol(SimpleName("some_proc"))
+		procedureInstantiation = ProcedureInstantiation("my_proc", subprogramReference)
+
+		self.assertEqual("my_proc", procedureInstantiation.Identifier)
+		self.assertIs(subprogramReference, procedureInstantiation.SubprogramReference)
+		self.assertEqual(0, len(procedureInstantiation.GenericAssociationItems))
+
 	def test_Context(self) -> None:
 		context = Context("ctx_1", parent=None)
 
@@ -428,7 +516,12 @@ class SimpleInstance(TestCase):
 		self.assertEqual("ctx_1", context.Identifier)
 
 	def test_Configuration(self) -> None:
-		configuration = Configuration("conf_1", parent=None)
+		configuration = Configuration(
+			"conf_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 
 		self.assertIsNotNone(configuration)
 		self.assertEqual("conf_1", configuration.Identifier)
@@ -440,13 +533,13 @@ class SimpleInstance(TestCase):
 		self.assertEqual("bit", subtype.Identifier)
 
 	def test_Integer(self) -> None:
-		integer = IntegerType("integer", Range(IntegerLiteral(0), IntegerLiteral(7), Direction.To), None)
+		integer = IntegerType("integer", SimpleRange(IntegerLiteral(0), IntegerLiteral(7), Direction.To), None)
 
 		self.assertIsNotNone(integer)
 		self.assertEqual("integer", integer.Identifier)
 
 	def test_Real(self) -> None:
-		real = RealType("real", Range(FloatingPointLiteral(0.0), FloatingPointLiteral(1.0), Direction.To), None)
+		real = RealType("real", SimpleRange(FloatingPointLiteral(0.0), FloatingPointLiteral(1.0), Direction.To), None)
 
 		self.assertIsNotNone(real)
 		self.assertEqual("real", real.Identifier)
@@ -527,7 +620,12 @@ class VHDLDocument(TestCase):
 		path = Path("tests.vhdl")
 		document = Document(path, parent=None)
 
-		configuration = Configuration("cfg_1", parent=None)
+		configuration = Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 		document._AddConfiguration(configuration)
 
 		self.assertEqual(1, len(document.Configurations))
@@ -554,7 +652,12 @@ class VHDLDocument(TestCase):
 		context = Context("ctx_1", parent=None)
 		document._AddDesignUnit(context)
 
-		configuration = Configuration("cfg_1", parent=None)
+		configuration = Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		)
 		document._AddDesignUnit(configuration)
 
 		self.assertEqual(1, len(document.Entities))
@@ -567,20 +670,44 @@ class VHDLDocument(TestCase):
 
 
 class VHDLLibrary(TestCase):
+	def test_DocumentationFromInitializer(self) -> None:
+		"""VHDL has no library declaration to hang a comment on, so a caller supplies one."""
+		library = Library("lib_1", "--! From a compile-order file.")
+
+		self.assertEqual("--! From a compile-order file.", library.Documentation)
+
+	def test_DocumentationIsSettable(self) -> None:
+		"""Unlike every other documented entity, a library's documentation can be set after construction."""
+		library = Library("lib_1")
+
+		self.assertIsNone(library.Documentation)
+
+		library.Documentation = "--! Supplied later."
+		self.assertEqual("--! Supplied later.", library.Documentation)
+
+	def test_PredefinedLibrariesHaveNoDocumentation(self) -> None:
+		"""VHDL defines none for `std`/`ieee`, but a caller may still supply one."""
+		std = Std()
+
+		self.assertIsNone(std.Documentation)
+
+		std.Documentation = "--! Supplied by the caller."
+		self.assertEqual("--! Supplied by the caller.", std.Documentation)
+
 	def test_AddLibrary(self) -> None:
 		design = Design()
 
-		library1 = Library("lib_1", None)
+		library1 = Library("lib_1")
 		design.AddLibrary(library1)
 
 		self.assertEqual(1, len(design.Libraries))
 		self.assertEqual(design, library1.Parent)
 
 		with self.assertRaises(Exception):
-			design.AddLibrary(Library("lib_1", None))
+			design.AddLibrary(Library("lib_1"))
 
 		with self.assertRaises(Exception):
-			library2 = Library("lib_2", None)
+			library2 = Library("lib_2")
 			library2._parent = True
 			design.AddLibrary(library2)
 
@@ -603,7 +730,12 @@ class VHDLLibrary(TestCase):
 		document._AddDesignUnit(Package("pack_1", parent=None))
 		document._AddDesignUnit(PackageBody(PackageSymbol(SimpleName("pack_1")), parent=None))
 		document._AddDesignUnit(Context("ctx_1", parent=None))
-		document._AddDesignUnit(Configuration("cfg_1", parent=None))
+		document._AddDesignUnit(Configuration(
+			"cfg_1",
+			EntitySymbol(SimpleName("entity_1")),
+			BlockConfiguration(Symbol(SimpleName("rtl"), PossibleReference.Architecture | PossibleReference.Label)),
+			parent=None
+		))
 
 		design.AddDocument(document, library)
 

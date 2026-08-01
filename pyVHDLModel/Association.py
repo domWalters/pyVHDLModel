@@ -34,9 +34,10 @@ This module contains parts of an abstract document language model for VHDL.
 
 Associations are used in generic maps, port maps and parameter maps.
 """
-from typing               import Optional as Nullable, Union
+from typing               import Iterable, List, Optional as Nullable, Union
 
 from pyTooling.Decorators import export, readonly
+from pyTooling.MetaClasses import ExtendedType
 
 from pyVHDLModel.Base       import ModelEntity
 from pyVHDLModel.Symbol     import Symbol
@@ -57,12 +58,24 @@ ExpressionUnion = Union[
 class AssociationItem(ModelEntity):
 	"""
 	A base-class for all association items.
+
+	.. seealso::
+
+	   * :class:`Generic association item <pyVHDLModel.Association.GenericAssociationItem>`
+	   * :class:`Port association item <pyVHDLModel.Association.PortAssociationItem>`
+	   * :class:`Parameter association item <pyVHDLModel.Association.ParameterAssociationItem>`
 	"""
 
-	_formal: Nullable[Symbol]
-	_actual: ExpressionUnion
+	_formal: Nullable[Symbol]  #: Reference to the formal part, or ``None`` for a positional association.
+	_actual: ExpressionUnion   #: The actual part of this association.
 
-	def __init__(self, actual: ExpressionUnion, formal: Nullable[Symbol] = None) -> None:
+	def __init__(self, formal: Nullable[Symbol], actual: ExpressionUnion) -> None:
+		"""
+		Initializes an association item.
+
+		:param formal: Reference to the formal part, or ``None`` for a positional association.
+		:param actual: The actual part of this association.
+		"""
 		super().__init__()
 
 		self._formal = formal
@@ -74,13 +87,30 @@ class AssociationItem(ModelEntity):
 
 	@readonly
 	def Formal(self) -> Nullable[Symbol]:  # TODO: can also be a conversion function !!
+		"""
+		Read-only property to access the formal (:attr:`_formal`).
+
+		:returns: The formal, or ``None`` if not set.
+		"""
 		return self._formal
 
 	@readonly
 	def Actual(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the actual (:attr:`_actual`).
+
+		:returns: The actual.
+		"""
 		return self._actual
 
 	def __str__(self) -> str:
+		"""
+		Formats the association item.
+
+		**Format:** ``formal => actual``, or ``actual`` alone when positional
+
+		:returns: Formatted association item.
+		"""
 		if self._formal is None:
 			return str(self._actual)
 		else:
@@ -106,3 +136,77 @@ class ParameterAssociationItem(AssociationItem):
 	"""
 	A base-class for all parameter association items used in parameter map aspects.
 	"""
+
+
+@export
+class GenericMapAspectMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a generic map aspect.
+
+	.. seealso::
+
+	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Binding indication <pyVHDLModel.Configuration.BindingIndication>`
+	   * :class:`Port map aspect <pyVHDLModel.Association.PortMapAspectMixin>`
+	"""
+
+	_genericAssociationItems: List[GenericAssociationItem]  #: List of all generic associations.
+
+	def __init__(self, genericAssociationItems: Nullable[Iterable[GenericAssociationItem]] = None) -> None:
+		"""
+		Initializes a generic map aspect.
+
+		:param genericAssociationItems: List of all generic associations.
+		"""
+		self._genericAssociationItems = []
+		if genericAssociationItems is not None:
+			for association in genericAssociationItems:
+				self._genericAssociationItems.append(association)
+				association.Parent = self
+
+	@readonly
+	def GenericAssociationItems(self) -> List[GenericAssociationItem]:
+		"""
+		Read-only property to access the generic associations (:attr:`_genericAssociationItems`).
+
+		:returns: List of generic association items.
+		"""
+		return self._genericAssociationItems
+
+
+@export
+class PortMapAspectMixin(metaclass=ExtendedType, mixin=True):
+	"""
+	A mixin-class for language constructs with a port map aspect.
+
+	.. seealso::
+
+	   * :class:`Instantiation <pyVHDLModel.Concurrent.Instantiation>`
+	   * :class:`Concurrent block statement <pyVHDLModel.Concurrent.ConcurrentBlockStatement>`
+	   * :class:`Binding indication <pyVHDLModel.Configuration.BindingIndication>`
+	   * :class:`Generic map aspect <pyVHDLModel.Association.GenericMapAspectMixin>`
+	"""
+
+	_portAssociationItems: List[PortAssociationItem]  #: List of all port associations.
+
+	def __init__(self, portAssociationItems: Nullable[Iterable[PortAssociationItem]] = None) -> None:
+		"""
+		Initializes a port map aspect.
+
+		:param portAssociationItems: List of all port associations.
+		"""
+		self._portAssociationItems = []
+		if portAssociationItems is not None:
+			for association in portAssociationItems:
+				self._portAssociationItems.append(association)
+				association.Parent = self
+
+	@readonly
+	def PortAssociationItems(self) -> List[PortAssociationItem]:
+		"""
+		Read-only property to access the port associations (:attr:`_portAssociationItems`).
+
+		:returns: List of port association items.
+		"""
+		return self._portAssociationItems

@@ -48,7 +48,7 @@ __author__ =            "Patrick Lehmann"
 __email__ =             "Paebbels@gmail.com"
 __copyright__ =         "2016-2026, Patrick Lehmann"
 __license__ =           "Apache License, Version 2.0"
-__version__ =           "0.37.0"
+__version__ =           "0.38.0"
 # __keywords__ =          []
 __project_url__ =       "https://github.com/VHDL/pyVHDLModel"
 __documentation_url__ = "https://vhdl.github.io/pyVHDLModel"
@@ -57,7 +57,6 @@ __issue_tracker_url__ = "https://GitHub.com/VHDL/pyVHDLModel/issues"
 
 from enum                      import unique, Enum, Flag, auto
 from pathlib                   import Path
-from sys                       import version_info
 
 from typing                    import Union, Dict, cast, List, Generator, Optional as Nullable
 
@@ -184,7 +183,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value < other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __le__(self, other: Any) -> bool:
 		"""
@@ -197,7 +198,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value <= other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __gt__(self, other: Any) -> bool:
 		"""
@@ -210,7 +213,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value > other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __ge__(self, other: Any) -> bool:
 		"""
@@ -223,7 +228,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value >= other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __ne__(self, other: Any) -> bool:
 		"""
@@ -236,7 +243,9 @@ class VHDLVersion(Enum):
 		if isinstance(other, VHDLVersion):
 			return self.value != other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
 
 	def __eq__(self, other: Any) -> bool:
 		"""
@@ -252,23 +261,40 @@ class VHDLVersion(Enum):
 			else:
 				return self.value == other.value
 		else:
-			raise TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex = TypeError("Second operand is not of type 'VHDLVersion'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(other)}'.")
+			raise ex
+
+	def __hash__(self) -> int:
+		"""
+		Return the hash of the VHDL version using the underlying version number.
+
+		.. note::
+
+		   ``Any`` compares equal to every other member (see :meth:`__eq__`), which no hash value can satisfy
+		   simultaneously for all members without collapsing every member to the same hash. This implementation
+		   hashes by ``self.value``, which is internally consistent for all comparisons *except* those
+		   involving ``Any`` - avoid using ``Any`` as a dict key or set member.
+
+		:returns: Hash value of the underlying VHDL version number.
+		"""
+		return hash(self.value)
 
 	@readonly
 	def IsVHDL(self) -> bool:
 		"""
-		Checks if the version is a VHDL (not VHDL-AMS) version.
+		Check if the version is a VHDL (not VHDL-AMS) version.
 
-		:returns:          True if version is a VHDL version.
+		:returns: ``True``, if the version is a VHDL version.
 		"""
 		return self in (self.VHDL87, self.VHDL93, self.VHDL2002, self.VHDL2008, self.VHDL2019)
 
 	@readonly
 	def IsAMS(self) -> bool:
 		"""
-		Checks if the version is a VHDL-AMS (not VHDL) version.
+		Check if the version is a VHDL-AMS (not VHDL) version.
 
-		:returns:          True if version is a VHDL-AMS version.
+		:returns: ``True``, if the version is a VHDL-AMS version.
 		"""
 		return self in (self.AMS93, self.AMS99, self.AMS2017)
 
@@ -497,8 +523,8 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		"""
 		Initialize a VHDL design.
 
-		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		:param name:          Name of the design.
+		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		"""
 		super().__init__()
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
@@ -593,7 +619,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 		if self._toplevel is not None:
 			return self._toplevel
 
-		if self._hierarchyGraph.EdgeCount == 0:
+		if self._hierarchyGraph.VertexCount == 0:
 			raise VHDLModelException(f"Hierarchy is not yet computed from dependency graph.")
 
 		roots = tuple(self._hierarchyGraph.IterateRoots())
@@ -1171,7 +1197,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				signalVertex["kind"] = ObjectGraphVertexKind.Signal
 				signal._objectVertex = signalVertex
 
-		def _LinkSymbolsInExpression(expression, namespace: Namespace, typeVertex: Vertex):
+		def _LinkSymbolsInExpression(expression, namespace: Namespace, typeVertex: Vertex) -> None:
 			if isinstance(expression, UnaryExpression):
 				_LinkSymbolsInExpression(expression.Operand, namespace, typeVertex)
 			elif isinstance(expression, BinaryExpression):
@@ -1188,7 +1214,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 			else:
 				WarningCollector.Raise(NotImplementedWarning(f"Unhandled else-branch"))
 
-		def _LinkItems(package: Package):
+		def _LinkItems(package: Package) -> None:
 			for item in package._declaredItems:
 				if isinstance(item, Constant):
 					print(f"constant: {item}")
@@ -1874,7 +1900,7 @@ class Design(ModelEntity, AllowBlackboxMixin):
 				entity = library._entities[component.NormalizedIdentifier]
 			except KeyError:
 				if component.AllowBlackbox:
-					component._isBlackBox = True
+					component._isBlackbox = True
 					return
 				else:
 					raise VHDLModelException(
@@ -2172,8 +2198,14 @@ class Design(ModelEntity, AllowBlackboxMixin):
 
 
 @export
-class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
-	"""A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units."""
+class Library(ModelEntity, NamedEntityMixin, DocumentedEntityMixin, AllowBlackboxMixin):
+	"""
+	A ``Library`` represents a VHDL library. It contains all *primary* and *secondary* design units.
+
+	.. seealso::
+
+	   * :class:`Predefined library <pyVHDLModel.Predefined.PredefinedLibrary>`
+	"""
 
 	_allowBlackbox:  Nullable[bool]                      #: Allow blackboxes for components in this library.
 	_contexts:       Dict[str, Context]                  #: Dictionary of all contexts defined in a library.
@@ -2188,6 +2220,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 	def __init__(
 		self,
 		identifier:    str,
+		documentation: Nullable[str] = None,
 		allowBlackbox: Nullable[bool] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
@@ -2195,11 +2228,13 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 		Initialize a VHDL library.
 
 		:param identifier:    Name of the VHDL library.
+		:param documentation: Documentation of this VHDL library, if the caller has one to supply.
 		:param allowBlackbox: Specify if blackboxes are allowed in this design.
 		:param parent:        The parent model entity (design) of this VHDL library.
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
+		DocumentedEntityMixin.__init__(self, documentation)
 		AllowBlackboxMixin.__init__(self, allowBlackbox)
 
 		self._contexts =        {}
@@ -2211,34 +2246,78 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 
 		self._dependencyVertex = None
 
+	@property
+	def Documentation(self) -> Nullable[str]:
+		"""
+		Property to access the library's documentation (:attr:`_documentation`).
+
+		.. hint::
+
+		   Unlike every other documented entity, a library's documentation cannot come from VHDL source:
+		   the language has no library declaration to attach a comment to. It is therefore settable, so a
+		   caller can supply one from elsewhere - a compile-order file, a project description, ...
+
+		:returns: Associated documentation of this VHDL library.
+		"""
+		return self._documentation
+
+	@Documentation.setter
+	def Documentation(self, documentation: Nullable[str]) -> None:
+		self._documentation = documentation
+
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:
-		"""Returns a list of all context declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all context declarations in this library (:attr:`_contexts`).
+
+		:returns: Dictionary of all contexts, indexed by normalized identifier.
+		"""
 		return self._contexts
 
 	@readonly
 	def Configurations(self) -> Dict[str, Configuration]:
-		"""Returns a list of all configuration declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all configuration declarations in this library (:attr:`_configurations`).
+
+		:returns: Dictionary of all configurations, indexed by normalized identifier.
+		"""
 		return self._configurations
 
 	@readonly
 	def Entities(self) -> Dict[str, Entity]:
-		"""Returns a list of all entity declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all entity declarations in this library (:attr:`_entities`).
+
+		:returns: Dictionary of all entities, indexed by normalized identifier.
+		"""
 		return self._entities
 
 	@readonly
 	def Architectures(self) -> Dict[str, Dict[str, Architecture]]:
-		"""Returns a list of all architectures declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all architecture declarations in this library (:attr:`_architectures`).
+
+		:returns: Dictionary of all architectures, indexed by normalized entity identifier, then by normalized
+		          architecture identifier.
+		"""
 		return self._architectures
 
 	@readonly
 	def Packages(self) -> Dict[str, Package]:
-		"""Returns a list of all package declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all package declarations in this library (:attr:`_packages`).
+
+		:returns: Dictionary of all packages, indexed by normalized identifier.
+		"""
 		return self._packages
 
 	@readonly
 	def PackageBodies(self) -> Dict[str, PackageBody]:
-		"""Returns a list of all package body declarations declared in this library."""
+		"""
+		Read-only property to access the dictionary of all package body declarations in this library (:attr:`_packageBodies`).
+
+		:returns: Dictionary of all package bodies, indexed by normalized identifier.
+		"""
 		return self._packageBodies
 
 	@readonly
@@ -2568,7 +2647,7 @@ class Library(ModelEntity, NamedEntityMixin, AllowBlackboxMixin):
 class Document(ModelEntity, DocumentedEntityMixin):
 	"""A ``Document`` represents a sourcefile. It contains *primary* and *secondary* design units."""
 
-	_path:                   Path                                #: path to the document. ``None`` if virtual document.
+	_path:                   Path                                #: Path to the document. ``None`` if in-memory document.
 	_vhdlVersion:            VHDLVersion                         #: VHDL version used for analyzing this source file.
 	_library:                Library                             #: VHDL library used for analyzing the source file's content into.
 	_designUnits:            List[DesignUnit]                    #: List of all design units defined in a document.
@@ -2593,6 +2672,15 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		library:       Nullable[Library] = None,
 		parent:        Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a VHDL document.
+
+		:param path:          Path to the document. ``None`` if in-memory document.
+		:param documentation: The documentation comment associated with this declaration.
+		:param vhdlVersion:   VHDL version used for analyzing this source file.
+		:param library:       VHDL library used for analyzing the source file's content into.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
@@ -2618,13 +2706,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add an entity to the document's lists of design units.
 
 		:param item:                Entity object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Entity`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Entity`.
 		:raises VHDLModelException: If entity name already exists in document.
 		"""
 		if not isinstance(item, Entity):
 			ex = TypeError(f"Parameter 'item' is not of type 'Entity'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2643,13 +2730,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add an architecture to the document's lists of design units.
 
 		:param item:                Architecture object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Architecture`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Architecture`.
 		:raises VHDLModelException: If architecture name already exists for the referenced entity name in document.
 		"""
 		if not isinstance(item, Architecture):
 			ex = TypeError(f"Parameter 'item' is not of type 'Architecture'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		entity = item._entity.Name
@@ -2675,13 +2761,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a package to the document's lists of design units.
 
 		:param item:                Package object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Package`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Package`.
 		:raises VHDLModelException: If package name already exists in document.
 		"""
 		if not isinstance(item, (Package, PackageInstantiation)):
 			ex = TypeError(f"Parameter 'item' is not of type 'Package' or 'PackageInstantiation'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2700,13 +2785,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a package body to the document's lists of design units.
 
 		:param item:                Package body object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.PackageBody`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.PackageBody`.
 		:raises VHDLModelException: If package body name already exists in document.
 		"""
 		if not isinstance(item, PackageBody):
 			ex = TypeError(f"Parameter 'item' is not of type 'PackageBody'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2725,13 +2809,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a context to the document's lists of design units.
 
 		:param item:                Context object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Context`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Context`.
 		:raises VHDLModelException: If context name already exists in document.
 		"""
 		if not isinstance(item, Context):
 			ex = TypeError(f"Parameter 'item' is not of type 'Context'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2750,13 +2833,12 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a configuration to the document's lists of design units.
 
 		:param item:                Configuration object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.Configuration`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.Configuration`.
 		:raises VHDLModelException: If configuration name already exists in document.
 		"""
 		if not isinstance(item, Configuration):
 			ex = TypeError(f"Parameter 'item' is not of type 'Configuration'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2773,8 +2855,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationUnit(self, item: VerificationUnit) -> None:
 		if not isinstance(item, VerificationUnit):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item._normalizedIdentifier
@@ -2790,8 +2871,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationProperty(self, item: VerificationProperty) -> None:
 		if not isinstance(item, VerificationProperty):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationProperty'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item.NormalizedIdentifier
@@ -2807,8 +2887,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	def _AddVerificationMode(self, item: VerificationMode) -> None:
 		if not isinstance(item, VerificationMode):
 			ex = TypeError(f"Parameter 'item' is not of type 'VerificationMode'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		identifier = item.NormalizedIdentifier
@@ -2826,14 +2905,13 @@ class Document(ModelEntity, DocumentedEntityMixin):
 		Add a design unit to the document's lists of design units.
 
 		:param item:                Configuration object to be added to the document.
-		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnits.DesignUnit`.
-		:raises ValueError:         If parameter 'item' is an unknown :class:`~pyVHDLModel.DesignUnits.DesignUnit`.
+		:raises TypeError:          If parameter 'item' is not of type :class:`~pyVHDLModel.DesignUnit.DesignUnit`.
+		:raises ValueError:         If parameter 'item' is an unknown :class:`~pyVHDLModel.DesignUnit.DesignUnit`.
 		:raises VHDLModelException: If configuration name already exists in document.
 		"""
 		if not isinstance(item, DesignUnit):
 			ex = TypeError(f"Parameter 'item' is not of type 'DesignUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 		if isinstance(item, Entity):
@@ -2856,8 +2934,7 @@ class Document(ModelEntity, DocumentedEntityMixin):
 			self._AddVerificationMode(item)
 		else:
 			ex = ValueError(f"Parameter 'item' is an unknown 'DesignUnit'.")
-			if version_info >= (3, 11):  # pragma: no cover
-				ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
+			ex.add_note(f"Got type '{getFullyQualifiedName(item)}'.")
 			raise ex
 
 	@readonly
@@ -2906,81 +2983,82 @@ class Document(ModelEntity, DocumentedEntityMixin):
 	@readonly
 	def Contexts(self) -> Dict[str, Context]:
 		"""
-		Read-only property to access a list of all context declarations found in this document (:attr:`_contexts`).
+		Read-only property to access the dictionary of all context declarations in this document (:attr:`_contexts`).
 
-		:returns: List of all contexts.
+		:returns: Dictionary of all contexts, indexed by normalized identifier.
 		"""
 		return self._contexts
 
 	@readonly
 	def Configurations(self) -> Dict[str, Configuration]:
 		"""
-		Read-only property to access a list of all configuration declarations found in this document (:attr:`_configurations`).
+		Read-only property to access the dictionary of all configuration declarations in this document (:attr:`_configurations`).
 
-		:returns: List of all configurations.
+		:returns: Dictionary of all configurations, indexed by normalized identifier.
 		"""
 		return self._configurations
 
 	@readonly
 	def Entities(self) -> Dict[str, Entity]:
 		"""
-		Read-only property to access a list of all entity declarations found in this document (:attr:`_entities`).
+		Read-only property to access the dictionary of all entity declarations in this document (:attr:`_entities`).
 
-		:returns: List of all entities.
+		:returns: Dictionary of all entities, indexed by normalized identifier.
 		"""
 		return self._entities
 
 	@readonly
 	def Architectures(self) -> Dict[str, Dict[str, Architecture]]:
 		"""
-		Read-only property to access a list of all architecture declarations found in this document (:attr:`_architectures`).
+		Read-only property to access the dictionary of all architecture declarations in this document (:attr:`_architectures`).
 
-		:returns: List of all architectures.
+		:returns: Dictionary of all architectures, indexed by normalized entity identifier, then by normalized
+		          architecture identifier.
 		"""
 		return self._architectures
 
 	@readonly
 	def Packages(self) -> Dict[str, Package]:
 		"""
-		Read-only property to access a list of all package declarations found in this document (:attr:`_packages`).
+		Read-only property to access the dictionary of all package declarations in this document (:attr:`_packages`).
 
-		:returns: List of all packages.
+		:returns: Dictionary of all packages, indexed by normalized identifier.
 		"""
 		return self._packages
 
 	@readonly
 	def PackageBodies(self) -> Dict[str, PackageBody]:
 		"""
-		Read-only property to access a list of all package body declarations found in this document (:attr:`_packageBodies`).
+		Read-only property to access the dictionary of all package body declarations in this document (:attr:`_packageBodies`).
 
-		:returns: List of all package bodies.
+		:returns: Dictionary of all package bodies, indexed by normalized identifier.
 		"""
 		return self._packageBodies
 
 	@readonly
 	def VerificationUnits(self) -> Dict[str, VerificationUnit]:
 		"""
-		Read-only property to access a list of all verification unit declarations found in this document (:attr:`_verificationUnits`).
+		Read-only property to access the dictionary of all verification unit declarations in this document (:attr:`_verificationUnits`).
 
-		:returns: List of all verification units.
+		:returns: Dictionary of all verification units, indexed by normalized identifier.
 		"""
 		return self._verificationUnits
 
 	@readonly
 	def VerificationProperties(self) -> Dict[str, VerificationProperty]:
 		"""
-		Read-only property to access a list of all verification properties declarations found in this document (:attr:`_verificationProperties`).
+		Read-only property to access the dictionary of all verification property declarations in this document (:attr:`_verificationProperties`).
 
-		:returns: List of all verification properties.
+		:returns: Dictionary of all verification properties, indexed by normalized identifier.
 		"""
 		return self._verificationProperties
 
 	@readonly
 	def VerificationModes(self) -> Dict[str, VerificationMode]:
 		"""
-		Read-only property to access a list of all verification modes declarations found in this document (:attr:`_verificationModes`).
+		Read-only property to access the dictionary of all verification mode declarations in this document (:attr:`_verificationModes`).
 
-		:returns: List of all verification modes.
+		:returns: Dictionary of all verification mode declarations, indexed by normalized identifier.
 		"""
 		return self._verificationModes
 

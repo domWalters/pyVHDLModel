@@ -11,8 +11,7 @@
 #                                                                                                                      #
 # License:                                                                                                             #
 # ==================================================================================================================== #
-# Copyright 2017-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
-# Copyright 2016-2017 Patrick Lehmann - Dresden, Germany                                                               #
+# Copyright 2026-2026 Patrick Lehmann - Boetzingen, Germany                                                            #
 #                                                                                                                      #
 # Licensed under the Apache License, Version 2.0 (the "License");                                                      #
 # you may not use this file except in compliance with the License.                                                     #
@@ -29,53 +28,45 @@
 # SPDX-License-Identifier: Apache-2.0                                                                                  #
 # ==================================================================================================================== #
 #
+"""Tests for pyVHDLModel.Declaration."""
+from unittest import TestCase
 
-"""Shared construction helpers for the unit tests.
-
-Building a model object needs a symbol, a subtype and often a name, which every test module was
-re-declaring. Names are always passed explicitly - a helper that defaults one hides what a test
-actually builds.
-"""
-from typing import List, Type, TypeVar
-
-from pyVHDLModel.Name   import SimpleName
-from pyVHDLModel.Object import Signal, Variable
-from pyVHDLModel.Symbol import EntitySymbol, SignalSymbol, SimpleSubtypeSymbol, VariableSymbol
+from pyVHDLModel.Name        import SimpleName
+from pyVHDLModel.Symbol      import ConstrainedArraySubtypeSymbol, Symbol, PossibleReference
+from pyVHDLModel.Declaration import Alias
 
 
-_Warning = TypeVar("_Warning", bound=BaseException)
+if __name__ == "__main__":  # pragma: no cover
+	print("ERROR: you called a testcase declaration file as an executable module.")
+	print("Use: 'python -m unitest <testcase module>'")
+	exit(1)
 
 
-def _subtypeSymbol(name: str) -> SimpleSubtypeSymbol:
-	"""Reference to a subtype, for anything needing a subtype indication."""
-	return SimpleSubtypeSymbol(SimpleName(name))
+class Aliases(TestCase):
+	"""
+	Regression tests: Alias previously had no field at all for what's being aliased - only its own
+	identifier and documentation. ``alias b is s;`` lost the fact that ``b`` aliases ``s`` entirely.
 
+	Name is a Symbol (like every other cross-reference in the model), not a bare Name - see the
+	class docstring for why there is no single fixed PossibleReference value for it.
+	"""
 
-def _entitySymbol(name: str) -> EntitySymbol:
-	"""Reference to an entity, e.g. for an architecture."""
-	return EntitySymbol(SimpleName(name))
+	def test_WithoutSubtype(self) -> None:
+		"""``alias b is s;``"""
+		name = Symbol(SimpleName("s"), PossibleReference.PackageMember | PossibleReference.EnumLiteral)
+		alias = Alias("b", name)
 
+		self.assertEqual("b", alias.Identifier)
+		self.assertIs(name, alias.Name)
+		self.assertIsNone(alias.Subtype)
 
-def _signalSymbol(name: str) -> SignalSymbol:
-	"""Reference to a signal, e.g. as an assignment target."""
-	return SignalSymbol(SimpleName(name))
+	def test_WithSubtype(self) -> None:
+		"""``alias a : bit_vector(3 downto 0) is s(3 downto 0);`` - with an explicit subtype, the LRM
+		restricts this to referencing an object."""
+		name = Symbol(SimpleName("s"), PossibleReference.Object)
+		subtype = ConstrainedArraySubtypeSymbol(SimpleName("bit_vector"), [])
+		alias = Alias("a", name, subtype)
 
-
-def _variableSymbol(name: str) -> VariableSymbol:
-	"""Reference to a variable, e.g. as an assignment target."""
-	return VariableSymbol(SimpleName(name))
-
-
-def _signal(identifier: str, subtypeName: str) -> Signal:
-	"""A signal declaration."""
-	return Signal((identifier, ), _subtypeSymbol(subtypeName))
-
-
-def _variable(identifier: str, subtypeName: str) -> Variable:
-	"""A variable declaration."""
-	return Variable((identifier, ), _subtypeSymbol(subtypeName))
-
-
-def _warningsOfType(collector, warningType: Type[_Warning]) -> List[_Warning]:
-	"""The warnings of one type collected by a :class:`~pyTooling.Warning.WarningCollector`."""
-	return [warning for warning in collector if isinstance(warning, warningType)]
+		self.assertEqual("a", alias.Identifier)
+		self.assertIs(name, alias.Name)
+		self.assertIs(subtype, alias.Subtype)

@@ -34,7 +34,7 @@ This module contains parts of an abstract document language model for VHDL.
 
 Objects are constants, variables, signals and files.
 """
-from typing                import Iterable, Optional as Nullable
+from typing                import ClassVar, Iterable, Optional as Nullable
 
 from pyTooling.Decorators  import export, readonly
 from pyTooling.MetaClasses import ExtendedType
@@ -57,12 +57,30 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 
 	Objects are elements in the type and object graph, thus a reference to a vertex in that graph is stored in
 	:data:`__objectVertex`.
+
+	.. seealso::
+
+	   * :class:`Base constant <pyVHDLModel.Object.BaseConstant>`
+	   * :class:`Variable <pyVHDLModel.Object.Variable>`
+	   * :class:`Shared variable <pyVHDLModel.Object.SharedVariable>`
+	   * :class:`Signal <pyVHDLModel.Object.Signal>`
+	   * :class:`File <pyVHDLModel.Object.File>`
 	"""
 
-	_subtype:      Symbol
-	_objectVertex: Nullable[Vertex]
+	_objectKeyword: ClassVar[str] = "object"  #: The VHDL keyword introducing this object class.
+
+	_subtype:      Symbol            #: Reference to the object's subtype.
+	_objectVertex: Nullable[Vertex]  #: The vertex representing this object in the design's object graph.
 
 	def __init__(self, identifiers: Iterable[str], subtype: Symbol, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an object.
+
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the object's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		MultipleNamedEntityMixin.__init__(self, identifiers)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -74,6 +92,11 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> Symbol:
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
 
 	@readonly
@@ -87,6 +110,16 @@ class Obj(ModelEntity, MultipleNamedEntityMixin, DocumentedEntityMixin):
 		"""
 		return self._objectVertex
 
+	def __str__(self) -> str:
+		"""
+		Formats the object declaration.
+
+		**Format:** ``signal s1, s2 : bit``
+
+		:returns: Formatted object declaration.
+		"""
+		return f"{self._objectKeyword} {', '.join(self._identifiers)} : {self._subtype}"
+
 
 @export
 class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
@@ -95,17 +128,33 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 
 	The default expression is referenced by :data:`__defaultExpression`. If no default expression is present, this field
 	is ``None``.
+
+	.. seealso::
+
+	   * :class:`Constant <pyVHDLModel.Object.Constant>`
+	   * :class:`Variable <pyVHDLModel.Object.Variable>`
+	   * :class:`Signal <pyVHDLModel.Object.Signal>`
 	"""
 
-	_defaultExpression: Nullable[ExpressionUnion]
+	_defaultExpression: Nullable[ExpressionUnion]  #: The default value, or ``None`` if none was given.
 
 	def __init__(self, defaultExpression: Nullable[ExpressionUnion] = None) -> None:
+		"""
+		Initializes an object with a default expression.
+
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		"""
 		self._defaultExpression = defaultExpression
 		if defaultExpression is not None:
 			defaultExpression.Parent = self
 
 	@readonly
 	def DefaultExpression(self) -> Nullable[ExpressionUnion]:
+		"""
+		Read-only property to access the default expression (:attr:`_defaultExpression`).
+
+		:returns: The default expression, or ``None`` if not set.
+		"""
 		return self._defaultExpression
 
 
@@ -113,7 +162,14 @@ class WithDefaultExpressionMixin(metaclass=ExtendedType, mixin=True):
 class BaseConstant(Obj):
 	"""
 	Base-class for all constants (normal and deferred constants) in VHDL.
+
+	.. seealso::
+
+	   * :class:`Constant <pyVHDLModel.Object.Constant>`
+	   * :class:`Deferred constant <pyVHDLModel.Object.DeferredConstant>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "constant"
 
 
 @export
@@ -128,6 +184,11 @@ class Constant(BaseConstant, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      constant BITS : positive := 8;
+
+	.. seealso::
+
+	   * :class:`Generic constant interface item <pyVHDLModel.Interface.GenericConstantInterfaceItem>`
+	   * :class:`Parameter constant interface item <pyVHDLModel.Interface.ParameterConstantInterfaceItem>`
 	"""
 
 	def __init__(
@@ -138,6 +199,15 @@ class Constant(BaseConstant, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a constant.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 
@@ -156,7 +226,7 @@ class DeferredConstant(BaseConstant):
 
 	      constant BITS : positive;
 	"""
-	_constantReference: Nullable[Constant]
+	_constantReference: Nullable[Constant]  #: The full declaration, or ``None`` if unlinked.
 
 	def __init__(
 		self,
@@ -165,14 +235,26 @@ class DeferredConstant(BaseConstant):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a deferred constant.
+
+		:param identifiers:   A list of identifiers.
+		:param subtype:       Reference to the object's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
+
+		self._constantReference = None
 
 	@readonly
 	def ConstantReference(self) -> Nullable[Constant]:
-		return self._constantReference
+		"""
+		Read-only property to access the constant reference (:attr:`_constantReference`).
 
-	def __str__(self) -> str:
-		return f"constant {', '.join(self._identifiers)} : {self._subtype}"
+		:returns: The constant reference, or ``None`` if not set.
+		"""
+		return self._constantReference
 
 
 @export
@@ -187,7 +269,13 @@ class Variable(Obj, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      variable result : natural := 0;
+
+	.. seealso::
+
+	   * :class:`Parameter variable interface item <pyVHDLModel.Interface.ParameterVariableInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "variable"
 
 	def __init__(
 		self,
@@ -197,6 +285,15 @@ class Variable(Obj, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a variable.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 
@@ -208,6 +305,8 @@ class SharedVariable(Obj):
 
 	.. todo:: Shared variable object not implemented.
 	"""
+
+	_objectKeyword: ClassVar[str] = "shared variable"
 
 
 
@@ -223,7 +322,14 @@ class Signal(Obj, WithDefaultExpressionMixin):
 	   .. code-block:: VHDL
 
 	      signal counter : unsigned(7 downto 0) := '0';
+
+	.. seealso::
+
+	   * :class:`Port signal interface item <pyVHDLModel.Interface.PortSignalInterfaceItem>`
+	   * :class:`Parameter signal interface item <pyVHDLModel.Interface.ParameterSignalInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "signal"
 
 	def __init__(
 		self,
@@ -233,6 +339,15 @@ class Signal(Obj, WithDefaultExpressionMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes a signal.
+
+		:param identifiers:       A list of identifiers.
+		:param subtype:           Reference to the object's subtype.
+		:param defaultExpression: The default value, or ``None`` if none was given.
+		:param documentation:     The documentation comment associated with this declaration.
+		:param parent:            The parent model entity of this entity.
+		"""
 		super().__init__(identifiers, subtype, documentation, parent)
 		WithDefaultExpressionMixin.__init__(self, defaultExpression)
 
@@ -243,4 +358,10 @@ class File(Obj):
 	Represents a file.
 
 	.. todo:: File object not implemented.
+
+	.. seealso::
+
+	   * :class:`Parameter file interface item <pyVHDLModel.Interface.ParameterFileInterfaceItem>`
 	"""
+
+	_objectKeyword: ClassVar[str] = "file"

@@ -30,7 +30,7 @@
 # ==================================================================================================================== #
 #
 """This module contains base-classes for predefined library and package declarations."""
-from typing                 import Iterable
+from typing                 import Iterable, Optional as Nullable
 
 from pyTooling.Decorators   import export
 from pyTooling.MetaClasses  import ExtendedType
@@ -50,10 +50,22 @@ class PredefinedLibrary(Library):
 
 	* :class:`~pyVHDLModel.STD.Std`
 	* :class:`~pyVHDLModel.IEEE.Ieee`
+
+	.. seealso::
+
+	   * :class:`Ieee <pyVHDLModel.IEEE.Ieee>`
+	   * :class:`Std <pyVHDLModel.STD.Std>`
 	"""
 
-	def __init__(self, packages) -> None:
-		super().__init__(self.__class__.__name__, None)
+	def __init__(self, packages, documentation: Nullable[str] = None) -> None:
+		"""
+		Initializes a predefined library.
+
+		:param packages:      Dictionary of all packages defined in a library.
+		:param documentation: Documentation of this library, if the caller has one to supply. VHDL defines
+		                      none for a predefined library, so it is empty unless supplied from outside.
+		"""
+		super().__init__(self.__class__.__name__, documentation)
 
 		self.AddPackages(packages)
 
@@ -73,16 +85,21 @@ class PredefinedLibrary(Library):
 class PredefinedPackageMixin(metaclass=ExtendedType, mixin=True):
 	"""
 	A mixin-class for predefined VHDL packages and package bodies.
+
+	.. seealso::
+
+	   * :class:`Predefined package <pyVHDLModel.Predefined.PredefinedPackage>`
+	   * :class:`Predefined package body <pyVHDLModel.Predefined.PredefinedPackageBody>`
 	"""
 
-	def _AddLibraryClause(self, libraries: Iterable[str]):
+	def _AddLibraryClause(self, libraries: Iterable[str]) -> None:
 		symbols = [LibraryReferenceSymbol(SimpleName(libName)) for libName in libraries]
 		libraryClause = LibraryClause(symbols)
 
 		self._contextItems.append(libraryClause)
 		self._libraryReferences.append(libraryClause)
 
-	def _AddPackageClause(self, packages: Iterable[str]):
+	def _AddPackageClause(self, packages: Iterable[str]) -> None:
 		symbols = []
 		for qualifiedPackageName in packages:
 			libName, packName, members = qualifiedPackageName.split(".")
@@ -104,8 +121,16 @@ class PredefinedPackage(Package, PredefinedPackageMixin):
 	A base-class for predefined VHDL packages.
 	"""
 
-	def __init__(self) -> None:
-		super().__init__(self.__class__.__name__, parent=None)
+	def __init__(self, identifier: Nullable[str] = None) -> None:
+		"""
+		Initializes a predefined package.
+
+		By default the VHDL package name is the Python class name. Pass ``identifier`` when the two must
+		differ - e.g. when two vendor flavors of the same VHDL package need distinct Python classes.
+
+		:param identifier: The VHDL package name, or ``None`` to use the class name.
+		"""
+		super().__init__(self.__class__.__name__ if identifier is None else identifier)
 
 
 @export
@@ -114,6 +139,16 @@ class PredefinedPackageBody(PackageBody, PredefinedPackageMixin):
 	A base-class for predefined VHDL package bodies.
 	"""
 
-	def __init__(self) -> None:
-		packageSymbol = PackageSymbol(SimpleName(self.__class__.__name__[:-5]))
-		super().__init__(packageSymbol, parent=None)
+	def __init__(self, packageIdentifier: Nullable[str] = None) -> None:
+		"""
+		Initializes a predefined package body.
+
+		By default the VHDL package name is the Python class name with the trailing ``_Body`` removed.
+		Pass ``packageIdentifier`` when the two must differ.
+
+		:param packageIdentifier: The VHDL name of the package this body implements, or ``None`` to derive
+		                          it from the class name.
+		"""
+		identifier = self.__class__.__name__[:-5] if packageIdentifier is None else packageIdentifier
+		packageSymbol = PackageSymbol(SimpleName(identifier))
+		super().__init__(packageSymbol)

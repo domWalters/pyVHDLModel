@@ -43,27 +43,73 @@ from pyVHDLModel.Symbol   import Symbol
 
 @export
 class VHDLModelWarning(Warning):
+	"""
+	Base-class for all warnings raised by pyVHDLModel.
+
+	.. seealso::
+
+	   * :class:`Not implemented warning <pyVHDLModel.Exception.NotImplementedWarning>`
+	"""
 	pass
 
 
 @export
 class NotImplementedWarning(VHDLModelWarning):
+	"""
+	Raised when a language construct is recognised but not yet modelled.
+	"""
 	pass
 
 
 @export
 class VHDLModelCriticalWarning(Warning):
+	"""
+	Base-class for critical warnings that likely indicate a defect in the model or its input.
+
+	.. seealso::
+
+	   * :class:`Blackbox warning <pyVHDLModel.Exception.BlackboxWarning>`
+	"""
+	pass
+
+
+@export
+class DuplicateDeclarationWarning(VHDLModelCriticalWarning):
+	"""
+	Raised when two declarations in one declarative region share an identifier.
+
+	VHDL rejects this as *identifier already used for a declaration*. Overloadable declarations -
+	subprograms differing in signature - are not reported.
+	"""
 	pass
 
 
 @export
 class BlackboxWarning(VHDLModelCriticalWarning):
+	"""
+	Raised when a component could not be bound and is treated as a blackbox.
+	"""
 	pass
 
 
 @export
 class VHDLModelException(Exception):
-	"""Base-class for all exceptions (errors) raised by pyVHDLModel."""
+	"""
+	Base-class for all exceptions (errors) raised by pyVHDLModel.
+
+	.. seealso::
+
+	   * :class:`Library exists in design error <pyVHDLModel.Exception.LibraryExistsInDesignError>`
+	   * :class:`Registered to foreign design error <pyVHDLModel.Exception.LibraryRegisteredToForeignDesignError>`
+	   * :class:`Library not registered error <pyVHDLModel.Exception.LibraryNotRegisteredError>`
+	   * :class:`Entity exists in library error <pyVHDLModel.Exception.EntityExistsInLibraryError>`
+	   * :class:`Architecture exists in library error <pyVHDLModel.Exception.ArchitectureExistsInLibraryError>`
+	   * :class:`Package exists in library error <pyVHDLModel.Exception.PackageExistsInLibraryError>`
+	   * :class:`Package body exists error <pyVHDLModel.Exception.PackageBodyExistsError>`
+	   * :class:`Configuration exists in library error <pyVHDLModel.Exception.ConfigurationExistsInLibraryError>`
+	   * :class:`Context exists in library error <pyVHDLModel.Exception.ContextExistsInLibraryError>`
+	   * :class:`Referenced library not existing error <pyVHDLModel.Exception.ReferencedLibraryNotExistingError>`
+	"""
 
 
 @export
@@ -74,7 +120,7 @@ class LibraryExistsInDesignError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' already exists in design."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -103,7 +149,7 @@ class LibraryRegisteredToForeignDesignError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' already registered in design '{library.Parent}'."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -116,6 +162,11 @@ class LibraryRegisteredToForeignDesignError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 
@@ -127,7 +178,7 @@ class LibraryNotRegisteredError(VHDLModelException):
 	Message: :pycode:`f"Library '{library._identifier}' is not registered in the design."`
 	"""
 
-	_library: 'Library'
+	_library: 'Library'  #: The library involved in this error.
 
 	def __init__(self, library: 'Library') -> None:
 		"""
@@ -140,6 +191,11 @@ class LibraryNotRegisteredError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 
@@ -151,8 +207,8 @@ class EntityExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Entity '{entity._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_entity: 'Entity'
+	_library: 'Library'  #: The library involved in this error.
+	_entity: 'Entity'    #: The entity involved in this error.
 
 	def __init__(self, entity: 'Entity', library: 'Library') -> None:
 		"""
@@ -167,10 +223,20 @@ class EntityExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Entity(self) -> 'Entity':
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 
@@ -182,9 +248,9 @@ class ArchitectureExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Architecture '{architecture._identifier}' for entity '{entity._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_entity: 'Entity'
-	_architecture: 'Architecture'
+	_library: 'Library'            #: The library involved in this error.
+	_entity: 'Entity'              #: The entity involved in this error.
+	_architecture: 'Architecture'  #: The architecture involved in this error.
 
 	def __init__(self, architecture: 'Architecture', entity: 'Entity', library: 'Library') -> None:
 		"""
@@ -201,14 +267,29 @@ class ArchitectureExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Entity(self) -> 'Entity':
+		"""
+		Read-only property to access the entity (:attr:`_entity`).
+
+		:returns: The entity.
+		"""
 		return self._entity
 
 	@readonly
 	def Architecture(self) -> 'Architecture':
+		"""
+		Read-only property to access the architecture (:attr:`_architecture`).
+
+		:returns: The architecture.
+		"""
 		return self._architecture
 
 
@@ -220,8 +301,8 @@ class PackageExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Package '{package._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_package: 'Package'
+	_library: 'Library'  #: The library involved in this error.
+	_package: 'Package'  #: The package involved in this error.
 
 	def __init__(self, package: 'Package', library: 'Library') -> None:
 		"""
@@ -236,10 +317,20 @@ class PackageExistsInLibraryError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
 	@readonly
 	def Package(self) -> 'Package':
+		"""
+		Read-only property to access the package (:attr:`_package`).
+
+		:returns: The package.
+		"""
 		return self._package
 
 
@@ -251,8 +342,8 @@ class PackageBodyExistsError(VHDLModelException):
 	Message: :pycode:`f"Package body '{packageBody._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_packageBody: 'PackageBody'
+	_library: 'Library'          #: The library involved in this error.
+	_packageBody: 'PackageBody'  #: The package body involved in this error.
 
 	def __init__(self, packageBody: 'PackageBody', library: 'Library') -> None:
 		"""
@@ -267,10 +358,20 @@ class PackageBodyExistsError(VHDLModelException):
 
 	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
-	@property
+	@readonly
 	def PackageBody(self) -> 'PackageBody':
+		"""
+		Read-only property to access the package body (:attr:`_packageBody`).
+
+		:returns: The package body.
+		"""
 		return self._packageBody
 
 
@@ -282,8 +383,8 @@ class ConfigurationExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Configuration '{configuration._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_configuration: 'Configuration'
+	_library: 'Library'              #: The library involved in this error.
+	_configuration: 'Configuration'  #: The configuration involved in this error.
 
 	def __init__(self, configuration: 'Configuration', library: 'Library') -> None:
 		"""
@@ -296,12 +397,22 @@ class ConfigurationExistsInLibraryError(VHDLModelException):
 		self._library = library
 		self._configuration = configuration
 
-	@property
+	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
-	@property
+	@readonly
 	def Configuration(self) -> 'Configuration':
+		"""
+		Read-only property to access the configuration (:attr:`_configuration`).
+
+		:returns: The configuration.
+		"""
 		return self._configuration
 
 
@@ -313,8 +424,8 @@ class ContextExistsInLibraryError(VHDLModelException):
 	Message: :pycode:`f"Context '{context._identifier}' already exists in library '{library._identifier}'."`
 	"""
 
-	_library: 'Library'
-	_context: 'Context'
+	_library: 'Library'  #: The library involved in this error.
+	_context: 'Context'  #: The context involved in this error.
 
 	def __init__(self, context: 'Context', library: 'Library') -> None:
 		"""
@@ -327,12 +438,22 @@ class ContextExistsInLibraryError(VHDLModelException):
 		self._library = library
 		self._context = context
 
-	@property
+	@readonly
 	def Library(self) -> 'Library':
+		"""
+		Read-only property to access the library (:attr:`_library`).
+
+		:returns: The library.
+		"""
 		return self._library
 
-	@property
+	@readonly
 	def Context(self) -> 'Context':
+		"""
+		Read-only property to access the context (:attr:`_context`).
+
+		:returns: The context.
+		"""
 		return self._context
 
 
@@ -344,8 +465,8 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 	Message: :pycode:`f"Library '{librarySymbol.Name._identifier}' referenced by library clause of context '{context._identifier}' doesn't exist in design."`
 	"""
 
-	_librarySymbol: Symbol
-	_context: 'Context'
+	_librarySymbol: Symbol  #: The library symbol that could not be resolved.
+	_context: 'Context'     #: The context involved in this error.
 
 	def __init__(self, context: 'Context', librarySymbol: Symbol) -> None:
 		"""
@@ -358,10 +479,20 @@ class ReferencedLibraryNotExistingError(VHDLModelException):
 		self._librarySymbol = librarySymbol
 		self._context = context
 
-	@property
+	@readonly
 	def LibrarySymbol(self) -> Symbol:
+		"""
+		Read-only property to access the library symbol (:attr:`_librarySymbol`).
+
+		:returns: The library symbol.
+		"""
 		return self._librarySymbol
 
-	@property
+	@readonly
 	def Context(self) -> 'Context':
+		"""
+		Read-only property to access the context (:attr:`_context`).
+
+		:returns: The context.
+		"""
 		return self._context

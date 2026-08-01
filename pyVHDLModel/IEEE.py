@@ -78,15 +78,15 @@ class Ieee(PredefinedLibrary):
 
 	* Synopsys packages
 
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_arith`
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_misc`
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_signed`
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_textio`
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_unsigned`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_Arith`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_Misc`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_Signed`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_TextIO`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_Unsigned`
 
 	* Mentor Graphics packages
 
-	  * :class:`~pyVHDLModel.IEEE.Std_logic_arith`
+	  * :class:`~pyVHDLModel.IEEE.Std_Logic_Arith`
 
 	* VITAL packages
 
@@ -100,9 +100,15 @@ class Ieee(PredefinedLibrary):
 	     * Library :class:`~pyVHDLModel.STD.Std`
 	"""
 
-	_flavor: IEEEFlavor
+	_flavor: IEEEFlavor  #: The flavor of the ``ieee`` library this instance provides.
 
 	def __init__(self, flavor: Nullable[IEEEFlavor] = None) -> None:
+		"""
+		Initializes the ``ieee`` library.
+
+		:param flavor:               The flavor of the ``ieee`` library this instance provides.
+		:raises VHDLModelException: If the given IEEE library flavor is unknown.
+		"""
 		super().__init__(PACKAGES)
 
 		self._flavor = IEEEFlavor.IEEE
@@ -122,6 +128,11 @@ class Ieee(PredefinedLibrary):
 
 	@readonly
 	def Flavor(self) -> IEEEFlavor:
+		"""
+		Read-only property to access the flavor (:attr:`_flavor`).
+
+		:returns: The flavor.
+		"""
 		return self._flavor
 
 	def LoadSynopsysPackages(self) -> None:
@@ -164,6 +175,9 @@ class Math_Complex(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``math_complex`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("work.math_real.all",))
@@ -176,6 +190,9 @@ class Math_Complex_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``math_complex`` package body.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("work.math_real.all",))
@@ -193,6 +210,9 @@ class Std_Logic_1164(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_1164`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -240,6 +260,9 @@ class Std_Logic_TextIO(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_textio`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -254,6 +277,9 @@ class Numeric_Bit(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``numeric_bit`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -280,6 +306,9 @@ class Numeric_Bit_Unsigned_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``numeric_bit_unsigned`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -298,6 +327,9 @@ class Numeric_Std(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``numeric_std`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -337,6 +369,9 @@ class Numeric_Std_Unsigned(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``numeric_std_unsigned`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -350,6 +385,9 @@ class Numeric_Std_Unsigned_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``numeric_std_unsigned`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -370,6 +408,9 @@ class Fixed_Generic_Pkg(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``fixed_generic_pkg`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -386,6 +427,9 @@ class Fixed_Generic_Pkg_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``fixed_generic_pkg`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -398,6 +442,9 @@ class Fixed_Pkg(PredefinedPackage):
 	Predefined package ``ieee.fixed_pkg``.
 	"""
 	def __init__(self) -> None:
+		"""
+		Initializes the ``fixed_pkg`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -410,6 +457,9 @@ class Float_Generic_Pkg(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``float_generic_pkg`` package.
+		"""
 		super().__init__()
 
 		self._AddPackageClause(("STD.TEXTIO.all", ))
@@ -433,6 +483,9 @@ class Float_Pkg(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``float_pkg`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -456,13 +509,16 @@ PACKAGES = (
 
 
 @export
-class Std_Logic_Arith(PredefinedPackage):
+class Std_Logic_Arith_MentorGraphics(PredefinedPackage):
 	"""
 	Predefined Mentor Graphics package ``ieee.std_logic_arith``.
 	"""
 
 	def __init__(self) -> None:
-		super().__init__()
+		"""
+		Initializes the ``std_logic_arith`` package.
+		"""
+		super().__init__("Std_Logic_Arith")
 
 		self._AddLibraryClause(("IEEE", ))
 
@@ -471,14 +527,20 @@ class Std_Logic_Arith(PredefinedPackage):
 
 
 @export
-class Std_Logic_Arith_Body(PredefinedPackageBody):
+class Std_Logic_Arith_Body_MentorGraphics(PredefinedPackageBody):
 	"""
 	Predefined package body of Mentor Graphics package ``ieee.std_logic_arith``.
 	"""
 
+	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_arith`` package body.
+		"""
+		super().__init__("Std_Logic_Arith")
+
 
 MENTOR_GRAPHICS_PACKAGES = (
-	(Std_Logic_Arith, Std_Logic_Arith_Body),
+	(Std_Logic_Arith_MentorGraphics, Std_Logic_Arith_Body_MentorGraphics),
 )
 
 
@@ -489,6 +551,9 @@ class VITAL_Timing(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Timing`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -502,6 +567,9 @@ class VITAL_Timing_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Timing`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("STD", ))
@@ -515,6 +583,9 @@ class VITAL_Primitives(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Primitives`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -529,6 +600,9 @@ class VITAL_Primitives_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Primitives`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("STD", ))
@@ -542,6 +616,9 @@ class VITAL_Memory(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Memory`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -560,6 +637,9 @@ class VITAL_Memory_Body(PredefinedPackageBody):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``VITAL_Memory`` package body.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -579,13 +659,16 @@ VITAL_PACKAGES = (
 
 
 @export
-class Std_Logic_Arith(PredefinedPackage):
+class Std_Logic_Arith_Synopsys(PredefinedPackage):
 	"""
 	Predefined Synopsys package ``ieee.std_logic_arith``.
 	"""
 
 	def __init__(self) -> None:
-		super().__init__()
+		"""
+		Initializes the ``std_logic_arith`` package.
+		"""
+		super().__init__("Std_Logic_Arith")
 
 		self._AddLibraryClause(("IEEE", ))
 		self._AddPackageClause(("IEEE.std_logic_1164.all", ))
@@ -598,6 +681,9 @@ class Std_Logic_Misc(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_misc`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -618,6 +704,9 @@ class Std_Logic_Signed(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_signed`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -626,13 +715,16 @@ class Std_Logic_Signed(PredefinedPackage):
 
 
 @export
-class Std_Logic_TextIO(PredefinedPackage):
+class Std_Logic_TextIO_Synopsys(PredefinedPackage):
 	"""
 	Predefined Synopsys package ``ieee.std_logic_textio``.
 	"""
 
 	def __init__(self) -> None:
-		super().__init__()
+		"""
+		Initializes the ``std_logic_textio`` package.
+		"""
+		super().__init__("Std_Logic_TextIO")
 
 		self._AddPackageClause(("STD.textio.all", ))
 
@@ -647,6 +739,9 @@ class Std_Logic_Unsigned(PredefinedPackage):
 	"""
 
 	def __init__(self) -> None:
+		"""
+		Initializes the ``std_logic_unsigned`` package.
+		"""
 		super().__init__()
 
 		self._AddLibraryClause(("IEEE", ))
@@ -655,9 +750,9 @@ class Std_Logic_Unsigned(PredefinedPackage):
 
 
 SYNOPSYS_PACKAGES = (
-	(Std_Logic_Arith,    None),
+	(Std_Logic_Arith_Synopsys,    None),
 	(Std_Logic_Misc,     Std_Logic_Misc_Body),
 	(Std_Logic_Signed,   None),
-	(Std_Logic_TextIO,   None),
+	(Std_Logic_TextIO_Synopsys,   None),
 	(Std_Logic_Unsigned, None),
 )

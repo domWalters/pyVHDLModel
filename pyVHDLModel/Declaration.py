@@ -42,7 +42,7 @@ from pyTooling.Decorators   import export, readonly
 from pyVHDLModel.Base       import ModelEntity, NamedEntityMixin, DocumentedEntityMixin
 from pyVHDLModel.Expression import BaseExpression, QualifiedExpression, FunctionCall, TypeConversion, Literal
 from pyVHDLModel.Name       import Name
-from pyVHDLModel.Symbol     import Symbol
+from pyVHDLModel.Symbol     import Symbol, SubtypeSymbol
 
 
 
@@ -96,7 +96,7 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 	      attribute TotalBits : natural;
 	"""
 
-	_subtype: Symbol
+	_subtype: Symbol  #: Reference to the attribute's subtype.
 
 	def __init__(
 		self,
@@ -105,6 +105,14 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an attribute declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param subtype:       Reference to the attribute's subtype.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
@@ -114,7 +122,22 @@ class Attribute(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
 
 	@readonly
 	def Subtype(self) -> None:
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
+
+	def __str__(self) -> str:
+		"""
+		Formats the attribute declaration.
+
+		**Format:** ``attribute myAttribute: bit``
+
+		:returns: Formatted attribute declaration.
+		"""
+		return f"attribute {self._identifier}: {self._subtype}"
 
 
 @export
@@ -129,10 +152,10 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 	      attribute TotalBits of BusType : subtype is 32;
 	"""
 
-	_identifiers: List[Name]
-	_attribute: Name
-	_entityClass: EntityClass
-	_expression: ExpressionUnion
+	_identifiers: List[Name]      #: List of all names the attribute is specified for.
+	_attribute: Name              #: Reference to the specified attribute.
+	_entityClass: EntityClass     #: The entity class the named items belong to.
+	_expression: ExpressionUnion  #: The value assigned to the attribute.
 
 	def __init__(
 		self,
@@ -143,6 +166,16 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 		documentation: Nullable[str] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
+		"""
+		Initializes an attribute specification.
+
+		:param identifiers:   List of all names the attribute is specified for.
+		:param attribute:     Reference to the specified attribute.
+		:param entityClass:   The entity class the named items belong to.
+		:param expression:    The value assigned to the attribute.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 		DocumentedEntityMixin.__init__(self, documentation)
 
@@ -161,30 +194,126 @@ class AttributeSpecification(ModelEntity, DocumentedEntityMixin):
 
 	@readonly
 	def Identifiers(self) -> List[Name]:
+		"""
+		Read-only property to access the identifiers (:attr:`_identifiers`).
+
+		:returns: List of identifiers.
+		"""
 		return self._identifiers
 
 	@readonly
 	def Attribute(self) -> Name:
+		"""
+		Read-only property to access the attribute (:attr:`_attribute`).
+
+		:returns: The attribute.
+		"""
 		return self._attribute
 
 	@readonly
 	def EntityClass(self) -> EntityClass:
+		"""
+		Read-only property to access the entity class (:attr:`_entityClass`).
+
+		:returns: The entity class.
+		"""
 		return self._entityClass
 
 	@readonly
 	def Expression(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 
 # TODO: move somewhere else
 @export
 class Alias(ModelEntity, NamedEntityMixin, DocumentedEntityMixin):
-	def __init__(self, identifier: str, documentation: Nullable[str] = None, parent: Nullable[ModelEntity] = None) -> None:
-		"""
-		Initializes underlying ``BaseType``.
+	"""
+	Represents an alias declaration.
 
-		:param identifier: Name of the type.
+	:attr:`Name` is a :class:`~pyVHDLModel.Symbol.Symbol` - like every other cross-reference in this
+	model - rather than a bare :class:`~pyVHDLModel.Name.Name`, so it participates in the usual
+	resolve-later mechanism (:attr:`~pyVHDLModel.Symbol.Symbol.Reference` /
+	:attr:`~pyVHDLModel.Symbol.Symbol.IsResolved`). Unlike ``PackageReferenceSymbol`` and similar,
+	there is no single fixed :class:`~pyVHDLModel.Symbol.PossibleReference` value that always fits: an
+	alias without a subtype indication can refer to almost anything nameable (an object, a type, a
+	subprogram, a literal, ...), while an alias *with* a subtype indication can - per the LRM - only
+	ever refer to an object (a constant, variable, signal, or file); the ``possibleReferences`` passed
+	to the ``Symbol`` should reflect whichever case applies.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      alias a : bit_vector(3 downto 0) is s(3 downto 0);
+	      --        ^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^
+	      --        optional Subtype           Name
+
+	      alias b is s;
+	      --          ^
+	      --          Name
+	"""
+
+	_name:    Symbol                   #: Reference to the name being aliased.
+	_subtype: Nullable[SubtypeSymbol]  #: Reference to the alias' subtype, or ``None`` if none was given.
+
+	def __init__(
+		self,
+		identifier:    str,
+		name:          Symbol,
+		subtype:       Nullable[SubtypeSymbol] = None,
+		documentation: Nullable[str] =            None,
+		parent:        Nullable[ModelEntity] =    None
+	) -> None:
+		"""
+		Initializes an alias declaration.
+
+		:param identifier:    The identifier of a model entity.
+		:param name:          Reference to the name being aliased.
+		:param subtype:       Reference to the alias' subtype, or ``None`` if none was given.
+		:param documentation: The documentation comment associated with this declaration.
+		:param parent:        The parent model entity of this entity.
 		"""
 		super().__init__(parent)
 		NamedEntityMixin.__init__(self, identifier)
 		DocumentedEntityMixin.__init__(self, documentation)
+
+		self._name = name
+		name.Parent = self
+
+		self._subtype = subtype
+		if subtype is not None:
+			subtype.Parent = self
+
+	@readonly
+	def Name(self) -> Symbol:
+		"""
+		Read-only property to access the name (:attr:`_name`).
+
+		:returns: The name.
+		"""
+		return self._name
+
+	@readonly
+	def Subtype(self) -> Nullable[SubtypeSymbol]:
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype, or ``None`` if not set.
+		"""
+		return self._subtype
+
+	def __str__(self) -> str:
+		"""
+		Formats the alias declaration.
+
+		**Format:** ``alias myAlias : bit is target``, or without the subtype when none was given
+
+		:returns: Formatted alias declaration.
+		"""
+		subtype = f" : {self._subtype}" if self._subtype is not None else ""
+		return f"alias {self._identifier}{subtype} is {self._name}"

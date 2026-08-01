@@ -40,7 +40,7 @@ from typing               import Tuple, List, Iterable, Union, ClassVar, Optiona
 from pyTooling.Decorators import export, readonly
 
 from pyVHDLModel.Base     import ModelEntity, Direction, Range
-from pyVHDLModel.Symbol   import Symbol
+from pyVHDLModel.Symbol   import Symbol, SubtypeSymbol
 
 
 ExpressionUnion = Union[
@@ -55,150 +55,437 @@ ExpressionUnion = Union[
 
 @export
 class BaseExpression(ModelEntity):
-	"""A ``BaseExpression`` is a base-class for all expressions."""
+	"""
+	Represents the base-class of all expressions.
+
+	.. seealso::
+
+	   * :class:`Literal <pyVHDLModel.Expression.Literal>`
+	   * :class:`Unary expression <pyVHDLModel.Expression.UnaryExpression>`
+	   * :class:`Binary expression <pyVHDLModel.Expression.BinaryExpression>`
+	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
+	   * :class:`Ternary expression <pyVHDLModel.Expression.TernaryExpression>`
+	   * :class:`Function call <pyVHDLModel.Expression.FunctionCall>`
+	   * :class:`Allocation <pyVHDLModel.Expression.Allocation>`
+	   * :class:`Aggregate <pyVHDLModel.Expression.Aggregate>`
+	"""
 
 
 @export
 class Literal(BaseExpression):
-	"""A ``Literal`` is a base-class for all literals."""
+	"""
+	Represents the base-class of all literals.
+
+	A literal is an expression denoting a value written directly in the source.
+
+	.. seealso::
+
+	   * :class:`Null literal <pyVHDLModel.Expression.NullLiteral>`
+	   * :class:`Enumeration literal <pyVHDLModel.Expression.EnumerationLiteral>`
+	   * :class:`Numeric literal <pyVHDLModel.Expression.NumericLiteral>`
+	   * :class:`Character literal <pyVHDLModel.Expression.CharacterLiteral>`
+	   * :class:`String literal <pyVHDLModel.Expression.StringLiteral>`
+	   * :class:`Bit string literal <pyVHDLModel.Expression.BitStringLiteral>`
+	"""
 
 
 @export
 class NullLiteral(Literal):
+	"""
+	Represents a ``null`` literal.
+
+	A null literal denotes the null value of an access type.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      p := null;
+	      --   ^^^^    <- the literal
+	"""
 	def __str__(self) -> str:
+		"""
+		Formats the null literal.
+
+		**Format:** ``null``
+
+		:returns: Formatted null literal.
+		"""
 		return "null"
 
 
 @export
 class EnumerationLiteral(Literal):
-	_value: str
+	"""
+	Represents an enumeration literal.
+
+	The literal's name is available as :data:`Value`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      st <= Idle;
+	      --    ^^^^    <- Value
+	"""
+	_value: str  #: The enumeration literal's name.
 
 	def __init__(self, value: str, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an enumeration literal.
+
+		:param value:  The enumeration literal's name.
+		:param parent: The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._value = value
 
 	@readonly
 	def Value(self) -> str:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the enumeration literal.
+
+		**Format:** ``idle``
+
+		:returns: Formatted enumeration literal.
+		"""
 		return self._value
 
 
 @export
 class NumericLiteral(Literal):
-	"""A ``NumericLiteral`` is a base-class for all numeric literals."""
+	"""
+	Represents the base-class of all numeric literals.
+
+	Integer, floating-point and physical literals are numeric.
+
+	.. seealso::
+
+	   * :class:`Integer literal <pyVHDLModel.Expression.IntegerLiteral>`
+	   * :class:`Floating point literal <pyVHDLModel.Expression.FloatingPointLiteral>`
+	   * :class:`Physical literal <pyVHDLModel.Expression.PhysicalLiteral>`
+	"""
 
 
 @export
 class IntegerLiteral(NumericLiteral):
-	_value: int
+	"""
+	Represents an integer literal.
+
+	The literal's value is available as :data:`Value`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := a + 42;
+	      --         ^^    <- Value
+	"""
+	_value: int  #: The literal's integer value.
 
 	def __init__(self, value: int) -> None:
+		"""
+		Initializes an integer literal.
+
+		:param value: The literal's integer value.
+		"""
 		super().__init__()
 		self._value = value
 
 	@readonly
 	def Value(self) -> int:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the integer literal.
+
+		**Format:** ``42``
+
+		:returns: Formatted integer literal.
+		"""
 		return str(self._value)
 
 
 @export
 class FloatingPointLiteral(NumericLiteral):
-	_value: float
+	"""
+	Represents a floating-point literal.
+
+	The literal's value is available as :data:`Value`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      r <= 3.14;
+	      --   ^^^^    <- Value
+	"""
+	_value: float  #: The literal's floating-point value.
 
 	def __init__(self, value: float) -> None:
+		"""
+		Initializes a floating-point literal.
+
+		:param value: The literal's floating-point value.
+		"""
 		super().__init__()
 		self._value = value
 
 	@readonly
 	def Value(self) -> float:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the floating-point literal.
+
+		**Format:** ``3.5``
+
+		:returns: Formatted floating-point literal.
+		"""
 		return str(self._value)
 
 
 @export
 class PhysicalLiteral(NumericLiteral):
-	_unitName: str
+	"""
+	Represents the base-class of all physical literals.
+
+	A physical literal combines a numeric value with a unit name (:data:`UnitName`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      t <= 10 ns;
+	      --   ^^       <- the value
+	      --      ^^    <- UnitName
+
+	.. seealso::
+
+	   * :class:`Physical integer literal <pyVHDLModel.Expression.PhysicalIntegerLiteral>`
+	   * :class:`Physical floating literal <pyVHDLModel.Expression.PhysicalFloatingLiteral>`
+	"""
+	_unitName: str  #: The name of the physical unit the value is given in.
 
 	def __init__(self, unitName: str) -> None:
+		"""
+		Initializes a physical literal.
+
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__()
 		self._unitName = unitName
 
 	@readonly
 	def UnitName(self) -> str:
+		"""
+		Read-only property to access the unit name (:attr:`_unitName`).
+
+		:returns: The unit name.
+		"""
 		return self._unitName
 
 	def __str__(self) -> str:
+		"""
+		Formats the physical literal.
+
+		**Format:** ``10 ns``
+
+		:returns: Formatted physical literal.
+		"""
 		return f"{self._value} {self._unitName}"
 
 
 @export
 class PhysicalIntegerLiteral(PhysicalLiteral):
-	_value: int
+	"""
+	Represents a physical literal with an integer value.
+
+	Value (:data:`Value`) and unit name (:data:`UnitName`) are available separately.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      t <= 10 ns;
+	      --   ^^       <- Value
+	      --      ^^    <- UnitName
+	"""
+	_value: int  #: The literal's integer value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: int, unitName: str) -> None:
+		"""
+		Initializes a physical literal with an integer value.
+
+		:param value:    The literal's integer value, in units of :attr:`_unitName`.
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__(unitName)
 		self._value = value
 
 	@readonly
 	def Value(self) -> int:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 
 @export
 class PhysicalFloatingLiteral(PhysicalLiteral):
-	_value: float
+	"""
+	Represents a physical literal with a floating-point value.
+
+	Value (:data:`Value`) and unit name (:data:`UnitName`) are available separately.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      t <= 1.5 ns;
+	      --   ^^^       <- Value
+	      --       ^^    <- UnitName
+	"""
+	_value: float  #: The literal's floating-point value, in units of :attr:`_unitName`.
 
 	def __init__(self, value: float, unitName: str) -> None:
+		"""
+		Initializes a physical literal with a floating-point value.
+
+		:param value:    The literal's floating-point value, in units of :attr:`_unitName`.
+		:param unitName: The name of the physical unit the value is given in.
+		"""
 		super().__init__(unitName)
 		self._value = value
 
 	@readonly
 	def Value(self) -> float:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 
 @export
 class CharacterLiteral(Literal):
-	_value: str
+	"""
+	Represents a character literal.
+
+	The literal's character is available as :data:`Value`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      ch <= 'a';
+	      --    ^^^    <- Value
+	"""
+	_value: str  #: The literal's character value.
 
 	def __init__(self, value: str) -> None:
+		"""
+		Initializes a character literal.
+
+		:param value: The literal's character value.
+		"""
 		super().__init__()
 		self._value = value
 
 	@readonly
 	def Value(self) -> str:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the character literal.
+
+		**Format:** ``a``
+
+		:returns: Formatted character literal.
+		"""
 		return str(self._value)
 
 
 @export
 class StringLiteral(Literal):
-	_value: str
+	"""
+	Represents a string literal.
+
+	The literal's text is available as :data:`Value`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      txt <= "text";
+	      --     ^^^^^^    <- Value
+	"""
+	_value: str  #: The literal's string value, without the enclosing double quotes.
 
 	def __init__(self, value: str) -> None:
+		"""
+		Initializes a string literal.
+
+		:param value: The literal's string value, without the enclosing double quotes.
+		"""
 		super().__init__()
 		self._value = value
 
 	@readonly
 	def Value(self) -> str:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	def __str__(self) -> str:
+		"""
+		Formats the string literal.
+
+		**Format:** ``"hello"``
+
+		:returns: Formatted string literal.
+		"""
 		return "\"" + self._value + "\""
 
 
 @export
 class BitStringBase(Flag):
+	"""
+	Represents the base of a bit string literal: binary, octal, decimal or hexadecimal.
+	"""
 	NoBase = 0
 	Binary = 2
 	Octal = 8
@@ -210,44 +497,107 @@ class BitStringBase(Flag):
 
 @export
 class BitStringLiteral(Literal):
-	# _base:  ClassVar[BitStringBase]
-	_value:       str
-	_binaryValue: str
-	_bits:        int
-	_length:      Nullable[int]
-	_signed:      Nullable[bool]
+	"""
+	Represents the base-class of all bit string literals.
 
-	def __init__(self, value: str, length: Nullable[int] = None, signed: Nullable[bool] = None) -> None:
+	Besides the literal as written (:data:`Value`), the bits are available in binary form
+	(:data:`BinaryValue`, :data:`Bits`), together with the literal's length (:data:`Length`) and
+	whether it is signed (:data:`IsSigned`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := b"10100000";
+	      --     ^^^^^^^^^^^    <- Value
+
+	.. seealso::
+
+	   * :class:`Binary bit string literal <pyVHDLModel.Expression.BinaryBitStringLiteral>`
+	   * :class:`Octal bit string literal <pyVHDLModel.Expression.OctalBitStringLiteral>`
+	   * :class:`Decimal bit string literal <pyVHDLModel.Expression.DecimalBitStringLiteral>`
+	   * :class:`Hexadecimal bit string literal <pyVHDLModel.Expression.HexadecimalBitStringLiteral>`
+	"""
+	_base:        ClassVar[BitStringBase] = BitStringBase.NoBase  #: The base this literal is written in.
+
+	_value:       str             #: The literal as written in the source, without the enclosing double quotes.
+	_binaryValue: str             #: The literal's value expanded to base 2, one character per bit.
+	_bits:        int             #: The number of bits the literal represents.
+	_length:      Nullable[int]   #: The explicitly given length, or ``None`` if the literal has no length specification.
+	_isSigned:    Nullable[bool]  #: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
+
+	def __init__(self, value: str, length: Nullable[int] = None, isSigned: Nullable[bool] = None) -> None:
+		"""
+		Initializes a bit string literal.
+
+		:param value:    The literal as written in the source, without the enclosing double quotes.
+		:param length:   The explicitly given length, or ``None`` if the literal has no length specification.
+		:param isSigned: ``True`` if signed, ``False`` if unsigned, ``None`` if unspecified.
+		"""
 		super().__init__()
 		self._value = value
 		self._length = length
-		self._signed = signed
+		self._isSigned = isSigned
 
 		self._binaryValue = None
 		self._bits = None
 
 	@readonly
 	def Value(self) -> str:
+		"""
+		Read-only property to access the value (:attr:`_value`).
+
+		:returns: The value.
+		"""
 		return self._value
 
 	@readonly
 	def BinaryValue(self) -> str:
+		"""
+		Read-only property to access the binary value (:attr:`_binaryValue`).
+
+		:returns: The binary value.
+		"""
 		return self._binaryValue
 
 	@readonly
 	def Bits(self) -> Nullable[int]:
+		"""
+		Read-only property to access the bits (:attr:`_bits`).
+
+		:returns: The bits, or ``None`` if not set.
+		"""
 		return self._bits
 
 	@readonly
 	def Length(self) -> Nullable[int]:
+		"""
+		Read-only property to access the length (:attr:`_length`).
+
+		:returns: The length, or ``None`` if not set.
+		"""
 		return self._length
 
 	@readonly
-	def Signed(self) -> Nullable[bool]:
-		return self._signed
+	def IsSigned(self) -> Nullable[bool]:
+		"""
+		Check if the bit string literal is signed (:attr:`_isSigned`).
+
+		:returns: ``True``, if the literal is signed; ``None``, if unspecified.
+		"""
+		return self._isSigned
 
 	def __str__(self) -> str:
-		signed = "" if self._signed is None else "s" if self._signed is True else "u"
+		"""
+		Formats the bit string literal.
+
+		**Format:** ``8ub"10100000"``
+
+		The length and the signedness marker (``s``/``u``) are omitted when unspecified.
+
+		:returns: Formatted bit string literal.
+		"""
+		signed = "" if self._isSigned is None else "s" if self._isSigned is True else "u"
 		if self._base is BitStringBase.NoBase:
 			base = ""
 		elif self._base is BitStringBase.Binary:
@@ -264,123 +614,421 @@ class BitStringLiteral(Literal):
 
 @export
 class BinaryBitStringLiteral(BitStringLiteral):
-	_base: ClassVar[BitStringBase] = BitStringBase.Binary
+	"""
+	Represents a bit string literal written in base 2.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := b"10100000";
+	      --     ^^^^^^^^^^^    <- Value
+	"""
+	_base: ClassVar[BitStringBase] = BitStringBase.Binary  #: The base this literal is written in.
 
 
 @export
 class OctalBitStringLiteral(BitStringLiteral):
-	_base: ClassVar[BitStringBase] = BitStringBase.Octal
+	"""
+	Represents a bit string literal written in base 8.
+
+	Each digit contributes three bits.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      nine := o"240";
+	      --      ^^^^^^    <- Value
+	"""
+	_base: ClassVar[BitStringBase] = BitStringBase.Octal  #: The base this literal is written in.
 
 
 @export
 class DecimalBitStringLiteral(BitStringLiteral):
-	_base: ClassVar[BitStringBase] = BitStringBase.Decimal
+	"""
+	Represents a bit string literal written in base 10.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := d"160";
+	      --     ^^^^^^    <- Value
+	"""
+	_base: ClassVar[BitStringBase] = BitStringBase.Decimal  #: The base this literal is written in.
 
 
 @export
 class HexadecimalBitStringLiteral(BitStringLiteral):
-	_base: ClassVar[BitStringBase] = BitStringBase.Hexadecimal
+	"""
+	Represents a bit string literal written in base 16.
+
+	Each digit contributes four bits.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := x"A0";
+	      --     ^^^^^    <- Value
+	"""
+	_base: ClassVar[BitStringBase] = BitStringBase.Hexadecimal  #: The base this literal is written in.
 
 
 @export
 class ParenthesisExpression: #(Protocol):
+	"""
+	Represents the base-class of expressions wrapped in parentheses.
+
+	The operand is available as :data:`Operand`.
+
+	.. seealso::
+
+	   * :class:`Sub expression <pyVHDLModel.Expression.SubExpression>`
+	   * :class:`Qualified expression <pyVHDLModel.Expression.QualifiedExpression>`
+	"""
 	__slots__ = ()  # FIXME: use ExtendedType?
 
 	@readonly
 	def Operand(self) -> ExpressionUnion:
+		"""
+		Read-only property to return the operand. A parenthesis expression has none of its own.
+
+		:returns: The operand.
+		"""
 		return None
 
 
 @export
 class UnaryExpression(BaseExpression):
-	"""A ``UnaryExpression`` is a base-class for all unary expressions."""
+	"""
+	Represents the base-class of all unary expressions.
 
-	_FORMAT:  Tuple[str, str]
-	_operand: ExpressionUnion
+	The operand is available as :data:`Operand`.
+	"""
+
+	_FORMAT:  ClassVar[Tuple[str, str]]  #: The operator's string representation as (prefix, suffix) around the operand.
+	_operand: ExpressionUnion            #: The expression the operator is applied to.
 
 	def __init__(self, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a unary expression.
+
+		:param operand: The expression the operator is applied to.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._operand = operand
-		# operand.Parent = self  # FIXME: operand is provided as None
+		operand.Parent = self
 
 	@readonly
-	def Operand(self):
+	def Operand(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the operand (:attr:`_operand`).
+
+		:returns: The operand.
+		"""
 		return self._operand
 
 	def __str__(self) -> str:
+		"""
+		Formats the unary expression.
+
+		**Format:** ``not operand``
+
+		:returns: Formatted unary expression.
+		"""
 		return f"{self._FORMAT[0]}{self._operand!s}{self._FORMAT[1]}"
 
 
 @export
 class NegationExpression(UnaryExpression):
-	_FORMAT = ("-", "")
+	"""
+	Represents a negation (unary minus) expression.
+
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := - operand;
+	      --     ^^^^^^^^^    <- the expression
+	      --       ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("-", "")
 
 
 @export
 class IdentityExpression(UnaryExpression):
-	_FORMAT = ("+", "")
+	"""
+	Represents an identity (unary plus) expression.
+
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := + operand;
+	      --     ^^^^^^^^^    <- the expression
+	      --       ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("+", "")
 
 
 @export
 class InverseExpression(UnaryExpression):
-	_FORMAT = ("not ", "")
+	"""
+	Represents a logical inversion expression (``not``).
+
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := not operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("not ", "")
 
 
 @export
 class UnaryAndExpression(UnaryExpression):
-	_FORMAT = ("and ", "")
+	"""
+	Represents a ``and`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := and operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("and ", "")
 
 
 @export
 class UnaryNandExpression(UnaryExpression):
-	_FORMAT = ("nand ", "")
+	"""
+	Represents a ``nand`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := nand operand;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("nand ", "")
 
 
 @export
 class UnaryOrExpression(UnaryExpression):
-	_FORMAT = ("or ", "")
+	"""
+	Represents a ``or`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := or operand;
+	      --     ^^^^^^^^^^    <- the expression
+	      --        ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("or ", "")
 
 
 @export
 class UnaryNorExpression(UnaryExpression):
-	_FORMAT = ("nor ", "")
+	"""
+	Represents a ``nor`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := nor operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("nor ", "")
 
 
 @export
 class UnaryXorExpression(UnaryExpression):
-	_FORMAT = ("xor ", "")
+	"""
+	Represents a ``xor`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := xor operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("xor ", "")
 
 
 @export
 class UnaryXnorExpression(UnaryExpression):
-	_FORMAT = ("xnor ", "")
+	"""
+	Represents a ``xnor`` reduction expression.
+
+	A reduction operator folds all elements of an array into a single value.
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := xnor operand;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --          ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("xnor ", "")
 
 
 @export
 class AbsoluteExpression(UnaryExpression):
-	_FORMAT = ("abs ", "")
+	"""
+	Represents an absolute value expression (``abs``).
+
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := abs operand;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --         ^^^^^^^    <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("abs ", "")
 
 
 @export
 class TypeConversion(UnaryExpression):
-	pass
+	"""
+	Represents a type conversion.
+
+	A type conversion converts its operand (:data:`Operand`) to the target subtype
+	(:data:`TargetSubtype`). Unlike every other :class:`UnaryExpression`, its "operator" is the target
+	type name itself rather than a fixed string, so it carries its own subtype and renders itself.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := integer(val);
+	      --     ^^^^^^^         <- TargetSubtype
+	      --             ^^^     <- Operand
+	"""
+
+	_targetSubtype: SubtypeSymbol  #: Reference to the subtype the expression is converted to.
+
+	def __init__(self, targetSubtype: SubtypeSymbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a type conversion.
+
+		:param targetSubtype: Reference to the subtype the expression is converted to.
+		:param operand:       The expression the operator is applied to.
+		:param parent:        The parent model entity of this entity.
+		"""
+		super().__init__(operand, parent)
+
+		self._targetSubtype = targetSubtype
+		targetSubtype.Parent = self
+
+	@readonly
+	def TargetSubtype(self) -> SubtypeSymbol:
+		"""
+		Read-only property to access the target subtype (:attr:`_targetSubtype`).
+
+		:returns: The target subtype.
+		"""
+		return self._targetSubtype
+
+	def __str__(self) -> str:
+		"""
+		Formats the type conversion.
+
+		**Format:** ``integer(val)``
+
+		:returns: Formatted type conversion.
+		"""
+		return f"{self._targetSubtype!s}({self._operand!s})"
 
 
 @export
 class SubExpression(UnaryExpression, ParenthesisExpression):
-	_FORMAT = ("(", ")")
+	"""
+	Represents a parenthesized sub-expression.
+
+	The operand is available as :data:`Operand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := (lhs + rhs);
+	      --     ^^^^^^^^^^^    <- the sub-expression
+	      --      ^^^^^^^^^     <- Operand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str]] = ("(", ")")
 
 
 @export
 class BinaryExpression(BaseExpression):
-	"""A ``BinaryExpression`` is a base-class for all binary expressions."""
+	"""
+	Represents the base-class of all binary expressions.
 
-	_FORMAT: Tuple[str, str, str]
-	_leftOperand:  ExpressionUnion
-	_rightOperand: ExpressionUnion
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Range expression <pyVHDLModel.Expression.RangeExpression>`
+	   * :class:`Adding expression <pyVHDLModel.Expression.AddingExpression>`
+	   * :class:`Multiplying expression <pyVHDLModel.Expression.MultiplyingExpression>`
+	   * :class:`Logical expression <pyVHDLModel.Expression.LogicalExpression>`
+	   * :class:`Relational expression <pyVHDLModel.Expression.RelationalExpression>`
+	   * :class:`Shift expression <pyVHDLModel.Expression.ShiftExpression>`
+	"""
+
+	_FORMAT:       ClassVar[Tuple[str, str, str]]  #: The operator's string representation as (prefix, infix, suffix).
+	_leftOperand:  ExpressionUnion                 #: The expression left of the operator.
+	_rightOperand: ExpressionUnion                 #: The expression right of the operator.
 
 	def __init__(self, leftOperand: ExpressionUnion, rightOperand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a binary expression.
+
+		:param leftOperand:  The expression left of the operator.
+		:param rightOperand: The expression right of the operator.
+		:param parent:       The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._leftOperand = leftOperand
@@ -389,15 +1037,32 @@ class BinaryExpression(BaseExpression):
 		self._rightOperand = rightOperand
 		rightOperand.Parent = self
 
-	@property
-	def LeftOperand(self):
+	@readonly
+	def LeftOperand(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the left operand (:attr:`_leftOperand`).
+
+		:returns: The left operand.
+		"""
 		return self._leftOperand
 
-	@property
-	def RightOperand(self):
+	@readonly
+	def RightOperand(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the right operand (:attr:`_rightOperand`).
+
+		:returns: The right operand.
+		"""
 		return self._rightOperand
 
 	def __str__(self) -> str:
+		"""
+		Formats the binary expression.
+
+		**Format:** ``lhs + rhs``
+
+		:returns: Formatted binary expression.
+		"""
 		return "{leftOperator}{leftOperand!s}{middleOperator}{rightOperand!s}{rightOperator}".format(
 			leftOperator=self._FORMAT[0],
 			leftOperand=self._leftOperand,
@@ -409,236 +1074,859 @@ class BinaryExpression(BaseExpression):
 
 @export
 class RangeExpression(BinaryExpression):
-	_direction: Direction
+	"""
+	Represents the base-class of range expressions.
 
-	@property
+	A range has a direction (:data:`Direction`) and two bounds. Both operands are available as :data:`LeftOperand` and
+	:data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Ascending range expression <pyVHDLModel.Expression.AscendingRangeExpression>`
+	   * :class:`Descending range expression <pyVHDLModel.Expression.DescendingRangeExpression>`
+	"""
+	_direction: ClassVar[Direction]  #: The range's direction, either ascending (``to``) or descending (``downto``).
+
+	@readonly
 	def Direction(self) -> Direction:
+		"""
+		Read-only property to access the direction (:attr:`_direction`).
+
+		:returns: The direction.
+		"""
 		return self._direction
 
 
 @export
 class AscendingRangeExpression(RangeExpression):
-	_direction = Direction.To
-	_FORMAT = ("", " to ", "")
+	"""
+	Represents an ascending range expression (``to``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := v(0 to 3);
+	      --       ^^^^^^     <- the range
+	      --       ^          <- LeftOperand
+	      --            ^     <- RightOperand
+	"""
+	_direction: ClassVar[Direction] = Direction.To
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " to ", "")
 
 
 @export
 class DescendingRangeExpression(RangeExpression):
-	_direction = Direction.DownTo
-	_FORMAT = ("", " downto ", "")
+	"""
+	Represents a descending range expression (``downto``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := v(7 downto 4);
+	      --       ^^^^^^^^^^     <- the range
+	      --       ^              <- LeftOperand
+	      --                ^     <- RightOperand
+	"""
+	_direction: ClassVar[Direction] = Direction.DownTo
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " downto ", "")
 
 
 @export
 class AddingExpression(BinaryExpression):
-	"""A ``AddingExpression`` is a base-class for all adding expressions."""
+	"""
+	Represents the base-class of all adding expressions: ``+``, ``-`` and ``&``.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Addition expression <pyVHDLModel.Expression.AdditionExpression>`
+	   * :class:`Subtraction expression <pyVHDLModel.Expression.SubtractionExpression>`
+	   * :class:`Concatenation expression <pyVHDLModel.Expression.ConcatenationExpression>`
+	"""
 
 
 @export
 class AdditionExpression(AddingExpression):
-	_FORMAT = ("", " + ", "")
+	"""
+	Represents an addition expression (``+``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs + rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " + ", "")
 
 
 @export
 class SubtractionExpression(AddingExpression):
-	_FORMAT = ("", " - ", "")
+	"""
+	Represents a subtraction expression (``-``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs - rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " - ", "")
 
 
 @export
 class ConcatenationExpression(AddingExpression):
-	_FORMAT = ("", " & ", "")
+	"""
+	Represents a concatenation expression (``&``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs & rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " & ", "")
 
 
 @export
 class MultiplyingExpression(BinaryExpression):
-	"""A ``MultiplyingExpression`` is a base-class for all multiplying expressions."""
+	"""
+	Represents the base-class of all multiplying expressions: ``*``, ``/``, ``rem``, ``mod`` and ``**``.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Multiply expression <pyVHDLModel.Expression.MultiplyExpression>`
+	   * :class:`Division expression <pyVHDLModel.Expression.DivisionExpression>`
+	   * :class:`Remainder expression <pyVHDLModel.Expression.RemainderExpression>`
+	   * :class:`Modulo expression <pyVHDLModel.Expression.ModuloExpression>`
+	   * :class:`Exponentiation expression <pyVHDLModel.Expression.ExponentiationExpression>`
+	"""
 
 
 @export
 class MultiplyExpression(MultiplyingExpression):
-	_FORMAT = ("", " * ", "")
+	"""
+	Represents a multiplication expression (``*``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs * rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " * ", "")
 
 
 @export
 class DivisionExpression(MultiplyingExpression):
-	_FORMAT = ("", " / ", "")
+	"""
+	Represents a division expression (``/``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs / rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " / ", "")
 
 
 @export
 class RemainderExpression(MultiplyingExpression):
-	_FORMAT = ("", " rem ", "")
+	"""
+	Represents a remainder expression (``rem``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs rem rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " rem ", "")
 
 
 @export
 class ModuloExpression(MultiplyingExpression):
-	_FORMAT = ("", " mod ", "")
+	"""
+	Represents a modulo expression (``mod``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs mod rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " mod ", "")
 
 
 @export
 class ExponentiationExpression(MultiplyingExpression):
-	_FORMAT = ("", "**", "")
+	"""
+	Represents an exponentiation expression (``**``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ** rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", "**", "")
 
 
 @export
 class LogicalExpression(BinaryExpression):
-	"""A ``LogicalExpression`` is a base-class for all logical expressions."""
+	"""
+	Represents the base-class of all binary logical expressions.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`And expression <pyVHDLModel.Expression.AndExpression>`
+	   * :class:`Nand expression <pyVHDLModel.Expression.NandExpression>`
+	   * :class:`Or expression <pyVHDLModel.Expression.OrExpression>`
+	   * :class:`Nor expression <pyVHDLModel.Expression.NorExpression>`
+	   * :class:`Xor expression <pyVHDLModel.Expression.XorExpression>`
+	   * :class:`Xnor expression <pyVHDLModel.Expression.XnorExpression>`
+	"""
 
 
 @export
 class AndExpression(LogicalExpression):
-	_FORMAT = ("", " and ", "")
+	"""
+	Represents a logical ``and`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs and rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " and ", "")
 
 
 @export
 class NandExpression(LogicalExpression):
-	_FORMAT = ("", " nand ", "")
+	"""
+	Represents a logical ``nand`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs nand rhs;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --     ^^^             <- LeftOperand
+	      --              ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " nand ", "")
 
 
 @export
 class OrExpression(LogicalExpression):
-	_FORMAT = ("", " or ", "")
+	"""
+	Represents a logical ``or`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs or rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " or ", "")
 
 
 @export
 class NorExpression(LogicalExpression):
-	_FORMAT = ("", " nor ", "")
+	"""
+	Represents a logical ``nor`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs nor rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " nor ", "")
 
 
 @export
 class XorExpression(LogicalExpression):
-	_FORMAT = ("", " xor ", "")
+	"""
+	Represents a logical ``xor`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs xor rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " xor ", "")
 
 
 @export
 class XnorExpression(LogicalExpression):
-	_FORMAT = ("", " xnor ", "")
+	"""
+	Represents a logical ``xnor`` expression.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs xnor rhs;
+	      --     ^^^^^^^^^^^^    <- the expression
+	      --     ^^^             <- LeftOperand
+	      --              ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " xnor ", "")
 
 
 @export
 class RelationalExpression(BinaryExpression):
-	"""A ``RelationalExpression`` is a base-class for all shifting expressions."""
+	"""
+	Represents the base-class of all relational expressions.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Equal expression <pyVHDLModel.Expression.EqualExpression>`
+	   * :class:`Unequal expression <pyVHDLModel.Expression.UnequalExpression>`
+	   * :class:`Greater than expression <pyVHDLModel.Expression.GreaterThanExpression>`
+	   * :class:`Greater equal expression <pyVHDLModel.Expression.GreaterEqualExpression>`
+	   * :class:`Less than expression <pyVHDLModel.Expression.LessThanExpression>`
+	   * :class:`Less equal expression <pyVHDLModel.Expression.LessEqualExpression>`
+	   * :class:`Matching relational expression <pyVHDLModel.Expression.MatchingRelationalExpression>`
+	"""
 
 
 @export
 class EqualExpression(RelationalExpression):
-	_FORMAT = ("", " = ", "")
+	"""
+	Represents an equality expression (``=``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs = rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " = ", "")
 
 
 @export
 class UnequalExpression(RelationalExpression):
-	_FORMAT = ("", " /= ", "")
+	"""
+	Represents an inequality expression (``/=``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs /= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " /= ", "")
 
 
 @export
 class GreaterThanExpression(RelationalExpression):
-	_FORMAT = ("", " > ", "")
+	"""
+	Represents a greater-than expression (``>``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs > rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " > ", "")
 
 
 @export
 class GreaterEqualExpression(RelationalExpression):
-	_FORMAT = ("", " >= ", "")
+	"""
+	Represents a greater-or-equal expression (``>=``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs >= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " >= ", "")
 
 
 @export
 class LessThanExpression(RelationalExpression):
-	_FORMAT = ("", " < ", "")
+	"""
+	Represents a less-than expression (``<``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs < rhs;
+	      --     ^^^^^^^^^    <- the expression
+	      --     ^^^          <- LeftOperand
+	      --           ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " < ", "")
 
 
 @export
 class LessEqualExpression(RelationalExpression):
-	_FORMAT = ("", " <= ", "")
+	"""
+	Represents a less-or-equal expression (``<=``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs <= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " <= ", "")
 
 
 @export
 class MatchingRelationalExpression(RelationalExpression):
+	"""
+	Represents the base-class of all matching relational expressions.
+
+	Matching operators return a ``bit``/``std_ulogic`` rather than a ``boolean``. Both operands are available as
+	:data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Matching equal expression <pyVHDLModel.Expression.MatchingEqualExpression>`
+	   * :class:`Matching unequal expression <pyVHDLModel.Expression.MatchingUnequalExpression>`
+	   * :class:`Matching greater than expression <pyVHDLModel.Expression.MatchingGreaterThanExpression>`
+	   * :class:`Matching greater equal expression <pyVHDLModel.Expression.MatchingGreaterEqualExpression>`
+	   * :class:`Matching less than expression <pyVHDLModel.Expression.MatchingLessThanExpression>`
+	   * :class:`Matching less equal expression <pyVHDLModel.Expression.MatchingLessEqualExpression>`
+	"""
 	pass
 
 
 @export
 class MatchingEqualExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?= ", "")
+	"""
+	Represents a matching equality expression (``?=``).
+
+	Unlike ``=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?= rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?= ", "")
 
 
 @export
 class MatchingUnequalExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?/= ", "")
+	"""
+	Represents a matching inequality expression (``?/=``).
+
+	Unlike ``/=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?/= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?/= ", "")
 
 
 @export
 class MatchingGreaterThanExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?> ", "")
+	"""
+	Represents a matching greater-than expression (``?>``).
+
+	Unlike ``>``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?> rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?> ", "")
 
 
 @export
 class MatchingGreaterEqualExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?>= ", "")
+	"""
+	Represents a matching greater-or-equal expression (``?>=``).
+
+	Unlike ``>=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?>= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?>= ", "")
 
 
 @export
 class MatchingLessThanExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?< ", "")
+	"""
+	Represents a matching less-than expression (``?<``).
+
+	Unlike ``<``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?< rhs;
+	      --     ^^^^^^^^^^    <- the expression
+	      --     ^^^           <- LeftOperand
+	      --            ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?< ", "")
 
 
 @export
 class MatchingLessEqualExpression(MatchingRelationalExpression):
-	_FORMAT = ("", " ?<= ", "")
+	"""
+	Represents a matching less-or-equal expression (``?<=``).
+
+	Unlike ``<=``, a matching operator returns a ``bit``/``std_ulogic``.
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ?<= rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ?<= ", "")
 
 
 @export
 class ShiftExpression(BinaryExpression):
-	"""A ``ShiftExpression`` is a base-class for all shifting expressions."""
+	"""
+	Represents the base-class of all shift and rotate expressions.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Shift logic expression <pyVHDLModel.Expression.ShiftLogicExpression>`
+	   * :class:`Shift arithmetic expression <pyVHDLModel.Expression.ShiftArithmeticExpression>`
+	   * :class:`Rotate expression <pyVHDLModel.Expression.RotateExpression>`
+	"""
 
 
 @export
 class ShiftLogicExpression(ShiftExpression):
+	"""
+	Represents the base-class of the logical shift expressions ``srl`` and ``sll``.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Shift right logic expression <pyVHDLModel.Expression.ShiftRightLogicExpression>`
+	   * :class:`Shift left logic expression <pyVHDLModel.Expression.ShiftLeftLogicExpression>`
+	"""
 	pass
 
 
 @export
 class ShiftArithmeticExpression(ShiftExpression):
+	"""
+	Represents the base-class of the arithmetic shift expressions ``sra`` and ``sla``.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Shift right arithmetic expression <pyVHDLModel.Expression.ShiftRightArithmeticExpression>`
+	   * :class:`Shift left arithmetic expression <pyVHDLModel.Expression.ShiftLeftArithmeticExpression>`
+	"""
 	pass
 
 
 @export
 class RotateExpression(ShiftExpression):
+	"""
+	Represents the base-class of the rotate expressions ``ror`` and ``rol``.
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. seealso::
+
+	   * :class:`Rotate right expression <pyVHDLModel.Expression.RotateRightExpression>`
+	   * :class:`Rotate left expression <pyVHDLModel.Expression.RotateLeftExpression>`
+	"""
 	pass
 
 
 @export
 class ShiftRightLogicExpression(ShiftLogicExpression):
-	_FORMAT = ("", " srl ", "")
+	"""
+	Represents a logical right shift expression (``srl``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs srl rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " srl ", "")
 
 
 @export
 class ShiftLeftLogicExpression(ShiftLogicExpression):
-	_FORMAT = ("", " sll ", "")
+	"""
+	Represents a logical left shift expression (``sll``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs sll rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sll ", "")
 
 
 @export
 class ShiftRightArithmeticExpression(ShiftArithmeticExpression):
-	_FORMAT = ("", " sra ", "")
+	"""
+	Represents an arithmetic right shift expression (``sra``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs sra rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sra ", "")
 
 
 @export
 class ShiftLeftArithmeticExpression(ShiftArithmeticExpression):
-	_FORMAT = ("", " sla ", "")
+	"""
+	Represents an arithmetic left shift expression (``sla``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs sla rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " sla ", "")
 
 
 @export
 class RotateRightExpression(RotateExpression):
-	_FORMAT = ("", " ror ", "")
+	"""
+	Represents a right rotate expression (``ror``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs ror rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " ror ", "")
 
 
 @export
 class RotateLeftExpression(RotateExpression):
-	_FORMAT = ("", " rol ", "")
+	"""
+	Represents a left rotate expression (``rol``).
+
+	Both operands are available as :data:`LeftOperand` and :data:`RightOperand`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := lhs rol rhs;
+	      --     ^^^^^^^^^^^    <- the expression
+	      --     ^^^            <- LeftOperand
+	      --             ^^^    <- RightOperand
+	"""
+	_FORMAT: ClassVar[Tuple[str, str, str]] = ("", " rol ", "")
 
 
 @export
 class QualifiedExpression(BaseExpression, ParenthesisExpression):
-	_operand:  ExpressionUnion
-	_subtype:  Symbol
+	"""
+	Represents a qualified expression.
+
+	A qualified expression states the subtype (:data:`Subtype`) of its operand (:data:`Operand`),
+	resolving which of several overloaded meanings is intended.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := byte'(others => '0');
+	      --     ^^^^                    <- Subtype
+	      --          ^^^^^^^^^^^^^^^    <- Operand
+	"""
+	_operand:  ExpressionUnion  #: The expression being qualified.
+	_subtype:  Symbol           #: Reference to the subtype qualifying the expression.
 
 	def __init__(self, subtype: Symbol, operand: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes a qualified expression.
+
+		:param subtype: Reference to the subtype qualifying the expression.
+		:param operand: The expression being qualified.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._operand = operand
@@ -647,45 +1935,84 @@ class QualifiedExpression(BaseExpression, ParenthesisExpression):
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
-	def Operand(self):
+	@readonly
+	def Operand(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the operand (:attr:`_operand`).
+
+		:returns: The operand.
+		"""
 		return self._operand
 
-	@property
-	def Subtyped(self):
+	@readonly
+	def Subtype(self) -> Symbol:
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
 
 	def __str__(self) -> str:
+		"""
+		Formats the qualified expression.
+
+		**Format:** ``byte'(val)``
+
+		:returns: Formatted qualified expression.
+		"""
 		return f"{self._subtype}'({self._operand!s})"
 
 
 @export
 class TernaryExpression(BaseExpression):
-	"""A ``TernaryExpression`` is a base-class for all ternary expressions."""
+	"""
+	Represents the base-class of all ternary expressions.
 
-	_FORMAT: Tuple[str, str, str, str]
-	_firstOperand:  ExpressionUnion
-	_secondOperand: ExpressionUnion
-	_thirdOperand:  ExpressionUnion
+	.. seealso::
 
-	def __init__(self, parent: Nullable[ModelEntity] = None) -> None:
+	   * :class:`When else expression <pyVHDLModel.Expression.WhenElseExpression>`
+	"""
+
+	_FORMAT:        ClassVar[Tuple[str, str, str, str]]  #: The operator's string representation as four fragments.
+	_firstOperand:  ExpressionUnion                      #: The operator's first operand.
+	_secondOperand: ExpressionUnion                      #: The operator's second operand.
+	_thirdOperand:  ExpressionUnion                      #: The operator's third operand.
+
+	def __init__(
+		self,
+		firstOperand: ExpressionUnion,
+		secondOperand: ExpressionUnion,
+		thirdOperand: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		"""
+		Initializes a ternary expression.
+
+		:param firstOperand:  The operator's first operand.
+		:param secondOperand: The operator's second operand.
+		:param thirdOperand:  The operator's third operand.
+		:param parent:        The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
-		# FIXME: parameters and initializers are missing !!
+		self._firstOperand = firstOperand
+		firstOperand.Parent = self
 
-	@property
-	def FirstOperand(self):
-		return self._firstOperand
+		self._secondOperand = secondOperand
+		secondOperand.Parent = self
 
-	@property
-	def SecondOperand(self):
-		return self._secondOperand
-
-	@property
-	def ThirdOperand(self):
-		return self._thirdOperand
+		self._thirdOperand = thirdOperand
+		thirdOperand.Parent = self
 
 	def __str__(self) -> str:
+		"""
+		Formats the ternary expression.
+
+		**Format:** ``val when cond else other``
+
+		:returns: Formatted ternary expression.
+		"""
 		return "{beforeFirstOperator}{firstOperand!s}{beforeSecondOperator}{secondOperand!s}{beforeThirdOperator}{thirdOperand!s}{lastOperator}".format(
 			beforeFirstOperator=self._FORMAT[0],
 			firstOperand=self._firstOperand,
@@ -693,134 +2020,412 @@ class TernaryExpression(BaseExpression):
 			secondOperand=self._secondOperand,
 			beforeThirdOperator=self._FORMAT[2],
 			thirdOperand=self._thirdOperand,
-			lastOperator=self._FORMAT[4],
+			lastOperator=self._FORMAT[3],
 		)
 
 
 @export
 class WhenElseExpression(TernaryExpression):
-	_FORMAT = ("", " when ", " else ", "")
+	"""
+	Represents a conditional expression.
+
+	A conditional expression selects between two values (:data:`ThenValue`, :data:`ElseValue`) based on
+	a condition (:data:`Condition`). It is usable anywhere an expression is expected - distinct from
+	:class:`~pyVHDLModel.Common.ConditionalExpression`, which models the cascading ``when``/``else``
+	list of a conditional *assignment*.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := a when f else b;
+	      --     ^                  <- ThenValue
+	      --            ^           <- Condition
+	      --                   ^    <- ElseValue
+	"""
+
+	_FORMAT: ClassVar[Tuple[str, str, str, str]] = ("", " when ", " else ", "")
+
+	def __init__(
+		self,
+		thenValue: ExpressionUnion,
+		condition: ExpressionUnion,
+		elseValue: ExpressionUnion,
+		parent: Nullable[ModelEntity] = None
+	) -> None:
+		"""
+		Initializes a conditional expression.
+
+		:param thenValue: The value if the condition holds.
+		:param condition: The condition selecting between both values.
+		:param elseValue: The value if the condition does not hold.
+		:param parent:    The parent model entity of this entity.
+		"""
+		super().__init__(thenValue, condition, elseValue, parent)
+
+	@readonly
+	def ThenValue(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the then value (:attr:`_firstOperand`).
+
+		:returns: The then value.
+		"""
+		return self._firstOperand
+
+	@readonly
+	def Condition(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the condition (:attr:`_secondOperand`).
+
+		:returns: The condition.
+		"""
+		return self._secondOperand
+
+	@readonly
+	def ElseValue(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the else value (:attr:`_thirdOperand`).
+
+		:returns: The else value.
+		"""
+		return self._thirdOperand
 
 
 @export
 class FunctionCall(BaseExpression):
+	"""
+	Represents a call to a function.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := maximum(a, b);
+	      --     ^^^^^^^^^^^^^    <- the call
+	"""
 	pass
 
 
 @export
 class Allocation(BaseExpression):
+	"""
+	Represents the base-class of all allocations via ``new``.
+
+	.. seealso::
+
+	   * :class:`Subtype allocation <pyVHDLModel.Expression.SubtypeAllocation>`
+	   * :class:`Qualified expression allocation <pyVHDLModel.Expression.QualifiedExpressionAllocation>`
+	"""
 	pass
 
 
 @export
 class SubtypeAllocation(Allocation):
-	_subtype: Symbol
+	"""
+	Represents an allocation of a subtype via ``new``.
+
+	The allocated subtype is available as :data:`Subtype`. The allocated object is default-initialized.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      p := new integer;
+	      --       ^^^^^^^    <- Subtype
+	"""
+	_subtype: Symbol  #: Reference to the subtype being allocated.
 
 	def __init__(self, subtype: Symbol, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an allocation of a subtype via ``new``.
+
+		:param subtype: Reference to the subtype being allocated.
+		:param parent:  The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._subtype = subtype
 		subtype.Parent = self
 
-	@property
+	@readonly
 	def Subtype(self) -> Symbol:
+		"""
+		Read-only property to access the subtype (:attr:`_subtype`).
+
+		:returns: The subtype.
+		"""
 		return self._subtype
 
 	def __str__(self) -> str:
+		"""
+		Formats the subtype allocation.
+
+		**Format:** ``new node``
+
+		:returns: Formatted subtype allocation.
+		"""
 		return f"new {self._subtype!s}"
 
 
 @export
 class QualifiedExpressionAllocation(Allocation):
-	_qualifiedExpression: QualifiedExpression
+	"""
+	Represents an allocation initialized by a qualified expression.
+
+	The qualified expression providing the initial value is available as :data:`QualifiedExpression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      p := new integer'(5);
+	      --       ^^^^^^^^^^^    <- QualifiedExpression
+	"""
+	_qualifiedExpression: QualifiedExpression  #: The qualified expression the allocated object is initialized with.
 
 	def __init__(self, qualifiedExpression: QualifiedExpression, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an allocation initialized by a qualified expression.
+
+		:param qualifiedExpression: The qualified expression the allocated object is initialized with.
+		:param parent:              The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._qualifiedExpression = qualifiedExpression
 		qualifiedExpression.Parent = self
 
-	@property
+	@readonly
 	def QualifiedExpression(self) -> QualifiedExpression:
+		"""
+		Read-only property to access the qualified expression (:attr:`_qualifiedExpression`).
+
+		:returns: The qualified expression.
+		"""
 		return self._qualifiedExpression
 
 	def __str__(self) -> str:
+		"""
+		Formats the qualified expression allocation.
+
+		**Format:** ``new byte'(val)``
+
+		:returns: Formatted qualified expression allocation.
+		"""
 		return f"new {self._qualifiedExpression!s}"
 
 
 @export
 class AggregateElement(ModelEntity):
-	"""A ``AggregateElement`` is a base-class for all aggregate elements."""
+	"""
+	Represents the base-class of all aggregate elements.
 
-	_expression: ExpressionUnion
+	Every element carries the value assigned to it (:data:`Expression`).
+
+	.. seealso::
+
+	   * :class:`Simple aggregate element <pyVHDLModel.Expression.SimpleAggregateElement>`
+	   * :class:`Indexed aggregate element <pyVHDLModel.Expression.IndexedAggregateElement>`
+	   * :class:`Ranged aggregate element <pyVHDLModel.Expression.RangedAggregateElement>`
+	   * :class:`Named aggregate element <pyVHDLModel.Expression.NamedAggregateElement>`
+	   * :class:`Others aggregate element <pyVHDLModel.Expression.OthersAggregateElement>`
+	"""
+
+	_expression: ExpressionUnion  #: The expression this aggregate element supplies.
 
 	def __init__(self, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate element.
+
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._expression = expression
 		expression.Parent = self
 
-	@property
-	def Expression(self):
+	@readonly
+	def Expression(self) -> ExpressionUnion:
+		"""
+		Read-only property to access the expression (:attr:`_expression`).
+
+		:returns: The expression.
+		"""
 		return self._expression
 
 
 @export
 class SimpleAggregateElement(AggregateElement):
+	"""
+	Represents an aggregate element given by position.
+
+	A positional element has no choice of its own; only its value (:data:`Expression`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := ('1', '0', '1', '0', '1', '0', '1', '0');
+	      --      ^^^                                        <- Expression
+	"""
 	def __str__(self) -> str:
+		"""
+		Formats the simple aggregate element.
+
+		**Format:** ``val``
+
+		:returns: Formatted simple aggregate element.
+		"""
 		return str(self._expression)
 
 
 @export
 class IndexedAggregateElement(AggregateElement):
-	_index: int
+	"""
+	Represents an aggregate element chosen by an index.
+
+	The index is available as :data:`Index`, the assigned value as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := (0 => '1', others => '0');
+	      --      ^                           <- Index
+	      --           ^^^                    <- Expression
+	"""
+	_index: int  #: The index selecting the element this value is assigned to.
 
 	def __init__(self, index: ExpressionUnion, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate element chosen by an index.
+
+		:param index:      The index selecting the element this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._index = index
 
-	@property
+	@readonly
 	def Index(self) -> int:
+		"""
+		Read-only property to access the index (:attr:`_index`).
+
+		:returns: The index.
+		"""
 		return self._index
 
 	def __str__(self) -> str:
+		"""
+		Formats the indexed aggregate element.
+
+		**Format:** ``0 => val``
+
+		:returns: Formatted indexed aggregate element.
+		"""
 		return f"{self._index!s} => {self._expression!s}"
 
 
 @export
 class RangedAggregateElement(AggregateElement):
-	_range: Range
+	"""
+	Represents an aggregate element chosen by a range.
+
+	The range is available as :data:`Range`, the assigned value as :data:`Expression`.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := (1 to 3 => '0', others => '1');
+	      --      ^^^^^^                           <- Range
+	      --                ^^^                    <- Expression
+	"""
+	_range: Range  #: The range selecting the elements this value is assigned to.
 
 	def __init__(self, rng: Range, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate element chosen by a range.
+
+		:param rng:        The range selecting the elements this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._range = rng
 		rng.Parent = self
 
-	@property
+	@readonly
 	def Range(self) -> Range:
+		"""
+		Read-only property to access the range (:attr:`_range`).
+
+		:returns: The range.
+		"""
 		return self._range
 
 	def __str__(self) -> str:
+		"""
+		Formats the ranged aggregate element.
+
+		**Format:** ``0 to 3 => val``
+
+		:returns: Formatted ranged aggregate element.
+		"""
 		return f"{self._range!s} => {self._expression!s}"
 
 
 @export
 class NamedAggregateElement(AggregateElement):
-	_name: Symbol
+	"""
+	Represents an aggregate element chosen by a name.
+
+	Used for record aggregates, where the choice names a record element (:data:`Name`).
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      r := (a => '1', b => '0');
+	      --    ^                      <- Name
+	      --         ^^^               <- Expression
+	"""
+	_name: Symbol  #: Reference to the name selecting the element this value is assigned to.
 
 	def __init__(self, name: Symbol, expression: ExpressionUnion, parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate element chosen by a name.
+
+		:param name:       Reference to the name selecting the element this value is assigned to.
+		:param expression: The expression this aggregate element supplies.
+		:param parent:     The parent model entity of this entity.
+		"""
 		super().__init__(expression, parent)
 
 		self._name = name
 		name.Parent = self
 
-	@property
+	@readonly
 	def Name(self) -> Symbol:
+		"""
+		Read-only property to access the name (:attr:`_name`).
+
+		:returns: The name.
+		"""
 		return self._name
 
 	def __str__(self) -> str:
+		"""
+		Formats the named aggregate element.
+
+		**Format:** ``elem => val``
+
+		:returns: Formatted named aggregate element.
+		"""
 		return "{name!s} => {value!s}".format(
 			name=self._name,
 			value=self._expression,
@@ -829,7 +2434,27 @@ class NamedAggregateElement(AggregateElement):
 
 @export
 class OthersAggregateElement(AggregateElement):
+	"""
+	Represents the ``others`` element of an aggregate.
+
+	It supplies the value (:data:`Expression`) for every choice not named explicitly.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := (0 => '1', others => '0');
+	      --                ^^^^^^            <- the choice
+	      --                          ^^^     <- Expression
+	"""
 	def __str__(self) -> str:
+		"""
+		Formats the ``others`` aggregate element.
+
+		**Format:** ``others => val``
+
+		:returns: Formatted ``others`` aggregate element.
+		"""
 		return "others => {value!s}".format(
 			value=self._expression,
 		)
@@ -837,9 +2462,28 @@ class OthersAggregateElement(AggregateElement):
 
 @export
 class Aggregate(BaseExpression):
-	_elements: List[AggregateElement]
+	"""
+	Represents an aggregate.
+
+	An aggregate composes a value from its elements (:data:`Elements`), each of which associates a
+	choice with a value.
+
+	.. admonition:: Example
+
+	   .. code-block:: VHDL
+
+	      res := (0 => '1', 1 to 3 => '0', others => '1');
+	      --     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^    <- Elements
+	"""
+	_elements: List[AggregateElement]  #: List of all elements of this aggregate, in the order they were written.
 
 	def __init__(self, elements: Iterable[AggregateElement], parent: Nullable[ModelEntity] = None) -> None:
+		"""
+		Initializes an aggregate.
+
+		:param elements: List of all elements of this aggregate, in the order they were written.
+		:param parent:   The parent model entity of this entity.
+		"""
 		super().__init__(parent)
 
 		self._elements = []
@@ -847,11 +2491,23 @@ class Aggregate(BaseExpression):
 			self._elements.append(element)
 			element.Parent = self
 
-	@property
+	@readonly
 	def Elements(self) -> List[AggregateElement]:
+		"""
+		Read-only property to access the elements (:attr:`_elements`).
+
+		:returns: List of elements.
+		"""
 		return self._elements
 
 	def __str__(self) -> str:
+		"""
+		Formats the aggregate.
+
+		**Format:** ``(1, others => 0)``
+
+		:returns: Formatted aggregate.
+		"""
 		choices = [str(element) for element in self._elements]
 		return "({choices})".format(
 			choices=", ".join(choices)
