@@ -365,9 +365,9 @@ class Symbols(TestCase):
 		self.assertIs(rng, symbol.Constraint)
 
 	def test_ConstrainedScalarSubtypeSymbol_withoutConstraint(self) -> None:
-		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
-
-		self.assertIsNone(symbol.Constraint)
+		"""The range constraint is mandatory - ``integer range`` isn't a VHDL construct."""
+		with self.assertRaises(TypeError):
+			ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
 
 
 class PSLEntities(TestCase):
