@@ -873,10 +873,7 @@ class ScalarConstraint(Constraint, mixin=True):
 	"""
 	A mixin-class for a scalar constraint: a range.
 
-	The range is available as :data:`Constraint`. It is mandatory, because VHDL's ``range_constraint``
-	rule is ``range range``: a type mark is either written without a constraint at all, which is a
-	:class:`~pyVHDLModel.Symbol.SimpleSubtypeSymbol`, or with a range following the ``range`` keyword.
-	A form like ``integer range`` doesn't exist.
+	The range is available as :data:`Constraint`.
 
 	.. seealso::
 
@@ -897,7 +894,7 @@ class ScalarConstraint(Constraint, mixin=True):
 		"""
 		Read-only property to access the scalar type's range constraint (:attr:`_constraint`).
 
-		:returns: The constraint.
+		:returns: The constraint of the scalar subtype.
 		"""
 		return self._constraint
 
