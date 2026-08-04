@@ -873,28 +873,31 @@ class ScalarConstraint(Constraint, mixin=True):
 	"""
 	A mixin-class for a scalar constraint: a range.
 
-	The range is available as :data:`Constraint`.
+	The range is available as :data:`Constraint`. It is mandatory, because VHDL's ``range_constraint``
+	rule is ``range range``: a type mark is either written without a constraint at all, which is a
+	:class:`~pyVHDLModel.Symbol.SimpleSubtypeSymbol`, or with a range following the ``range`` keyword.
+	A form like ``integer range`` doesn't exist.
 
 	.. seealso::
 
 	   * :class:`Constrained scalar subtype symbol <pyVHDLModel.Symbol.ConstrainedScalarSubtypeSymbol>`
 	"""
-	_constraint: Nullable[Range]  #: The range constraining the scalar subtype, or ``None`` if unconstrained.
+	_constraint: Range  #: The range constraining the scalar subtype.
 
-	def __init__(self, constraint: Nullable[Range]) -> None:
+	def __init__(self, constraint: Range) -> None:
 		"""
 		Initializes a scalar constraint.
 
-		:param constraint: The range constraining the scalar subtype, or ``None`` if unconstrained.
+		:param constraint: The range constraining the scalar subtype.
 		"""
 		self._constraint = constraint
 
 	@readonly
-	def Constraint(self) -> Nullable[Range]:
+	def Constraint(self) -> Range:
 		"""
 		Read-only property to access the scalar type's range constraint (:attr:`_constraint`).
 
-		:returns: The constraint, or ``None`` if not set.
+		:returns: The constraint.
 		"""
 		return self._constraint
 
@@ -904,7 +907,8 @@ class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 	"""
 	Represents a reference to a scalar subtype narrowed by a range.
 
-	The referenced language entity is available as :data:`Reference` once resolved.
+	The referenced language entity is available as :data:`Reference` once resolved. The range is
+	mandatory: a type mark without a range constraint is a :class:`~pyVHDLModel.Symbol.SimpleSubtypeSymbol`.
 
 	.. admonition:: Example
 
@@ -913,14 +917,23 @@ class ConstrainedScalarSubtypeSymbol(SubtypeSymbol, ScalarConstraint):
 	      for i in integer range 0 to 3 loop
 	      --       ^^^^^^^                     <- Name
 	      --                     ^^^^^^        <- Constraint
+
+	   A range constraint written as a range attribute is a :class:`~pyVHDLModel.Base.RangeFromName`
+	   referring to a :class:`~pyVHDLModel.Symbol.RangeAttributeSymbol`:
+
+	   .. code-block:: VHDL
+
+	      subtype index is natural range vector'range;
+	      --               ^^^^^^^                      <- Name
+	      --                             ^^^^^^^^^^^^   <- Constraint
 	"""
 
-	def __init__(self, name: Name, constraint: Nullable[Range] = None) -> None:
+	def __init__(self, name: Name, constraint: Range) -> None:
 		"""
 		Initializes a reference to a scalar subtype narrowed by a range.
 
 		:param name:       The name to reference the language entity.
-		:param constraint: The range constraining the scalar subtype, or ``None`` if unconstrained.
+		:param constraint: The range constraining the scalar subtype.
 		"""
 		super().__init__(name)
 		ScalarConstraint.__init__(self, constraint)
