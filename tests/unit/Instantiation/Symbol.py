@@ -39,8 +39,8 @@ itself, the object/function-call symbols with no dedicated property) get their o
 """
 from unittest import TestCase
 
-from pyVHDLModel.Base   import Direction, SimpleRange
-from pyVHDLModel.Name   import SimpleName, AllName
+from pyVHDLModel.Base   import Direction, SimpleRange, RangeFromName
+from pyVHDLModel.Name   import SimpleName, AllName, AttributeName
 from pyVHDLModel.Expression import IntegerLiteral
 from pyVHDLModel.Symbol import (
 	PossibleReference, Symbol,
@@ -49,7 +49,7 @@ from pyVHDLModel.Symbol import (
 	PackageMemberReferenceSymbol, AllPackageMembersReferenceSymbol,
 	EntityInstantiationSymbol, ComponentInstantiationSymbol, ConfigurationInstantiationSymbol,
 	EntitySymbol, ArchitectureSymbol, PackageSymbol,
-	RecordElementSymbol, SubtypeSymbol, SimpleSubtypeSymbol,
+	RangeAttributeSymbol, RecordElementSymbol, SubtypeSymbol, SimpleSubtypeSymbol,
 	ConstrainedScalarSubtypeSymbol, ConstrainedArraySubtypeSymbol, ConstrainedRecordSubtypeSymbol,
 	SimpleObjectOrFunctionCallSymbol, IndexedObjectOrFunctionCallSymbol,
 )
@@ -203,13 +203,19 @@ class ConstrainedSubtypeSymbols(TestCase):
 
 		self.assertIs(constraint, symbol.Constraint)
 
-	def test_ScalarConstraint_WithoutRange(self) -> None:
-		"""``None`` only means the range constraint was written as an attribute name
-		(``subtype s is t'range;``), which isn't implemented yet - not that the source omitted a
-		constraint (it never does for a constrained scalar subtype). See ``Constraint``'s docstring."""
-		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
+	def test_ScalarConstraint_RangeIsMandatory(self) -> None:
+		"""``integer range`` isn't a VHDL construct - a type mark without a range constraint is a
+		``SimpleSubtypeSymbol``, so the range can't be omitted here."""
+		with self.assertRaises(TypeError):
+			ConstrainedScalarSubtypeSymbol(SimpleName("integer"))
 
-		self.assertIsNone(symbol.Constraint)
+	def test_ScalarConstraint_WithRangeAttribute(self) -> None:
+		"""``subtype index is natural range vector'range;`` - the range constraint is a range attribute,
+		which is a range denoted by a name."""
+		constraint = RangeFromName(RangeAttributeSymbol(AttributeName("range", SimpleName("vector"))))
+		symbol = ConstrainedScalarSubtypeSymbol(SimpleName("natural"), constraint)
+
+		self.assertIs(constraint, symbol.Constraint)
 
 	def test_ArrayConstraint(self) -> None:
 		constraint = SimpleRange(IntegerLiteral(7), IntegerLiteral(0), Direction.DownTo)
