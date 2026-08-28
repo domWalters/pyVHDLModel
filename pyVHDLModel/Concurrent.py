@@ -57,6 +57,7 @@ from pyVHDLModel.Common      import ConditionalWaveform, SelectedWaveform, Other
 from pyVHDLModel.Common      import ConditionalWaveformsMixin, WaveformMixin
 from pyVHDLModel.Common      import ExpressionMixin, SelectedWaveformsMixin
 from pyVHDLModel.Sequential  import SequentialStatement, SequentialStatementsMixin
+from pyVHDLModel.Symbol      import Symbol
 
 
 ExpressionUnion = Union[
@@ -455,7 +456,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 	def __init__(
 		self,
 		label: Nullable[str],
-		procedureName: Name,
+		procedureName: Symbol,
 		parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
 	) -> None:
