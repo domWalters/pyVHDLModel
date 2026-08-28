@@ -454,7 +454,7 @@ class ConcurrentProcedureCall(ConcurrentStatement, ProcedureCallMixin):
 	"""
 	def __init__(
 		self,
-		label: str,
+		label: Nullable[str],
 		procedureName: Name,
 		parameterAssociationItems: Nullable[Iterable[ParameterAssociationItem]] = None,
 		parent: Nullable[ModelEntity] = None
@@ -1376,7 +1376,7 @@ class ConcurrentSignalAssignment(ConcurrentStatement, SignalAssignmentMixin):
 	   * :class:`Concurrent simple signal assignment <pyVHDLModel.Concurrent.ConcurrentSimpleSignalAssignment>`
 	   * :class:`Concurrent selected signal assignment <pyVHDLModel.Concurrent.ConcurrentSelectedSignalAssignment>`
 	   * :class:`Conditional signal assignment <pyVHDLModel.Concurrent.ConcurrentConditionalSignalAssignment>`	"""
-	def __init__(self, label: str, target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, label: Nullable[str], target: SignalSymbol, parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a concurrent signal assignment.
 
@@ -1408,7 +1408,7 @@ class ConcurrentSimpleSignalAssignment(ConcurrentSignalAssignment, WaveformMixin
 
 	   * :class:`Sequential counterpart <pyVHDLModel.Sequential.SequentialSimpleSignalAssignment>`
 	"""
-	def __init__(self, label: str, target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
+	def __init__(self, label: Nullable[str], target: SignalSymbol, waveform: Iterable[WaveformElement], parent: Nullable[ModelEntity] = None) -> None:
 		"""
 		Initializes a simple concurrent signal assignment.
 
@@ -1449,7 +1449,7 @@ class ConcurrentSelectedSignalAssignment(ConcurrentSignalAssignment, ExpressionM
 
 	def __init__(
 		self,
-		label: str,
+		label: Nullable[str],
 		target: SignalSymbol,
 		expression: ExpressionUnion,
 		selectedWaveforms: Iterable[SelectedWaveform],
@@ -1496,7 +1496,7 @@ class ConcurrentConditionalSignalAssignment(ConcurrentSignalAssignment, Conditio
 
 	def __init__(
 		self,
-		label: str,
+		label: Nullable[str],
 		target: SignalSymbol,
 		conditionalWaveforms: Iterable[ConditionalWaveform],
 		parent: Nullable[ModelEntity] = None
